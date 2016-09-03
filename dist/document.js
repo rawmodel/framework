@@ -71,16 +71,33 @@ class Document {
     let data;
 
     Object.defineProperty(this, name, {
-      get: () => data,
+      get: () => {
+        if (config.get) {
+          return config.get(data, this);
+        } else {
+          return data;
+        }
+      },
       set: function () {
         let value = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-        return data = _this.castValue(value, config);
+
+        data = _this.castValue(value, config);
+        if (config.set) {
+          return data = config.set(data, _this);
+        } else {
+          return data;
+        }
       },
       enumerable: true,
       configurable: true
     });
 
-    this[name] = config.defaultValue;
+    if ((0, _typeable.isFunction)(config.defaultValue)) {
+      this[name] = config.defaultValue(this);
+    } else {
+      this[name] = config.defaultValue;
+    }
+
     return this[name];
   }
 

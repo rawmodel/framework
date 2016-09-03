@@ -1,7 +1,8 @@
 import {
   cast,
   isObject,
-  isArray
+  isArray,
+  isFunction
 } from 'typeable';
 
 import {Schema} from './schema';
@@ -59,13 +60,31 @@ export class Document {
     let data;
 
     Object.defineProperty(this, name, {
-      get: () => data,
-      set: (value=null) => data = this.castValue(value, config),
+      get: () => {
+        if (config.get) {
+          return config.get(data, this);
+        } else {
+          return data;
+        }
+      },
+      set: (value=null) => {
+        data = this.castValue(value, config);
+        if (config.set) {
+          return data = config.set(data, this);
+        } else {
+          return data;
+        }
+      },
       enumerable: true,
       configurable: true
     });
 
-    this[name] = config.defaultValue;
+    if (isFunction(config.defaultValue)) {
+      this[name] = config.defaultValue(this);
+    } else {
+      this[name] = config.defaultValue;
+    }
+
     return this[name];
   }
 

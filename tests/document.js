@@ -64,7 +64,7 @@ test('field default value', (t) => {
       },
       enabled: {
         type: 'boolean',
-        defaultValue: 'true'
+        defaultValue: (ctx) => true
       },
       book: bookSchema,
       books: [bookSchema]
@@ -90,6 +90,22 @@ test('field default value', (t) => {
   t.deepEqual(user1.books, [null, book1]);
   t.is(user1.books[0], null);
   t.is(user1.books[1].title, '100');
+});
+
+test('field value transformation', (t) => {
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'string',
+        defaultValue: 100,
+        get: (value, ctx) => `${value}-get`,
+        set: (value, ctx) => `${value}-set`
+      }
+    }
+  });
+  let user = new Document(userSchema);
+
+  t.is(user.name, '100-set-get');
 });
 
 test('strict mode schema', (t) => {

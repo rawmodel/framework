@@ -1,6 +1,6 @@
 {
   "name": "opendocument",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -38,6 +38,6 @@
     "babel-preset-node5": "11.1.0"
   },
   "dependencies": {
-    "typeable": "0.2.2"
+    "typeable": "0.2.3"
   }
 }
