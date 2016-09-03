@@ -11,8 +11,7 @@ var _schema = require('./schema');
 
 class Document {
 
-  constructor() {
-    let schema = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+  constructor(schema) {
     let data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
     if (!(schema instanceof _schema.Schema)) {
@@ -24,27 +23,27 @@ class Document {
       enumerable: false // do not expose as object key
     });
 
-    this.deleteAllFields();
-    this.defineAllFields();
-    this.assignFields(data);
+    this.purge();
+    this.define();
+    this.populate(data);
   }
 
-  deleteAllFields() {
+  purge() {
     let names = Object.keys(this);
-    this.deleteFields(names);
+    this.purgeFields(names);
   }
 
-  deleteFields() {
+  purgeFields() {
     let names = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 
-    names.forEach(name => this.deleteField(name));
+    names.forEach(name => this.purgeField(name));
   }
 
-  deleteField(name) {
+  purgeField(name) {
     delete this[name];
   }
 
-  defineAllFields() {
+  define() {
     let fields = this._schema.fields;
 
     this.defineFields(fields);
@@ -67,7 +66,7 @@ class Document {
       get: () => data,
       set: function () {
         let value = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
-        return data = _this.castFieldValue(value, config);
+        return data = _this.castValue(value, config);
       },
       enumerable: true,
       configurable: true
@@ -76,25 +75,25 @@ class Document {
     this[name] = config.defaultValue;
   }
 
-  assignFields() {
+  populate() {
     let fields = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
     if (!(0, _typeable.isObject)(fields)) {
-      throw new Error('Only Object can be assigned to a Document');
+      throw new Error('Only Object can populate a Document');
     }
 
     let names = Object.keys(fields);
 
     for (let name in fields) {
-      this.assignField(name, fields[name]);
+      this.populateField(name, fields[name]);
     }
   }
 
-  assignField(name, value) {
+  populateField(name, value) {
     this[name] = value;
   }
 
-  castFieldValue(value, config) {
+  castValue(value, config) {
     return (0, _typeable.cast)(value, config, {
       schema: (value, config) => new Document(config, value)
     });
@@ -107,14 +106,26 @@ class Document {
     for (let name of names) {
       let value = this[name];
 
-      if (value instanceof Document) {
-        data[name] = value.toObject();
+      if ((0, _typeable.isArray)(value)) {
+        data[name] = value.map(i => this.valueToObject(i));
       } else {
-        data[name] = value;
+        data[name] = this.valueToObject(value);
       }
     }
 
     return data;
+  }
+
+  valueToObject(value) {
+    if (value && value.toObject) {
+      return value.toObject();
+    } else {
+      return value;
+    }
+  }
+
+  clone() {
+    return new Document(this._schema, this.toObject());
   }
 
 }
