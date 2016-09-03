@@ -1,6 +1,6 @@
 {
   "name": "opendocument",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -18,6 +18,14 @@
     "test": "ava",
     "prepublish": "npm run build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xpepermint/opendocumentjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xpepermint/opendocumentjs/issues"
+  },
+  "homepage": "https://github.com/xpepermint/opendocumentjs#readme",
   "keywords": [
     "object",
     "schema",
@@ -38,6 +46,6 @@
     "babel-preset-node5": "11.1.0"
   },
   "dependencies": {
-    "typeable": "0.2.3"
+    "typeable": "0.2.4"
   }
 }
