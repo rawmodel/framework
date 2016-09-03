@@ -5,6 +5,8 @@
 
 > Schema enforced JavaScript objects.
 
+<img src="giphy.gif" width="300" />
+
 ## Install
 
 ```
@@ -13,7 +15,41 @@ $ npm install --save opendocument
 
 ## Example
 
-> TODO
+```js
+import {
+  Document,
+  Schema
+} from 'opendocument';
+
+let bookSchema = new Schema({
+  fields: {
+    title: {
+      type: 'string'
+    }
+  }
+});
+
+let userSchema = new Schema({
+  fields: {
+    name: {
+      type: 'string'
+    },
+    books: [bookSchema]
+  }
+});
+
+let data = {
+  name: 'John Smith',
+  books: [
+    {
+      title: 'True Detective'
+    }
+  ]
+};
+
+let user = new Document(userSchema, data);
+user.name; // -> 'John Smith'
+```
 
 ## License (MIT)
 
