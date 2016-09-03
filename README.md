@@ -1,4 +1,4 @@
-![Build Status](https://travis-ci.org/xpepermint/objectschema.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/approved.svg)](https://badge.fury.io/js/approved)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/objectschema.svg)](https://gemnasium.com/xpepermint/objectschema)
+![Build Status](https://travis-ci.org/xpepermint/objectschemajs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/objectschema.svg)](https://badge.fury.io/js/objectschema)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/objectschema.svg)](https://gemnasium.com/xpepermint/objectschemajs)
 
 # objectschema.js
 

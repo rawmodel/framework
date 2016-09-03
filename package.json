@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -46,6 +46,6 @@
     "babel-preset-node5": "11.1.0"
   },
   "dependencies": {
-    "typeable": "0.2.4"
+    "typeable": "0.2.5"
   }
 }
