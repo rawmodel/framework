@@ -90,7 +90,16 @@ class Document {
   }
 
   populateField(name, value) {
-    this[name] = value;
+    if (this._schema.mode === 'relaxed') {
+      this[name] = value;
+    } else {
+      let names = Object.keys(this._schema.fields);
+      let exists = names.indexOf(name) > -1;
+
+      if (exists) {
+        this[name] = value;
+      }
+    }
   }
 
   castValue(value, config) {

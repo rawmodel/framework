@@ -92,6 +92,26 @@ test('field default value', (t) => {
   t.is(user1.books[1].title, '100');
 });
 
+test('strict mode schema', (t) => {
+  let userSchema = new Schema({
+    mode: 'strict',
+    fields: {
+      name: {
+        type: 'string',
+        defaultValue: 100
+      }
+    }
+  });
+  let data = {
+    name: 'John',
+    age: 35.5
+  };
+  let user = new Document(userSchema, data);
+
+  t.is(user.name, 'John');
+  t.is(user.age, undefined);
+});
+
 test('document.toObject', (t) => {
   let bookSchema = new Schema({
     fields: {
