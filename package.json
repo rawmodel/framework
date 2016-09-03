@@ -1,6 +1,6 @@
 {
   "name": "opendocument",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
