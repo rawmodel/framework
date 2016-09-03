@@ -1,7 +1,7 @@
 const test = require('ava');
-const opendocument = require('../dist');
+const objectschema = require('../dist');
 
 test('exposed content', (t) => {
-  t.is(!!opendocument.Schema, true);
-  t.is(!!opendocument.Document, true);
+  t.is(!!objectschema.Schema, true);
+  t.is(!!objectschema.Document, true);
 });

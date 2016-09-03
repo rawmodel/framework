@@ -1,6 +1,6 @@
 ![Build Status](https://travis-ci.org/xpepermint/objectschema.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/approved.svg)](https://badge.fury.io/js/approved)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/objectschema.svg)](https://gemnasium.com/xpepermint/objectschema)
 
-# opendocument.js
+# objectschema.js
 
 > Schema enforced JavaScript objects.
 
@@ -18,7 +18,7 @@ $ npm install --save objectschema
 import {
   Document,
   Schema
-} from 'opendocument';
+} from 'objectschema';
 
 let bookSchema = new Schema({
   fields: {
