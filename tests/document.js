@@ -194,3 +194,18 @@ test('document.clone', (t) => {
   t.is(user.clone() === user, false);
   t.deepEqual(user.clone(), user);
 });
+
+test('document.clear', (t) => {
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'string',
+        defaultValue: 'John'
+      }
+    }
+  });
+  let user = new Document(userSchema);
+  user.clear();
+
+  t.is(user.name, null);
+});

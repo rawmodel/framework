@@ -26,25 +26,33 @@ export class Document {
   purge() {
     let names = Object.keys(this);
     this.purgeFields(names);
+
+    return this;
   }
 
   purgeFields(names=[]) {
     names.forEach((name) => this.purgeField(name));
+
+    return this;
   }
 
   purgeField(name) {
-    delete this[name];
+    return delete this[name];
   }
 
   define() {
     let {fields} = this._schema;
     this.defineFields(fields);
+
+    return this;
   }
 
   defineFields(fields) {
     for (let name in fields) {
       this.defineField(name, fields[name]);
     }
+
+    return this;
   }
 
   defineField(name, config={}) {
@@ -58,6 +66,7 @@ export class Document {
     });
 
     this[name] = config.defaultValue;
+    return this[name];
   }
 
   populate(fields={}) {
@@ -70,6 +79,8 @@ export class Document {
     for (let name in fields) {
       this.populateField(name, fields[name]);
     }
+
+    return this;
   }
 
   populateField(name, value) {
@@ -83,6 +94,8 @@ export class Document {
         this[name] = value;
       }
     }
+
+    return this[name];
   }
 
   castValue(value, config) {
@@ -118,6 +131,21 @@ export class Document {
 
   clone() {
     return new Document(this._schema, this.toObject());
+  }
+
+  clear() {
+    let names = Object.keys(this);
+
+    for (let name of names) {
+      this.clearField(name);
+    }
+
+    return this;
+  }
+
+  clearField(name) {
+    this[name] = null;
+    return this[name];
   }
 
 }
