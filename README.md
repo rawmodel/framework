@@ -1,3 +1,6 @@
+![Build Status](https://travis-ci.org/xpepermint/opendocumentjs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/approved.svg)](https://badge.fury.io/js/approved)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/opendocumentjs.svg)](https://gemnasium.com/xpepermint/opendocumentjs)
+
+
 # opendocument.js
 
 > Schema enforced JavaScript objects.
