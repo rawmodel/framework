@@ -1,12 +1,43 @@
 {
   "name": "opendocument",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "version": "0.1.0",
+  "description": "Schema enforced JavaScript objects.",
+  "main": "./dist/index.js",
+  "ava": {
+    "files": [
+      "./tests/*.js"
+    ],
+    "concurrency": 4,
+    "failFast": true
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "scripts": {
+    "clean": "rm -Rf ./dist",
+    "prebuild": "npm run clean; mkdir -p ./dist",
+    "build": "babel ./src --out-dir ./dist --copy-files",
+    "pretest": "npm run build",
+    "test": "ava",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "object",
+    "schema",
+    "openobject",
+    "dynamic",
+    "map",
+    "model",
+    "modeling",
+    "javascript",
+    "extends",
+    "array"
+  ],
+  "author": "Kristijan Sedlak (Xpepermint)",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "0.16.0",
+    "babel-cli": "6.14.0",
+    "babel-preset-node5": "11.1.0"
+  },
+  "dependencies": {
+    "typeable": "0.2.2"
+  }
 }

@@ -1,1 +1,4 @@
-console.log(`Hello World!`);
+import {Schema} from './schema';
+import {Document} from './document';
+
+export {Schema, Document};
