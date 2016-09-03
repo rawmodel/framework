@@ -1,5 +1,5 @@
 {
-  "name": "opendocument",
+  "name": "objectschema",
   "version": "0.3.3",
   "description": "Schema enforced JavaScript objects.",
   "main": "./dist/index.js",
@@ -20,12 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xpepermint/opendocumentjs.git"
+    "url": "git+https://github.com/xpepermint/objectschemajs.git"
   },
   "bugs": {
-    "url": "https://github.com/xpepermint/opendocumentjs/issues"
+    "url": "https://github.com/xpepermint/objectschemajs/issues"
   },
-  "homepage": "https://github.com/xpepermint/opendocumentjs#readme",
+  "homepage": "https://github.com/xpepermint/objectschemajs#readme",
   "keywords": [
     "object",
     "schema",

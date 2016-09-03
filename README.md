@@ -1,5 +1,4 @@
-![Build Status](https://travis-ci.org/xpepermint/opendocumentjs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/approved.svg)](https://badge.fury.io/js/approved)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/opendocumentjs.svg)](https://gemnasium.com/xpepermint/opendocumentjs)
-
+![Build Status](https://travis-ci.org/xpepermint/objectschema.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/approved.svg)](https://badge.fury.io/js/approved)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/objectschema.svg)](https://gemnasium.com/xpepermint/objectschema)
 
 # opendocument.js
 
@@ -10,7 +9,7 @@
 ## Install
 
 ```
-$ npm install --save opendocument
+$ npm install --save objectschema
 ```
 
 ## Example
