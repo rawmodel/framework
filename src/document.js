@@ -8,17 +8,16 @@ import {
 import {Schema} from './schema';
 
 import {
-  objectFields,
-  objectCloning
+  injectFieldsUtils,
+  injectCloningUtils
 } from './structure';
+import {injectObjectSerializationUtils} from './serialization';
+import {injectValidationUtils} from './validation';
 
-import {
-  objectSerialization
-} from './serialization';
-
-@objectFields
-@objectCloning
-@objectSerialization
+@injectFieldsUtils
+@injectCloningUtils
+@injectObjectSerializationUtils
+@injectValidationUtils
 export class Document {
 
   constructor(schema, data={}) {
@@ -35,18 +34,5 @@ export class Document {
     this.define();
     this.populate(data);
   }
-
-  // isValid() {
-  //   let names = Object.keys(this);
-  //
-  //   for (let name of names) {
-  //     if (!this.isValidField(name)) return false;
-  //   }
-  //   return true;
-  // }
-  //
-  // isValidField(name) {
-  //
-  // }
 
 }

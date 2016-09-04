@@ -3,11 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.objectSerialization = objectSerialization;
+exports.injectObjectSerializationUtils = injectObjectSerializationUtils;
 
 var _typeable = require('typeable');
 
-function objectSerialization(target, name, descriptor) {
+function injectObjectSerializationUtils(target, name, descriptor) {
 
   target.prototype.toObject = function () {
     let data = {};

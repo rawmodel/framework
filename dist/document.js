@@ -15,7 +15,9 @@ var _structure = require('./structure');
 
 var _serialization = require('./serialization');
 
-let Document = exports.Document = (0, _structure.objectFields)(_class = (0, _structure.objectCloning)(_class = (0, _serialization.objectSerialization)(_class = class Document {
+var _validation = require('./validation');
+
+let Document = exports.Document = (0, _structure.injectFieldsUtils)(_class = (0, _structure.injectCloningUtils)(_class = (0, _serialization.injectObjectSerializationUtils)(_class = (0, _validation.injectValidationUtils)(_class = class Document {
 
   constructor(schema) {
     let data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -34,17 +36,4 @@ let Document = exports.Document = (0, _structure.objectFields)(_class = (0, _str
     this.populate(data);
   }
 
-  // isValid() {
-  //   let names = Object.keys(this);
-  //
-  //   for (let name of names) {
-  //     if (!this.isValidField(name)) return false;
-  //   }
-  //   return true;
-  // }
-  //
-  // isValidField(name) {
-  //
-  // }
-
-}) || _class) || _class) || _class;
+}) || _class) || _class) || _class) || _class;

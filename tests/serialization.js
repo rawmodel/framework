@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../dist');
 
-test('document.clone', (t) => {
+test('converting document to object', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -14,6 +14,12 @@ test('document.clone', (t) => {
     fields: {
       name: {
         type: 'string'
+      },
+      age: {
+        type: 'float'
+      },
+      enabled: {
+        type: 'boolean'
       },
       book: bookSchema,
       books: [bookSchema]
@@ -28,9 +34,18 @@ test('document.clone', (t) => {
       }
     ]
   };
-
   let user = new Document(userSchema, data);
 
-  t.is(user.clone() === user, false);
-  t.deepEqual(user.clone(), user);
+  t.deepEqual(user.toObject(), {
+    name: 'John Smith',
+    age: null,
+    enabled: null,
+    book: null,
+    books: [
+      null,
+      {
+        title: '100'
+      }
+    ]
+  });
 });

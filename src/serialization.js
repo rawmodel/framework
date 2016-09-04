@@ -1,6 +1,6 @@
 import {isArray} from 'typeable';
 
-export function objectSerialization(target, name, descriptor) {
+export function injectObjectSerializationUtils(target, name, descriptor) {
 
   target.prototype.toObject = function() {
     let data = {};

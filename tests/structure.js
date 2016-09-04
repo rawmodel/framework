@@ -128,7 +128,7 @@ test('strict mode schema', (t) => {
   t.is(user.age, undefined);
 });
 
-test('document.toObject', (t) => {
+test('document cloning', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -141,12 +141,6 @@ test('document.toObject', (t) => {
     fields: {
       name: {
         type: 'string'
-      },
-      age: {
-        type: 'float'
-      },
-      enabled: {
-        type: 'boolean'
       },
       book: bookSchema,
       books: [bookSchema]
@@ -161,23 +155,14 @@ test('document.toObject', (t) => {
       }
     ]
   };
+
   let user = new Document(userSchema, data);
 
-  t.deepEqual(user.toObject(), {
-    name: 'John Smith',
-    age: null,
-    enabled: null,
-    book: null,
-    books: [
-      null,
-      {
-        title: '100'
-      }
-    ]
-  });
+  t.is(user.clone() === user, false);
+  t.deepEqual(user.clone(), user);
 });
 
-test('document.clear', (t) => {
+test('clearing document', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
@@ -191,21 +176,3 @@ test('document.clear', (t) => {
 
   t.is(user.name, null);
 });
-
-// test('document.isValid', (t) => {
-//   let userSchema = new Schema({
-//     fields: {
-//       name: {
-//         type: 'string',
-//         validations: {
-//           isPresent: {
-//             message: 'is required'
-//           }
-//         }
-//       }
-//     }
-//   });
-//   let user = new Document(userSchema);
-//
-//   t.is(user.isValid(), false);
-// });

@@ -3,12 +3,12 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.objectFields = objectFields;
-exports.objectCloning = objectCloning;
+exports.injectFieldsUtils = injectFieldsUtils;
+exports.injectCloningUtils = injectCloningUtils;
 
 var _typeable = require('typeable');
 
-function objectFields(target, name, descriptor) {
+function injectFieldsUtils(target, name, descriptor) {
 
   target.prototype.define = function () {
     let fields = this._schema.fields;
@@ -136,7 +136,7 @@ function objectFields(target, name, descriptor) {
   };
 }
 
-function objectCloning(target, name, descriptor) {
+function injectCloningUtils(target, name, descriptor) {
 
   target.prototype.clone = function () {
     return new this.constructor(this._schema, this.toObject());

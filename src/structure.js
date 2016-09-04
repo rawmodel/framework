@@ -4,7 +4,7 @@ import {
   isFunction
 } from 'typeable';
 
-export function objectFields(target, name, descriptor) {
+export function injectFieldsUtils(target, name, descriptor) {
 
   target.prototype.define = function() {
     let {fields} = this._schema;
@@ -122,7 +122,7 @@ export function objectFields(target, name, descriptor) {
 
 }
 
-export function objectCloning(target, name, descriptor) {
+export function injectCloningUtils(target, name, descriptor) {
 
   target.prototype.clone = function() {
     return new this.constructor(this._schema, this.toObject());
