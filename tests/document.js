@@ -177,40 +177,6 @@ test('document.toObject', (t) => {
   });
 });
 
-test('document.clone', (t) => {
-  let bookSchema = new Schema({
-    fields: {
-      title: {
-        type: 'string',
-        defaultValue: 100
-      }
-    }
-  });
-  let userSchema = new Schema({
-    fields: {
-      name: {
-        type: 'string'
-      },
-      book: bookSchema,
-      books: [bookSchema]
-    }
-  });
-  let data = {
-    name: 'John Smith',
-    books: [
-      null,
-      {
-        title: 100
-      }
-    ]
-  };
-
-  let user = new Document(userSchema, data);
-
-  t.is(user.clone() === user, false);
-  t.deepEqual(user.clone(), user);
-});
-
 test('document.clear', (t) => {
   let userSchema = new Schema({
     fields: {
@@ -225,3 +191,21 @@ test('document.clear', (t) => {
 
   t.is(user.name, null);
 });
+
+// test('document.isValid', (t) => {
+//   let userSchema = new Schema({
+//     fields: {
+//       name: {
+//         type: 'string',
+//         validations: {
+//           isPresent: {
+//             message: 'is required'
+//           }
+//         }
+//       }
+//     }
+//   });
+//   let user = new Document(userSchema);
+//
+//   t.is(user.isValid(), false);
+// });

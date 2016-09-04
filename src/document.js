@@ -7,11 +7,23 @@ import {
 
 import {Schema} from './schema';
 
+import {
+  objectFields,
+  objectCloning
+} from './structure';
+
+import {
+  objectSerialization
+} from './serialization';
+
+@objectFields
+@objectCloning
+@objectSerialization
 export class Document {
 
   constructor(schema, data={}) {
     if (!(schema instanceof Schema)) {
-      throw new Error('Document expects schema to be an instance of Schema class');
+      throw new Error(`${this.constructor.name} expects schema to be an instance of Schema class`);
     }
 
     Object.defineProperty(this, '_schema', {
@@ -24,147 +36,17 @@ export class Document {
     this.populate(data);
   }
 
-  purge() {
-    let names = Object.keys(this);
-    this.purgeFields(names);
-
-    return this;
-  }
-
-  purgeFields(names=[]) {
-    names.forEach((name) => this.purgeField(name));
-
-    return this;
-  }
-
-  purgeField(name) {
-    return delete this[name];
-  }
-
-  define() {
-    let {fields} = this._schema;
-    this.defineFields(fields);
-
-    return this;
-  }
-
-  defineFields(fields) {
-    for (let name in fields) {
-      this.defineField(name, fields[name]);
-    }
-
-    return this;
-  }
-
-  defineField(name, config={}) {
-    let data;
-
-    Object.defineProperty(this, name, {
-      get: () => {
-        if (config.get) {
-          return config.get(data, this);
-        } else {
-          return data;
-        }
-      },
-      set: (value=null) => {
-        data = this.castValue(value, config);
-        if (config.set) {
-          return data = config.set(data, this);
-        } else {
-          return data;
-        }
-      },
-      enumerable: true,
-      configurable: true
-    });
-
-    if (isFunction(config.defaultValue)) {
-      this[name] = config.defaultValue(this);
-    } else {
-      this[name] = config.defaultValue;
-    }
-
-    return this[name];
-  }
-
-  populate(fields={}) {
-    if (!isObject(fields)) {
-      throw new Error('Only Object can populate a Document');
-    }
-
-    let names = Object.keys(fields);
-
-    for (let name in fields) {
-      this.populateField(name, fields[name]);
-    }
-
-    return this;
-  }
-
-  populateField(name, value) {
-    if (this._schema.mode === 'relaxed') {
-      this[name] = value;
-    } else {
-      let names = Object.keys(this._schema.fields);
-      let exists = names.indexOf(name) > -1;
-
-      if (exists) {
-        this[name] = value;
-      }
-    }
-
-    return this[name];
-  }
-
-  castValue(value, config) {
-    return cast(value, config, {
-      schema: (value, config) => new Document(config, value)
-    });
-  }
-
-  toObject() {
-    let data = {};
-    let names = Object.keys(this);
-
-    for (let name of names) {
-      let value = this[name];
-
-      if (isArray(value)) {
-        data[name] = value.map(i => this.valueToObject(i));
-      } else {
-        data[name] = this.valueToObject(value);
-      }
-    }
-
-    return data;
-  }
-
-  valueToObject(value) {
-    if (value && value.toObject) {
-      return value.toObject();
-    } else {
-      return value;
-    }
-  }
-
-  clone() {
-    return new Document(this._schema, this.toObject());
-  }
-
-  clear() {
-    let names = Object.keys(this);
-
-    for (let name of names) {
-      this.clearField(name);
-    }
-
-    return this;
-  }
-
-  clearField(name) {
-    this[name] = null;
-    return this[name];
-  }
+  // isValid() {
+  //   let names = Object.keys(this);
+  //
+  //   for (let name of names) {
+  //     if (!this.isValidField(name)) return false;
+  //   }
+  //   return true;
+  // }
+  //
+  // isValidField(name) {
+  //
+  // }
 
 }

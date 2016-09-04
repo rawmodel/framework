@@ -22,7 +22,7 @@ function isValidMode(mode) {
   return false;
 }
 
-class Schema {
+let Schema = exports.Schema = class Schema {
 
   constructor(_ref) {
     var _ref$mode = _ref.mode;
@@ -41,5 +41,4 @@ class Schema {
     this.fields = fields;
   }
 
-}
-exports.Schema = Schema;
+};

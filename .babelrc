@@ -1,3 +1,4 @@
 {
-  "presets": ["node5"]
+  "presets": ["node5"],
+  "plugins": ["transform-decorators-legacy"]
 }
