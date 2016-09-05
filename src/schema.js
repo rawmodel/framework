@@ -16,16 +16,20 @@ export function isValidMode(mode) {
 
 export class Schema {
 
-  constructor({mode=modes.RELAXED, fields={}}) {
+  constructor({mode=modes.RELAXED, fields={}, validator={}}) {
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${mode}`);
     }
     if (!isObject(fields)) {
-      throw new Error(`Schema fields should be an Object`);
+      throw new Error(`Schema fields key should be an Object`);
+    }
+    if (!isObject(validator)) {
+      throw new Error(`Schema validator key should be an Object`);
     }
 
     this.mode = mode;
     this.fields = fields;
+    this.validator = validator;
   }
 
 }

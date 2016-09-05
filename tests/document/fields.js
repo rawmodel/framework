@@ -1,11 +1,14 @@
 const test = require('ava');
-const {Document, Schema} = require('../dist');
+const {Document, Schema} = require('../../dist');
 
-test('field type casting', (t) => {
+test('document structure type casting', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
         type: 'string'
+      },
+      year: {
+        type: 'integer'
       }
     }
   });
@@ -20,13 +23,21 @@ test('field type casting', (t) => {
       enabled: {
         type: 'boolean'
       },
-      books: [bookSchema]
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
     }
   });
   let data = {
     name: 100,
     age: '35',
     enabled: 'true',
+    book: {
+      title: 100
+    },
     books: [
       {
         title: 100
@@ -34,16 +45,17 @@ test('field type casting', (t) => {
     ]
   };
   let user = new Document(userSchema, data);
-  let book = new Document(bookSchema, data.books[0])
 
   t.is(user.name, '100');
   t.is(user.age, 35);
   t.is(user.enabled, true);
-  t.deepEqual(user.books, [book]);
+  t.is(user.book.title, '100');
+  t.is(user.book.year, null);
   t.is(user.books[0].title, '100');
+  t.is(user.books[0].year, null);
 });
 
-test('field default value', (t) => {
+test('document field default value', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -66,8 +78,12 @@ test('field default value', (t) => {
         type: 'boolean',
         defaultValue: (ctx) => true
       },
-      book: bookSchema,
-      books: [bookSchema]
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
     }
   });
   let data = {
@@ -92,7 +108,7 @@ test('field default value', (t) => {
   t.is(user1.books[1].title, '100');
 });
 
-test('field value transformation', (t) => {
+test('document field value transformation', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
@@ -108,7 +124,7 @@ test('field value transformation', (t) => {
   t.is(user.name, '100-set-get');
 });
 
-test('strict mode schema', (t) => {
+test('document with strict mode schema', (t) => {
   let userSchema = new Schema({
     mode: 'strict',
     fields: {
@@ -128,41 +144,7 @@ test('strict mode schema', (t) => {
   t.is(user.age, undefined);
 });
 
-test('document cloning', (t) => {
-  let bookSchema = new Schema({
-    fields: {
-      title: {
-        type: 'string',
-        defaultValue: 100
-      }
-    }
-  });
-  let userSchema = new Schema({
-    fields: {
-      name: {
-        type: 'string'
-      },
-      book: bookSchema,
-      books: [bookSchema]
-    }
-  });
-  let data = {
-    name: 'John Smith',
-    books: [
-      null,
-      {
-        title: 100
-      }
-    ]
-  };
-
-  let user = new Document(userSchema, data);
-
-  t.is(user.clone() === user, false);
-  t.deepEqual(user.clone(), user);
-});
-
-test('clearing document', (t) => {
+test('clearing document fields', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {

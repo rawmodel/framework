@@ -1,12 +1,15 @@
 const test = require('ava');
-const {Document, Schema} = require('../dist');
+const {Document, Schema} = require('../../dist');
 
-test('converting document to object', (t) => {
+test('converting document fields to object', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
         type: 'string',
         defaultValue: 100
+      },
+      year: {
+        type: 'integer'
       }
     }
   });
@@ -21,13 +24,26 @@ test('converting document to object', (t) => {
       enabled: {
         type: 'boolean'
       },
-      book: bookSchema,
-      books: [bookSchema]
+      newBook: {
+        type: bookSchema
+      },
+      newBooks: {
+        type: [bookSchema]
+      },
+      oldBook: {
+        type: bookSchema
+      },
+      oldBooks: {
+        type: [bookSchema]
+      }
     }
   });
   let data = {
     name: 'John Smith',
-    books: [
+    newBook: {
+      title: 100
+    },
+    newBooks: [
       null,
       {
         title: 100
@@ -40,12 +56,18 @@ test('converting document to object', (t) => {
     name: 'John Smith',
     age: null,
     enabled: null,
-    book: null,
-    books: [
+    newBook: {
+      title: '100',
+      year: null
+    },
+    newBooks: [
       null,
       {
-        title: '100'
+        title: '100',
+        year: null
       }
-    ]
+    ],
+    oldBook: null,
+    oldBooks: null
   });
 });

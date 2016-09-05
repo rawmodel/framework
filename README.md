@@ -31,9 +31,21 @@ let bookSchema = new Schema({
 let userSchema = new Schema({
   fields: {
     name: {
-      type: 'string'
+      type: 'string',
+      validations: {
+        presence: {
+          message: 'is required'
+        }
+      }
     },
-    books: [bookSchema]
+    books: {
+      type: [bookSchema],
+      validations: {
+        presence: {
+          message: 'is required'
+        }
+      }
+    }
   }
 });
 
@@ -48,6 +60,7 @@ let data = {
 
 let user = new Document(userSchema, data);
 user.name; // -> 'John Smith'
+user.isValid(); // -> true
 ```
 
 ## License (MIT)
