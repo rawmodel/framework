@@ -316,4 +316,14 @@ export class Document {
     }
   }
 
+  /*
+  * Returns `true` when all document fields are valid.
+  */
+
+  async isValid() {
+    let errors = await this.validate();
+    return isAbsent(errors);
+  }
+
+
 }

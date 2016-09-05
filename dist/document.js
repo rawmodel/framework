@@ -371,5 +371,18 @@ class Document {
     }
   }
 
+  /*
+  * Returns `true` when all document fields are valid.
+  */
+
+  isValid() {
+    var _this6 = this;
+
+    return (0, _asyncToGenerator3.default)(function* () {
+      let errors = yield _this6.validate();
+      return (0, _typeable.isAbsent)(errors);
+    })();
+  }
+
 }
 exports.Document = Document;

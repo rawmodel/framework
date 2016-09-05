@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('converting document fields to object', (t) => {
+test('toObject', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {

@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('document cloning', (t) => {
+test('clone', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {

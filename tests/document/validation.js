@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('document validation', async (t) => {
+test('validate', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -62,9 +62,9 @@ test('document validation', async (t) => {
     ]
   };
 
-  let user0 = new Document(userSchema, data);
+  let user = new Document(userSchema, data);
 
-  t.deepEqual(await user0.validate(), {
+  t.deepEqual(await user.validate(), {
     name: {
       isValid: false,
       messages: ['is required']
@@ -101,4 +101,55 @@ test('document validation', async (t) => {
       ]
     }
   });
+});
+
+test('isValid', async (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'string',
+        validations: {
+          presence: {message: 'is required'}
+        }
+      },
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'string',
+        validations: {
+          presence: {message: 'is required'}
+        }
+      },
+      book: {
+        type: bookSchema,
+        validations: {
+          presence: {message: 'is required'}
+        }
+      },
+      books: {
+        type: [bookSchema],
+        validations: {
+          presence: {message: 'is required'}
+        }
+      }
+    }
+  });
+
+  let data = {
+    name: 'John',
+    book: {
+      title: 'Coding Is Fun'
+    },
+    books: [
+      {
+        title: 'Coding NodeJs'
+      }
+    ]
+  };
+
+  let user = new Document(userSchema, data);
+
+  t.is(await user.isValid(), true);
 });
