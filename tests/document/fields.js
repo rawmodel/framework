@@ -28,6 +28,12 @@ test('document structure type casting', (t) => {
       },
       books: {
         type: [bookSchema]
+      },
+      tags: {
+        type: ['string']
+      },
+      keywords: {
+        type: []
       }
     }
   });
@@ -42,7 +48,9 @@ test('document structure type casting', (t) => {
       {
         title: 100
       }
-    ]
+    ],
+    tags: ['foo', 'bar', 100, null],
+    keywords: ['foo', 'bar', 100, null]
   };
   let user = new Document(userSchema, data);
 
@@ -53,6 +61,8 @@ test('document structure type casting', (t) => {
   t.is(user.book.year, null);
   t.is(user.books[0].title, '100');
   t.is(user.books[0].year, null);
+  t.deepEqual(user.tags, ['foo', 'bar', '100', null]);
+  t.deepEqual(user.keywords, ['foo', 'bar', 100, null]);
 });
 
 test('document field default value', (t) => {
