@@ -11,7 +11,15 @@ import {
 import {Validator} from 'validatable';
 import {Schema} from './schema';
 
+/*
+* The core schema-based object class.
+*/
+
 export class Document {
+
+  /*
+  * Class constructor.
+  */
 
   constructor(schema, data={}) {
     if (!(schema instanceof Schema)) {
@@ -28,40 +36,44 @@ export class Document {
       enumerable: false // do not expose as object key
     });
 
-    this.purge();
+    this._purge();
     this.define();
     this.populate(data);
   }
 
+  /*
+  * Defines class fields for all fields in schema.
+  */
+
   define() {
     let {fields} = this._schema;
-    this.defineFields(fields);
 
-    return this;
-  }
-
-  defineFields(fields) {
     for (let name in fields) {
-      this.defineField(name, fields[name]);
+      this._defineField(name, fields[name]);
     }
 
     return this;
   }
 
-  defineField(name, definition={}) {
+  /*
+  * Defines a class field from the provided `name` and
+  * field definition object.
+  */
+
+  _defineField(name, definition={}) {
     let data;
 
-    Object.defineProperty(this, name, {
+    Object.defineProperty(this, name, { // field definition
       get: () => {
-        if (definition.get) {
+        if (definition.get) { // value transformation
           return definition.get(data, this);
         } else {
           return data;
         }
       },
       set: (value=null) => {
-        data = this.castValue(value, definition);
-        if (definition.set) {
+        data = this._castValue(value, definition); // value type casting
+        if (definition.set) { // value transformation
           data = definition.set(data, this);
         }
       },
@@ -69,7 +81,7 @@ export class Document {
       configurable: true
     })
 
-    if (isFunction(definition.defaultValue)) {
+    if (isFunction(definition.defaultValue)) { // setting default value
       this[name] = definition.defaultValue(this);
     } else {
       this[name] = definition.defaultValue;
@@ -78,26 +90,39 @@ export class Document {
     return this[name];
   }
 
-  castValue(value, {type}) {
+  /*
+  * Converts the `value` into specified `type`.
+  */
+
+  _castValue(value, {type}) {
     return cast(value, type, {
       schema: (value) => {
-        if (isArray(type)) type = type[0];
+        if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
         return new this.constructor(type, value);
       }
     });
   }
 
-  populate(fields={}) {
-    if (!isObject(fields)) {
+  /*
+  * Sets values of class properties with values provided by
+  * the `data` object.
+  */
+
+  populate(data={}) {
+    if (!isObject(data)) {
       throw new Error(`Only Object can populate a ${this.constructor.name}`);
     }
 
-    for (let name in fields) {
-      this.populateField(name, fields[name]);
+    for (let name in data) {
+      this.populateField(name, data[name]);
     }
 
     return this;
   }
+
+  /*
+  * Sets a value of a single class property.
+  */
 
   populateField(name, value) {
     if (this._schema.mode === 'relaxed') {
@@ -114,22 +139,28 @@ export class Document {
     return this[name];
   }
 
-  purge() {
+  /*
+  * Deletes all class fields.
+  */
+
+  _purge() {
     let names = Object.keys(this);
-    this.purgeFields(names);
+    names.forEach((name) => this._purgeField(name));
 
     return this;
   };
 
-  purgeFields(names=[]) {
-    names.forEach((name) => this.purgeField(name));
+  /*
+  * Deletes specified class field.
+  */
 
-    return this;
-  }
-
-  purgeField(name) {
+  _purgeField(name) {
     return delete this[name];
   }
+
+  /*
+  * Remove values of all class fields.
+  */
 
   clear() {
     let names = Object.keys(this);
@@ -141,74 +172,63 @@ export class Document {
     return this;
   }
 
+  /*
+  * Removes a value of a field with `name`.
+  */
+
   clearField(name) {
     this[name] = null;
     return this[name];
   }
 
+  /*
+  * Returns a new Document instance which is the exact
+  * copy of the original instance.
+  */
+
   clone() {
     return new this.constructor(this._schema, this.toObject());
   }
 
-  toObject() {
-    let valueToObject = (v) => {
-      if (v && v.toObject) {
-        return v.toObject();
-      } else if (v && isArray(v)) {
-        return v.map((v) => valueToObject(v));
-      } else {
-        return v;
-      }
-    };
+  /*
+  * Converts this class into serialized data object.
+  */
 
+  toObject() {
     let data = {};
     let names = Object.keys(this);
+
     for (let name of names) {
-      data[name] = valueToObject(this[name]);
+      data[name] = this._toObjectValue(this[name]);
     }
+
     return data;
   }
 
+  /*
+  * Reads a value recursivelly and returns a serialized data object.
+  */
 
+  _toObjectValue(value) {
+    if (value && value.toObject) {
+      return value.toObject();
+    } else if (value && isArray(value)) {
+      return value.map((value) => this._toObjectValue(value));
+    } else {
+      return value;
+    }
+  };
 
-
-
-
-
-
-
-
-
-
-
-
-
-  // async validate() {
-  //   let errors = {};
-  //
-  //   let {fields} = this._schema;
-  //   for (let name in fields) {
-  //     errors[name] = await this.validateField(name);
-  //   }
-  //
-  //   return errors;
-  // }
-  //
-  // async validateField(name) {
-  //   let definition = this._schema.fields[name];
-  //   let value = this[name];
-  //
-  //   return await this.validateValue(value, definition);
-  // }
+  /*
+  * Validates all class fields and returns errors.
+  */
 
   async validate() {
     let errors = {};
 
     for (let name in this) {
-      let value = this[name];
-      let definition = this._schema.fields[name];
 
-      let error = await this.validateField(value, definition);
+      let error = await this.validateField(name);
       if (!isUndefined(error)) {
         errors[name] = error;
       }
@@ -217,37 +237,83 @@ export class Document {
     return errors;
   }
 
-  async validateField(value, definition) {
+  /*
+  * Validates a single class field with `name` and returns errors.
+  */
+
+  async validateField(name) {
+    let value = this[name];
+    let definition = this._schema.fields[name];
+
+    return await this._validateValue(value, definition);
+  }
+
+  /*
+  * Validates a value agains the field `definition` object.
+  */
+
+  async _validateValue(value, definition) {
+    let {type, validations} = definition;
+    let error = {};
+
+    error.messages = await this._validator.validate(value, validations);
+
+    let related = await this._validateRelatedObject(value, definition);
+    if (related) {
+      error.related = related;
+    }
+
+    error.isValid = (
+      error.messages.length === 0
+      && this._isRelatedObjectValid(related)
+    );
+
+    return error.isValid ? undefined : error;
+  }
+
+  /*
+  * Validates a value agains the field `definition` object.
+  */
+
+  async _validateRelatedObject(value, definition) {
     let {type, validations} = definition;
 
-    let messages = await this._validator.validate(value, validations);
-
-    let related = null;
-    if (type instanceof Schema && value) {
-      related = await value.validate();
+    if (!value) {
+      return undefined;
+    } else if (type instanceof Schema) {
+      return await value.validate();
     } else if (isArray(type) && isArray(value)) {
-      related = [];
+      let aaa = [];
+
       for (let v of value) {
         if (type[0] instanceof Schema) {
           if (v) {
-            related.push(await v.validate());
+            aaa.push(await v.validate());
           } else {
-            related.push(undefined);
+            aaa.push(undefined);
           }
         } else {
-          related.push(await this.validateField(v, definition));
+          aaa.push(await this._validateValue(v, definition));
         }
       }
+      return aaa;
+    } else {
+      return undefined;
     }
+  }
 
-    let isValid = messages.length === 0;
-    if (related && isObject(related)) {
-      isValid = !Object.values(related).map(v => v.isValid).includes(false);
-    } else if (related && isArray(related)) {
-      isValid = related.map(v => !v || v.isValid).includes(false);
+  /*
+  * Validates a related object of a field (a sub schema).
+  */
+
+  _isRelatedObjectValid(value) {
+    if (!value) {
+      return true;
+    } else if (isObject(value)) {
+      return Object.values(value).map(v => v.isValid).indexOf(false) === -1;
+    } else if (isArray(value)) {
+      return value.map(v => this._isRelatedObjectValid(v)).indexOf(false) === -1;
     }
-
-    return isValid ? undefined : {isValid, messages, related};
   }
 
 }

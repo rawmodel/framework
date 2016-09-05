@@ -67,18 +67,15 @@ test('document validation', async (t) => {
   t.deepEqual(await user0.validate(), {
     name: {
       isValid: false,
-      messages: ['is required'],
-      related: null
+      messages: ['is required']
     },
     newBook: {
       isValid: false,
-      messages: ['is required'],
-      related: null
+      messages: ['is required']
     },
     newBooks: {
       isValid: false,
-      messages: ['is required'],
-      related: null
+      messages: ['is required']
     },
     oldBook: {
       isValid: false,
@@ -86,8 +83,7 @@ test('document validation', async (t) => {
       related: {
         title: {
           isValid: false,
-          messages: ['is required'],
-          related: null
+          messages: ['is required']
         }
       }
     },
@@ -99,8 +95,7 @@ test('document validation', async (t) => {
         {
           title: {
             isValid: false,
-            messages: ['is required'],
-            related: null
+            messages: ['is required']
           }
         }
       ]

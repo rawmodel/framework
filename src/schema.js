@@ -1,9 +1,17 @@
 import {isObject} from 'typeable';
 
+/*
+* A list of available Schema modes.
+*/
+
 export const modes = {
   RELAXED: 'relaxed',
   STRICT: 'strict'
 };
+
+/*
+* Validates the `mode` value.
+*/
 
 export function isValidMode(mode) {
   let keys = Object.keys(modes);
@@ -13,6 +21,10 @@ export function isValidMode(mode) {
   }
   return false;
 }
+
+/*
+* A class for defining Document structure and properties.
+*/
 
 export class Schema {
 
@@ -27,9 +39,9 @@ export class Schema {
       throw new Error(`Schema validator key should be an Object`);
     }
 
-    this.mode = mode;
-    this.fields = fields;
-    this.validator = validator;
+    this.mode = mode; // document schema mode
+    this.fields = fields; // document fields
+    this.validator = validator; // document validator configuration options
   }
 
 }

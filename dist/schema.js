@@ -15,10 +15,18 @@ var _typeable = require('typeable');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+/*
+* A list of available Schema modes.
+*/
+
 const modes = exports.modes = {
   RELAXED: 'relaxed',
   STRICT: 'strict'
 };
+
+/*
+* Validates the `mode` value.
+*/
 
 function isValidMode(mode) {
   let keys = (0, _keys2.default)(modes);
@@ -28,6 +36,10 @@ function isValidMode(mode) {
   }
   return false;
 }
+
+/*
+* A class for defining Document structure and properties.
+*/
 
 class Schema {
 
@@ -49,9 +61,9 @@ class Schema {
       throw new Error(`Schema validator key should be an Object`);
     }
 
-    this.mode = mode;
-    this.fields = fields;
-    this.validator = validator;
+    this.mode = mode; // document schema mode
+    this.fields = fields; // document fields
+    this.validator = validator; // document validator configuration options
   }
 
 }
