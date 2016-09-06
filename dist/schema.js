@@ -45,7 +45,7 @@ class Schema {
 
   constructor(_ref) {
     var _ref$mode = _ref.mode;
-    let mode = _ref$mode === undefined ? modes.RELAXED : _ref$mode;
+    let mode = _ref$mode === undefined ? modes.STRICT : _ref$mode;
     var _ref$fields = _ref.fields;
     let fields = _ref$fields === undefined ? {} : _ref$fields;
     var _ref$validator = _ref.validator;

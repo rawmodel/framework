@@ -60,8 +60,135 @@ let data = {
 
 let user = new Document(userSchema, data);
 user.name; // -> 'John Smith'
-user.isValid(); // -> true
+await user.isValid(); // -> true
 ```
+
+## API
+
+### Schema
+
+**new Schema({mode, validator, fields});**
+
+> A class for defining document structure.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields).
+| validator | Object | No | using [validatablejs](https://github.com/xpepermint/validatablejs) defaults | Object with custom validators (this variable is merged with built-in validators thus you can override a validator key if you need to).
+| fields | Object | Yes | {} | An object with fields definition.
+
+```js
+let fields = {
+  name: {
+    type: 'string',
+    defaultValue: 'John Smith',
+    validations: {
+      presence: {
+        message: 'is required'
+      }
+    }
+  },
+};
+```
+
+### Document
+
+**new Document(schema, data);**
+
+> A class for creating a schema-based object.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| schema | Schema | Yes | - | An instance of the Schema class.
+| data | Object | No | - | Data object.
+
+**document.populate(data):Document**
+
+> Applies data to a document.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| data | Object | Yes | - | Data object.
+
+**document.populateField(name, value):Any**
+
+> Sets a value of document field.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | string | Yes | - | Document field name.
+| value | Any | Yes | - | Data object.
+
+**document.clear():Document**
+
+> Sets all document fields to `null`.
+
+**document.clearField(name):Document**
+
+> Sets the `name` document field to `null`.
+
+**document.clone():Document**
+
+> Returns a new Document instance which is the exact copy of the original instance.
+
+**document.toObject():Object**
+
+> Converts the `document` into serialized data object.
+
+**document.validate():Promise**
+
+> Validates all class fields and returns errors.
+
+```js
+{ // return value example
+  name: { // field value is missing
+    messages: ['is required'],
+    isValid: false
+  },
+  book: { // nested object is missing
+    messages: ['is required'],
+    isValid: false
+  },
+  address: {
+    messages: [],
+    related: { // nested object errors
+      post: {
+        messages: ['is required'],
+        isValid: false
+      }
+    },
+    isValid: false
+  },
+  friends: { // an array of nested objects has errors
+    messages: [],
+    related: [
+      undefined, // the first item was valid
+      { // the second item has errors
+        name: {
+          messages: ['is required'],
+          isValid: false
+        }
+      }
+    ],
+    isValid: false
+  }
+}
+```
+
+**document.validateField(name):Promise**
+
+> Validates the `name` field and returns errors.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | string | Yes | - | Document field name.
+
+
+**document.isValid():Promise**
+
+> Returns `true` when all document fields are valid.
+
+**document.equalsTo():Boolean**
 
 ## License (MIT)
 

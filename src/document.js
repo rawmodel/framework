@@ -8,6 +8,7 @@ import {
   isUndefined
 } from 'typeable';
 
+import deeplyEquals from 'deep-equal';
 import {Validator} from 'validatable';
 import {Schema} from './schema';
 
@@ -37,7 +38,7 @@ export class Document {
     });
 
     this._purge();
-    this.define();
+    this._define();
     this.populate(data);
   }
 
@@ -45,7 +46,7 @@ export class Document {
   * Defines class fields for all fields in schema.
   */
 
-  define() {
+  _define() {
     let {fields} = this._schema;
 
     for (let name in fields) {
@@ -325,5 +326,13 @@ export class Document {
     return isAbsent(errors);
   }
 
+  /*
+  * Returns `true` when the `value` represents an object with the
+  * same field values as the original document.
+  */
+
+  equalsTo(value) {
+    return deeplyEquals(this, value);
+  }
 
 }

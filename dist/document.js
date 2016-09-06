@@ -27,6 +27,10 @@ var _assign2 = _interopRequireDefault(_assign);
 
 var _typeable = require('typeable');
 
+var _deepEqual = require('deep-equal');
+
+var _deepEqual2 = _interopRequireDefault(_deepEqual);
+
 var _validatable = require('validatable');
 
 var _schema = require('./schema');
@@ -61,7 +65,7 @@ class Document {
     });
 
     this._purge();
-    this.define();
+    this._define();
     this.populate(data);
   }
 
@@ -69,7 +73,7 @@ class Document {
   * Defines class fields for all fields in schema.
   */
 
-  define() {
+  _define() {
     let fields = this._schema.fields;
 
 
@@ -382,6 +386,15 @@ class Document {
       let errors = yield _this6.validate();
       return (0, _typeable.isAbsent)(errors);
     })();
+  }
+
+  /*
+  * Returns `true` when the `value` represents an object with the
+  * same field values as the original document.
+  */
+
+  equalsTo(value) {
+    return (0, _deepEqual2.default)(this, value);
   }
 
 }
