@@ -28,7 +28,11 @@ export function isValidMode(mode) {
 
 export class Schema {
 
-  constructor({mode=modes.STRICT, fields={}, validator={}}) {
+  /*
+  * Class constructor.
+  */
+
+  constructor({mode=modes.STRICT, fields={}, validator={}}={}) {
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${mode}`);
     }

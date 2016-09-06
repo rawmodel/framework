@@ -64,8 +64,7 @@ class Document {
       enumerable: false // do not expose as object key
     });
 
-    this._purge();
-    this._define();
+    this.define();
     this.populate(data);
   }
 
@@ -73,7 +72,7 @@ class Document {
   * Defines class fields for all fields in schema.
   */
 
-  _define() {
+  define() {
     let fields = this._schema.fields;
 
 
@@ -185,7 +184,7 @@ class Document {
   * Deletes all class fields.
   */
 
-  _purge() {
+  purge() {
     let names = (0, _keys2.default)(this);
     names.forEach(name => this._purgeField(name));
 

@@ -67,7 +67,7 @@ await user.isValid(); // -> true
 
 ### Schema
 
-**new Schema({mode, validator, fields});**
+**new Schema({mode, validator, fields})**
 
 > A class for defining document structure.
 
@@ -94,6 +94,7 @@ let fields = { // schema fields definition
 This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) module for type casting and [validatablejs](https://github.com/xpepermint/validatablejs) for field value validation. See these packages for available configuration options and other details.
 
 ### Document
+
 
 **new Document(schema, data)**
 
@@ -192,6 +193,14 @@ This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) m
 **document.equalsTo(value)**:Boolean
 
 > Returns `true` when the `value` represents an object with the same field values as the original document.
+
+**document.purge()**:Document
+
+> Deletes all class fields.
+
+**document.define()**:Document
+
+> Defines class fields for all fields in schema.
 
 ## License (MIT)
 
