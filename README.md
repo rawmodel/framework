@@ -78,22 +78,24 @@ await user.isValid(); // -> true
 | fields | Object | Yes | {} | An object with fields definition.
 
 ```js
-let fields = {
-  name: {
-    type: 'string',
-    defaultValue: 'John Smith',
-    validations: {
-      presence: {
-        message: 'is required'
+let fields = { // schema fields definition
+  name: { // field name holding a field definition
+    type: 'string', // field type
+    defaultValue: 'John Smith', // default field value
+    validations: { // field validations
+      presence: { // validator name
+        message: 'is required' // validator options
       }
     }
   },
 };
 ```
 
+This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) module for type casting and [validatablejs](https://github.com/xpepermint/validatablejs) for field value validation. See these packages for available configuration options and other details.
+
 ### Document
 
-**new Document(schema, data);**
+**new Document(schema, data)**
 
 > A class for creating a schema-based object.
 
@@ -102,7 +104,7 @@ let fields = {
 | schema | Schema | Yes | - | An instance of the Schema class.
 | data | Object | No | - | Data object.
 
-**document.populate(data):Document**
+**document.populate(data)**:Document
 
 > Applies data to a document.
 
@@ -110,7 +112,7 @@ let fields = {
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
 
-**document.populateField(name, value):Any**
+**document.populateField(name, value)**:Any
 
 > Sets a value of document field.
 
@@ -119,23 +121,23 @@ let fields = {
 | name | string | Yes | - | Document field name.
 | value | Any | Yes | - | Data object.
 
-**document.clear():Document**
+**document.clear()**:Document
 
 > Sets all document fields to `null`.
 
-**document.clearField(name):Document**
+**document.clearField(name)**:Document
 
 > Sets the `name` document field to `null`.
 
-**document.clone():Document**
+**document.clone()**:Document
 
 > Returns a new Document instance which is the exact copy of the original instance.
 
-**document.toObject():Object**
+**document.toObject()**:Object
 
 > Converts the `document` into serialized data object.
 
-**document.validate():Promise**
+**document.validate()**:Promise
 
 > Validates all class fields and returns errors.
 
@@ -175,7 +177,7 @@ let fields = {
 }
 ```
 
-**document.validateField(name):Promise**
+**document.validateField(name)**:Promise
 
 > Validates the `name` field and returns errors.
 
@@ -183,12 +185,13 @@ let fields = {
 |--------|------|----------|---------|------------
 | name | string | Yes | - | Document field name.
 
-
-**document.isValid():Promise**
+**document.isValid()**:Promise
 
 > Returns `true` when all document fields are valid.
 
-**document.equalsTo():Boolean**
+**document.equalsTo(value)**:Boolean
+
+> Returns `true` when the `value` represents an object with the same field values as the original document.
 
 ## License (MIT)
 
