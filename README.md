@@ -65,40 +65,56 @@ await user.isValid(); // -> true
 
 ## API
 
+This package consists of two core classes. The `Schema` class represents a configuration object and the `Document` represents a data object defined by the Schema.
+
+This package also integrates [*typeable.js*](https://github.com/xpepermint/typeable.js) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
+
 ### Schema
 
-**new Schema({mode, validator, fields})**
+Schema represents a configuration object which configures the `Document`. It holds information about fields, type casting, how fields are validated and what the default values are.
+
+A Schema can also be used as a custom type object. This means that you can create a nested data structure by setting a schema instance for a field `type`.
+
+**Schema({fields, mode, validator})**
 
 > A class for defining document structure.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields).
-| validator | Object | No | using [validatablejs](https://github.com/xpepermint/validatablejs) defaults | Object with custom validators (this variable is merged with built-in validators thus you can override a validator key if you need to).
-| fields | Object | Yes | {} | An object with fields definition.
+| fields | Object | Yes | - | An object with fields definition.
+| mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
+| validator | Object | No | validatablejs defaults | Configuration options for [validatablejs](https://github.com/xpepermint/validatablejs).
 
 ```js
-let fields = { // schema fields definition
-  name: { // field name holding a field definition
-    type: 'string', // field type
-    defaultValue: 'John Smith', // default field value
-    validations: { // field validations
-      presence: { // validator name
-        message: 'is required' // validator options
+
+new Schema({
+  fields: { // schema fields definition
+    name: { // field name holding a field definition
+      type: 'string', // field data type provided by the typeable.js
+      defaultValue: 'John Smith', // default field value
+      validations: { // field validations
+        presence: { // validator name
+          message: 'is required' // validator options
+        }
       }
-    }
+    },
   },
-};
+  mode: 'strict', // schema mode
+  validator: {} // validatablejs configuration options (see the package page for details)
+});
 ```
 
-This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) module for type casting and [validatablejs](https://github.com/xpepermint/validatablejs) for field value validation. See these packages for available configuration options and other details.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeable.js) for data type casting. Many common data types and array types are supported. Please check package's website for a list of supported types and further information.
+
+By default, all fields in a schema are set to `null`. We can set a field default value by setting the `defaultValue` option.
+
+Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the validator by passing the `validator` option to the `Schema` class which will be passed directly to the `Validator` class. The package provides many built-in validators but allows adding custom validators and overridding existing ones. Please check package's website for details.
 
 ### Document
 
+**Document(schema, data)**
 
-**new Document(schema, data)**
-
-> A class for creating a schema-based object.
+> A class for creating schema-based objects.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -115,7 +131,7 @@ This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) m
 
 **document.populateField(name, value)**:Any
 
-> Sets a value of document field.
+> Sets a value of a document field.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -128,7 +144,7 @@ This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) m
 
 **document.clearField(name)**:Document
 
-> Sets the `name` document field to `null`.
+> Sets a document field to `null`.
 
 **document.clone()**:Document
 
@@ -136,7 +152,7 @@ This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) m
 
 **document.toObject()**:Object
 
-> Converts the `document` into serialized data object.
+> Converts a document into serialized data object.
 
 **document.validate()**:Promise
 
@@ -180,7 +196,7 @@ This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) m
 
 **document.validateField(name)**:Promise
 
-> Validates the `name` field and returns errors.
+> Validates a document field and returns errors.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -192,7 +208,7 @@ This package integrates [typeablejs](https://github.com/xpepermint/typeablejs) m
 
 **document.equalsTo(value)**:Boolean
 
-> Returns `true` when the `value` represents an object with the same field values as the original document.
+> Returns `true` when the provided `value` represents an object with the same field values as the document.
 
 **document.purge()**:Document
 
