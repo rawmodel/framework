@@ -67,7 +67,7 @@ await user.isValid(); // -> true
 
 This package consists of two core classes. The `Schema` class represents a configuration object and the `Document` represents a data object defined by the Schema.
 
-This package also integrates [*typeable.js*](https://github.com/xpepermint/typeable.js) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
+This package also integrates [*typeable.js*](https://github.com/xpepermint/typeablejs) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
 
 ### Schema
 
@@ -83,32 +83,32 @@ A Schema can also be used as a custom type object. This means that you can creat
 |--------|------|----------|---------|------------
 | fields | Object | Yes | - | An object with fields definition.
 | mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
-| validator | Object | No | validatablejs defaults | Configuration options for [validatablejs](https://github.com/xpepermint/validatablejs).
+| validator | Object | No | validatable.js defaults | Configuration options for the Validator class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used by this package for field validation.
 
 ```js
 
 new Schema({
   fields: { // schema fields definition
-    name: { // field name holding a field definition
-      type: 'string', // field data type provided by the typeable.js
-      defaultValue: 'John Smith', // default field value
-      validations: { // field validations
+    email: { // a field name holding a field definition
+      type: 'string', // a field data type provided by typeable.js
+      defaultValue: 'John Smith', // a default field value
+      validations: { // field validations provided by validatable.js
         presence: { // validator name
-          message: 'is required' // validator options
+          message: 'is required' // validator option
         }
       }
     },
   },
   mode: 'strict', // schema mode
-  validator: {} // validatablejs configuration options (see the package page for details)
+  validator: {} // validatable.js configuration options (see the package's page for details)
 });
 ```
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeable.js) for data type casting. Many common data types and array types are supported. Please check package's website for a list of supported types and further information.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported. Please check package's website for a list of supported types and further information.
 
-By default, all fields in a schema are set to `null`. We can set a field default value by setting the `defaultValue` option.
+By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
-Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the validator by passing the `validator` option to the `Schema` class which will be passed directly to the `Validator` class. The package provides many built-in validators but allows adding custom validators and overridding existing ones. Please check package's website for details.
+Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the validator by passing the `validator` option to the `Schema` class which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overridding existing ones. Please check package's website for details.
 
 ### Document
 
