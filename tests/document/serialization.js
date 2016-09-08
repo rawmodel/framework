@@ -5,24 +5,24 @@ test('toObject', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string',
+        type: 'String',
         defaultValue: 100
       },
       year: {
-        type: 'integer'
+        type: 'Integer'
       }
     }
   });
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string'
+        type: 'String'
       },
       age: {
         type: 'float'
       },
       enabled: {
-        type: 'boolean'
+        type: 'Boolean'
       },
       newBook: {
         type: bookSchema

@@ -54,12 +54,12 @@ class Document {
       throw new Error(`${ this.constructor.name } expects schema to be an instance of Schema class`);
     }
 
-    Object.defineProperty(this, '_schema', {
+    Object.defineProperty(this, 'schema', {
       get: () => schema,
       enumerable: false // do not expose as object key
     });
 
-    Object.defineProperty(this, '_validator', {
+    Object.defineProperty(this, 'validator', {
       value: new _validatable.Validator((0, _assign2.default)({}, schema.validator, { context: this })),
       enumerable: false // do not expose as object key
     });
@@ -73,7 +73,7 @@ class Document {
   */
 
   define() {
-    let fields = this._schema.fields;
+    let fields = this.schema.fields;
 
 
     for (let name in fields) {
@@ -107,7 +107,7 @@ class Document {
       set: function () {
         let value = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
 
-        data = _this._castValue(value, definition); // value type casting
+        data = _this._castValue(value, definition.type); // value type casting
         if (definition.set) {
           // value transformation
           data = definition.set(data, _this);
@@ -131,15 +131,17 @@ class Document {
   * Converts the `value` into specified `type`.
   */
 
-  _castValue(value, _ref) {
-    let type = _ref.type;
+  _castValue(value, type) {
+    let options = this.schema.type;
 
-    return (0, _typeable.cast)(value, type, {
-      schema: value => {
+    options.types = (0, _assign2.default)({}, options.types, {
+      Schema: value => {
         if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
         return new this.constructor(type, value);
       }
     });
+
+    return (0, _typeable.cast)(value, type, options);
   }
 
   /*
@@ -166,10 +168,10 @@ class Document {
   */
 
   populateField(name, value) {
-    if (this._schema.mode === 'relaxed') {
+    if (this.schema.mode === 'relaxed') {
       this[name] = value;
     } else {
-      let names = (0, _keys2.default)(this._schema.fields);
+      let names = (0, _keys2.default)(this.schema.fields);
       let exists = names.indexOf(name) > -1;
 
       if (exists) {
@@ -228,7 +230,7 @@ class Document {
   */
 
   clone() {
-    return new this.constructor(this._schema, this.toObject());
+    return new this.constructor(this.schema, this.toObject());
   }
 
   /*
@@ -291,7 +293,7 @@ class Document {
 
     return (0, _asyncToGenerator3.default)(function* () {
       let value = _this3[name];
-      let definition = _this3._schema.fields[name];
+      let definition = _this3.schema.fields[name];
 
       return yield _this3._validateValue(value, definition);
     })();
@@ -310,7 +312,7 @@ class Document {
 
       let error = {};
 
-      error.messages = yield _this4._validator.validate(value, validations);
+      error.messages = yield _this4.validator.validate(value, validations);
 
       let related = yield _this4._validateRelatedObject(value, definition);
       if (related) {

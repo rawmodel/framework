@@ -50,12 +50,14 @@ class Schema {
   constructor() {
     var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-    var _ref$mode = _ref.mode;
-    let mode = _ref$mode === undefined ? modes.STRICT : _ref$mode;
     var _ref$fields = _ref.fields;
     let fields = _ref$fields === undefined ? {} : _ref$fields;
+    var _ref$mode = _ref.mode;
+    let mode = _ref$mode === undefined ? modes.STRICT : _ref$mode;
     var _ref$validator = _ref.validator;
     let validator = _ref$validator === undefined ? {} : _ref$validator;
+    var _ref$type = _ref.type;
+    let type = _ref$type === undefined ? {} : _ref$type;
 
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${ mode }`);
@@ -66,10 +68,14 @@ class Schema {
     if (!(0, _typeable.isObject)(validator)) {
       throw new Error(`Schema validator key should be an Object`);
     }
+    if (!(0, _typeable.isObject)(type)) {
+      throw new Error(`Schema type key should be an Object`);
+    }
 
-    this.mode = mode; // document schema mode
     this.fields = fields; // document fields
-    this.validator = validator; // document validator configuration options
+    this.mode = mode; // document schema mode
+    this.validator = validator; // document validator configuration options for validatable.js
+    this.type = type; // document type configuration options for typeable.js
   }
 
 }

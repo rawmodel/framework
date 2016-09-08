@@ -5,20 +5,20 @@ test('validate', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string',
+        type: 'String',
         validations: {
           presence: {message: 'is required'}
         }
       },
       year: {
-        type: 'integer'
+        type: 'Integer'
       }
     }
   });
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         validations: {
           presence: {message: 'is required'}
         }
@@ -107,7 +107,7 @@ test('isValid', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string',
+        type: 'String',
         validations: {
           presence: {message: 'is required'}
         }
@@ -117,7 +117,7 @@ test('isValid', async (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         validations: {
           presence: {message: 'is required'}
         }

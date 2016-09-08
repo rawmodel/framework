@@ -23,7 +23,7 @@ import {
 let bookSchema = new Schema({
   fields: {
     title: {
-      type: 'string'
+      type: 'String'
     }
   }
 });
@@ -31,7 +31,7 @@ let bookSchema = new Schema({
 let userSchema = new Schema({
   fields: {
     name: {
-      type: 'string',
+      type: 'String',
       validations: {
         presence: {
           message: 'is required'
@@ -84,13 +84,13 @@ A Schema can also be used as a custom type object. This means that you can creat
 | fields | Object | Yes | - | An object with fields definition.
 | mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
 | validator | Object | No | validatable.js defaults | Configuration options for the Validator class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used by this package for field validation.
-
+| type | Object | No | typeable.js defaults | Configuration options which is passed directly to the the `cast` method provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used by this package for field data type casting.
 ```js
 
 new Schema({
   fields: { // schema fields definition
     email: { // a field name holding a field definition
-      type: 'string', // a field data type provided by typeable.js
+      type: 'String', // a field data type provided by typeable.js
       defaultValue: 'John Smith', // a default field value
       validations: { // field validations provided by validatable.js
         presence: { // validator name
@@ -100,11 +100,12 @@ new Schema({
     },
   },
   mode: 'strict', // schema mode
-  validator: {} // validatable.js configuration options (see the package's page for details)
+  validator: {}, // validatable.js configuration options (see the package's page for details)
+  type: {} // typeable.js configuration options (see the package's page for details)
 });
 ```
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported. Please check package's website for a list of supported types and further information.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported but we can also define custom types or override existing types by setting the `type` field. Please check package's website for a list of supported types and further information.
 
 By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
@@ -135,7 +136,7 @@ Field validation is handled by the [*validatable.js*](https://github.com/xpeperm
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| name | string | Yes | - | Document field name.
+| name | String | Yes | - | Document field name.
 | value | Any | Yes | - | Data object.
 
 **document.clear()**:Document
@@ -200,7 +201,7 @@ Field validation is handled by the [*validatable.js*](https://github.com/xpeperm
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| name | string | Yes | - | Document field name.
+| name | String | Yes | - | Document field name.
 
 **document.isValid()**:Promise
 

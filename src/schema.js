@@ -32,7 +32,7 @@ export class Schema {
   * Class constructor.
   */
 
-  constructor({mode=modes.STRICT, fields={}, validator={}}={}) {
+  constructor({fields={}, mode=modes.STRICT, validator={}, type={}}={}) {
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${mode}`);
     }
@@ -42,10 +42,14 @@ export class Schema {
     if (!isObject(validator)) {
       throw new Error(`Schema validator key should be an Object`);
     }
+    if (!isObject(type)) {
+      throw new Error(`Schema type key should be an Object`);
+    }
 
-    this.mode = mode; // document schema mode
     this.fields = fields; // document fields
-    this.validator = validator; // document validator configuration options
+    this.mode = mode; // document schema mode
+    this.validator = validator; // document validator configuration options for validatable.js
+    this.type = type; // document type configuration options for typeable.js
   }
 
 }

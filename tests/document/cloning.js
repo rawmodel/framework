@@ -5,7 +5,7 @@ test('clone', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string',
+        type: 'String',
         defaultValue: 100
       }
     }
@@ -13,7 +13,7 @@ test('clone', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string'
+        type: 'String'
       },
       book: {
         type: bookSchema

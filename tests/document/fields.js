@@ -5,23 +5,23 @@ test('document structure type casting', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string'
+        type: 'String'
       },
       year: {
-        type: 'integer'
+        type: 'Integer'
       }
     }
   });
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string'
+        type: 'String'
       },
       age: {
-        type: 'integer'
+        type: 'Integer'
       },
       enabled: {
-        type: 'boolean'
+        type: 'Boolean'
       },
       book: {
         type: bookSchema
@@ -30,7 +30,7 @@ test('document structure type casting', (t) => {
         type: [bookSchema]
       },
       tags: {
-        type: ['string']
+        type: ['String']
       },
       keywords: {
         type: []
@@ -65,11 +65,32 @@ test('document structure type casting', (t) => {
   t.deepEqual(user.keywords, ['foo', 'bar', 100, null]);
 });
 
+test('document custom types', (t) => {
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'cool'
+      }
+    },
+    type: {
+      types: {
+        cool: (v) => `${v}-cool`
+      }
+    }
+  });
+  let data = {
+    name: 100
+  };
+  let user = new Document(userSchema, data);
+
+  t.is(user.name, '100-cool');
+});
+
 test('document field default value', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string',
+        type: 'String',
         defaultValue: 100
       }
     }
@@ -77,15 +98,15 @@ test('document field default value', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         defaultValue: 100
       },
       age: {
-        type: 'integer',
+        type: 'Integer',
         defaultValue: '35'
       },
       enabled: {
-        type: 'boolean',
+        type: 'Boolean',
         defaultValue: (ctx) => true
       },
       book: {
@@ -122,7 +143,7 @@ test('document field value transformation', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         defaultValue: 100,
         get: (value, ctx) => `${value}-get`,
         set: (value, ctx) => `${value}-set`
@@ -139,7 +160,7 @@ test('document with strict mode schema', (t) => {
     mode: 'strict',
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         defaultValue: 100
       }
     }
@@ -158,7 +179,7 @@ test('clearing document fields', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         defaultValue: 'John'
       }
     }

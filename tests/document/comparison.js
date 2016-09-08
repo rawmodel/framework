@@ -5,14 +5,14 @@ test('document comperison', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
-        type: 'string'
+        type: 'String'
       }
     }
   });
   let userSchema = {
     fields: {
       name: {
-        type: 'string',
+        type: 'String',
         defaultValue: 'John'
       },
       book: {
