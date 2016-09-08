@@ -84,7 +84,7 @@ A Schema can also be used as a custom type object. This means that you can creat
 | fields | Object | Yes | - | An object with fields definition.
 | mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
 | validator | Object | No | validatable.js defaults | Configuration options for the Validator class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used by this package for field validation.
-| type | Object | No | typeable.js defaults | Configuration options which is passed directly to the the `cast` method provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used by this package for field data type casting.
+| type | Object | No | typeable.js defaults | Configuration options which is passed directly to the the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used by this package for field data type casting.
 ```js
 
 new Schema({
