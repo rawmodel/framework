@@ -72,7 +72,7 @@ test('document custom types', (t) => {
         type: 'cool'
       }
     },
-    type: {
+    typeOptions: {
       types: {
         cool: (v) => `${v}-cool`
       }

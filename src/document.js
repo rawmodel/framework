@@ -33,7 +33,7 @@ export class Document {
     });
 
     Object.defineProperty(this, 'validator', {
-      value: new Validator(Object.assign({}, schema.validator, {context: this})),
+      value: new Validator(Object.assign({}, schema.validatorOptions, {context: this})),
       enumerable: false // do not expose as object key
     });
 
@@ -95,7 +95,7 @@ export class Document {
   */
 
   _castValue(value, type) {
-    let options = this.schema.type;
+    let options = this.schema.typeOptions;
 
     options.types = Object.assign({}, options.types, {
       Schema: (value) => {
@@ -257,10 +257,10 @@ export class Document {
   */
 
   async _validateValue(value, definition) {
-    let {type, validations} = definition;
+    let {type, validate} = definition;
     let error = {};
 
-    error.messages = await this.validator.validate(value, validations);
+    error.messages = await this.validator.validate(value, validate);
 
     let related = await this._validateRelatedObject(value, definition);
     if (related) {
@@ -280,7 +280,7 @@ export class Document {
   */
 
   async _validateRelatedObject(value, definition) {
-    let {type, validations} = definition;
+    let {type} = definition;
 
     if (!value) {
       return undefined;

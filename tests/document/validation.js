@@ -6,7 +6,7 @@ test('validate', async (t) => {
     fields: {
       title: {
         type: 'String',
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
@@ -19,31 +19,31 @@ test('validate', async (t) => {
     fields: {
       name: {
         type: 'String',
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
       newBook: {
         type: bookSchema,
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
       newBooks: {
         type: [bookSchema],
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
       oldBook: {
         type: bookSchema,
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
       oldBooks: {
         type: [bookSchema],
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       }
@@ -108,7 +108,7 @@ test('isValid', async (t) => {
     fields: {
       title: {
         type: 'String',
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
@@ -118,19 +118,19 @@ test('isValid', async (t) => {
     fields: {
       name: {
         type: 'String',
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
       book: {
         type: bookSchema,
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       },
       books: {
         type: [bookSchema],
-        validations: {
+        validate: {
           presence: {message: 'is required'}
         }
       }

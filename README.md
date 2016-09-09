@@ -32,7 +32,7 @@ let userSchema = new Schema({
   fields: {
     name: {
       type: 'String',
-      validations: {
+      validate: {
         presence: {
           message: 'is required'
         }
@@ -40,7 +40,7 @@ let userSchema = new Schema({
     },
     books: {
       type: [bookSchema],
-      validations: {
+      validate: {
         presence: {
           message: 'is required'
         }
@@ -75,7 +75,7 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This means that you can create a nested data structure by setting a schema instance for a field `type`.
 
-**Schema({fields, mode, validator})**
+**Schema({fields, mode, validatorOptions, typeOptions})**
 
 > A class for defining document structure.
 
@@ -83,8 +83,8 @@ A Schema can also be used as a custom type object. This means that you can creat
 |--------|------|----------|---------|------------
 | fields | Object | Yes | - | An object with fields definition.
 | mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
-| validator | Object | No | validatable.js defaults | Configuration options for the Validator class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used by this package for field validation.
-| type | Object | No | typeable.js defaults | Configuration options which is passed directly to the the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used by this package for field data type casting.
+| validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
+| typeOptions | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
 ```js
 
 new Schema({
@@ -92,7 +92,7 @@ new Schema({
     email: { // a field name holding a field definition
       type: 'String', // a field data type provided by typeable.js
       defaultValue: 'John Smith', // a default field value
-      validations: { // field validations provided by validatable.js
+      validate: { // field validations provided by validatable.js
         presence: { // validator name
           message: 'is required' // validator option
         }
@@ -100,16 +100,16 @@ new Schema({
     },
   },
   mode: 'strict', // schema mode
-  validator: {}, // validatable.js configuration options (see the package's page for details)
-  type: {} // typeable.js configuration options (see the package's page for details)
+  validatorOptions: {}, // validatable.js configuration options (see the package's page for details)
+  typeOptions: {} // typeable.js configuration options (see the package's page for details)
 });
 ```
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported but we can also define custom types or override existing types by setting the `type` field. Please check package's website for a list of supported types and further information.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported but we can also define custom types or override existing types through `typeOptions` key. Please check package's website for a list of supported types and further information.
 
 By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
-Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the validator by passing the `validator` option to the `Schema` class which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overridding existing ones. Please check package's website for details.
+Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the validator by passing the `validatorOptions` option to our schema which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overriding existing ones. Please check package's website for details.
 
 ### Document
 

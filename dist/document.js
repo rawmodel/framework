@@ -60,7 +60,7 @@ class Document {
     });
 
     Object.defineProperty(this, 'validator', {
-      value: new _validatable.Validator((0, _assign2.default)({}, schema.validator, { context: this })),
+      value: new _validatable.Validator((0, _assign2.default)({}, schema.validatorOptions, { context: this })),
       enumerable: false // do not expose as object key
     });
 
@@ -132,7 +132,7 @@ class Document {
   */
 
   _castValue(value, type) {
-    let options = this.schema.type;
+    let options = this.schema.typeOptions;
 
     options.types = (0, _assign2.default)({}, options.types, {
       Schema: value => {
@@ -308,11 +308,11 @@ class Document {
 
     return (0, _asyncToGenerator3.default)(function* () {
       let type = definition.type;
-      let validations = definition.validations;
+      let validate = definition.validate;
 
       let error = {};
 
-      error.messages = yield _this4.validator.validate(value, validations);
+      error.messages = yield _this4.validator.validate(value, validate);
 
       let related = yield _this4._validateRelatedObject(value, definition);
       if (related) {
@@ -334,7 +334,6 @@ class Document {
 
     return (0, _asyncToGenerator3.default)(function* () {
       let type = definition.type;
-      let validations = definition.validations;
 
 
       if (!value) {

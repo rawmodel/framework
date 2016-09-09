@@ -54,10 +54,10 @@ class Schema {
     let fields = _ref$fields === undefined ? {} : _ref$fields;
     var _ref$mode = _ref.mode;
     let mode = _ref$mode === undefined ? modes.STRICT : _ref$mode;
-    var _ref$validator = _ref.validator;
-    let validator = _ref$validator === undefined ? {} : _ref$validator;
-    var _ref$type = _ref.type;
-    let type = _ref$type === undefined ? {} : _ref$type;
+    var _ref$validatorOptions = _ref.validatorOptions;
+    let validatorOptions = _ref$validatorOptions === undefined ? {} : _ref$validatorOptions;
+    var _ref$typeOptions = _ref.typeOptions;
+    let typeOptions = _ref$typeOptions === undefined ? {} : _ref$typeOptions;
 
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${ mode }`);
@@ -65,17 +65,17 @@ class Schema {
     if (!(0, _typeable.isObject)(fields)) {
       throw new Error(`Schema fields key should be an Object`);
     }
-    if (!(0, _typeable.isObject)(validator)) {
-      throw new Error(`Schema validator key should be an Object`);
+    if (!(0, _typeable.isObject)(validatorOptions)) {
+      throw new Error(`Schema validatorOptions key should be an Object`);
     }
-    if (!(0, _typeable.isObject)(type)) {
-      throw new Error(`Schema type key should be an Object`);
+    if (!(0, _typeable.isObject)(typeOptions)) {
+      throw new Error(`Schema typeOptions key should be an Object`);
     }
 
     this.fields = fields; // document fields
     this.mode = mode; // document schema mode
-    this.validator = validator; // document validator configuration options for validatable.js
-    this.type = type; // document type configuration options for typeable.js
+    this.validatorOptions = validatorOptions; // options for validatable.js
+    this.typeOptions = typeOptions; // options for typeable.js
   }
 
 }
