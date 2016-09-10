@@ -73,7 +73,7 @@ This package also integrates [*typeable.js*](https://github.com/xpepermint/typea
 
 Schema represents a configuration object which configures the `Document`. It holds information about fields, type casting, how fields are validated and what the default values are.
 
-A Schema can also be used as a custom type object. This means that you can create a nested data structure by setting a schema instance for a field `type`.
+A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
 **Schema({fields, mode, validatorOptions, typeOptions})**
 
@@ -105,13 +105,15 @@ new Schema({
 });
 ```
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported but we can also define custom types or override existing types through `typeOptions` key. Please check package's website for a list of supported types and further information.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported but we can also define custom types or override existing types through a `typeOptions` key. Please check package's website for a list of supported types and further information.
 
 By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
-Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the validator by passing the `validatorOptions` option to our schema which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overriding existing ones. Please check package's website for details.
+Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the package by passing the `validatorOptions` option to our schema which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please check package's website for details.
 
 ### Document
+
+A document is a schema enforced data object. All document properties and configuration options are defined by the schema.
 
 **Document(schema, data)**
 
