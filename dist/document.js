@@ -368,7 +368,6 @@ class Document {
       }
 
       let isValid = data.messages.length === 0 && _this5._isRelatedObjectValid(related);
-
       return isValid ? undefined : data;
     })();
   }
