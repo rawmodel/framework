@@ -66,35 +66,28 @@ test('validate', async (t) => {
 
   t.deepEqual(await user.validate(), {
     name: {
-      isValid: false,
       messages: ['is required']
     },
     newBook: {
-      isValid: false,
       messages: ['is required']
     },
     newBooks: {
-      isValid: false,
       messages: ['is required']
     },
     oldBook: {
-      isValid: false,
       messages: [],
       related: {
         title: {
-          isValid: false,
           messages: ['is required']
         }
       }
     },
     oldBooks: {
-      isValid: false,
       messages: [],
       related: [
         undefined,
         {
           title: {
-            isValid: false,
             messages: ['is required']
           }
         }

@@ -313,16 +313,16 @@ export class Document {
       data.related = related;
     }
 
-    data.isValid = (
+    let isValid = (
       data.messages.length === 0
       && this._isRelatedObjectValid(related)
     );
 
-    return data.isValid ? undefined : data;
+    return isValid ? undefined : data;
   }
 
   /*
-  * Validates a value agains the field `definition` object.
+  * Validates nested data of a value agains the field `definition` object.
   */
 
   async _validateRelatedObject(value, definition) {
@@ -360,7 +360,7 @@ export class Document {
     if (!value) {
       return true;
     } else if (isObject(value)) {
-      return Object.values(value).map(v => v.isValid).indexOf(false) === -1;
+      return Object.values(value).map(v => v.messages.length > 0 || v.related).indexOf(true) === -1;
     } else if (isArray(value)) {
       return value.map(v => this._isRelatedObjectValid(v)).indexOf(false) === -1;
     }

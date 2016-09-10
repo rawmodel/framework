@@ -367,14 +367,14 @@ class Document {
         data.related = related;
       }
 
-      data.isValid = data.messages.length === 0 && _this5._isRelatedObjectValid(related);
+      let isValid = data.messages.length === 0 && _this5._isRelatedObjectValid(related);
 
-      return data.isValid ? undefined : data;
+      return isValid ? undefined : data;
     })();
   }
 
   /*
-  * Validates a value agains the field `definition` object.
+  * Validates nested data of a value agains the field `definition` object.
   */
 
   _validateRelatedObject(value, definition) {
@@ -417,7 +417,7 @@ class Document {
     if (!value) {
       return true;
     } else if ((0, _typeable.isObject)(value)) {
-      return (0, _values2.default)(value).map(v => v.isValid).indexOf(false) === -1;
+      return (0, _values2.default)(value).map(v => v.messages.length > 0 || v.related).indexOf(true) === -1;
     } else if ((0, _typeable.isArray)(value)) {
       return value.map(v => this._isRelatedObjectValid(v)).indexOf(false) === -1;
     }
