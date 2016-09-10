@@ -73,26 +73,32 @@ class Document {
   */
 
   define() {
+    return this._defineFields();
+  }
+
+  /*
+  * Defines all schema fields.
+  */
+
+  _defineFields() {
     let fields = this.schema.fields;
 
 
     for (let name in fields) {
-      this._defineField(name, fields[name]);
+      this._defineField(name);
     }
 
     return this;
   }
 
   /*
-  * Defines a class field from the provided `name` and
-  * field definition object.
+  * Defines a schema field by name.
   */
 
   _defineField(name) {
     var _this = this;
 
-    let definition = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
-
+    let definition = this.schema.fields[name];
     let data;
 
     (0, _defineProperty2.default)(this, name, { // field definition
@@ -145,29 +151,38 @@ class Document {
   }
 
   /*
-  * Sets values of class properties with values provided by
-  * the `data` object.
+  * Sets field values from the provided by data object.
   */
 
   populate() {
     let data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
+    return this._populateFields(data);
+  }
+
+  /*
+  * Sets field values from the provided by data object.
+  */
+
+  _populateFields() {
+    let data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
     if (!(0, _typeable.isObject)(data)) {
-      throw new Error(`Only Object can populate a ${ this.constructor.name }`);
+      throw new Error(`Only object can populate a ${ this.constructor.name.toLowerCase() }`);
     }
 
     for (let name in data) {
-      this.populateField(name, data[name]);
+      this._populateField(name, data[name]);
     }
 
     return this;
   }
 
   /*
-  * Sets a value of a single class property.
+  * Sets a value of a field by name.
   */
 
-  populateField(name, value) {
+  _populateField(name, value) {
     if (this.schema.mode === 'relaxed') {
       this[name] = value;
     } else {
@@ -187,6 +202,14 @@ class Document {
   */
 
   purge() {
+    return this._purgeFields();
+  }
+
+  /*
+  * Deletes all class fields.
+  */
+
+  _purgeFields() {
     let names = (0, _keys2.default)(this);
     names.forEach(name => this._purgeField(name));
 
@@ -206,10 +229,18 @@ class Document {
   */
 
   clear() {
+    return this._clearFields();
+  }
+
+  /*
+  * Remove values of all class fields.
+  */
+
+  _clearFields() {
     let names = (0, _keys2.default)(this);
 
     for (let name of names) {
-      this.clearField(name);
+      this._clearField(name);
     }
 
     return this;
@@ -219,7 +250,7 @@ class Document {
   * Removes a value of a field with `name`.
   */
 
-  clearField(name) {
+  _clearField(name) {
     this[name] = null;
     return this[name];
   }
@@ -270,11 +301,23 @@ class Document {
     var _this2 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
+      return yield _this2._validateFields();
+    })();
+  }
+
+  /*
+  * Validates all class fields and returns errors.
+  */
+
+  _validateFields() {
+    var _this3 = this;
+
+    return (0, _asyncToGenerator3.default)(function* () {
       let errors = {};
 
-      for (let name in _this2) {
+      for (let name in _this3) {
 
-        let error = yield _this2.validateField(name);
+        let error = yield _this3._validateField(name);
         if (!(0, _typeable.isUndefined)(error)) {
           errors[name] = error;
         }
@@ -288,14 +331,14 @@ class Document {
   * Validates a single class field with `name` and returns errors.
   */
 
-  validateField(name) {
-    var _this3 = this;
+  _validateField(name) {
+    var _this4 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let value = _this3[name];
-      let definition = _this3.schema.fields[name];
+      let value = _this4[name];
+      let definition = _this4.schema.fields[name];
 
-      return yield _this3._validateValue(value, definition);
+      return yield _this4._validateValue(value, definition);
     })();
   }
 
@@ -304,7 +347,7 @@ class Document {
   */
 
   _validateValue(value, definition) {
-    var _this4 = this;
+    var _this5 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
       let type = definition.type;
@@ -312,14 +355,14 @@ class Document {
 
       let error = {};
 
-      error.messages = yield _this4.validator.validate(value, validate);
+      error.messages = yield _this5.validator.validate(value, validate);
 
-      let related = yield _this4._validateRelatedObject(value, definition);
+      let related = yield _this5._validateRelatedObject(value, definition);
       if (related) {
         error.related = related;
       }
 
-      error.isValid = error.messages.length === 0 && _this4._isRelatedObjectValid(related);
+      error.isValid = error.messages.length === 0 && _this5._isRelatedObjectValid(related);
 
       return error.isValid ? undefined : error;
     })();
@@ -330,7 +373,7 @@ class Document {
   */
 
   _validateRelatedObject(value, definition) {
-    var _this5 = this;
+    var _this6 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
       let type = definition.type;
@@ -339,19 +382,19 @@ class Document {
       if (!value) {
         return undefined;
       } else if (type instanceof _schema.Schema) {
-        return yield value.validate();
+        return yield value._validateFields();
       } else if ((0, _typeable.isArray)(type) && (0, _typeable.isArray)(value)) {
         let aaa = [];
 
         for (let v of value) {
           if (type[0] instanceof _schema.Schema) {
             if (v) {
-              aaa.push((yield v.validate()));
+              aaa.push((yield v._validateFields()));
             } else {
               aaa.push(undefined);
             }
           } else {
-            aaa.push((yield _this5._validateValue(v, definition)));
+            aaa.push((yield _this6._validateValue(v, definition)));
           }
         }
         return aaa;
@@ -380,11 +423,10 @@ class Document {
   */
 
   isValid() {
-    var _this6 = this;
+    var _this7 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let errors = yield _this6.validate();
-      return (0, _typeable.isAbsent)(errors);
+      return (0, _typeable.isAbsent)((yield _this7._validateFields()));
     })();
   }
 

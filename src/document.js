@@ -46,21 +46,29 @@ export class Document {
   */
 
   define() {
+    return this._defineFields();
+  }
+
+  /*
+  * Defines all schema fields.
+  */
+
+  _defineFields() {
     let {fields} = this.schema;
 
     for (let name in fields) {
-      this._defineField(name, fields[name]);
+      this._defineField(name);
     }
 
     return this;
   }
 
   /*
-  * Defines a class field from the provided `name` and
-  * field definition object.
+  * Defines a schema field by name.
   */
 
-  _defineField(name, definition={}) {
+  _defineField(name) {
+    let definition = this.schema.fields[name];
     let data;
 
     Object.defineProperty(this, name, { // field definition
@@ -108,27 +116,34 @@ export class Document {
   }
 
   /*
-  * Sets values of class properties with values provided by
-  * the `data` object.
+  * Sets field values from the provided by data object.
   */
 
   populate(data={}) {
+    return this._populateFields(data);
+  }
+
+  /*
+  * Sets field values from the provided by data object.
+  */
+
+  _populateFields(data={}) {
     if (!isObject(data)) {
-      throw new Error(`Only Object can populate a ${this.constructor.name}`);
+      throw new Error(`Only object can populate a ${this.constructor.name.toLowerCase()}`);
     }
 
     for (let name in data) {
-      this.populateField(name, data[name]);
+      this._populateField(name, data[name]);
     }
 
     return this;
   }
 
   /*
-  * Sets a value of a single class property.
+  * Sets a value of a field by name.
   */
 
-  populateField(name, value) {
+  _populateField(name, value) {
     if (this.schema.mode === 'relaxed') {
       this[name] = value;
     } else {
@@ -148,6 +163,14 @@ export class Document {
   */
 
   purge() {
+    return this._purgeFields();
+  };
+
+  /*
+  * Deletes all class fields.
+  */
+
+  _purgeFields() {
     let names = Object.keys(this);
     names.forEach((name) => this._purgeField(name));
 
@@ -167,10 +190,18 @@ export class Document {
   */
 
   clear() {
+    return this._clearFields();
+  }
+
+  /*
+  * Remove values of all class fields.
+  */
+
+  _clearFields() {
     let names = Object.keys(this);
 
     for (let name of names) {
-      this.clearField(name);
+      this._clearField(name);
     }
 
     return this;
@@ -180,7 +211,7 @@ export class Document {
   * Removes a value of a field with `name`.
   */
 
-  clearField(name) {
+  _clearField(name) {
     this[name] = null;
     return this[name];
   }
@@ -228,11 +259,19 @@ export class Document {
   */
 
   async validate() {
+    return await this._validateFields();
+  }
+
+  /*
+  * Validates all class fields and returns errors.
+  */
+
+  async _validateFields() {
     let errors = {};
 
     for (let name in this) {
 
-      let error = await this.validateField(name);
+      let error = await this._validateField(name);
       if (!isUndefined(error)) {
         errors[name] = error;
       }
@@ -245,7 +284,7 @@ export class Document {
   * Validates a single class field with `name` and returns errors.
   */
 
-  async validateField(name) {
+  async _validateField(name) {
     let value = this[name];
     let definition = this.schema.fields[name];
 
@@ -285,14 +324,14 @@ export class Document {
     if (!value) {
       return undefined;
     } else if (type instanceof Schema) {
-      return await value.validate();
+      return await value._validateFields();
     } else if (isArray(type) && isArray(value)) {
       let aaa = [];
 
       for (let v of value) {
         if (type[0] instanceof Schema) {
           if (v) {
-            aaa.push(await v.validate());
+            aaa.push(await v._validateFields());
           } else {
             aaa.push(undefined);
           }
@@ -325,8 +364,9 @@ export class Document {
   */
 
   async isValid() {
-    let errors = await this.validate();
-    return isAbsent(errors);
+    return isAbsent(
+      await this._validateFields()
+    );
   }
 
   /*

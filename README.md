@@ -130,20 +130,7 @@ Field validation is handled by the [*validatable.js*](https://github.com/xpeperm
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
 
-**document.populateField(name, value)**:Any
-
-> Sets a value of a document field.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | Yes | - | Document field name.
-| value | Any | Yes | - | Data object.
-
 **document.clear()**:Document
-
-> Sets all document fields to `null`.
-
-**document.clearField(name)**:Document
 
 > Sets a document field to `null`.
 
@@ -194,14 +181,6 @@ Field validation is handled by the [*validatable.js*](https://github.com/xpeperm
   }
 }
 ```
-
-**document.validateField(name)**:Promise
-
-> Validates a document field and returns errors.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | Yes | - | Document field name.
 
 **document.isValid()**:Promise
 
