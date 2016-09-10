@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('document comperison', (t) => {
+test('comperison', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {

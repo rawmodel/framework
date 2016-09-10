@@ -255,6 +255,14 @@ export class Document {
   };
 
   /*
+  * Returns a new instance of validator.
+  */
+
+  _createValidator() {
+    new Validator(Object.assign({}, this.schema.validatorOptions, {context: this}));
+  }
+
+  /*
   * Validates all class fields and returns errors.
   */
 
@@ -267,17 +275,17 @@ export class Document {
   */
 
   async _validateFields() {
-    let errors = {};
+    let data = {};
 
-    for (let name in this) {
+    for (let name in this.schema.fields) {
 
-      let error = await this._validateField(name);
-      if (!isUndefined(error)) {
-        errors[name] = error;
+      let info = await this._validateField(name);
+      if (!isUndefined(info)) {
+        data[name] = info;
       }
     }
 
-    return errors;
+    return data;
   }
 
   /*
@@ -296,22 +304,22 @@ export class Document {
   */
 
   async _validateValue(value, definition) {
-    let {type, validate} = definition;
-    let error = {};
+    let data = {};
 
-    error.messages = await this.validator.validate(value, validate);
+    let validator = this._createValidator();
+    data.messages = await this.validator.validate(value, definition.validate);
 
     let related = await this._validateRelatedObject(value, definition);
     if (related) {
-      error.related = related;
+      data.related = related;
     }
 
-    error.isValid = (
-      error.messages.length === 0
+    data.isValid = (
+      data.messages.length === 0
       && this._isRelatedObjectValid(related)
     );
 
-    return error.isValid ? undefined : error;
+    return data.isValid ? undefined : data;
   }
 
   /*
@@ -326,20 +334,20 @@ export class Document {
     } else if (type instanceof Schema) {
       return await value._validateFields();
     } else if (isArray(type) && isArray(value)) {
-      let aaa = [];
+      let items = [];
 
       for (let v of value) {
         if (type[0] instanceof Schema) {
           if (v) {
-            aaa.push(await v._validateFields());
+            items.push(await v._validateFields());
           } else {
-            aaa.push(undefined);
+            items.push(undefined);
           }
         } else {
-          aaa.push(await this._validateValue(v, definition));
+          items.push(await this._validateValue(v, definition));
         }
       }
-      return aaa;
+      return items;
     } else {
       return undefined;
     }

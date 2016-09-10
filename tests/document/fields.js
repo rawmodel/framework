@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('document structure type casting', (t) => {
+test('structure type casting', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -65,7 +65,7 @@ test('document structure type casting', (t) => {
   t.deepEqual(user.keywords, ['foo', 'bar', 100, null]);
 });
 
-test('document custom types', (t) => {
+test('custom types', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
@@ -86,7 +86,7 @@ test('document custom types', (t) => {
   t.is(user.name, '100-cool');
 });
 
-test('document field default value', (t) => {
+test('field default value', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -107,7 +107,7 @@ test('document field default value', (t) => {
       },
       enabled: {
         type: 'Boolean',
-        defaultValue: (ctx) => true
+        defaultValue: () => true
       },
       book: {
         type: bookSchema
@@ -139,14 +139,14 @@ test('document field default value', (t) => {
   t.is(user1.books[1].title, '100');
 });
 
-test('document field value transformation', (t) => {
+test('field value transformation', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {
         type: 'String',
         defaultValue: 100,
-        get: (value, ctx) => `${value}-get`,
-        set: (value, ctx) => `${value}-set`
+        get: (value) => `${value}-get`,
+        set: (value) => `${value}-set`
       }
     }
   });
@@ -155,7 +155,7 @@ test('document field value transformation', (t) => {
   t.is(user.name, '100-set-get');
 });
 
-test('document with strict mode schema', (t) => {
+test('strict mode schema', (t) => {
   let userSchema = new Schema({
     mode: 'strict',
     fields: {
@@ -175,7 +175,7 @@ test('document with strict mode schema', (t) => {
   t.is(user.age, undefined);
 });
 
-test('clearing document fields', (t) => {
+test('clearing fields', (t) => {
   let userSchema = new Schema({
     fields: {
       name: {

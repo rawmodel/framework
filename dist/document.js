@@ -294,6 +294,14 @@ class Document {
   }
 
   /*
+  * Returns a new instance of validator.
+  */
+
+  _createValidator() {
+    new _validatable.Validator((0, _assign2.default)({}, this.schema.validatorOptions, { context: this }));
+  }
+
+  /*
   * Validates all class fields and returns errors.
   */
 
@@ -313,17 +321,17 @@ class Document {
     var _this3 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let errors = {};
+      let data = {};
 
-      for (let name in _this3) {
+      for (let name in _this3.schema.fields) {
 
-        let error = yield _this3._validateField(name);
-        if (!(0, _typeable.isUndefined)(error)) {
-          errors[name] = error;
+        let info = yield _this3._validateField(name);
+        if (!(0, _typeable.isUndefined)(info)) {
+          data[name] = info;
         }
       }
 
-      return errors;
+      return data;
     })();
   }
 
@@ -350,21 +358,19 @@ class Document {
     var _this5 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let type = definition.type;
-      let validate = definition.validate;
+      let data = {};
 
-      let error = {};
-
-      error.messages = yield _this5.validator.validate(value, validate);
+      let validator = _this5._createValidator();
+      data.messages = yield _this5.validator.validate(value, definition.validate);
 
       let related = yield _this5._validateRelatedObject(value, definition);
       if (related) {
-        error.related = related;
+        data.related = related;
       }
 
-      error.isValid = error.messages.length === 0 && _this5._isRelatedObjectValid(related);
+      data.isValid = data.messages.length === 0 && _this5._isRelatedObjectValid(related);
 
-      return error.isValid ? undefined : error;
+      return data.isValid ? undefined : data;
     })();
   }
 
@@ -384,20 +390,20 @@ class Document {
       } else if (type instanceof _schema.Schema) {
         return yield value._validateFields();
       } else if ((0, _typeable.isArray)(type) && (0, _typeable.isArray)(value)) {
-        let aaa = [];
+        let items = [];
 
         for (let v of value) {
           if (type[0] instanceof _schema.Schema) {
             if (v) {
-              aaa.push((yield v._validateFields()));
+              items.push((yield v._validateFields()));
             } else {
-              aaa.push(undefined);
+              items.push(undefined);
             }
           } else {
-            aaa.push((yield _this6._validateValue(v, definition)));
+            items.push((yield _this6._validateValue(v, definition)));
           }
         }
-        return aaa;
+        return items;
       } else {
         return undefined;
       }
