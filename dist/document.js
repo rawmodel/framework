@@ -60,12 +60,20 @@ class Document {
     });
 
     Object.defineProperty(this, 'validator', {
-      value: new _validatable.Validator((0, _assign2.default)({}, schema.validatorOptions, { context: this })),
+      value: this._createValidator(),
       enumerable: false // do not expose as object key
     });
 
     this.define();
     this.populate(data);
+  }
+
+  /*
+  * Returns a new instance of validator.
+  */
+
+  _createValidator() {
+    return new _validatable.Validator((0, _assign2.default)({}, this.schema.validatorOptions, { context: this }));
   }
 
   /*
@@ -294,14 +302,6 @@ class Document {
   }
 
   /*
-  * Returns a new instance of validator.
-  */
-
-  _createValidator() {
-    new _validatable.Validator((0, _assign2.default)({}, this.schema.validatorOptions, { context: this }));
-  }
-
-  /*
   * Validates all class fields and returns errors.
   */
 
@@ -360,7 +360,6 @@ class Document {
     return (0, _asyncToGenerator3.default)(function* () {
       let data = {};
 
-      let validator = _this5._createValidator();
       data.messages = yield _this5.validator.validate(value, definition.validate);
 
       let related = yield _this5._validateRelatedObject(value, definition);

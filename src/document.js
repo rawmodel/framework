@@ -33,12 +33,20 @@ export class Document {
     });
 
     Object.defineProperty(this, 'validator', {
-      value: new Validator(Object.assign({}, schema.validatorOptions, {context: this})),
+      value: this._createValidator(),
       enumerable: false // do not expose as object key
     });
 
     this.define();
     this.populate(data);
+  }
+
+  /*
+  * Returns a new instance of validator.
+  */
+
+  _createValidator() {
+    return new Validator(Object.assign({}, this.schema.validatorOptions, {context: this}));
   }
 
   /*
@@ -255,14 +263,6 @@ export class Document {
   };
 
   /*
-  * Returns a new instance of validator.
-  */
-
-  _createValidator() {
-    new Validator(Object.assign({}, this.schema.validatorOptions, {context: this}));
-  }
-
-  /*
   * Validates all class fields and returns errors.
   */
 
@@ -306,7 +306,6 @@ export class Document {
   async _validateValue(value, definition) {
     let data = {};
 
-    let validator = this._createValidator();
     data.messages = await this.validator.validate(value, definition.validate);
 
     let related = await this._validateRelatedObject(value, definition);
