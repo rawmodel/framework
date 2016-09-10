@@ -175,14 +175,9 @@ class Document {
   _populateFields() {
     let data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-    if (!(0, _typeable.isObject)(data)) {
-      throw new Error(`Only object can populate a ${ this.constructor.name.toLowerCase() }`);
-    }
-
     for (let name in data) {
       this._populateField(name, data[name]);
     }
-
     return this;
   }
 

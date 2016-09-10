@@ -136,14 +136,9 @@ export class Document {
   */
 
   _populateFields(data={}) {
-    if (!isObject(data)) {
-      throw new Error(`Only object can populate a ${this.constructor.name.toLowerCase()}`);
-    }
-
     for (let name in data) {
       this._populateField(name, data[name]);
     }
-
     return this;
   }
 
