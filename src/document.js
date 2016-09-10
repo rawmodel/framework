@@ -317,7 +317,6 @@ export class Document {
       data.messages.length === 0
       && this._isRelatedObjectValid(related)
     );
-
     return isValid ? undefined : data;
   }
 
