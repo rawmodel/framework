@@ -155,6 +155,26 @@ test('field value transformation', (t) => {
   t.is(user.name, '100-set-get');
 });
 
+test('relaxed mode schema', (t) => {
+  let userSchema = new Schema({
+    mode: 'relaxed',
+    fields: {
+      name: {
+        type: 'String',
+        defaultValue: 100
+      }
+    }
+  });
+  let data = {
+    name: 'John',
+    age: 35.5
+  };
+  let user = new Document(userSchema, data);
+
+  t.is(user.name, 'John');
+  t.is(user.age, 35.5);
+});
+
 test('strict mode schema', (t) => {
   let userSchema = new Schema({
     mode: 'strict',
