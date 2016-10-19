@@ -48,7 +48,7 @@ class Document {
   */
 
   constructor(schema) {
-    let data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
     if (!(schema instanceof _schema.Schema)) {
       throw new Error(`${ this.constructor.name } expects schema to be an instance of Schema class`);
@@ -119,7 +119,7 @@ class Document {
         }
       },
       set: function () {
-        let value = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
+        let value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
         data = _this._castValue(value, definition.type); // value type casting
         if (definition.set) {
@@ -163,7 +163,7 @@ class Document {
   */
 
   populate() {
-    let data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     return this._populateFields(data);
   }
@@ -173,7 +173,7 @@ class Document {
   */
 
   _populateFields() {
-    let data = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
     for (let name in data) {
       this._populateField(name, data[name]);
