@@ -128,7 +128,9 @@ export class Document {
   */
 
   populate(data={}) {
-    return this._populateFields(data);
+    return this._populateFields(
+      this._normalizeData(data)
+    );
   }
 
   /*
@@ -159,6 +161,14 @@ export class Document {
     }
 
     return this[name];
+  }
+
+  /*
+  * Returns a normalized data object.
+  */
+
+  _normalizeData(data={}) {
+    return JSON.parse(JSON.stringify(data));
   }
 
   /*
