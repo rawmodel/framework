@@ -13,6 +13,10 @@ var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
+var _stringify = require('babel-runtime/core-js/json/stringify');
+
+var _stringify2 = _interopRequireDefault(_stringify);
+
 var _keys = require('babel-runtime/core-js/object/keys');
 
 var _keys2 = _interopRequireDefault(_keys);
@@ -165,7 +169,7 @@ class Document {
   populate() {
     let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    return this._populateFields(data);
+    return this._populateFields(this._normalizeData(data));
   }
 
   /*
@@ -198,6 +202,16 @@ class Document {
     }
 
     return this[name];
+  }
+
+  /*
+  * Returns a normalized data object.
+  */
+
+  _normalizeData() {
+    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    return JSON.parse((0, _stringify2.default)(data));
   }
 
   /*
