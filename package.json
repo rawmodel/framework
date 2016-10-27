@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -43,7 +43,7 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "0.16.x",
-    "babel-cli": "6.16.x",
+    "babel-cli": "6.18.x",
     "babel-plugin-transform-runtime": "6.15.x",
     "babel-preset-node5": "11.1.x"
   },
