@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('validate', async (t) => {
+test('method `validate`', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -96,7 +96,7 @@ test('validate', async (t) => {
   });
 });
 
-test('isValid', async (t) => {
+test('method `isValid`', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -145,4 +145,50 @@ test('isValid', async (t) => {
   let user = new Document(userSchema, data);
 
   t.is(await user.isValid(), true);
+});
+
+test('validator parent reference', async (t) => {
+  let name = null
+  let validators = {
+    async coolness (value, definition) {
+      name = this.getParent().name;
+    }
+  }
+
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String',
+        validate: {
+          coolness: {message: 'must be cool'}
+        }
+      },
+    },
+    validatorOptions: {
+      validators
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+
+  let data = {
+    name: 'John',
+    books: [
+      {
+        title: 'Coding NodeJs'
+      }
+    ]
+  };
+
+  let user = new Document(userSchema, data);
+  await user.validate();
+  t.is(name, 'John');
 });

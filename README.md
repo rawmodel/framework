@@ -123,8 +123,41 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | schema | Schema | Yes | - | An instance of the Schema class.
 | data | Object | No | - | Data object.
+| parent | Document | No | - | Parent document instance.
 
-**document.populate(data)**:Document
+**Document.prototype.clear()**:Document
+
+> Sets a document field to `null`.
+
+**Document.prototype.clone()**:Document
+
+> Returns a new Document instance which is the exact copy of the original instance.
+
+**Document.prototype.define()**:Document
+
+> Defines class fields for all fields in schema.
+
+**Document.prototype.equalsTo(value)**:Boolean
+
+> Returns `true` when the provided `value` represents an object with the same field values as the document.
+
+**Document.prototype.getSchema()**:Schema
+
+> Returns document's schema instance.
+
+**Document.prototype.getParent**:Document
+
+> Returns parent document instance.
+
+**Document.prototype.getValidator**:Validator
+
+> Returns validator instance.
+
+**Document.prototype.isValid()**:Promise
+
+> Returns `true` when all document fields are valid.
+
+**Document.prototype.populate(data)**:Document
 
 > Applies data to a document.
 
@@ -132,19 +165,15 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
 
-**document.clear()**:Document
+**Document.prototype.purge()**:Document
 
-> Sets a document field to `null`.
+> Deletes all class fields.
 
-**document.clone()**:Document
-
-> Returns a new Document instance which is the exact copy of the original instance.
-
-**document.toObject()**:Object
+**Document.prototype.toObject()**:Object
 
 > Converts a document into serialized data object.
 
-**document.validate()**:Promise
+**Document.prototype.validate()**:Promise
 
 > Validates all class fields and returns errors.
 
@@ -183,22 +212,6 @@ A document is a schema enforced data object. All document properties and configu
   }
 }
 ```
-
-**document.isValid()**:Promise
-
-> Returns `true` when all document fields are valid.
-
-**document.equalsTo(value)**:Boolean
-
-> Returns `true` when the provided `value` represents an object with the same field values as the document.
-
-**document.purge()**:Document
-
-> Deletes all class fields.
-
-**document.define()**:Document
-
-> Defines class fields for all fields in schema.
 
 ## License (MIT)
 

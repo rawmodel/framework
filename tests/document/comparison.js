@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('comperison', (t) => {
+test('method `equalsTo`', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
