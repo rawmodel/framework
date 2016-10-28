@@ -3,7 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Schema = exports.modes = undefined;
+exports.Schema = exports.validatorDefaults = exports.modes = undefined;
+
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
 
 var _keys = require('babel-runtime/core-js/object/keys');
 
@@ -38,6 +42,17 @@ function isValidMode(mode) {
 }
 
 /*
+* Validator default options.
+*/
+
+const validatorDefaults = exports.validatorDefaults = {
+  errorBuilder: (validator, value, _ref) => {
+    let message = _ref.message;
+    return { validator, message };
+  }
+};
+
+/*
 * A class for defining Document structure and properties.
 */
 
@@ -48,16 +63,16 @@ class Schema {
   */
 
   constructor() {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    var _ref$fields = _ref.fields;
-    let fields = _ref$fields === undefined ? {} : _ref$fields;
-    var _ref$mode = _ref.mode;
-    let mode = _ref$mode === undefined ? modes.STRICT : _ref$mode;
-    var _ref$validatorOptions = _ref.validatorOptions;
-    let validatorOptions = _ref$validatorOptions === undefined ? {} : _ref$validatorOptions;
-    var _ref$typeOptions = _ref.typeOptions;
-    let typeOptions = _ref$typeOptions === undefined ? {} : _ref$typeOptions;
+    var _ref2$fields = _ref2.fields;
+    let fields = _ref2$fields === undefined ? {} : _ref2$fields;
+    var _ref2$mode = _ref2.mode;
+    let mode = _ref2$mode === undefined ? modes.STRICT : _ref2$mode;
+    var _ref2$validatorOption = _ref2.validatorOptions;
+    let validatorOptions = _ref2$validatorOption === undefined ? {} : _ref2$validatorOption;
+    var _ref2$typeOptions = _ref2.typeOptions;
+    let typeOptions = _ref2$typeOptions === undefined ? {} : _ref2$typeOptions;
 
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${ mode }`);
@@ -74,7 +89,7 @@ class Schema {
 
     this.fields = fields; // document fields
     this.mode = mode; // document schema mode
-    this.validatorOptions = validatorOptions; // options for validatable.js
+    this.validatorOptions = (0, _assign2.default)({}, validatorDefaults, validatorOptions); // options for validatable.js
     this.typeOptions = typeOptions; // options for typeable.js
   }
 

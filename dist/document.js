@@ -74,7 +74,7 @@ class Document {
       enumerable: false // do not expose as object key
     });
 
-    this.define();
+    this._define();
     this.populate(data);
   }
 
@@ -114,7 +114,7 @@ class Document {
   * Defines class fields for schema.
   */
 
-  define() {
+  _define() {
     return this._defineFields();
   }
 
@@ -399,14 +399,14 @@ class Document {
     return (0, _asyncToGenerator3.default)(function* () {
       let data = {};
 
-      data.messages = yield _this5._validator.validate(value, definition.validate);
+      data.errors = yield _this5._validator.validate(value, definition.validate);
 
       let related = yield _this5._validateRelatedObject(value, definition);
       if (related) {
         data.related = related;
       }
 
-      let isValid = data.messages.length === 0 && _this5._isRelatedObjectValid(related);
+      let isValid = data.errors.length === 0 && _this5._isRelatedObjectValid(related);
       return isValid ? undefined : data;
     })();
   }
@@ -455,7 +455,7 @@ class Document {
     if (!value) {
       return true;
     } else if ((0, _typeable.isObject)(value)) {
-      return (0, _values2.default)(value).map(v => v.messages.length > 0 || v.related).indexOf(true) === -1;
+      return (0, _values2.default)(value).map(v => v.errors.length > 0 || v.related).indexOf(true) === -1;
     } else if ((0, _typeable.isArray)(value)) {
       return value.map(v => this._isRelatedObjectValid(v)).indexOf(false) === -1;
     }

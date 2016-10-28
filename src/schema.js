@@ -13,7 +13,7 @@ export const modes = {
 * Validates the `mode` value.
 */
 
-export function isValidMode(mode) {
+export function isValidMode (mode) {
   let keys = Object.keys(modes);
 
   for (let key of keys) {
@@ -21,6 +21,14 @@ export function isValidMode(mode) {
   }
   return false;
 }
+
+/*
+* Validator default options.
+*/
+
+export const validatorDefaults = {
+  errorBuilder: (validator, value, {message}) => ({validator, message})
+};
 
 /*
 * A class for defining Document structure and properties.
@@ -32,7 +40,7 @@ export class Schema {
   * Class constructor.
   */
 
-  constructor({fields={}, mode=modes.STRICT, validatorOptions={}, typeOptions={}}={}) {
+  constructor ({fields={}, mode=modes.STRICT, validatorOptions={}, typeOptions={}}={}) {
     if (!isValidMode(mode)) {
       throw new Error(`Unknown schema mode ${mode}`);
     }
@@ -48,7 +56,7 @@ export class Schema {
 
     this.fields = fields; // document fields
     this.mode = mode; // document schema mode
-    this.validatorOptions = validatorOptions; // options for validatable.js
+    this.validatorOptions = Object.assign({}, validatorDefaults, validatorOptions); // options for validatable.js
     this.typeOptions = typeOptions; // options for typeable.js
   }
 

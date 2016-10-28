@@ -133,10 +133,6 @@ A document is a schema enforced data object. All document properties and configu
 
 > Returns a new Document instance which is the exact copy of the original instance.
 
-**Document.prototype.define()**:Document
-
-> Defines class fields for all fields in schema.
-
 **Document.prototype.equalsTo(value)**:Boolean
 
 > Returns `true` when the provided `value` represents an object with the same field values as the document.
@@ -145,11 +141,11 @@ A document is a schema enforced data object. All document properties and configu
 
 > Returns document's schema instance.
 
-**Document.prototype.getParent**:Document
+**Document.prototype.getParent()**:Document
 
 > Returns parent document instance.
 
-**Document.prototype.getValidator**:Validator
+**Document.prototype.getValidator()**:Validator
 
 > Returns validator instance.
 

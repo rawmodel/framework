@@ -66,29 +66,29 @@ test('method `validate`', async (t) => {
 
   t.deepEqual(await user.validate(), {
     name: {
-      messages: ['is required']
+      errors: [{validator: 'presence', message: 'is required'}]
     },
     newBook: {
-      messages: ['is required']
+      errors: [{validator: 'presence', message: 'is required'}]
     },
     newBooks: {
-      messages: ['is required']
+      errors: [{validator: 'presence', message: 'is required'}]
     },
     oldBook: {
-      messages: [],
+      errors: [],
       related: {
         title: {
-          messages: ['is required']
+          errors: [{validator: 'presence', message: 'is required'}]
         }
       }
     },
     oldBooks: {
-      messages: [],
+      errors: [],
       related: [
         undefined,
         {
           title: {
-            messages: ['is required']
+            errors: [{validator: 'presence', message: 'is required'}]
           }
         }
       ]
