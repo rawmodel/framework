@@ -151,7 +151,7 @@ test('validator parent reference', async (t) => {
   let name = null
   let validators = {
     async coolness (value, definition) {
-      name = this.getParent().name;
+      name = this.$parent.name;
     }
   }
 

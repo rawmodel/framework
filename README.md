@@ -125,6 +125,18 @@ A document is a schema enforced data object. All document properties and configu
 | data | Object | No | - | Data object.
 | parent | Document | No | - | Parent document instance.
 
+**Document.prototype.$schema**:Schema
+
+> Schema instance.
+
+**Document.prototype.$parent**:Document
+
+> Parent document instance.
+
+**Document.prototype.$validator()**:Validator
+
+> Validator instance.
+
 **Document.prototype.clear()**:Document
 
 > Sets a document field to `null`.
@@ -136,18 +148,6 @@ A document is a schema enforced data object. All document properties and configu
 **Document.prototype.equalsTo(value)**:Boolean
 
 > Returns `true` when the provided `value` represents an object with the same field values as the document.
-
-**Document.prototype.getSchema()**:Schema
-
-> Returns document's schema instance.
-
-**Document.prototype.getParent()**:Document
-
-> Returns parent document instance.
-
-**Document.prototype.getValidator()**:Validator
-
-> Returns validator instance.
 
 **Document.prototype.isValid()**:Promise
 

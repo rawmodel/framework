@@ -59,17 +59,17 @@ class Document {
       throw new Error(`${ this.constructor.name } expects schema to be an instance of Schema class`);
     }
 
-    Object.defineProperty(this, '_schema', {
+    Object.defineProperty(this, '$schema', {
       get: () => schema,
       enumerable: false // do not expose as object key
     });
 
-    Object.defineProperty(this, '_parent', {
+    Object.defineProperty(this, '$parent', {
       get: () => parent,
       enumerable: false // do not expose as object key
     });
 
-    Object.defineProperty(this, '_validator', {
+    Object.defineProperty(this, '$validator', {
       value: this._createValidator(),
       enumerable: false // do not expose as object key
     });
@@ -79,35 +79,11 @@ class Document {
   }
 
   /*
-  * Returns the schema.
-  */
-
-  getSchema() {
-    return this._schema;
-  }
-
-  /*
-  * Returns the validator instance.
-  */
-
-  getValidator() {
-    return this._validator;
-  }
-
-  /*
-  * Returns the parent document instance.
-  */
-
-  getParent() {
-    return this._parent;
-  }
-
-  /*
   * Returns a new instance of validator.
   */
 
   _createValidator() {
-    return new _validatable.Validator((0, _assign2.default)({}, this._schema.validatorOptions, { context: this }));
+    return new _validatable.Validator((0, _assign2.default)({}, this.$schema.validatorOptions, { context: this }));
   }
 
   /*
@@ -123,7 +99,7 @@ class Document {
   */
 
   _defineFields() {
-    let fields = this._schema.fields;
+    let fields = this.$schema.fields;
 
 
     for (let name in fields) {
@@ -140,7 +116,7 @@ class Document {
   _defineField(name) {
     var _this = this;
 
-    let definition = this._schema.fields[name];
+    let definition = this.$schema.fields[name];
     let data;
 
     (0, _defineProperty2.default)(this, name, { // field definition
@@ -180,7 +156,7 @@ class Document {
   */
 
   _castValue(value, type) {
-    let options = this._schema.typeOptions;
+    let options = this.$schema.typeOptions;
 
     options.types = (0, _assign2.default)({}, options.types, {
       Schema: value => {
@@ -220,10 +196,10 @@ class Document {
   */
 
   _populateField(name, value) {
-    if (this._schema.mode === 'relaxed') {
+    if (this.$schema.mode === 'relaxed') {
       this[name] = value;
     } else {
-      let names = (0, _keys2.default)(this._schema.fields);
+      let names = (0, _keys2.default)(this.$schema.fields);
       let exists = names.indexOf(name) > -1;
 
       if (exists) {
@@ -308,7 +284,7 @@ class Document {
   */
 
   clone() {
-    return new this.constructor(this._schema, this.toObject());
+    return new this.constructor(this.$schema, this.toObject());
   }
 
   /*
@@ -362,7 +338,7 @@ class Document {
     return (0, _asyncToGenerator3.default)(function* () {
       let data = {};
 
-      for (let name in _this3._schema.fields) {
+      for (let name in _this3.$schema.fields) {
 
         let info = yield _this3._validateField(name);
         if (!(0, _typeable.isUndefined)(info)) {
@@ -383,7 +359,7 @@ class Document {
 
     return (0, _asyncToGenerator3.default)(function* () {
       let value = _this4[name];
-      let definition = _this4._schema.fields[name];
+      let definition = _this4.$schema.fields[name];
 
       return yield _this4._validateValue(value, definition);
     })();
@@ -399,7 +375,7 @@ class Document {
     return (0, _asyncToGenerator3.default)(function* () {
       let data = {};
 
-      data.errors = yield _this5._validator.validate(value, definition.validate);
+      data.errors = yield _this5.$validator.validate(value, definition.validate);
 
       let related = yield _this5._validateRelatedObject(value, definition);
       if (related) {
