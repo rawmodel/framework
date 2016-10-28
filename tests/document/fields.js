@@ -209,3 +209,48 @@ test('clearing fields', (t) => {
 
   t.is(user.name, null);
 });
+
+test('method `hasPath`', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+  let data = {
+    name: 100,
+    book: {
+      title: 100
+    },
+    books: [
+      {
+        title: 100
+      }
+    ]
+  };
+  let user0 = new Document(userSchema);
+  let user1 = new Document(userSchema, data);
+
+  t.is(user0.hasPath('name'), true);
+  t.is(user0.hasPath('book', 'title'), false);
+  t.is(user0.hasPath('books', 0, 'title'), false);
+  t.is(user0.hasPath(['books', 0, 'title']), false);
+  t.is(user1.hasPath('name'), true);
+  t.is(user1.hasPath('book', 'title'), true);
+  t.is(user1.hasPath('books', 0, 'title'), true);
+  t.is(user1.hasPath(['books', 0, 'title']), true);
+});

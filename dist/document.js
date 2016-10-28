@@ -450,11 +450,25 @@ class Document {
   }
 
   /*
+  * Returns `true` if keys exist on the document.
+  */
+
+  hasPath() {
+    for (var _len = arguments.length, keys = Array(_len), _key = 0; _key < _len; _key++) {
+      keys[_key] = arguments[_key];
+    }
+
+    if ((0, _typeable.isArray)(keys[0])) keys = keys[0];
+
+    return keys.reduce((a, b) => (a || {})[b], this) !== undefined;
+  }
+
+  /*
   * Returns `true` when the `value` represents an object with the
   * same field values as the original document.
   */
 
-  equalsTo(value) {
+  equals(value) {
     return (0, _deepEqual2.default)(this, value);
   }
 

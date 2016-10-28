@@ -386,11 +386,21 @@ export class Document {
   }
 
   /*
+  * Returns `true` if keys exist on the document.
+  */
+
+  hasPath (...keys) {
+    if (isArray(keys[0])) keys = keys[0];
+
+    return keys.reduce(( a, b ) => (a || {})[b], this) !== undefined;
+  }
+
+  /*
   * Returns `true` when the `value` represents an object with the
   * same field values as the original document.
   */
 
-  equalsTo (value) {
+  equals (value) {
     return deeplyEquals(this, value);
   }
 

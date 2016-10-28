@@ -1,7 +1,7 @@
 const test = require('ava');
 const {Document, Schema} = require('../../dist');
 
-test('method `equalsTo`', (t) => {
+test('method `equals`', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -34,8 +34,8 @@ test('method `equalsTo`', (t) => {
   let user2 = new Document(new Schema(userSchema), data0);
   let user3 = new Document(new Schema(userSchema), data1);
 
-  t.is(user0.equalsTo(user1), true);
-  t.is(user0.equalsTo(user2), false);
-  t.is(user0.equalsTo(user3), false);
-  t.is(user2.equalsTo(user3), false);
+  t.is(user0.equals(user1), true);
+  t.is(user0.equals(user2), false);
+  t.is(user0.equals(user3), false);
+  t.is(user2.equals(user3), false);
 });
