@@ -103,22 +103,6 @@ export class Field {
   }
 
   /*
-  * Sets field to the default value.
-  */
-
-  reset () {
-    return this.value = this.defaultValue;
-  }
-
-  /*
-  * Removes field's value by setting it to null.
-  */
-
-  clear () {
-    return this.value = null;
-  }
-
-  /*
   * Returns the value of a field before last commit.
   */
 
@@ -127,13 +111,34 @@ export class Field {
   }
 
   /*
+  * Sets field to the default value.
+  */
+
+  reset () {
+    this.value = this.defaultValue;
+
+    return this;
+  }
+
+  /*
+  * Removes field's value by setting it to null.
+  */
+
+  clear () {
+    this.value = null;
+
+    return this;
+  }
+
+  /*
   * Deeply set's the initial values to the current value of each field.
   */
 
   commit () {
     this._commitRelated(this.value);
+    this._initialValue = cloneData(this.value);
 
-    return this._initialValue = cloneData(this.value);
+    return this;
   }
 
   /*
@@ -155,7 +160,9 @@ export class Field {
   */
 
   rollback () {
-    return this.value = this.initialValue;
+    this.value = this.initialValue;
+    
+    return this;
   }
 
   /*
