@@ -5,17 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Document = undefined;
 
-var _values = require('babel-runtime/core-js/object/values');
-
-var _values2 = _interopRequireDefault(_values);
-
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
-
-var _stringify = require('babel-runtime/core-js/json/stringify');
-
-var _stringify2 = _interopRequireDefault(_stringify);
 
 var _keys = require('babel-runtime/core-js/object/keys');
 
@@ -37,7 +29,11 @@ var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
 var _validatable = require('validatable');
 
+var _utils = require('./utils');
+
 var _schema = require('./schema');
+
+var _field = require('./field');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -55,27 +51,18 @@ class Document {
     let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     let parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-    if (!(schema instanceof _schema.Schema)) {
-      throw new Error(`${ this.constructor.name } expects schema to be an instance of Schema class`);
-    }
-
     Object.defineProperty(this, '$schema', {
-      get: () => schema,
-      enumerable: false // do not expose as object key
+      value: schema
     });
-
     Object.defineProperty(this, '$parent', {
-      get: () => parent,
-      enumerable: false // do not expose as object key
+      value: parent
     });
-
     Object.defineProperty(this, '$validator', {
-      value: this._createValidator(),
-      enumerable: false // do not expose as object key
+      value: this._createValidator()
     });
 
-    this._define();
-    this.populate(data);
+    this._defineFields();
+    this._populateFields(data);
   }
 
   /*
@@ -87,15 +74,7 @@ class Document {
   }
 
   /*
-  * Defines class fields for schema.
-  */
-
-  _define() {
-    return this._defineFields();
-  }
-
-  /*
-  * Defines all schema fields.
+  * Defines class fields from schema.
   */
 
   _defineFields() {
@@ -105,8 +84,6 @@ class Document {
     for (let name in fields) {
       this._defineField(name);
     }
-
-    return this;
   }
 
   /*
@@ -114,339 +91,18 @@ class Document {
   */
 
   _defineField(name) {
-    var _this = this;
-
-    let definition = this.$schema.fields[name];
-    let data;
+    let field = new _field.Field(this, name);
 
     (0, _defineProperty2.default)(this, name, { // field definition
-      get: () => {
-        if (definition.get) {
-          // value transformation
-          return definition.get(data, this);
-        } else {
-          return data;
-        }
-      },
-      set: function () {
-        let value = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
-        data = _this._castValue(value, definition.type); // value type casting
-        if (definition.set) {
-          // value transformation
-          data = definition.set(data, _this);
-        }
-      },
+      get: () => field.value,
+      set: v => field.value = v,
       enumerable: true,
       configurable: true
     });
 
-    if ((0, _typeable.isFunction)(definition.defaultValue)) {
-      // setting default value
-      this[name] = definition.defaultValue(this);
-    } else {
-      this[name] = definition.defaultValue;
-    }
-
-    return this[name];
-  }
-
-  /*
-  * Converts the `value` into specified `type`.
-  */
-
-  _castValue(value, type) {
-    let options = this.$schema.typeOptions;
-
-    options.types = (0, _assign2.default)({}, options.types, {
-      Schema: value => {
-        if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
-        return new this.constructor(type, value, this);
-      }
+    Object.defineProperty(this, `$${ name }`, { // field class instance definition
+      value: field
     });
-
-    return (0, _typeable.cast)(value, type, options);
-  }
-
-  /*
-  * Sets field values from the provided by data object.
-  */
-
-  populate() {
-    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    return this._populateFields(this._normalizeData(data));
-  }
-
-  /*
-  * Sets field values from the provided by data object.
-  */
-
-  _populateFields() {
-    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    for (let name in data) {
-      this._populateField(name, data[name]);
-    }
-    return this;
-  }
-
-  /*
-  * Sets a value of a field by name.
-  */
-
-  _populateField(name, value) {
-    if (this.$schema.mode === 'relaxed') {
-      this[name] = value;
-    } else {
-      let names = (0, _keys2.default)(this.$schema.fields);
-      let exists = names.indexOf(name) > -1;
-
-      if (exists) {
-        this[name] = value;
-      }
-    }
-
-    return this[name];
-  }
-
-  /*
-  * Returns a normalized data object.
-  */
-
-  _normalizeData() {
-    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-    return JSON.parse((0, _stringify2.default)(data));
-  }
-
-  /*
-  * Deletes all class fields.
-  */
-
-  purge() {
-    return this._purgeFields();
-  }
-
-  /*
-  * Deletes all class fields.
-  */
-
-  _purgeFields() {
-    let names = (0, _keys2.default)(this);
-    names.forEach(name => this._purgeField(name));
-
-    return this;
-  }
-
-  /*
-  * Deletes specified class field.
-  */
-
-  _purgeField(name) {
-    return delete this[name];
-  }
-
-  /*
-  * Remove values of all class fields.
-  */
-
-  clear() {
-    return this._clearFields();
-  }
-
-  /*
-  * Remove values of all class fields.
-  */
-
-  _clearFields() {
-    let names = (0, _keys2.default)(this);
-
-    for (let name of names) {
-      this._clearField(name);
-    }
-
-    return this;
-  }
-
-  /*
-  * Removes a value of a field with `name`.
-  */
-
-  _clearField(name) {
-    this[name] = null;
-    return this[name];
-  }
-
-  /*
-  * Returns a new Document instance which is the exact
-  * copy of the original instance.
-  */
-
-  clone() {
-    return new this.constructor(this.$schema, this.toObject());
-  }
-
-  /*
-  * Converts this class into serialized data object.
-  */
-
-  toObject() {
-    let data = {};
-    let names = (0, _keys2.default)(this);
-
-    for (let name of names) {
-      data[name] = this._toObjectValue(this[name]);
-    }
-
-    return data;
-  }
-
-  /*
-  * Reads a value recursivelly and returns a serialized data object.
-  */
-
-  _toObjectValue(value) {
-    if (value && value.toObject) {
-      return value.toObject();
-    } else if (value && (0, _typeable.isArray)(value)) {
-      return value.map(value => this._toObjectValue(value));
-    } else {
-      return value;
-    }
-  }
-
-  /*
-  * Validates all class fields and returns errors.
-  */
-
-  validate() {
-    var _this2 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      return yield _this2._validateFields();
-    })();
-  }
-
-  /*
-  * Validates all class fields and returns errors.
-  */
-
-  _validateFields() {
-    var _this3 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let data = {};
-
-      for (let name in _this3.$schema.fields) {
-
-        let info = yield _this3._validateField(name);
-        if (!(0, _typeable.isUndefined)(info)) {
-          data[name] = info;
-        }
-      }
-
-      return data;
-    })();
-  }
-
-  /*
-  * Validates a single class field with `name` and returns errors.
-  */
-
-  _validateField(name) {
-    var _this4 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let value = _this4[name];
-      let definition = _this4.$schema.fields[name];
-
-      return yield _this4._validateValue(value, definition);
-    })();
-  }
-
-  /*
-  * Validates a value agains the field `definition` object.
-  */
-
-  _validateValue(value, definition) {
-    var _this5 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let data = {};
-
-      data.errors = yield _this5.$validator.validate(value, definition.validate);
-
-      let related = yield _this5._validateRelatedObject(value, definition);
-      if (related) {
-        data.related = related;
-      }
-
-      let isValid = data.errors.length === 0 && _this5._isRelatedObjectValid(related);
-      return isValid ? undefined : data;
-    })();
-  }
-
-  /*
-  * Validates nested data of a value agains the field `definition` object.
-  */
-
-  _validateRelatedObject(value, definition) {
-    var _this6 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let type = definition.type;
-
-
-      if (!value) {
-        return undefined;
-      } else if (type instanceof _schema.Schema) {
-        return yield value._validateFields();
-      } else if ((0, _typeable.isArray)(type) && (0, _typeable.isArray)(value)) {
-        let items = [];
-
-        for (let v of value) {
-          if (type[0] instanceof _schema.Schema) {
-            if (v) {
-              items.push((yield v._validateFields()));
-            } else {
-              items.push(undefined);
-            }
-          } else {
-            items.push((yield _this6._validateValue(v, definition)));
-          }
-        }
-        return items;
-      } else {
-        return undefined;
-      }
-    })();
-  }
-
-  /*
-  * Validates a related object of a field (a sub schema).
-  */
-
-  _isRelatedObjectValid(value) {
-    if (!value) {
-      return true;
-    } else if ((0, _typeable.isObject)(value)) {
-      return (0, _values2.default)(value).map(v => v.errors.length > 0 || v.related).indexOf(true) === -1;
-    } else if ((0, _typeable.isArray)(value)) {
-      return value.map(v => this._isRelatedObjectValid(v)).indexOf(false) === -1;
-    }
-  }
-
-  /*
-  * Returns `true` when all document fields are valid.
-  */
-
-  isValid() {
-    var _this7 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      return (0, _typeable.isAbsent)((yield _this7._validateFields()));
-    })();
   }
 
   /*
@@ -458,9 +114,135 @@ class Document {
       keys[_key] = arguments[_key];
     }
 
-    if ((0, _typeable.isArray)(keys[0])) keys = keys[0];
+    if ((0, _typeable.isArray)(keys[0])) {
+      keys = keys[0];
+    }
 
     return keys.reduce((a, b) => (a || {})[b], this) !== undefined;
+  }
+
+  /*
+  * Sets field values from the provided by data object.
+  */
+
+  populate() {
+    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    return this._populateFields(data);
+  }
+
+  /*
+  * Sets field values from the provided by data object.
+  */
+
+  _populateFields() {
+    let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+    data = (0, _utils.cloneData)(data);
+
+    for (let name in data) {
+      this._populateField(name, data[name]);
+    }
+
+    return this;
+  }
+
+  /*
+  * Sets a value of a field by name.
+  */
+
+  _populateField(name, value) {
+    if (!this.$schema.strict) {
+      this[name] = value;
+    } else {
+      let names = (0, _keys2.default)(this.$schema.fields);
+      let exists = names.indexOf(name) > -1;
+
+      if (exists) {
+        this[name] = value;
+      }
+    }
+  }
+
+  /*
+  * Converts this class into serialized data object.
+  */
+
+  toObject() {
+    let data = {};
+    let names = (0, _keys2.default)(this);
+
+    for (let name of names) {
+      data[name] = this._serializeValue(this[name]);
+    }
+
+    return data;
+  }
+
+  /*
+  * Serializes a value recursivelly and returns a serialized data object.
+  */
+
+  _serializeValue(value) {
+    if (value && value.toObject) {
+      return value.toObject();
+    } else if (value && (0, _typeable.isArray)(value)) {
+      return value.map(value => this._serializeValue(value));
+    } else {
+      return value;
+    }
+  }
+
+  /*
+  * Resets all fields to their default values.
+  */
+
+  reset() {
+    let fields = this.$schema.fields;
+
+
+    for (let name in fields) {
+      this[`$${ name }`].reset();
+    }
+  }
+
+  /*
+  * Removes all fileds values by setting them to `null`.
+  */
+
+  clear() {
+    let fields = this.$schema.fields;
+
+
+    for (let name in fields) {
+      this[`$${ name }`].clear();
+    }
+  }
+
+  /*
+  * Removes all fileds values by setting them to `null`.
+  */
+
+  commit() {
+    let fields = this.$schema.fields;
+
+
+    for (let name in fields) {
+      this[`$${ name }`].commit();
+    }
+  }
+
+  /*
+  * Resets all fields to their initial values.
+  */
+
+  rollback() {
+    let fields = this.$schema.fields;
+
+
+    for (let name in fields) {
+      this[`$${ name }`].rollback();
+    }
   }
 
   /*
@@ -470,6 +252,60 @@ class Document {
 
   equals(value) {
     return (0, _deepEqual2.default)(this, value);
+  }
+
+  /*
+  * Returns a new Document instance which is the exact copy of the original.
+  */
+
+  clone() {
+    return new this.constructor(this.$schema, this.toObject());
+  }
+
+  /*
+  * Returns a `true` if at least one field has been changed.
+  */
+
+  isChanged() {
+    return (0, _keys2.default)(this.$schema.fields).some(name => {
+      return this[`$${ name }`].isChanged();
+    });
+  }
+
+  /*
+  * Validates fields and returns errors.
+  */
+
+  validate() {
+    var _this = this;
+
+    return (0, _asyncToGenerator3.default)(function* () {
+      let data = {};
+      let fields = _this.$schema.fields;
+
+
+      for (let name in fields) {
+        let errors = yield _this[`$${ name }`].validate();
+
+        if (!(0, _typeable.isAbsent)(errors)) {
+          data[name] = errors;
+        }
+      }
+
+      return data;
+    })();
+  }
+
+  /*
+  * Returns `true` when all document fields are valid.
+  */
+
+  isValid() {
+    var _this2 = this;
+
+    return (0, _asyncToGenerator3.default)(function* () {
+      return (0, _typeable.isAbsent)((yield _this2.validate()));
+    })();
   }
 
 }

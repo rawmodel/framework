@@ -2,11 +2,30 @@
 
 # objectschema.js
 
-> Schema enforced JavaScript objects.
+> Advanced schema enforced JavaScript objects.
 
 <img src="giphy.gif" width="300" />
 
+## Features
+
+* Type casting
+* Custom data types
+* Field default value
+* Field value transformation with custom getter and setter
+* Strict and relaxed schemas
+* Document nesting with support for self referencing
+* Field change tracking, data commit and rollback
+* Field validation
+
+## Related Projects
+
+* [Typeable.js](https://github.com/xpepermint/typeablejs): A library for checking and casting types.
+* [Validatable.js](https://github.com/xpepermint/validatablejs): A library for synchronous and asynchronous validation.
+* [Contextable.js](https://github.com/xpepermint/contextablejs): Simple, unopinionated and minimalist framework for creating context objects with support for unopinionated ORM, object schemas, type casting, validation and error handling and more.
+
 ## Install
+
+Run the command below to install the package.
 
 ```
 $ npm install --save objectschema
@@ -60,7 +79,33 @@ let data = {
 
 let user = new Document(userSchema, data);
 user.name; // -> 'John Smith'
-await user.isValid(); // -> true
+
+user.$name.value; // -> 'John Smith'
+user.$name.defaultValue; // -> 'John Smith'
+user.$name.initialValue; // -> 'John Smith'
+//
+user.$name.commit(); // -> 'John Smith'
+user.$name.rollback(); // -> 'John Smith'
+user.$name.reset(); // -> 'John Smith'
+user.$name.clear(); // -> null
+user.$name.equals({}); // -> false
+user.$name.isChanged(); // -> false
+await user.$name.validate(); // -> {errors: [], related: null}
+await user.$name.isValid(); // -> false
+
+user.hasPath('name'); // -> true
+user.populate({}); // -> this
+user.toObject(); // -> {}
+user.clone(); // -> this
+//
+user.commit(); // -> this
+user.rollback(); // -> this
+user.reset(); // -> this
+user.clear(); // -> this
+user.equals({}); // -> false
+user.isChanged(); // -> false
+await user.validate(); // -> {errors: [], related: null}
+await user.isValid(); // -> false
 ```
 
 ## API
@@ -81,7 +126,7 @@ A Schema can also be used as a custom type object. This way you can create a nes
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| fields | Object | Yes | - | An object with fields definition.
+| fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the object in case of self referencing.
 | mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
 | validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
 | typeOptions | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
@@ -168,10 +213,6 @@ A document is a schema enforced data object. All document properties and configu
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
-
-**Document.prototype.purge()**:Document
-
-> Deletes all class fields.
 
 **Document.prototype.toObject()**:Object
 
