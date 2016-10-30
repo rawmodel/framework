@@ -78,39 +78,12 @@ let data = {
 };
 
 let user = new Document(userSchema, data);
-user.name; // -> 'John Smith'
-
-user.$name.value; // -> 'John Smith'
-user.$name.defaultValue; // -> 'John Smith'
-user.$name.initialValue; // -> 'John Smith'
-//
-user.$name.commit(); // -> 'John Smith'
-user.$name.rollback(); // -> 'John Smith'
-user.$name.reset(); // -> 'John Smith'
-user.$name.clear(); // -> null
-user.$name.equals({}); // -> false
-user.$name.isChanged(); // -> false
-await user.$name.validate(); // -> {errors: [], related: null}
-await user.$name.isValid(); // -> false
-
-user.hasPath('name'); // -> true
-user.populate({}); // -> this
-user.toObject(); // -> {}
-user.clone(); // -> this
-//
-user.commit(); // -> this
-user.rollback(); // -> this
-user.reset(); // -> this
-user.clear(); // -> this
-user.equals({}); // -> false
-user.isChanged(); // -> false
-await user.validate(); // -> {errors: [], related: null}
 await user.isValid(); // -> false
 ```
 
 ## API
 
-This package consists of two core classes. The `Schema` class represents a configuration object and the `Document` represents a data object defined by the Schema.
+This package consists of two core classes. The `Schema` class represents a configuration object and the `Document` represents a data object defined by the Schema. There is also the `Field` class which represents a document field.
 
 This package also integrates [*typeable.js*](https://github.com/xpepermint/typeablejs) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
 
@@ -120,14 +93,14 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
-**Schema({fields, mode, validatorOptions, typeOptions})**
+**Schema({fields, strict, validatorOptions, typeOptions})**
 
 > A class for defining document structure.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the object in case of self referencing.
-| mode | String | No | strict | A schema type (use `relaxed` to allow dynamic fields not defined by the schema).
+| fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the definition object in case of self referencing.
+| strict | Boolean | No | true | A schema type (set to `false` to allow dynamic fields not defined in schema).
 | validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
 | typeOptions | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
 ```js
@@ -144,31 +117,31 @@ new Schema({
       }
     },
   },
-  mode: 'strict', // schema mode
+  strict: true, // schema mode
   validatorOptions: {}, // validatable.js configuration options (see the package's page for details)
   typeOptions: {} // typeable.js configuration options (see the package's page for details)
 });
 ```
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported but we can also define custom types or override existing types through a `typeOptions` key. Please check package's website for a list of supported types and further information.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported, but we can also define custom types or override existing types through a `typeOptions` key. Please check package's website for a list of supported types and further information.
 
 By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
-Field validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the package by passing the `validatorOptions` option to our schema which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please check package's website for details.
+Validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the package by passing the `validatorOptions` option to our schema which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please see package's website for details.
 
 ### Document
 
 A document is a schema enforced data object. All document properties and configuration options are defined by the schema.
 
-**Document(schema, data)**
+**Document(schema, data, parent)**
 
-> A class for creating schema-based objects.
+> A class for creating schema enforced objects.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | schema | Schema | Yes | - | An instance of the Schema class.
-| data | Object | No | - | Data object.
-| parent | Document | No | - | Parent document instance.
+| data | Object | No | - | Initial data object.
+| parent | Document | No | - | Parent document instance (for nesting documents).
 
 **Document.prototype.$schema**:Schema
 
@@ -180,27 +153,35 @@ A document is a schema enforced data object. All document properties and configu
 
 **Document.prototype.$validator**:Validator
 
-> Validator instance.
+> Validator instance, used for validating fields.
 
 **Document.prototype.clear()**:Document
 
-> Sets a document field to `null`.
+> Sets all document fields to `null`.
 
 **Document.prototype.clone()**:Document
 
-> Returns a new Document instance which is the exact copy of the original instance.
+> Returns a new Document instance which is the exact copy of the original.
+
+**Document.prototype.commit()**:Document
+
+> Sets initial value of each document field to the current value of a field. This is how field change tracking is restarted.
 
 **Document.prototype.equals(value)**:Boolean
 
-> Returns `true` when the provided `value` represents an object with the same field values as the document.
+> Returns `true` when the provided `value` represents an object with the same fields as the document itself.
 
 **Document.prototype.hasPath(...keys)**:Boolean
 
-> Returns `true` when all document fields are valid.
+> Returns `true` when a field path exists.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | List of object keys (e.g. `['book', 0, 'title']`).
+
+**Document.prototype.isChanged()**:Boolean
+
+> Returns `true` if at least one document field has been changed.
 
 **Document.prototype.isValid()**:Promise
 
@@ -214,13 +195,21 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
 
+**Document.prototype.reset()**:Document
+
+> Sets each document field to its default value.
+
+**Document.prototype.rollback()**:Document
+
+> Sets each document field to its initial value (last committed value). This is how you can discharge document changes.
+
 **Document.prototype.toObject()**:Object
 
 > Converts a document into serialized data object.
 
-**Document.prototype.validate()**:Promise
+**Document.prototype.validate()**:Promise(Object)
 
-> Validates all class fields and returns errors.
+> Validates all document fields and returns errors.
 
 ```js
 { // return value example
@@ -257,6 +246,69 @@ A document is a schema enforced data object. All document properties and configu
   }
 }
 ```
+
+### Field
+
+When a document field is defined, another field with the same name but prefixed with the `$` sign is set. This special read-only field holds a reference to the actual field instance.
+
+```js
+let user = new Document(schema);
+user.name = 'John'; // -> actual document field
+user.$name; // -> reference to document field instance
+user.$name.isChanged(); // -> calling field instance method
+```
+
+**Field.prototype.$document**:Document
+
+> Document instance.
+
+**Field.prototype.$name**:String
+
+> Field name.
+
+**Field.prototype.clear()**:Field
+
+> Sets field and related sub fields to `null`.
+
+**Field.prototype.commit()**:Field
+
+> Sets initial value to the current value. This is how field change tracking is restarted.
+
+**Field.prototype.defaultValue**:Any
+
+> A getter which returns the default field value.
+
+**Field.prototype.equals(value)**:Boolean
+
+> Returns `true` when the provided `value` represents an object that looks the same.
+
+**Field.prototype.initialValue**:Any
+
+> A getter which returns the initial field value (a value from the last commit).
+
+**Field.prototype.isChanged()**:Boolean
+
+> Returns `true` if the field or at least one sub field have been changed.
+
+**Field.prototype.isValid()**:Promise(Boolean)
+
+> Returns `true` if the field and all sub fields are valid.
+
+**Field.prototype.reset()**:Field
+
+> Sets the field to its default value.
+
+**Field.prototype.rollback()**:Field
+
+> Sets the field to its initial value (last committed value). This is how you can discharge field's changes.
+
+**Field.prototype.validate()**:Promise(Object)
+
+> Validates the field and returns errors.
+
+**Field.prototype.value**:Any
+
+> A getter and setter for the value of the field.
 
 ## License (MIT)
 

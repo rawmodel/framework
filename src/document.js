@@ -161,7 +161,7 @@ export class Document {
   }
 
   /*
-  * Resets all fields to their default values.
+  * Sets each document field to its default value.
   */
 
   reset () {
@@ -170,6 +170,8 @@ export class Document {
     for (let name in fields) {
       this[`$${name}`].reset();
     }
+
+    return this;
   }
 
   /*
@@ -182,10 +184,12 @@ export class Document {
     for (let name in fields) {
       this[`$${name}`].clear();
     }
+
+    return this;
   }
 
   /*
-  * Removes all fileds values by setting them to `null`.
+  * Sets initial value of each document field to the current value of a field.
   */
 
   commit () {
@@ -194,10 +198,12 @@ export class Document {
     for (let name in fields) {
       this[`$${name}`].commit();
     }
+
+    return this;
   }
 
   /*
-  * Resets all fields to their initial values.
+  * Sets each document field to its initial value (value before last commit).
   */
 
   rollback () {
@@ -206,6 +212,8 @@ export class Document {
     for (let name in fields) {
       this[`$${name}`].rollback();
     }
+
+    return this;
   }
 
   /*
