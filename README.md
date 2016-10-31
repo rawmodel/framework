@@ -19,9 +19,10 @@
 
 ## Related Projects
 
-* [Typeable.js](https://github.com/xpepermint/typeablejs): A library for checking and casting types.
-* [Validatable.js](https://github.com/xpepermint/validatablejs): A library for synchronous and asynchronous validation.
 * [Contextable.js](https://github.com/xpepermint/contextablejs): Simple, unopinionated and minimalist framework for creating context objects with support for unopinionated ORM, object schemas, type casting, validation and error handling and more.
+* [Validatable.js](https://github.com/xpepermint/validatablejs): A library for synchronous and asynchronous validation.
+* [Handleable.js](https://github.com/xpepermint/handleablejs): A library for synchronous and asynchronous error handling.
+* [Typeable.js](https://github.com/xpepermint/typeablejs): A library for checking and casting types.
 
 ## Install
 

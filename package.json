@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
