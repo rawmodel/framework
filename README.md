@@ -144,13 +144,13 @@ A document is a schema enforced data object. All document properties and configu
 | data | Object | No | - | Initial data object.
 | parent | Document | No | - | Parent document instance (for nesting documents).
 
-**Document.prototype.$schema**:Schema
-
-> Schema instance.
-
 **Document.prototype.$parent**:Document
 
 > Parent document instance.
+
+**Document.prototype.$schema**:Schema
+
+> Schema instance.
 
 **Document.prototype.$validator**:Validator
 
