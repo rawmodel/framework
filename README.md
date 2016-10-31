@@ -215,22 +215,18 @@ A document is a schema enforced data object. All document properties and configu
 ```js
 { // return value example
   name: { // field value is missing
-    messages: ['is required'],
-    isValid: false
+    messages: [{validator: 'presence', message: 'is required'}]
   },
   book: { // nested object is missing
-    messages: ['is required'],
-    isValid: false
+    messages: [{validator: 'presence', message: 'is required'}]
   },
   address: {
     messages: [],
     related: { // nested object errors
       post: {
-        messages: ['is required'],
-        isValid: false
+        messages: [{validator: 'presence', message: 'is required'}]
       }
-    },
-    isValid: false
+    }
   },
   friends: { // an array of nested objects has errors
     messages: [],
@@ -238,12 +234,10 @@ A document is a schema enforced data object. All document properties and configu
       undefined, // the first item was valid
       { // the second item has errors
         name: {
-          messages: ['is required'],
-          isValid: false
+          messages: [{validator: 'presence', message: 'is required'}]
         }
       }
-    ],
-    isValid: false
+    ]
   }
 }
 ```
