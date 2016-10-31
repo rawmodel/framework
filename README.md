@@ -172,13 +172,21 @@ A document is a schema enforced data object. All document properties and configu
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
 
-**Document.prototype.hasPath(...keys)**:Boolean
+**Document.prototype.get(...keys)**:Field
+
+> Returns a class instance of the field at path.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
+
+**Document.prototype.has(...keys)**:Boolean
 
 > Returns `true` when a field path exists.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| keys | Array | Yes | - | List of object keys (e.g. `['book', 0, 'title']`).
+| keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
 **Document.prototype.isChanged()**:Boolean
 

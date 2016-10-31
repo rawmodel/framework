@@ -106,10 +106,10 @@ class Document {
   }
 
   /*
-  * Returns `true` if keys exist on the document.
+  * Returns a value at path.
   */
 
-  hasPath() {
+  get() {
     for (var _len = arguments.length, keys = Array(_len), _key = 0; _key < _len; _key++) {
       keys[_key] = arguments[_key];
     }
@@ -118,7 +118,15 @@ class Document {
       keys = keys[0];
     }
 
-    return keys.reduce((a, b) => (a || {})[b], this) !== undefined;
+    return keys.reduce((a, b) => (a || {})[b], this);
+  }
+
+  /*
+  * Returns `true` if field at path exists.
+  */
+
+  has() {
+    return this.get(...arguments) !== undefined;
   }
 
   /*

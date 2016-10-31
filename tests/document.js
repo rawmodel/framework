@@ -214,7 +214,51 @@ test('method `populate` should set custom fields when schema strict=false', (t) 
   t.is(user.age, 35.5);
 });
 
-test('method `hasPath` should deeply check field existance', (t) => {
+test('method `get` should return an instance of a field at path', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+  let data = {
+    name: 'Foo',
+    book: {
+      title: 'Bar'
+    },
+    books: [
+      {
+        title: 'Baz'
+      }
+    ]
+  };
+  let user0 = new Document(userSchema);
+  let user1 = new Document(userSchema, data);
+
+  t.is(user0.get('name'), null);
+  t.is(user1.get('name'), 'Foo');
+  t.is(user1.get('$name').value, 'Foo');
+  t.is(user0.get('book', 'title'), undefined);
+  t.is(user1.get('book', 'title'), 'Bar');
+  t.is(user0.get('books', 0, 'title'), undefined);
+  t.is(user1.get('books', 0, '$title').value, 'Baz');
+});
+
+test('method `has` should check field existance at path', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -249,14 +293,14 @@ test('method `hasPath` should deeply check field existance', (t) => {
   let user0 = new Document(userSchema);
   let user1 = new Document(userSchema, data);
 
-  t.is(user0.hasPath('name'), true);
-  t.is(user0.hasPath('book', 'title'), false);
-  t.is(user0.hasPath('books', 0, 'title'), false);
-  t.is(user0.hasPath(['books', 0, 'title']), false);
-  t.is(user1.hasPath('name'), true);
-  t.is(user1.hasPath('book', 'title'), true);
-  t.is(user1.hasPath('books', 0, 'title'), true);
-  t.is(user1.hasPath(['books', 0, 'title']), true);
+  t.is(user0.has('name'), true);
+  t.is(user0.has('book', 'title'), false);
+  t.is(user0.has('books', 0, 'title'), false);
+  t.is(user0.has(['books', 0, 'title']), false);
+  t.is(user1.has('name'), true);
+  t.is(user1.has('book', 'title'), true);
+  t.is(user1.has('books', 0, 'title'), true);
+  t.is(user1.has(['books', 0, 'title']), true);
 });
 
 test('method `toObject` should convert a document into serialized data object', (t) => {

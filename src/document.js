@@ -78,15 +78,23 @@ export class Document {
   }
 
   /*
-  * Returns `true` if keys exist on the document.
+  * Returns a value at path.
   */
 
-  hasPath (...keys) {
+  get (...keys) {
     if (isArray(keys[0])) {
       keys = keys[0];
     }
 
-    return keys.reduce(( a, b ) => (a || {})[b], this) !== undefined;
+    return keys.reduce((a, b) => (a || {})[b], this);
+  }
+
+  /*
+  * Returns `true` if field at path exists.
+  */
+
+  has (...keys) {
+    return this.get(...keys) !== undefined;
   }
 
   /*
