@@ -161,7 +161,7 @@ export class Field {
 
   rollback () {
     this.value = this.initialValue;
-    
+
     return this;
   }
 
@@ -186,19 +186,14 @@ export class Field {
   */
 
   async validate() {
-    let data = {}
-
-    let errors = await this._validateValue(this.value);
-    data.errors = errors;
-
-    let related = await this._validateRelated(this.value);
-    if (related) {
-      data.related = related;
+    let data = {
+      errors: await this._validateValue(this.value),
+      related: await this._validateRelated(this.value)
     }
 
     let isValid = (
-      errors.length === 0
-      && this._isRelatedValid(related)
+      data.errors.length === 0
+      && this._isRelatedValid(data.related)
     );
     return !isValid ? data : undefined;
   }

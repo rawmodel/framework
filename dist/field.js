@@ -217,17 +217,12 @@ class Field {
     var _this = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let data = {};
+      let data = {
+        errors: yield _this._validateValue(_this.value),
+        related: yield _this._validateRelated(_this.value)
+      };
 
-      let errors = yield _this._validateValue(_this.value);
-      data.errors = errors;
-
-      let related = yield _this._validateRelated(_this.value);
-      if (related) {
-        data.related = related;
-      }
-
-      let isValid = errors.length === 0 && _this._isRelatedValid(related);
+      let isValid = data.errors.length === 0 && _this._isRelatedValid(data.related);
       return !isValid ? data : undefined;
     })();
   }

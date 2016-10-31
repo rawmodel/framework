@@ -856,19 +856,23 @@ test('method `validate` should validate fields and return an error object', asyn
 
   t.deepEqual(await user.validate(), {
     name: {
-      errors: [{validator: 'presence', message: 'is required'}]
+      errors: [{validator: 'presence', message: 'is required'}],
+      related: undefined
     },
     newBook: {
-      errors: [{validator: 'presence', message: 'is required'}]
+      errors: [{validator: 'presence', message: 'is required'}],
+      related: undefined
     },
     newBooks: {
-      errors: [{validator: 'presence', message: 'is required'}]
+      errors: [{validator: 'presence', message: 'is required'}],
+      related: undefined
     },
     oldBook: {
       errors: [],
       related: {
         title: {
-          errors: [{validator: 'presence', message: 'is required'}]
+          errors: [{validator: 'presence', message: 'is required'}],
+          related: undefined
         }
       }
     },
@@ -878,7 +882,8 @@ test('method `validate` should validate fields and return an error object', asyn
         undefined,
         {
           title: {
-            errors: [{validator: 'presence', message: 'is required'}]
+            errors: [{validator: 'presence', message: 'is required'}],
+            related: undefined
           }
         }
       ]
