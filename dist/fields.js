@@ -25,7 +25,7 @@ var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
 var _utils = require('./utils');
 
-var _schema = require('./schema');
+var _schemas = require('./schemas');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -255,12 +255,12 @@ class Field {
 
       if (!value) {
         return undefined;
-      } else if (type instanceof _schema.Schema) {
+      } else if (type instanceof _schemas.Schema) {
         return yield value.validate();
       } else if ((0, _typeable.isArray)(type) && (0, _typeable.isArray)(value)) {
         let items = [];
         for (let v of value) {
-          if (type[0] instanceof _schema.Schema) {
+          if (type[0] instanceof _schemas.Schema) {
             items.push(v ? yield v.validate() : undefined);
           } else {
             items.push((yield _this3._validateValue(v)));

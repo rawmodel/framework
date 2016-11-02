@@ -1,5 +1,5 @@
-import {Schema} from './schema';
-import {Document} from './document';
+import {Schema} from './schemas';
+import {Document} from './documents';
 
 /*
 * Exposing public classes.

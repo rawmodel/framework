@@ -10,8 +10,8 @@ import {
 import deeplyEquals from 'deep-equal';
 import {Validator} from 'validatable';
 import {cloneData} from './utils';
-import {Schema} from './schema';
-import {Field} from './field';
+import {Schema} from './schemas';
+import {Field} from './fields';
 
 /*
 * The core schema-based object class.
@@ -24,17 +24,21 @@ export class Document {
   */
 
   constructor (schema, data={}, parent=null) {
-    Object.defineProperty(this, '$schema', {
+    Object.defineProperty(this, '$schema', { // schema instance
       value: schema
     });
-    Object.defineProperty(this, '$parent', {
+    Object.defineProperty(this, '$parent', { // parent document instance
       value: parent,
     });
-    Object.defineProperty(this, '$root', {
+    Object.defineProperty(this, '$root', { // root document instance
       get: () =>  this._getRootDocument(),
     });
-    Object.defineProperty(this, '$validator', {
-      value: this._createValidator(),
+    Object.defineProperty(this, '$validator', { // validatable.js instance
+      value: this._createValidator()
+    });
+
+    Object.defineProperty(this, '$Field', { // field class
+      value: Field
     });
 
     this._defineFields();
@@ -82,7 +86,7 @@ export class Document {
   */
 
   _defineField (name) {
-    let field = new Field(this, name);
+    let field = new this.$Field(this, name);
 
     Object.defineProperty(this, name, { // field definition
       get: () => field.value,

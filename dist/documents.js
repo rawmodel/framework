@@ -31,9 +31,9 @@ var _validatable = require('validatable');
 
 var _utils = require('./utils');
 
-var _schema = require('./schema');
+var _schemas = require('./schemas');
 
-var _field = require('./field');
+var _fields = require('./fields');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -51,17 +51,21 @@ class Document {
     let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     let parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-    Object.defineProperty(this, '$schema', {
+    Object.defineProperty(this, '$schema', { // schema instance
       value: schema
     });
-    Object.defineProperty(this, '$parent', {
+    Object.defineProperty(this, '$parent', { // parent document instance
       value: parent
     });
-    Object.defineProperty(this, '$root', {
+    Object.defineProperty(this, '$root', { // root document instance
       get: () => this._getRootDocument()
     });
-    Object.defineProperty(this, '$validator', {
+    Object.defineProperty(this, '$validator', { // validatable.js instance
       value: this._createValidator()
+    });
+
+    Object.defineProperty(this, '$Field', { // field class
+      value: _fields.Field
     });
 
     this._defineFields();
@@ -109,7 +113,7 @@ class Document {
   */
 
   _defineField(name) {
-    let field = new _field.Field(this, name);
+    let field = new this.$Field(this, name);
 
     (0, _defineProperty2.default)(this, name, { // field definition
       get: () => field.value,

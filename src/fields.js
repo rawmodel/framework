@@ -8,7 +8,7 @@ import {
 
 import deeplyEquals from 'deep-equal';
 import {cloneData} from './utils';
-import {Schema} from './schema';
+import {Schema} from './schemas';
 
 /*
 * Document field class.

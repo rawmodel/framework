@@ -5,13 +5,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Document = exports.Schema = undefined;
 
-var _schema = require('./schema');
+var _schemas = require('./schemas');
 
-var _document = require('./document');
+var _documents = require('./documents');
 
 /*
 * Exposing public classes.
 */
 
-exports.Schema = _schema.Schema;
-exports.Document = _document.Document;
+exports.Schema = _schemas.Schema;
+exports.Document = _documents.Document;
