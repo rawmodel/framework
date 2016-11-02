@@ -214,6 +214,82 @@ test('method `populate` should set custom fields when schema strict=false', (t) 
   t.is(user.age, 35.5);
 });
 
+test('variable `$parent` should return the parent document', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+  let data = {
+    book: {
+      title: null
+    },
+    books: [
+      {
+        title: null
+      }
+    ]
+  };
+  let user = new Document(userSchema, data);
+
+  t.is(user.$parent, null);
+  t.is(user.book.$parent, user);
+  t.is(user.books[0].$parent, user);
+});
+
+test('variable `$root` should return the first document in a tree of nested documents', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+  let data = {
+    book: {
+      title: null
+    },
+    books: [
+      {
+        title: null
+      }
+    ]
+  };
+  let user = new Document(userSchema, data);
+
+  t.is(user.$root, user);
+  t.is(user.book.$root, user);
+  t.is(user.books[0].$root, user);
+});
+
 test('method `get` should return an instance of a field at path', (t) => {
   let bookSchema = new Schema({
     fields: {

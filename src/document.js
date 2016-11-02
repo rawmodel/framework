@@ -30,12 +30,31 @@ export class Document {
     Object.defineProperty(this, '$parent', {
       value: parent,
     });
+    Object.defineProperty(this, '$root', {
+      get: () =>  this._getRootDocument(),
+    });
     Object.defineProperty(this, '$validator', {
       value: this._createValidator(),
     });
 
     this._defineFields();
     this._populateFields(data);
+  }
+
+  /*
+  * Loops up on the tree and returns the first document in the tree.
+  */
+
+  _getRootDocument () {
+    let root = this;
+    do {
+      if (root.$parent) {
+        root = root.$parent;
+      }
+      else {
+        return root;
+      }
+    } while (true);
   }
 
   /*

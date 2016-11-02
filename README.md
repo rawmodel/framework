@@ -148,6 +148,10 @@ A document is a schema enforced data object. All document properties and configu
 
 > Parent document instance.
 
+**Document.prototype.$root**:Document
+
+> The first document instance in a tree of documents.
+
 **Document.prototype.$schema**:Schema
 
 > Schema instance.
