@@ -204,7 +204,6 @@ export class Field {
 
   async _validateValue (value) {
     let {validate} = this.$document.$schema.fields[this.$name];
-
     return await this.$document.$validator.validate(value, validate);
   }
 

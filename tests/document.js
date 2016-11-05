@@ -1,5 +1,9 @@
-const test = require('ava');
-const {Document, Schema} = require('../dist');
+import test from 'ava';
+import {
+  Document, 
+  Schema, 
+  ValidationError
+} from '../dist';
 
 test('field value should be converted to the specified type', (t) => {
   let bookSchema = new Schema({
@@ -872,9 +876,9 @@ test('method `validate` should validate fields and return an error object', asyn
     fields: {
       title: {
         type: 'String',
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       year: {
         type: 'Integer'
@@ -885,69 +889,63 @@ test('method `validate` should validate fields and return an error object', asyn
     fields: {
       name: {
         type: 'String',
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       newBook: {
         type: bookSchema,
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       newBooks: {
         type: [bookSchema],
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       oldBook: {
         type: bookSchema,
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       oldBooks: {
         type: [bookSchema],
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       }
     }
   });
 
   let data = {
-    oldBook: {
-      title: ''
-    },
-    oldBooks: [
-      null,
-      {
-        title: ''
-      }
-    ]
+    oldBook: {},
+    oldBooks: [null, {}]
   };
 
   let user = new Document(userSchema, data);
+  let error = new ValidationError(undefined, {name: "presence", message: "is required"});
 
   t.deepEqual(await user.validate(), {
     name: {
-      errors: [{validator: 'presence', message: 'is required'}],
+      errors: [error],
       related: undefined
     },
     newBook: {
-      errors: [{validator: 'presence', message: 'is required'}],
+      errors: [error],
       related: undefined
     },
     newBooks: {
-      errors: [{validator: 'presence', message: 'is required'}],
+      errors: [error],
       related: undefined
     },
     oldBook: {
       errors: [],
       related: {
         title: {
-          errors: [{validator: 'presence', message: 'is required'}],
+          errors: [error],
           related: undefined
         }
       }
@@ -958,7 +956,7 @@ test('method `validate` should validate fields and return an error object', asyn
         undefined,
         {
           title: {
-            errors: [{validator: 'presence', message: 'is required'}],
+            errors: [error],
             related: undefined
           }
         }
@@ -972,9 +970,9 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
     fields: {
       title: {
         type: 'String',
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
     }
   });
@@ -982,21 +980,21 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
     fields: {
       name: {
         type: 'String',
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       book: {
         type: bookSchema,
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       },
       books: {
         type: [bookSchema],
-        validate: {
-          presence: {message: 'is required'}
-        }
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
       }
     }
   });

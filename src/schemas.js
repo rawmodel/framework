@@ -1,12 +1,4 @@
 /*
-* Validator default options.
-*/
-
-export const validatorDefaults = {
-  errorBuilder: (validator, value, {message}) => ({validator, message})
-};
-
-/*
 * A class for defining Document structure and properties.
 */
 
@@ -24,7 +16,7 @@ export class Schema {
       value: strict
     });
     Object.defineProperty(this, 'validatorOptions', { // options for validatable.js
-      value: Object.assign({}, validatorDefaults, validatorOptions)
+      value: validatorOptions
     });
     Object.defineProperty(this, 'typeOptions', { // options for typeable.js
       value: typeOptions

@@ -78,8 +78,8 @@ class Field {
 
   set value(value) {
     var _$document$$schema$fi = this.$document.$schema.fields[this.$name];
-    let set = _$document$$schema$fi.set;
-    let type = _$document$$schema$fi.type;
+    let set = _$document$$schema$fi.set,
+        type = _$document$$schema$fi.type;
 
 
     value = this._cast(value, type); // value type casting
@@ -97,9 +97,9 @@ class Field {
 
   get defaultValue() {
     var _$document$$schema$fi2 = this.$document.$schema.fields[this.$name];
-    let type = _$document$$schema$fi2.type;
-    let set = _$document$$schema$fi2.set;
-    let defaultValue = _$document$$schema$fi2.defaultValue;
+    let type = _$document$$schema$fi2.type,
+        set = _$document$$schema$fi2.set,
+        defaultValue = _$document$$schema$fi2.defaultValue;
 
 
     let value = (0, _typeable.isFunction)(defaultValue) ? defaultValue(this._document) : defaultValue;
@@ -236,7 +236,6 @@ class Field {
 
     return (0, _asyncToGenerator3.default)(function* () {
       let validate = _this2.$document.$schema.fields[_this2.$name].validate;
-
 
       return yield _this2.$document.$validator.validate(value, validate);
     })();
