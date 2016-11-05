@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Document = undefined;
+exports.Document = exports.ValidationError = undefined;
 
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
@@ -38,8 +38,32 @@ var _fields = require('./fields');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-* The core schema-based object class.
+* A validation error class.
 */
+
+class ValidationError extends Error {
+
+  /*
+  * Class constructor.
+  */
+
+  constructor() {
+    let errors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    let message = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Fields validation failed';
+    let code = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 422;
+
+    super();
+
+    this.name = this.constructor.name;
+    this.errors = errors;
+    this.message = message;
+    this.code = code;
+  }
+}
+
+exports.ValidationError = ValidationError; /*
+                                           * The core schema-based object class.
+                                           */
 
 class Document {
 
@@ -339,14 +363,40 @@ class Document {
   }
 
   /*
+  * Creates a new ValidationError instance.
+  */
+
+  createValidationError(errors) {
+    return new ValidationError(errors);
+  }
+
+  /*
+  * Validates fields and throws a ValidationError if not all fields are valid.
+  */
+
+  approve() {
+    var _this2 = this;
+
+    return (0, _asyncToGenerator3.default)(function* () {
+      let errors = yield _this2.validate();
+
+      if ((0, _typeable.isPresent)(errors)) {
+        throw _this2.createValidationError(errors);
+      }
+
+      return _this2;
+    })();
+  }
+
+  /*
   * Returns `true` when all document fields are valid.
   */
 
   isValid() {
-    var _this2 = this;
+    var _this3 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      return (0, _typeable.isAbsent)((yield _this2.validate()));
+      return (0, _typeable.isAbsent)((yield _this3.validate()));
     })();
   }
 

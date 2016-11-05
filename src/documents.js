@@ -14,6 +14,26 @@ import {Schema} from './schemas';
 import {Field} from './fields';
 
 /*
+* A validation error class.
+*/
+
+export class ValidationError extends Error {
+
+  /*
+  * Class constructor.
+  */
+
+  constructor (errors = [], message = 'Fields validation failed', code = 422) {
+    super();
+
+    this.name = this.constructor.name;
+    this.errors = errors;
+    this.message = message;
+    this.code = code;
+  }
+}
+
+/*
 * The core schema-based object class.
 */
 
@@ -295,6 +315,28 @@ export class Document {
     }
 
     return errors;
+  }
+
+  /*
+  * Creates a new ValidationError instance.
+  */
+
+  createValidationError (errors) {
+    return new ValidationError(errors);
+  }
+
+  /*
+  * Validates fields and throws a ValidationError if not all fields are valid.
+  */
+
+  async approve () {
+    let errors = await this.validate();
+
+    if (isPresent(errors)) {
+      throw this.createValidationError(errors);
+    }
+
+    return this;
   }
 
   /*

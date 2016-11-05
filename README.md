@@ -203,6 +203,19 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
+**Document.prototype.approve()**: Document
+
+> The same as method `validate()` but it throws the `ValidationError` when not all fields are valid.
+
+```js
+try {
+  await document.approve(); // throws a ValidationError when fields are invalid
+}
+catch (e) {
+  // `e` is an instance of ValidationError
+}
+```
+
 **Document.prototype.isChanged()**: Boolean
 
 > Returns `true` if at least one document field has been changed.
@@ -307,23 +320,23 @@ user.$name.isChanged(); // -> calling field instance method
 
 > A getter and setter for the value of the field.
 
-### ValidatorError
+### ValidationError
 
-**ValidatorError(value, recipe, code)**
+**ValidationError(errors, message, code)**
 
-> Validator error class, provided by the `validatable.js`, which holds information about an invalid value of a field..
+> Validation error class which holds information about invalid fields of a document.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| recipe | Object | Yes | - | Validator recipe object.
-| value | Any | Yes | - | The value which failed to pass the validation.
-| code | Integer | No | 422 | Error status code.
+| errors | InvalidFieldError[] | No | [] | List of ValidatorError instances of a field.
+| message | String | No | Fields validation failed | General error message.
+| code | Number | No | 422 | Error code.
 
 ### InvalidFieldError
 
 **InvalidFieldError(path, errors, related, message, code)**
 
-> Field validation error class.
+> Validation error class which holds information of an invalid field.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -332,6 +345,18 @@ user.$name.isChanged(); // -> calling field instance method
 | related | InvalidFieldError[] | No | [] | List of InvalidFieldError instances of a sub-document.
 | message | String | No | Field validation failed | General error message.
 | code | Number | No | 422 | Error code.
+
+### ValidatorError
+
+**ValidatorError(value, recipe, code)**
+
+> Validator error class, provided by the `validatable.js`, which holds information about not satisfied validators of a value.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| recipe | Object | Yes | - | Validator recipe object.
+| value | Any | Yes | - | The value which failed to pass the validation.
+| code | Integer | No | 422 | Error status code.
 
 ## License (MIT)
 

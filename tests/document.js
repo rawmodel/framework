@@ -2,6 +2,7 @@ import test from 'ava';
 import {
   Document,
   Schema,
+  ValidationError,
   InvalidFieldError,
   ValidatorError
 } from '../dist';
@@ -949,7 +950,7 @@ test('method `validate` should validate fields and return an error object', asyn
       [
         new InvalidFieldError('title', [error])
       ]
-    ]),
+    ])
   ]);
 });
 
@@ -1004,4 +1005,20 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
   t.is(await user.book.$title.isValid(), true);
   t.is(await user.books[0].$title.isValid(), true);
   t.is(await user.isValid(), true);
+});
+
+test('method `approve` should throw ValidationError when not all fields are valid', async (t) => {
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String',
+        validate: [
+          {name: 'presence', message: 'is required'}
+        ]
+      }
+    }
+  });
+  let user = new Document(userSchema);
+
+  t.throws(user.approve(), ValidationError);
 });

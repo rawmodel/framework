@@ -1,5 +1,5 @@
 import {Schema} from './schemas';
-import {Document} from './documents';
+import {Document, ValidationError} from './documents';
 import {InvalidFieldError} from './fields';
 import {ValidatorError} from 'validatable';
 
@@ -7,4 +7,10 @@ import {ValidatorError} from 'validatable';
 * Exposing public classes.
 */
 
-export {Schema, Document, InvalidFieldError, ValidatorError};
+export {
+  Schema,
+  Document,
+  ValidationError,
+  InvalidFieldError,
+  ValidatorError
+};
