@@ -233,7 +233,7 @@ A document is a schema enforced data object. All document properties and configu
 
 **Document.prototype.validate()**: Promise<InvalidFieldError[]>
 
-> Validates all document fields and returns errors.
+> Validates all document fields and returns a list of `InvalidFieldError` errors for all invalid fields.
 
 ### Field
 
