@@ -37,10 +37,6 @@ export class Document {
       value: this._createValidator()
     });
 
-    Object.defineProperty(this, '$Field', { // field class
-      value: Field
-    });
-
     this._defineFields();
     this._populateFields(data);
   }
@@ -82,11 +78,19 @@ export class Document {
   }
 
   /*
+  * Creates a new Field instance.
+  */
+
+  createField (name) {
+    return new Field(this, name);
+  }
+
+  /*
   * Defines a schema field by name.
   */
 
   _defineField (name) {
-    let field = new this.$Field(this, name);
+    let field = this.createField(name);
 
     Object.defineProperty(this, name, { // field definition
       get: () => field.value,

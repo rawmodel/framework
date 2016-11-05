@@ -175,6 +175,14 @@ A document is a schema enforced data object. All document properties and configu
 
 > Sets initial value of each document field to the current value of a field. This is how field change tracking is restarted.
 
+**Document.prototype.createField(name)**: Field
+
+> A helper method which creates a new field instance.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | String | Yes | - | Field name.
+
 **Document.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
