@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -50,6 +50,6 @@
   "dependencies": {
     "deep-equal": "1.0.x",
     "typeable": "0.9.x",
-    "validatable": "0.7.x"
+    "validatable": "0.8.x"
   }
 }

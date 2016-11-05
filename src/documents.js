@@ -23,7 +23,7 @@ export class Document {
   * Class constructor.
   */
 
-  constructor (schema, data={}, parent=null) {
+  constructor (schema, data = {}, parent = null) {
     Object.defineProperty(this, '$schema', { // schema instance
       value: schema
     });
@@ -279,18 +279,18 @@ export class Document {
   */
 
   async validate () {
-    let data = {};
+    let errors = [];
     let {fields} = this.$schema;
 
-    for (let name in fields) {
-      let errors = await this[`$${name}`].validate();
+    for (let path in fields) {
+      let error = await this[`$${path}`].validate();
 
-      if (!isAbsent(errors)) {
-        data[name] = errors;
+      if (!isAbsent(error)) {
+        errors.push(error);
       }
     }
 
-    return data;
+    return errors;
   }
 
   /*

@@ -1,8 +1,9 @@
 import test from 'ava';
 import {
-  Document, 
-  Schema, 
-  ValidationError
+  Document,
+  Schema,
+  InvalidFieldError,
+  ValidatorError
 } from '../dist';
 
 test('field value should be converted to the specified type', (t) => {
@@ -916,53 +917,40 @@ test('method `validate` should validate fields and return an error object', asyn
         validate: [
           {name: 'presence', message: 'is required'}
         ]
+      },
+      prevBooks: {
+        type: [bookSchema]
       }
     }
   });
-
   let data = {
     oldBook: {},
-    oldBooks: [null, {}]
+    oldBooks: [null, {}],
+    prevBooks: [null, {}]
   };
-
   let user = new Document(userSchema, data);
-  let error = new ValidationError(undefined, {name: "presence", message: "is required"});
+  let error = new ValidatorError(undefined, {name: "presence", message: "is required"});
 
-  t.deepEqual(await user.validate(), {
-    name: {
-      errors: [error],
-      related: undefined
-    },
-    newBook: {
-      errors: [error],
-      related: undefined
-    },
-    newBooks: {
-      errors: [error],
-      related: undefined
-    },
-    oldBook: {
-      errors: [],
-      related: {
-        title: {
-          errors: [error],
-          related: undefined
-        }
-      }
-    },
-    oldBooks: {
-      errors: [],
-      related: [
-        undefined,
-        {
-          title: {
-            errors: [error],
-            related: undefined
-          }
-        }
+  t.deepEqual(await user.validate(), [
+    new InvalidFieldError('name', [error]),
+    new InvalidFieldError('newBook', [error]),
+    new InvalidFieldError('newBooks', [error]),
+    new InvalidFieldError('oldBook', [], [
+      new InvalidFieldError('title', [error])
+    ]),
+    new InvalidFieldError('oldBooks', [], [
+      undefined,
+      [
+        new InvalidFieldError('title', [error])
       ]
-    }
-  });
+    ]),
+    new InvalidFieldError('prevBooks', [], [
+      undefined,
+      [
+        new InvalidFieldError('title', [error])
+      ]
+    ]),
+  ]);
 });
 
 test('method `isValid` should return `true` when fields are valid', async (t) => {
@@ -1010,7 +998,6 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
       }
     ]
   };
-
   let user = new Document(userSchema, data);
 
   t.is(await user.$name.isValid(), true);

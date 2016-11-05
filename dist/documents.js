@@ -318,19 +318,19 @@ class Document {
     var _this = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let data = {};
+      let errors = [];
       let fields = _this.$schema.fields;
 
 
-      for (let name in fields) {
-        let errors = yield _this[`$${ name }`].validate();
+      for (let path in fields) {
+        let error = yield _this[`$${ path }`].validate();
 
-        if (!(0, _typeable.isAbsent)(errors)) {
-          data[name] = errors;
+        if (!(0, _typeable.isAbsent)(error)) {
+          errors.push(error);
         }
       }
 
-      return data;
+      return errors;
     })();
   }
 

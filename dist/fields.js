@@ -3,11 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Field = undefined;
-
-var _values = require('babel-runtime/core-js/object/values');
-
-var _values2 = _interopRequireDefault(_values);
+exports.Field = exports.InvalidFieldError = exports.ValidatorError = undefined;
 
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
@@ -23,15 +19,51 @@ var _deepEqual = require('deep-equal');
 
 var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
+var _validatable = require('validatable');
+
 var _utils = require('./utils');
 
 var _schemas = require('./schemas');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/*
-* Document field class.
+/**
+* Exposing validatable ValidatorError.
 */
+
+exports.ValidatorError = _validatable.ValidatorError;
+
+/*
+* A validation error class.
+*/
+
+class InvalidFieldError extends Error {
+
+  /*
+  * Class constructor.
+  */
+
+  constructor() {
+    let path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    let errors = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+    let related = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+    let message = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'Field validation failed';
+    let code = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 422;
+
+    super();
+
+    this.name = this.constructor.name;
+    this.path = path;
+    this.errors = errors;
+    this.related = related;
+    this.message = message;
+    this.code = code;
+  }
+}
+
+exports.InvalidFieldError = InvalidFieldError; /*
+                                               * Document field class.
+                                               */
 
 class Field {
 
@@ -210,6 +242,14 @@ class Field {
   }
 
   /*
+  * Creates a new instance of InvalidFieldError.
+  */
+
+  createInvalidFieldError(path, errors, related) {
+    return new InvalidFieldError(path, errors, related);
+  }
+
+  /*
   * Validates the field and returns errors.
   */
 
@@ -217,13 +257,16 @@ class Field {
     var _this = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let data = {
-        errors: yield _this._validateValue(_this.value),
-        related: yield _this._validateRelated(_this.value)
-      };
+      let path = _this.$name;
+      let errors = yield _this._validateValue(_this.value);
+      let related = yield _this._validateRelated(_this.value);
 
-      let isValid = data.errors.length === 0 && _this._isRelatedValid(data.related);
-      return !isValid ? data : undefined;
+      let hasError = errors.length > 0 || !_this._isRelatedValid(related);
+
+      if (hasError) {
+        return _this.createInvalidFieldError(path, errors, related);
+      }
+      return undefined;
     })();
   }
 
@@ -236,6 +279,7 @@ class Field {
 
     return (0, _asyncToGenerator3.default)(function* () {
       let validate = _this2.$document.$schema.fields[_this2.$name].validate;
+
 
       return yield _this2.$document.$validator.validate(value, validate);
     })();
@@ -252,11 +296,9 @@ class Field {
       let type = _this3.$document.$schema.fields[_this3.$name].type;
 
 
-      if (!value) {
-        return undefined;
-      } else if (type instanceof _schemas.Schema) {
+      if ((0, _typeable.isPresent)(value) && type instanceof _schemas.Schema) {
         return yield value.validate();
-      } else if ((0, _typeable.isArray)(type) && (0, _typeable.isArray)(value)) {
+      } else if ((0, _typeable.isArray)(value) && (0, _typeable.isArray)(type)) {
         let items = [];
         for (let v of value) {
           if (type[0] instanceof _schemas.Schema) {
@@ -266,9 +308,8 @@ class Field {
           }
         }
         return items;
-      } else {
-        return undefined;
       }
+      return [];
     })();
   }
 
@@ -277,13 +318,9 @@ class Field {
   */
 
   _isRelatedValid(related) {
-    if ((0, _typeable.isObject)(related)) {
-      return (0, _values2.default)(related).every(v => v.errors.length === 0 && !v.related);
-    } else if ((0, _typeable.isArray)(related)) {
-      return related.every(v => this._isRelatedValid(v));
-    } else {
-      return true;
-    }
+    return related.every(v => {
+      return (0, _typeable.isArray)(v) ? this._isRelatedValid(v) : (0, _typeable.isAbsent)(v);
+    });
   }
 
   /*

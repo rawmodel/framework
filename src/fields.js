@@ -1,5 +1,7 @@
 import {
   cast,
+  isUndefined,
+  isPresent,
   isAbsent,
   isArray,
   isObject,
@@ -7,8 +9,37 @@ import {
 } from 'typeable';
 
 import deeplyEquals from 'deep-equal';
+import {ValidatorError} from 'validatable';
 import {cloneData} from './utils';
 import {Schema} from './schemas';
+
+/**
+* Exposing validatable ValidatorError.
+*/
+
+export {ValidatorError};
+
+/*
+* A validation error class.
+*/
+
+export class InvalidFieldError extends Error {
+
+  /*
+  * Class constructor.
+  */
+
+  constructor (path = null, errors = [], related = [], message = 'Field validation failed', code = 422) {
+    super();
+
+    this.name = this.constructor.name;
+    this.path = path;
+    this.errors = errors;
+    this.related = related;
+    this.message = message;
+    this.code = code;
+  }
+}
 
 /*
 * Document field class.
@@ -182,20 +213,31 @@ export class Field {
   }
 
   /*
+  * Creates a new instance of InvalidFieldError.
+  */
+
+  createInvalidFieldError (path, errors, related) {
+    return new InvalidFieldError(path, errors, related);
+  }
+
+  /*
   * Validates the field and returns errors.
   */
 
   async validate() {
-    let data = {
-      errors: await this._validateValue(this.value),
-      related: await this._validateRelated(this.value)
-    }
+    let path = this.$name;
+    let errors = await this._validateValue(this.value);
+    let related = await this._validateRelated(this.value);
 
-    let isValid = (
-      data.errors.length === 0
-      && this._isRelatedValid(data.related)
+    let hasError = (
+      errors.length > 0
+      || !this._isRelatedValid(related)
     );
-    return !isValid ? data : undefined;
+
+    if (hasError) {
+      return this.createInvalidFieldError(path, errors, related);
+    }
+    return undefined;
   }
 
   /*
@@ -204,6 +246,7 @@ export class Field {
 
   async _validateValue (value) {
     let {validate} = this.$document.$schema.fields[this.$name];
+
     return await this.$document.$validator.validate(value, validate);
   }
 
@@ -214,13 +257,10 @@ export class Field {
   async _validateRelated (value) {
     let {type} = this.$document.$schema.fields[this.$name];
 
-    if (!value) {
-      return undefined;
-    }
-    else if (type instanceof Schema) {
+    if (isPresent(value) && type instanceof Schema) {
       return await value.validate();
     }
-    else if (isArray(type) && isArray(value)) {
+    else if (isArray(value) && isArray(type)) {
       let items = [];
       for (let v of value) {
         if (type[0] instanceof Schema) {
@@ -232,9 +272,7 @@ export class Field {
       }
       return items;
     }
-    else {
-      return undefined;
-    }
+    return [];
   }
 
   /*
@@ -242,15 +280,9 @@ export class Field {
   */
 
   _isRelatedValid (related) {
-    if (isObject(related)) {
-      return Object.values(related).every(v => v.errors.length === 0 && !v.related);
-    }
-    else if (isArray(related)) {
-      return related.every(v => this._isRelatedValid(v));
-    }
-    else {
-      return true;
-    }
+    return related.every(v => {
+      return isArray(v) ? this._isRelatedValid(v) : isAbsent(v);
+    });
   }
 
   /*

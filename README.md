@@ -4,18 +4,18 @@
 
 > Advanced schema enforced JavaScript objects.
 
-<img src="giphy.gif" width="300" />
+This is a light weight open source package for use on **server or in browser**. The source code is available on [GitHub](https://github.com/xpepermint/objectschemajs) where you can also find our [issue tracker](https://github.com/xpepermint/objectschemajs/issues).
 
 ## Features
 
 * Type casting
 * Custom data types
 * Field default value
-* Field value transformation with custom getter and setter
+* Field value transformation with getter and setter
 * Strict and relaxed schemas
 * Document nesting with support for self referencing
-* Field change tracking, data commit and rollback
-* Field validation
+* Change tracking, data commits and rollbacks
+* Advanced field validation
 
 ## Related Projects
 
@@ -50,21 +50,23 @@ let bookSchema = new Schema({
 
 let userSchema = new Schema({
   fields: {
-    name: {
-      type: 'String',
-      validate: {
-        presence: {
-          message: 'is required'
+    name: { // field name
+      type: 'String', // field type
+      validate: [
+        {
+          name: 'presence',  // validator name
+          message: 'is required' // validator error message
         }
-      }
+      ]
     },
     books: {
       type: [bookSchema],
-      validate: {
-        presence: {
+      validate: [
+        {
+          name: 'presence',
           message: 'is required'
         }
-      }
+      ]
     }
   }
 });
@@ -111,11 +113,12 @@ new Schema({
     email: { // a field name holding a field definition
       type: 'String', // a field data type provided by typeable.js
       defaultValue: 'John Smith', // a default field value
-      validate: { // field validations provided by validatable.js
-        presence: { // validator name
-          message: 'is required' // validator option
+      validate: [ // field validations provided by validatable.js
+        { // validator recipe
+          name: 'presence', // validator name
+          message: 'is required' // validator error message
         }
-      }
+      ]
     },
   },
   strict: true, // schema mode
@@ -144,39 +147,39 @@ A document is a schema enforced data object. All document properties and configu
 | data | Object | No | - | Initial data object.
 | parent | Document | No | - | Parent document instance (for nesting documents).
 
-**Document.prototype.$parent**:Document
+**Document.prototype.$parent**: Document
 
 > Parent document instance.
 
-**Document.prototype.$root**:Document
+**Document.prototype.$root**: Document
 
 > The first document instance in a tree of documents.
 
-**Document.prototype.$schema**:Schema
+**Document.prototype.$schema**: Schema
 
 > Schema instance.
 
-**Document.prototype.$validator**:Validator
+**Document.prototype.$validator**: Validator
 
 > Validator instance, used for validating fields.
 
-**Document.prototype.clear()**:Document
+**Document.prototype.clear()**: Document
 
 > Sets all document fields to `null`.
 
-**Document.prototype.clone()**:Document
+**Document.prototype.clone()**: Document
 
 > Returns a new Document instance which is the exact copy of the original.
 
-**Document.prototype.commit()**:Document
+**Document.prototype.commit()**: Document
 
 > Sets initial value of each document field to the current value of a field. This is how field change tracking is restarted.
 
-**Document.prototype.equals(value)**:Boolean
+**Document.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
 
-**Document.prototype.get(...keys)**:Field
+**Document.prototype.get(...keys)**: Field
 
 > Returns a class instance of the field at path.
 
@@ -184,7 +187,7 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
-**Document.prototype.has(...keys)**:Boolean
+**Document.prototype.has(...keys)**: Boolean
 
 > Returns `true` when a field path exists.
 
@@ -192,15 +195,15 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
-**Document.prototype.isChanged()**:Boolean
+**Document.prototype.isChanged()**: Boolean
 
 > Returns `true` if at least one document field has been changed.
 
-**Document.prototype.isValid()**:Promise
+**Document.prototype.isValid()**: Promise<Boolean>
 
 > Returns `true` when all document fields are valid.
 
-**Document.prototype.populate(data)**:Document
+**Document.prototype.populate(data)**: Document
 
 > Applies data to a document.
 
@@ -208,55 +211,21 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
 
-**Document.prototype.reset()**:Document
+**Document.prototype.reset()**: Document
 
 > Sets each document field to its default value.
 
-**Document.prototype.rollback()**:Document
+**Document.prototype.rollback()**: Document
 
 > Sets each document field to its initial value (last committed value). This is how you can discharge document changes.
 
-**Document.prototype.toObject()**:Object
+**Document.prototype.toObject()**: Object
 
 > Converts a document into serialized data object.
 
-**Document.prototype.validate()**:Promise(Object)
+**Document.prototype.validate()**: Promise<InvalidFieldError[]>
 
 > Validates all document fields and returns errors.
-
-```js
-{ // return value example
-  name: { // field value is missing
-    errors: [{validator: 'presence', message: 'is required'}],
-    related: undefined
-  },
-  book: { // nested object is missing
-    errors: [{validator: 'presence', message: 'is required'}],
-    related: undefined
-  },
-  address: {
-    errors: [],
-    related: { // nested object errors
-      post: {
-        errors: [{validator: 'presence', message: 'is required'}],
-        related: undefined
-      }
-    }
-  },
-  friends: { // an array of nested objects has errors
-    errors: [],
-    related: [
-      undefined, // the first item was valid
-      { // the second item has errors
-        name: {
-          errors: [{validator: 'presence', message: 'is required'}],
-          related: undefined
-        }
-      }
-    ]
-  }
-}
-```
 
 ### Field
 
@@ -269,57 +238,92 @@ user.$name; // -> reference to document field instance
 user.$name.isChanged(); // -> calling field instance method
 ```
 
-**Field.prototype.$document**:Document
+**Field(document, name)**
+
+> Document field class.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| document | Document | Yes | - | An instance of a Document.
+| name | String | Yes | - | Field name
+
+**Field.prototype.$document**: Document
 
 > Document instance.
 
-**Field.prototype.$name**:String
+**Field.prototype.$name**: String
 
 > Field name.
 
-**Field.prototype.clear()**:Field
+**Field.prototype.clear()**: Field
 
 > Sets field and related sub fields to `null`.
 
-**Field.prototype.commit()**:Field
+**Field.prototype.commit()**: Field
 
 > Sets initial value to the current value. This is how field change tracking is restarted.
 
-**Field.prototype.defaultValue**:Any
+**Field.prototype.defaultValue**: Any
 
 > A getter which returns the default field value.
 
-**Field.prototype.equals(value)**:Boolean
+**Field.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object that looks the same.
 
-**Field.prototype.initialValue**:Any
+**Field.prototype.initialValue**: Any
 
 > A getter which returns the initial field value (a value from the last commit).
 
-**Field.prototype.isChanged()**:Boolean
+**Field.prototype.isChanged()**: Boolean
 
 > Returns `true` if the field or at least one sub field have been changed.
 
-**Field.prototype.isValid()**:Promise(Boolean)
+**Field.prototype.isValid()**: Promise<Boolean>
 
 > Returns `true` if the field and all sub fields are valid.
 
-**Field.prototype.reset()**:Field
+**Field.prototype.reset()**: Field
 
 > Sets the field to its default value.
 
-**Field.prototype.rollback()**:Field
+**Field.prototype.rollback()**: Field
 
 > Sets the field to its initial value (last committed value). This is how you can discharge field's changes.
 
-**Field.prototype.validate()**:Promise(Object)
+**Field.prototype.validate()**: Promise(Object)
 
 > Validates the field and returns errors.
 
-**Field.prototype.value**:Any
+**Field.prototype.value**: Any
 
 > A getter and setter for the value of the field.
+
+### ValidatorError
+
+**ValidatorError(value, recipe, code)**
+
+> Validator error class, provided by the `validatable.js`, which holds information about an invalid value of a field..
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| recipe | Object | Yes | - | Validator recipe object.
+| value | Any | Yes | - | The value which failed to pass the validation.
+| code | Integer | No | 422 | Error status code.
+
+### InvalidFieldError
+
+**InvalidFieldError(path, errors, related, message, code)**
+
+> Field validation error class.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| path | String | No | - | Field name
+| errors | ValidatorError[] | No | [] | List of ValidatorError instances of a field.
+| related | InvalidFieldError[] | No | [] | List of InvalidFieldError instances of a sub-document.
+| message | String | No | Field validation failed | General error message.
+| code | Number | No | 422 | Error code.
 
 ## License (MIT)
 

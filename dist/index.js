@@ -3,11 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ValidationError = exports.Document = exports.Schema = undefined;
+exports.ValidatorError = exports.InvalidFieldError = exports.Document = exports.Schema = undefined;
 
 var _schemas = require('./schemas');
 
 var _documents = require('./documents');
+
+var _fields = require('./fields');
 
 var _validatable = require('validatable');
 
@@ -17,4 +19,5 @@ var _validatable = require('validatable');
 
 exports.Schema = _schemas.Schema;
 exports.Document = _documents.Document;
-exports.ValidationError = _validatable.ValidationError;
+exports.InvalidFieldError = _fields.InvalidFieldError;
+exports.ValidatorError = _validatable.ValidatorError;
