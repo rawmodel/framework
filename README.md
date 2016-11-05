@@ -207,7 +207,7 @@ A document is a schema enforced data object. All document properties and configu
 
 > Returns `true` if at least one document field has been changed.
 
-**Document.prototype.isValid()**: Promise<Boolean>
+**Document.prototype.isValid()**: Promise(Boolean)
 
 > Returns `true` when all document fields are valid.
 
@@ -231,7 +231,7 @@ A document is a schema enforced data object. All document properties and configu
 
 > Converts a document into serialized data object.
 
-**Document.prototype.validate()**: Promise<InvalidFieldError[]>
+**Document.prototype.validate()**: Promise(InvalidFieldError[])
 
 > Validates all document fields and returns a list of `InvalidFieldError` errors for all invalid fields.
 
@@ -287,7 +287,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 > Returns `true` if the field or at least one sub field have been changed.
 
-**Field.prototype.isValid()**: Promise<Boolean>
+**Field.prototype.isValid()**: Promise(Boolean)
 
 > Returns `true` if the field and all sub fields are valid.
 
