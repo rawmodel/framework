@@ -167,6 +167,41 @@ A document is a schema enforced data object. All document properties and configu
 
 > Deeply populates fields with the provided `errors`.
 
+```js
+doc.applyErrors([
+  {
+    path: ['name'], // field path
+    errors: [
+      {
+        name: 'ValidatorError', // error class name (ValidatorError or Error)
+        validator: 'presence',  // validator name
+        message: 'is required' // validator message
+      }
+    ]
+  },
+  {
+    path: ['newBook', 'title'],
+    errors: [
+      {
+        name: 'ValidatorError',
+        validator: 'absence',
+        message: 'must be blank'
+      }
+    ]
+  },
+  {
+    path: ['newBooks', 1, 'title'],
+    errors: [
+      {
+        name: 'ValidatorError',
+        validator: 'presence',
+        message: 'is required'
+      }
+    ]
+  }
+]);
+```
+
 **Document.prototype.clear()**: Document
 
 > Sets all document fields to `null`.
