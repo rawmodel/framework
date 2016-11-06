@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Document = exports.ValidationError = undefined;
+exports.Document = undefined;
 
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
@@ -35,35 +35,13 @@ var _schemas = require('./schemas');
 
 var _fields = require('./fields');
 
+var _errors = require('./errors');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
-* A validation error class.
+* The core schema-based object class.
 */
-
-class ValidationError extends Error {
-
-  /*
-  * Class constructor.
-  */
-
-  constructor() {
-    let errors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-    let message = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Fields validation failed';
-    let code = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 422;
-
-    super();
-
-    this.name = this.constructor.name;
-    this.errors = errors;
-    this.message = message;
-    this.code = code;
-  }
-}
-
-exports.ValidationError = ValidationError; /*
-                                           * The core schema-based object class.
-                                           */
 
 class Document {
 
@@ -367,7 +345,7 @@ class Document {
   */
 
   createValidationError(errors) {
-    return new ValidationError(errors);
+    return new _errors.ValidationError(errors);
   }
 
   /*

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ValidatorError = exports.InvalidFieldError = exports.ValidationError = exports.Document = exports.Schema = undefined;
+exports.ValidatorError = exports.InvalidFieldError = exports.ValidationError = exports.Field = exports.Document = exports.Schema = undefined;
 
 var _schemas = require('./schemas');
 
@@ -11,7 +11,7 @@ var _documents = require('./documents');
 
 var _fields = require('./fields');
 
-var _validatable = require('validatable');
+var _errors = require('./errors');
 
 /*
 * Exposing public classes.
@@ -19,6 +19,7 @@ var _validatable = require('validatable');
 
 exports.Schema = _schemas.Schema;
 exports.Document = _documents.Document;
-exports.ValidationError = _documents.ValidationError;
-exports.InvalidFieldError = _fields.InvalidFieldError;
-exports.ValidatorError = _validatable.ValidatorError;
+exports.Field = _fields.Field;
+exports.ValidationError = _errors.ValidationError;
+exports.InvalidFieldError = _errors.InvalidFieldError;
+exports.ValidatorError = _errors.ValidatorError;

@@ -7,39 +7,17 @@ import {
   isObject,
   isFunction
 } from 'typeable';
-
 import deeplyEquals from 'deep-equal';
 import {ValidatorError} from 'validatable';
 import {cloneData} from './utils';
 import {Schema} from './schemas';
+import {InvalidFieldError} from './errors';
 
 /**
 * Exposing validatable ValidatorError.
 */
 
 export {ValidatorError};
-
-/*
-* A validation error class.
-*/
-
-export class InvalidFieldError extends Error {
-
-  /*
-  * Class constructor.
-  */
-
-  constructor (path = null, errors = [], related = [], message = 'Field validation failed', code = 422) {
-    super();
-
-    this.name = this.constructor.name;
-    this.path = path;
-    this.errors = errors;
-    this.related = related;
-    this.message = message;
-    this.code = code;
-  }
-}
 
 /*
 * Document field class.

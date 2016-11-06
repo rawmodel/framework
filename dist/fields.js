@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Field = exports.InvalidFieldError = exports.ValidatorError = undefined;
+exports.Field = exports.ValidatorError = undefined;
 
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
@@ -25,6 +25,8 @@ var _utils = require('./utils');
 
 var _schemas = require('./schemas');
 
+var _errors = require('./errors');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /**
@@ -34,36 +36,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 exports.ValidatorError = _validatable.ValidatorError;
 
 /*
-* A validation error class.
+* Document field class.
 */
-
-class InvalidFieldError extends Error {
-
-  /*
-  * Class constructor.
-  */
-
-  constructor() {
-    let path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    let errors = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
-    let related = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
-    let message = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 'Field validation failed';
-    let code = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 422;
-
-    super();
-
-    this.name = this.constructor.name;
-    this.path = path;
-    this.errors = errors;
-    this.related = related;
-    this.message = message;
-    this.code = code;
-  }
-}
-
-exports.InvalidFieldError = InvalidFieldError; /*
-                                               * Document field class.
-                                               */
 
 class Field {
 
@@ -246,7 +220,7 @@ class Field {
   */
 
   createInvalidFieldError(path, errors, related) {
-    return new InvalidFieldError(path, errors, related);
+    return new _errors.InvalidFieldError(path, errors, related);
   }
 
   /*

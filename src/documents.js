@@ -6,32 +6,12 @@ import {
   isAbsent,
   isUndefined
 } from 'typeable';
-
 import deeplyEquals from 'deep-equal';
 import {Validator} from 'validatable';
 import {cloneData} from './utils';
 import {Schema} from './schemas';
 import {Field} from './fields';
-
-/*
-* A validation error class.
-*/
-
-export class ValidationError extends Error {
-
-  /*
-  * Class constructor.
-  */
-
-  constructor (errors = [], message = 'Fields validation failed', code = 422) {
-    super();
-
-    this.name = this.constructor.name;
-    this.errors = errors;
-    this.message = message;
-    this.code = code;
-  }
-}
+import {ValidationError} from './errors';
 
 /*
 * The core schema-based object class.

@@ -324,7 +324,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 **ValidationError(errors, message, code)**
 
-> Validation error class which holds information about invalid fields of a document.
+> A validation error class which holds information about invalid fields of a document.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -336,7 +336,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 **InvalidFieldError(path, errors, related, message, code)**
 
-> Validation error class which holds information of an invalid field.
+> A validation error class which holds information of a single invalid field.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -350,7 +350,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 **ValidatorError(value, recipe, code)**
 
-> Validator error class, provided by the `validatable.js`, which holds information about not satisfied validators of a value.
+> A validator error class, provided by the `validatable.js`, which holds information about the validators which do not approve a value that has just been validated.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
