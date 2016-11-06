@@ -21,7 +21,7 @@ export class Field {
   */
 
   constructor (document, name) {
-    Object.defineProperty(this, '$document', { // reference to the Document instance which owns the field
+    Object.defineProperty(this, '$owner', { // reference to the Document instance which owns the field
       value: document
     });
     Object.defineProperty(this, 'name', { // the name that a field has on the document
@@ -46,11 +46,11 @@ export class Field {
   */
 
   get value () {
-    let {get} = this.$document.$schema.fields[this.name];
+    let {get} = this.$owner.$schema.fields[this.name];
 
     let value = this._value;
     if (get) { // transformation with custom getter
-      value = get.call(this.$document, value);
+      value = get.call(this.$owner, value);
     }
     return value;
   }
@@ -60,11 +60,11 @@ export class Field {
   */
 
   set value (value) {
-    let {set, type} = this.$document.$schema.fields[this.name];
+    let {set, type} = this.$owner.$schema.fields[this.name];
 
     value = this._cast(value, type); // value type casting
     if (set) { // transformation with custom setter
-      value = set.call(this.$document, value);
+      value = set.call(this.$owner, value);
     }
 
     this.invalidate(); // remove the last memorized error because the value has changed
@@ -76,7 +76,7 @@ export class Field {
   */
 
   get defaultValue () {
-    let {type, set, defaultValue} = this.$document.$schema.fields[this.name];
+    let {type, set, defaultValue} = this.$owner.$schema.fields[this.name];
 
     let value = isFunction(defaultValue)
       ? defaultValue(this._document)
@@ -84,7 +84,7 @@ export class Field {
 
     value = this._cast(value, type); // value type casting
     if (set) { // custom setter
-      value = set.call(this.$document, value);
+      value = set.call(this.$owner, value);
     }
 
     return value;
@@ -134,13 +134,13 @@ export class Field {
   */
 
   _cast (value, type) {
-    let options = this.$document.$schema.typeOptions;
+    let options = this.$owner.$schema.typeOptions;
 
     options.types = Object.assign({}, options.types, {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
 
-        return this.$document._createRelative(type, value);
+        return this.$owner._createRelative(type, value);
       }
     });
 
@@ -226,16 +226,16 @@ export class Field {
   async validate () {
     let relatives = toArray(this.value) || []; // validate related documents
     for (let relative of relatives) {
-      let isDocument = relative instanceof this.$document.constructor;
+      let isDocument = relative instanceof this.$owner.constructor;
 
       if (isDocument) {
         await relative.validate({quiet: true}); // don't throw
       }
     }
 
-    this._errors = await this.$document.$validator.validate( // validate this field
+    this._errors = await this.$owner.$validator.validate( // validate this field
       this.value,
-      this.$document.$schema.fields[this.name].validate
+      this.$owner.$schema.fields[this.name].validate
     );
 
     return this;
@@ -248,7 +248,7 @@ export class Field {
   invalidate () {
     let relatives = toArray(this.value) || []; // validate related documents
     for (let relative of relatives) {
-      let isDocument = relative instanceof this.$document.constructor;
+      let isDocument = relative instanceof this.$owner.constructor;
 
       if (isDocument) {
         relative.invalidate();

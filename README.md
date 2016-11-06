@@ -307,9 +307,9 @@ user.$name.isChanged(); // -> calling field instance method
 | document | Document | Yes | - | An instance of a Document.
 | name | String | Yes | - | Field name
 
-**Field.prototype.$document**: Document
+**Field.prototype.$owner**: Document
 
-> Document instance.
+> A reference to a Document instance on which the field is defined.
 
 **Field.prototype.name**: String
 

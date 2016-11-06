@@ -38,7 +38,7 @@ class Field {
   */
 
   constructor(document, name) {
-    Object.defineProperty(this, '$document', { // reference to the Document instance which owns the field
+    Object.defineProperty(this, '$owner', { // reference to the Document instance which owns the field
       value: document
     });
     Object.defineProperty(this, 'name', { // the name that a field has on the document
@@ -63,13 +63,13 @@ class Field {
   */
 
   get value() {
-    let get = this.$document.$schema.fields[this.name].get;
+    let get = this.$owner.$schema.fields[this.name].get;
 
 
     let value = this._value;
     if (get) {
       // transformation with custom getter
-      value = get.call(this.$document, value);
+      value = get.call(this.$owner, value);
     }
     return value;
   }
@@ -79,15 +79,15 @@ class Field {
   */
 
   set value(value) {
-    var _$document$$schema$fi = this.$document.$schema.fields[this.name];
-    let set = _$document$$schema$fi.set,
-        type = _$document$$schema$fi.type;
+    var _$owner$$schema$field = this.$owner.$schema.fields[this.name];
+    let set = _$owner$$schema$field.set,
+        type = _$owner$$schema$field.type;
 
 
     value = this._cast(value, type); // value type casting
     if (set) {
       // transformation with custom setter
-      value = set.call(this.$document, value);
+      value = set.call(this.$owner, value);
     }
 
     this.invalidate(); // remove the last memorized error because the value has changed
@@ -99,10 +99,10 @@ class Field {
   */
 
   get defaultValue() {
-    var _$document$$schema$fi2 = this.$document.$schema.fields[this.name];
-    let type = _$document$$schema$fi2.type,
-        set = _$document$$schema$fi2.set,
-        defaultValue = _$document$$schema$fi2.defaultValue;
+    var _$owner$$schema$field2 = this.$owner.$schema.fields[this.name];
+    let type = _$owner$$schema$field2.type,
+        set = _$owner$$schema$field2.set,
+        defaultValue = _$owner$$schema$field2.defaultValue;
 
 
     let value = (0, _typeable.isFunction)(defaultValue) ? defaultValue(this._document) : defaultValue;
@@ -110,7 +110,7 @@ class Field {
     value = this._cast(value, type); // value type casting
     if (set) {
       // custom setter
-      value = set.call(this.$document, value);
+      value = set.call(this.$owner, value);
     }
 
     return value;
@@ -160,13 +160,13 @@ class Field {
   */
 
   _cast(value, type) {
-    let options = this.$document.$schema.typeOptions;
+    let options = this.$owner.$schema.typeOptions;
 
     options.types = (0, _assign2.default)({}, options.types, {
       Schema: value => {
         if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
-        return this.$document._createRelative(type, value);
+        return this.$owner._createRelative(type, value);
       }
     });
 
@@ -255,15 +255,15 @@ class Field {
     return (0, _asyncToGenerator3.default)(function* () {
       let relatives = (0, _typeable.toArray)(_this.value) || []; // validate related documents
       for (let relative of relatives) {
-        let isDocument = relative instanceof _this.$document.constructor;
+        let isDocument = relative instanceof _this.$owner.constructor;
 
         if (isDocument) {
           yield relative.validate({ quiet: true }); // don't throw
         }
       }
 
-      _this._errors = yield _this.$document.$validator.validate( // validate this field
-      _this.value, _this.$document.$schema.fields[_this.name].validate);
+      _this._errors = yield _this.$owner.$validator.validate( // validate this field
+      _this.value, _this.$owner.$schema.fields[_this.name].validate);
 
       return _this;
     })();
@@ -276,7 +276,7 @@ class Field {
   invalidate() {
     let relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
     for (let relative of relatives) {
-      let isDocument = relative instanceof this.$document.constructor;
+      let isDocument = relative instanceof this.$owner.constructor;
 
       if (isDocument) {
         relative.invalidate();
