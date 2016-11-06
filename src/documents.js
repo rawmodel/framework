@@ -66,6 +66,30 @@ export class Document {
   }
 
   /*
+  * Creates a new Field instance.
+  */
+
+  _createField (name) {
+    return new Field(this, name);
+  }
+
+  /*
+  * Creates a new sub-document instance (a nested document).
+  */
+
+  _createRelative (schema, data={}) {
+    return new this.constructor(schema, data, this);
+  }
+
+  /*
+  * Creates a new ValidationError instance.
+  */
+
+  _createValidationError (errors) {
+    return new ValidationError([], [], errors);
+  }
+
+  /*
   * Defines class fields from schema.
   */
 
@@ -78,19 +102,11 @@ export class Document {
   }
 
   /*
-  * Creates a new Field instance.
-  */
-
-  createField (name) {
-    return new Field(this, name);
-  }
-
-  /*
   * Defines a schema field by name.
   */
 
   _defineField (name) {
-    let field = this.createField(name);
+    let field = this._createField(name);
 
     Object.defineProperty(this, name, { // field definition
       get: () => field.value,
@@ -298,22 +314,14 @@ export class Document {
   }
 
   /*
-  * Creates a new ValidationError instance.
-  */
-
-  createValidationError (errors) {
-    return new ValidationError(errors);
-  }
-
-  /*
   * Validates fields and throws a ValidationError if not all fields are valid.
   */
 
   async approve () {
     let errors = await this.validate();
 
-    if (isPresent(errors)) {
-      throw this.createValidationError(errors);
+    if (errors.length > 0) {
+      throw this._createValidationError(errors);
     }
 
     return this;

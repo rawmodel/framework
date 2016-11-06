@@ -175,14 +175,6 @@ A document is a schema enforced data object. All document properties and configu
 
 > Sets initial value of each document field to the current value of a field. This is how field change tracking is restarted.
 
-**Document.prototype.createField(name)**: Field
-
-> A helper method which creates a new field instance.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | Yes | - | Field name.
-
 **Document.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
@@ -209,10 +201,10 @@ A document is a schema enforced data object. All document properties and configu
 
 ```js
 try {
-  await document.approve(); // throws a ValidationError when fields are invalid
+  await doc.approve(); // throws a ValidationError when fields are invalid
 }
 catch (e) {
-  // `e` is an instance of ValidationError
+  // `e` is an instance of ValidationError where root document errors exists inside the `related` property
 }
 ```
 
@@ -244,9 +236,9 @@ catch (e) {
 
 > Converts a document into serialized data object.
 
-**Document.prototype.validate()**: Promise(InvalidFieldError[])
+**Document.prototype.validate()**: Promise(ValidationError[])
 
-> Validates all document fields and returns a list of `InvalidFieldError` errors for all invalid fields.
+> Validates all document fields and returns a list of `ValidationError` errors for all invalid fields.
 
 ### Field
 
@@ -261,7 +253,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 **Field(document, name)**
 
-> Document field class.
+> Document field class which represents each field on a document.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -322,40 +314,44 @@ user.$name.isChanged(); // -> calling field instance method
 
 ### ValidationError
 
-**ValidationError(errors, message, code)**
+**ValidationError(path, errors, related, message, code)**
 
 > A validation error class which holds information about invalid fields of a document.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| errors | InvalidFieldError[] | No | [] | List of ValidatorError instances of a field.
+| path | String,String[] | No | [] | A path to a field in a document tree (e.g. ['friends', 1, 'name']). If the path is not specified it represents the root field holding a root document.
+| errors | ValidationError[] | No | [] | A list of `ValidatorError` instances of the related document field.
+| related | ValidationError[] | No | A list of related `ValidationError` instances (of a sub document).
 | message | String | No | Fields validation failed | General error message.
 | code | Number | No | 422 | Error code.
 
-### InvalidFieldError
+**ValidationError.prototype.isEmpty()**: Boolean
 
-**InvalidFieldError(path, errors, related, message, code)**
+> Returns `true` if the instance holds no errors.
 
-> A validation error class which holds information of a single invalid field.
+**ValidationError.prototype.isRoot()**: Boolean
+
+> Returns `true` if the instance represents the root field error.
+
+**ValidationError.prototype.toArray(flatten)**: ValidationError[]
+
+> When `flatten` is `true`, it returns an flattened array of all errors, including the deeply related errors, otherwise the original nested format array is returned. 
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| path | String | No | - | Field name
-| errors | ValidatorError[] | No | [] | List of ValidatorError instances of a field.
-| related | InvalidFieldError[] | No | [] | List of InvalidFieldError instances of a sub-document.
-| message | String | No | Field validation failed | General error message.
-| code | Number | No | 422 | Error code.
+| flatten | Boolean | No | true | When `true`, an array of all errors, including the deeply related errors, is returned.
 
 ### ValidatorError
 
-**ValidatorError(value, recipe, code)**
+**ValidatorError(validator, message, code)**
 
 > A validator error class, provided by the `validatable.js`, which holds information about the validators which do not approve a value that has just been validated.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| recipe | Object | Yes | - | Validator recipe object.
-| value | Any | Yes | - | The value which failed to pass the validation.
+| validator | String | Yes | - | Validator name.
+| message | String | No | null | Validation error message.
 | code | Integer | No | 422 | Error status code.
 
 ## License (MIT)

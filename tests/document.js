@@ -3,7 +3,6 @@ import {
   Document,
   Schema,
   ValidationError,
-  InvalidFieldError,
   ValidatorError
 } from '../dist';
 
@@ -879,7 +878,7 @@ test('method `validate` should validate fields and return an error object', asyn
       title: {
         type: 'String',
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       year: {
@@ -892,31 +891,31 @@ test('method `validate` should validate fields and return an error object', asyn
       name: {
         type: 'String',
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       newBook: {
         type: bookSchema,
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       newBooks: {
         type: [bookSchema],
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       oldBook: {
         type: bookSchema,
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       oldBooks: {
         type: [bookSchema],
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       prevBooks: {
@@ -930,25 +929,25 @@ test('method `validate` should validate fields and return an error object', asyn
     prevBooks: [null, {}]
   };
   let user = new Document(userSchema, data);
-  let error = new ValidatorError(undefined, {name: "presence", message: "is required"});
+  let error = new ValidatorError('presence', 'is required');
 
   t.deepEqual(await user.validate(), [
-    new InvalidFieldError('name', [error]),
-    new InvalidFieldError('newBook', [error]),
-    new InvalidFieldError('newBooks', [error]),
-    new InvalidFieldError('oldBook', [], [
-      new InvalidFieldError('title', [error])
+    new ValidationError('name', [error]),
+    new ValidationError('newBook', [error]),
+    new ValidationError('newBooks', [error]),
+    new ValidationError('oldBook', [], [
+      new ValidationError('title', [error])
     ]),
-    new InvalidFieldError('oldBooks', [], [
+    new ValidationError('oldBooks', [], [
       undefined,
       [
-        new InvalidFieldError('title', [error])
+        new ValidationError('title', [error])
       ]
     ]),
-    new InvalidFieldError('prevBooks', [], [
+    new ValidationError('prevBooks', [], [
       undefined,
       [
-        new InvalidFieldError('title', [error])
+        new ValidationError('title', [error])
       ]
     ])
   ]);
@@ -960,7 +959,7 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
       title: {
         type: 'String',
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
     }
@@ -970,19 +969,19 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
       name: {
         type: 'String',
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       book: {
         type: bookSchema,
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       },
       books: {
         type: [bookSchema],
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       }
     }
@@ -1013,12 +1012,22 @@ test('method `approve` should throw ValidationError when not all fields are vali
       name: {
         type: 'String',
         validate: [
-          {name: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'}
         ]
       }
     }
   });
   let user = new Document(userSchema);
 
+  let error = {};
+  try {
+    await user.approve();
+  }
+  catch (e) {
+    error = e;
+  }
   t.throws(user.approve(), ValidationError);
+  t.is(error.path.length, 0);
+  t.is(error.errors.length, 0);
+  t.is(error.related.length, 1);
 });

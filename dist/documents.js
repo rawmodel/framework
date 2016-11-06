@@ -94,6 +94,32 @@ class Document {
   }
 
   /*
+  * Creates a new Field instance.
+  */
+
+  _createField(name) {
+    return new _fields.Field(this, name);
+  }
+
+  /*
+  * Creates a new sub-document instance (a nested document).
+  */
+
+  _createRelative(schema) {
+    let data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    return new this.constructor(schema, data, this);
+  }
+
+  /*
+  * Creates a new ValidationError instance.
+  */
+
+  _createValidationError(errors) {
+    return new _errors.ValidationError([], [], errors);
+  }
+
+  /*
   * Defines class fields from schema.
   */
 
@@ -107,19 +133,11 @@ class Document {
   }
 
   /*
-  * Creates a new Field instance.
-  */
-
-  createField(name) {
-    return new _fields.Field(this, name);
-  }
-
-  /*
   * Defines a schema field by name.
   */
 
   _defineField(name) {
-    let field = this.createField(name);
+    let field = this._createField(name);
 
     (0, _defineProperty2.default)(this, name, { // field definition
       get: () => field.value,
@@ -341,14 +359,6 @@ class Document {
   }
 
   /*
-  * Creates a new ValidationError instance.
-  */
-
-  createValidationError(errors) {
-    return new _errors.ValidationError(errors);
-  }
-
-  /*
   * Validates fields and throws a ValidationError if not all fields are valid.
   */
 
@@ -358,8 +368,8 @@ class Document {
     return (0, _asyncToGenerator3.default)(function* () {
       let errors = yield _this2.validate();
 
-      if ((0, _typeable.isPresent)(errors)) {
-        throw _this2.createValidationError(errors);
+      if (errors.length > 0) {
+        throw _this2._createValidationError(errors);
       }
 
       return _this2;

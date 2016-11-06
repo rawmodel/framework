@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Field = exports.ValidatorError = undefined;
+exports.Field = undefined;
 
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
@@ -19,8 +19,6 @@ var _deepEqual = require('deep-equal');
 
 var _deepEqual2 = _interopRequireDefault(_deepEqual);
 
-var _validatable = require('validatable');
-
 var _utils = require('./utils');
 
 var _schemas = require('./schemas');
@@ -28,12 +26,6 @@ var _schemas = require('./schemas');
 var _errors = require('./errors');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-/**
-* Exposing validatable ValidatorError.
-*/
-
-exports.ValidatorError = _validatable.ValidatorError;
 
 /*
 * Document field class.
@@ -129,7 +121,8 @@ class Field {
     options.types = (0, _assign2.default)({}, options.types, {
       Schema: value => {
         if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
-        return new this.$document.constructor(type, value, this.$document);
+
+        return this.$document._createRelative(type, value);
       }
     });
 
@@ -216,11 +209,11 @@ class Field {
   }
 
   /*
-  * Creates a new instance of InvalidFieldError.
+  * Creates a new instance of ValidationError.
   */
 
-  createInvalidFieldError(path, errors, related) {
-    return new _errors.InvalidFieldError(path, errors, related);
+  _createValidationError(path, errors, related) {
+    return new _errors.ValidationError(path, errors, related);
   }
 
   /*
@@ -238,7 +231,7 @@ class Field {
       let hasError = errors.length > 0 || !_this._isRelatedValid(related);
 
       if (hasError) {
-        return _this.createInvalidFieldError(path, errors, related);
+        return _this._createValidationError(path, errors, related);
       }
       return undefined;
     })();

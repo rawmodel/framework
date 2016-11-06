@@ -8,16 +8,9 @@ import {
   isFunction
 } from 'typeable';
 import deeplyEquals from 'deep-equal';
-import {ValidatorError} from 'validatable';
 import {cloneData} from './utils';
 import {Schema} from './schemas';
-import {InvalidFieldError} from './errors';
-
-/**
-* Exposing validatable ValidatorError.
-*/
-
-export {ValidatorError};
+import {ValidationError} from './errors';
 
 /*
 * Document field class.
@@ -104,7 +97,8 @@ export class Field {
     options.types = Object.assign({}, options.types, {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
-        return new this.$document.constructor(type, value, this.$document);
+
+        return this.$document._createRelative(type, value);
       }
     });
 
@@ -191,11 +185,11 @@ export class Field {
   }
 
   /*
-  * Creates a new instance of InvalidFieldError.
+  * Creates a new instance of ValidationError.
   */
 
-  createInvalidFieldError (path, errors, related) {
-    return new InvalidFieldError(path, errors, related);
+  _createValidationError (path, errors, related) {
+    return new ValidationError(path, errors, related);
   }
 
   /*
@@ -213,7 +207,7 @@ export class Field {
     );
 
     if (hasError) {
-      return this.createInvalidFieldError(path, errors, related);
+      return this._createValidationError(path, errors, related);
     }
     return undefined;
   }
