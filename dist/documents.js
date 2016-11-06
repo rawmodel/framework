@@ -65,6 +65,10 @@ class Document {
     Object.defineProperty(this, '$validator', { // validatable.js instance
       value: this._createValidator()
     });
+    Object.defineProperty(this, '$error', { // last document error instance
+      value: null,
+      writable: true
+    });
 
     this._defineFields();
     this._populateFields(data);
@@ -115,8 +119,8 @@ class Document {
   * Creates a new ValidationError instance.
   */
 
-  _createValidationError(errors) {
-    return new _errors.ValidationError([], [], errors);
+  _createValidationError(paths) {
+    return new _errors.ValidationError(paths);
   }
 
   /*
@@ -155,7 +159,7 @@ class Document {
   * Returns a value at path.
   */
 
-  get() {
+  getPath() {
     for (var _len = arguments.length, keys = Array(_len), _key = 0; _key < _len; _key++) {
       keys[_key] = arguments[_key];
     }
@@ -171,8 +175,8 @@ class Document {
   * Returns `true` if field at path exists.
   */
 
-  has() {
-    return this.get(...arguments) !== undefined;
+  hasPath() {
+    return this.getPath(...arguments) !== undefined;
   }
 
   /*
@@ -339,40 +343,30 @@ class Document {
   */
 
   validate() {
-    var _this = this;
+    var _this = this,
+        _arguments = arguments;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let errors = [];
+      var _ref = _arguments.length > 0 && _arguments[0] !== undefined ? _arguments[0] : {},
+          _ref$quiet = _ref.quiet;
+
+      let quiet = _ref$quiet === undefined ? false : _ref$quiet;
       let fields = _this.$schema.fields;
 
 
       for (let path in fields) {
-        let error = yield _this[`$${ path }`].validate();
-
-        if (!(0, _typeable.isAbsent)(error)) {
-          errors.push(error);
-        }
+        yield _this[`$${ path }`].validate();
       }
 
-      return errors;
-    })();
-  }
-
-  /*
-  * Validates fields and throws a ValidationError if not all fields are valid.
-  */
-
-  approve() {
-    var _this2 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let errors = yield _this2.validate();
-
-      if (errors.length > 0) {
-        throw _this2._createValidationError(errors);
+      let paths = _this.collectErrors().map(function (e) {
+        return e.path;
+      });
+      if (!quiet && paths.length > 0) {
+        let error = _this._createValidationError(paths);
+        throw error;
       }
 
-      return _this2;
+      return _this;
     })();
   }
 
@@ -381,11 +375,92 @@ class Document {
   */
 
   isValid() {
+    var _this2 = this;
+
+    return (0, _asyncToGenerator3.default)(function* () {
+      try {
+        yield _this2.validate();
+      } catch (e) {
+        return false;
+      }
+      return true;
+    })();
+  }
+
+  /*
+  * Validates fields and returns errors.
+  */
+
+  invalidate() {
     var _this3 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      return (0, _typeable.isAbsent)((yield _this3.validate()));
+      let fields = _this3.$schema.fields;
+
+
+      for (let path in fields) {
+        _this3[`$${ path }`].invalidate();
+      }
+
+      return _this3;
     })();
+  }
+
+  /*
+  * Returns a list of all field-related errors, including those deeply nested.
+  */
+
+  collectErrors() {
+    var _this4 = this;
+
+    let getErrors = function (doc) {
+      let prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+      let errors = [];
+
+      for (let name in doc.$schema.fields) {
+        let field = doc[`$${ name }`];
+
+        if (field.value instanceof _this4.constructor) {
+          errors.push(...getErrors(field.value, prefix.concat(field.$name)));
+        } else if ((0, _typeable.isArray)(field.value)) {
+          field.value.forEach((d, i) => {
+            if (d instanceof _this4.constructor) {
+              errors.push(...getErrors(d, prefix.concat([field.$name, i])));
+            }
+          });
+        } else if (field.errors.length > 0) {
+          errors.push({
+            path: prefix.concat([field.$name]),
+            errors: field.errors
+          });
+        }
+      }
+
+      return errors;
+    };
+
+    return getErrors(this);
+  }
+
+  /*
+  * Deeply populates fields with the provided `errors`.
+  */
+
+  applyErrors() {
+    let errors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+    for (let error of errors) {
+      let path = error.path.concat();
+      path[path.length - 1] = `$${ path[path.length - 1] }`;
+
+      let field = this.getPath(path);
+      if (field) {
+        field.errors = error.errors;
+      }
+    }
+
+    return this;
   }
 
 }

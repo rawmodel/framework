@@ -1,16 +1,14 @@
 import {
   cast,
-  isUndefined,
-  isPresent,
   isAbsent,
   isArray,
-  isObject,
+  toArray,
   isFunction
 } from 'typeable';
 import deeplyEquals from 'deep-equal';
 import {cloneData} from './utils';
 import {Schema} from './schemas';
-import {ValidationError} from './errors';
+import {ValidatorError} from './errors';
 
 /*
 * Document field class.
@@ -23,18 +21,22 @@ export class Field {
   */
 
   constructor (document, name) {
-    Object.defineProperty(this, '$document', {
+    Object.defineProperty(this, '$document', { // reference to the Document instance which owns the field
       value: document
     });
-    Object.defineProperty(this, '$name', {
+    Object.defineProperty(this, '$name', { // the name that a field has on the document
       value: name,
     });
-    Object.defineProperty(this, '_value', {
+    Object.defineProperty(this, '_value', { // current field value
       value: this.defaultValue,
       writable: true
     });
-    Object.defineProperty(this, '_initialValue', {
+    Object.defineProperty(this, '_initialValue', { // last committed field value
       value: this._value,
+      writable: true
+    });
+    Object.defineProperty(this, '_errors', { // last action errors
+      value: [],
       writable: true
     });
   }
@@ -65,6 +67,7 @@ export class Field {
       value = set.call(this.$document, value);
     }
 
+    this.invalidate(); // remove the last memorized error because the value has changed
     this._value = value;
   }
 
@@ -88,6 +91,45 @@ export class Field {
   }
 
   /*
+  * Returns the value of a field of the last commit.
+  */
+
+  get initialValue () {
+    return this._initialValue;
+  }
+
+  /*
+  * Returns the last error of the field.
+  */
+
+  get errors () {
+    return this._errors;
+  }
+
+  /*
+  * Returns the last error of the field.
+  */
+
+  set errors (errors) {
+    this._errors = errors.map((e) => this._createError(e));
+  }
+
+  /*
+  * Returns the last error of the field.
+  */
+
+  _createError (data) {
+    switch (data.name) {
+      case 'ValidatorError':
+        return new ValidatorError(data.validator, data.message, data.code);
+      case 'Error':
+        return new Error(data.message);
+    }
+
+    throw new Error(`Unknown document field error`);
+  }
+
+  /*
   * Converts the `value` into specified `type`.
   */
 
@@ -106,19 +148,12 @@ export class Field {
   }
 
   /*
-  * Returns the value of a field before last commit.
-  */
-
-  get initialValue () {
-    return this._initialValue;
-  }
-
-  /*
   * Sets field to the default value.
   */
 
   reset () {
     this.value = this.defaultValue;
+    this.invalidate();
 
     return this;
   }
@@ -185,76 +220,44 @@ export class Field {
   }
 
   /*
-  * Creates a new instance of ValidationError.
+  * Validates the field by populating the `_errors` property.
   */
 
-  _createValidationError (path, errors, related) {
-    return new ValidationError(path, errors, related);
-  }
+  async validate () {
+    let relatives = toArray(this.value) || []; // validate related documents
+    for (let relative of relatives) {
+      let isDocument = relative instanceof this.$document.constructor;
 
-  /*
-  * Validates the field and returns errors.
-  */
+      if (isDocument) {
+        await relative.validate({quiet: true}); // don't throw
+      }
+    }
 
-  async validate() {
-    let path = this.$name;
-    let errors = await this._validateValue(this.value);
-    let related = await this._validateRelated(this.value);
-
-    let hasError = (
-      errors.length > 0
-      || !this._isRelatedValid(related)
+    this._errors = await this.$document.$validator.validate( // validate this field
+      this.value,
+      this.$document.$schema.fields[this.$name].validate
     );
 
-    if (hasError) {
-      return this._createValidationError(path, errors, related);
-    }
-    return undefined;
+    return this;
   }
 
   /*
-  * Validates the `value` and returns errors.
+  * Validates the field by clearing the `_errors` property
   */
 
-  async _validateValue (value) {
-    let {validate} = this.$document.$schema.fields[this.$name];
+  invalidate () {
+    let relatives = toArray(this.value) || []; // validate related documents
+    for (let relative of relatives) {
+      let isDocument = relative instanceof this.$document.constructor;
 
-    return await this.$document.$validator.validate(value, validate);
-  }
-
-  /*
-  * Validates the related fields of the `value` and returns errors.
-  */
-
-  async _validateRelated (value) {
-    let {type} = this.$document.$schema.fields[this.$name];
-
-    if (isPresent(value) && type instanceof Schema) {
-      return await value.validate();
-    }
-    else if (isArray(value) && isArray(type)) {
-      let items = [];
-      for (let v of value) {
-        if (type[0] instanceof Schema) {
-          items.push(v ? await v.validate() : undefined);
-        }
-        else {
-          items.push(await this._validateValue(v));
-        }
+      if (isDocument) {
+        relative.invalidate();
       }
-      return items;
     }
-    return [];
-  }
 
-  /*
-  * Checks if the `related` field is valid.
-  */
+    this._errors = [];
 
-  _isRelatedValid (related) {
-    return related.every(v => {
-      return isArray(v) ? this._isRelatedValid(v) : isAbsent(v);
-    });
+    return this;
   }
 
   /*
@@ -262,9 +265,7 @@ export class Field {
   */
 
   async isValid () {
-    return isAbsent(
-      await this.validate()
-    );
+    return isAbsent(this.errors);
   }
 
 }

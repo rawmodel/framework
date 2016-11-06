@@ -38,18 +38,22 @@ class Field {
   */
 
   constructor(document, name) {
-    Object.defineProperty(this, '$document', {
+    Object.defineProperty(this, '$document', { // reference to the Document instance which owns the field
       value: document
     });
-    Object.defineProperty(this, '$name', {
+    Object.defineProperty(this, '$name', { // the name that a field has on the document
       value: name
     });
-    Object.defineProperty(this, '_value', {
+    Object.defineProperty(this, '_value', { // current field value
       value: this.defaultValue,
       writable: true
     });
-    Object.defineProperty(this, '_initialValue', {
+    Object.defineProperty(this, '_initialValue', { // last committed field value
       value: this._value,
+      writable: true
+    });
+    Object.defineProperty(this, '_errors', { // last action errors
+      value: [],
       writable: true
     });
   }
@@ -86,6 +90,7 @@ class Field {
       value = set.call(this.$document, value);
     }
 
+    this.invalidate(); // remove the last memorized error because the value has changed
     this._value = value;
   }
 
@@ -112,6 +117,45 @@ class Field {
   }
 
   /*
+  * Returns the value of a field of the last commit.
+  */
+
+  get initialValue() {
+    return this._initialValue;
+  }
+
+  /*
+  * Returns the last error of the field.
+  */
+
+  get errors() {
+    return this._errors;
+  }
+
+  /*
+  * Returns the last error of the field.
+  */
+
+  set errors(errors) {
+    this._errors = errors.map(e => this._createError(e));
+  }
+
+  /*
+  * Returns the last error of the field.
+  */
+
+  _createError(data) {
+    switch (data.name) {
+      case 'ValidatorError':
+        return new _errors.ValidatorError(data.validator, data.message, data.code);
+      case 'Error':
+        return new Error(data.message);
+    }
+
+    throw new Error(`Unknown document field error`);
+  }
+
+  /*
   * Converts the `value` into specified `type`.
   */
 
@@ -130,19 +174,12 @@ class Field {
   }
 
   /*
-  * Returns the value of a field before last commit.
-  */
-
-  get initialValue() {
-    return this._initialValue;
-  }
-
-  /*
   * Sets field to the default value.
   */
 
   reset() {
     this.value = this.defaultValue;
+    this.invalidate();
 
     return this;
   }
@@ -209,85 +246,46 @@ class Field {
   }
 
   /*
-  * Creates a new instance of ValidationError.
-  */
-
-  _createValidationError(path, errors, related) {
-    return new _errors.ValidationError(path, errors, related);
-  }
-
-  /*
-  * Validates the field and returns errors.
+  * Validates the field by populating the `_errors` property.
   */
 
   validate() {
     var _this = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      let path = _this.$name;
-      let errors = yield _this._validateValue(_this.value);
-      let related = yield _this._validateRelated(_this.value);
+      let relatives = (0, _typeable.toArray)(_this.value) || []; // validate related documents
+      for (let relative of relatives) {
+        let isDocument = relative instanceof _this.$document.constructor;
 
-      let hasError = errors.length > 0 || !_this._isRelatedValid(related);
-
-      if (hasError) {
-        return _this._createValidationError(path, errors, related);
-      }
-      return undefined;
-    })();
-  }
-
-  /*
-  * Validates the `value` and returns errors.
-  */
-
-  _validateValue(value) {
-    var _this2 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let validate = _this2.$document.$schema.fields[_this2.$name].validate;
-
-
-      return yield _this2.$document.$validator.validate(value, validate);
-    })();
-  }
-
-  /*
-  * Validates the related fields of the `value` and returns errors.
-  */
-
-  _validateRelated(value) {
-    var _this3 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let type = _this3.$document.$schema.fields[_this3.$name].type;
-
-
-      if ((0, _typeable.isPresent)(value) && type instanceof _schemas.Schema) {
-        return yield value.validate();
-      } else if ((0, _typeable.isArray)(value) && (0, _typeable.isArray)(type)) {
-        let items = [];
-        for (let v of value) {
-          if (type[0] instanceof _schemas.Schema) {
-            items.push(v ? yield v.validate() : undefined);
-          } else {
-            items.push((yield _this3._validateValue(v)));
-          }
+        if (isDocument) {
+          yield relative.validate({ quiet: true }); // don't throw
         }
-        return items;
       }
-      return [];
+
+      _this._errors = yield _this.$document.$validator.validate( // validate this field
+      _this.value, _this.$document.$schema.fields[_this.$name].validate);
+
+      return _this;
     })();
   }
 
   /*
-  * Checks if the `related` field is valid.
+  * Validates the field by clearing the `_errors` property
   */
 
-  _isRelatedValid(related) {
-    return related.every(v => {
-      return (0, _typeable.isArray)(v) ? this._isRelatedValid(v) : (0, _typeable.isAbsent)(v);
-    });
+  invalidate() {
+    let relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
+    for (let relative of relatives) {
+      let isDocument = relative instanceof this.$document.constructor;
+
+      if (isDocument) {
+        relative.invalidate();
+      }
+    }
+
+    this._errors = [];
+
+    return this;
   }
 
   /*
@@ -295,10 +293,10 @@ class Field {
   */
 
   isValid() {
-    var _this4 = this;
+    var _this2 = this;
 
     return (0, _asyncToGenerator3.default)(function* () {
-      return (0, _typeable.isAbsent)((yield _this4.validate()));
+      return (0, _typeable.isAbsent)(_this2.errors);
     })();
   }
 

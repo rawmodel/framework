@@ -295,7 +295,7 @@ test('variable `$root` should return the first document in a tree of nested docu
   t.is(user.books[0].$root, user);
 });
 
-test('method `get` should return an instance of a field at path', (t) => {
+test('method `getPath` should return an instance of a field at path', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -330,16 +330,16 @@ test('method `get` should return an instance of a field at path', (t) => {
   let user0 = new Document(userSchema);
   let user1 = new Document(userSchema, data);
 
-  t.is(user0.get('name'), null);
-  t.is(user1.get('name'), 'Foo');
-  t.is(user1.get('$name').value, 'Foo');
-  t.is(user0.get('book', 'title'), undefined);
-  t.is(user1.get('book', 'title'), 'Bar');
-  t.is(user0.get('books', 0, 'title'), undefined);
-  t.is(user1.get('books', 0, '$title').value, 'Baz');
+  t.is(user0.getPath('name'), null);
+  t.is(user1.getPath('name'), 'Foo');
+  t.is(user1.getPath('$name').value, 'Foo');
+  t.is(user0.getPath('book', 'title'), undefined);
+  t.is(user1.getPath('book', 'title'), 'Bar');
+  t.is(user0.getPath('books', 0, 'title'), undefined);
+  t.is(user1.getPath('books', 0, '$title').value, 'Baz');
 });
 
-test('method `has` should check field existance at path', (t) => {
+test('method `hasPath` should check field existance at path', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -374,14 +374,14 @@ test('method `has` should check field existance at path', (t) => {
   let user0 = new Document(userSchema);
   let user1 = new Document(userSchema, data);
 
-  t.is(user0.has('name'), true);
-  t.is(user0.has('book', 'title'), false);
-  t.is(user0.has('books', 0, 'title'), false);
-  t.is(user0.has(['books', 0, 'title']), false);
-  t.is(user1.has('name'), true);
-  t.is(user1.has('book', 'title'), true);
-  t.is(user1.has('books', 0, 'title'), true);
-  t.is(user1.has(['books', 0, 'title']), true);
+  t.is(user0.hasPath('name'), true);
+  t.is(user0.hasPath('book', 'title'), false);
+  t.is(user0.hasPath('books', 0, 'title'), false);
+  t.is(user0.hasPath(['books', 0, 'title']), false);
+  t.is(user1.hasPath('name'), true);
+  t.is(user1.hasPath('book', 'title'), true);
+  t.is(user1.hasPath('books', 0, 'title'), true);
+  t.is(user1.hasPath(['books', 0, 'title']), true);
 });
 
 test('method `toObject` should convert a document into serialized data object', (t) => {
@@ -455,7 +455,7 @@ test('method `toObject` should convert a document into serialized data object', 
   });
 });
 
-test('method `reset` should deeply reset fields to their default values', (t) => {
+test('method `reset` should deeply set fields to their default values and invalidate the errors', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -502,8 +502,11 @@ test('method `reset` should deeply reset fields to their default values', (t) =>
   };
   let user = new Document(userSchema);
   user.populate(data);
+  user.$name._errors = ['foo'];
+
   user.reset();
 
+  t.deepEqual(user.$name.errors, []);
   t.deepEqual(user.toObject(), {
     name: 'Bar',
     book: {
@@ -872,7 +875,7 @@ test('method `clone` should return an exact copy of the original', (t) => {
   t.deepEqual(user.clone(), user);
 });
 
-test('method `validate` should validate fields and return an error object', async (t) => {
+test('method `validate` should validate all fields and throw an error', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -925,32 +928,39 @@ test('method `validate` should validate fields and return an error object', asyn
   });
   let data = {
     oldBook: {},
-    oldBooks: [null, {}],
-    prevBooks: [null, {}]
+    oldBooks: [null, {}]
   };
   let user = new Document(userSchema, data);
-  let error = new ValidatorError('presence', 'is required');
+  let validatorError = new ValidatorError('presence', 'is required');
 
-  t.deepEqual(await user.validate(), [
-    new ValidationError('name', [error]),
-    new ValidationError('newBook', [error]),
-    new ValidationError('newBooks', [error]),
-    new ValidationError('oldBook', [], [
-      new ValidationError('title', [error])
-    ]),
-    new ValidationError('oldBooks', [], [
-      undefined,
-      [
-        new ValidationError('title', [error])
-      ]
-    ]),
-    new ValidationError('prevBooks', [], [
-      undefined,
-      [
-        new ValidationError('title', [error])
-      ]
-    ])
+  // throws an error
+  t.throws(user.validate(), ValidationError);
+  let error = null;
+  try {
+    await user.validate();
+  } catch (e) {
+    error = e;
+  }
+
+  t.deepEqual(error.paths, [
+    ['name'],
+    ['newBook'],
+    ['newBooks'],
+    ['oldBook', 'title'],
+    ['oldBooks', 1, 'title']
   ]);
+  // errors are populated
+  t.deepEqual(user.$name.errors, [validatorError]);
+  t.deepEqual(user.$newBook.errors, [validatorError]);
+  t.deepEqual(user.$newBooks.errors, [validatorError]);
+  t.deepEqual(user.$oldBook.errors, []);
+  t.deepEqual(user.oldBook.$title.errors, [validatorError]);
+  t.deepEqual(user.oldBook.$year.errors, []);
+  t.deepEqual(user.$oldBooks.errors, []);
+  t.deepEqual(user.oldBooks[0], null);
+  t.deepEqual(user.oldBooks[1].$title.errors, [validatorError]);
+  t.deepEqual(user.oldBooks[1].$year.errors, []);
+  t.deepEqual(user.$prevBooks.errors, []);
 });
 
 test('method `isValid` should return `true` when fields are valid', async (t) => {
@@ -1006,7 +1016,20 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
   t.is(await user.isValid(), true);
 });
 
-test('method `approve` should throw ValidationError when not all fields are valid', async (t) => {
+test('method `invalidate` should clear errors on all fields', async (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String',
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      year: {
+        type: 'Integer'
+      }
+    }
+  });
   let userSchema = new Schema({
     fields: {
       name: {
@@ -1014,20 +1037,92 @@ test('method `approve` should throw ValidationError when not all fields are vali
         validate: [
           {validator: 'presence', message: 'is required'}
         ]
+      },
+      newBook: {
+        type: bookSchema,
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      newBooks: {
+        type: [bookSchema],
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      oldBook: {
+        type: bookSchema,
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      oldBooks: {
+        type: [bookSchema],
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      prevBooks: {
+        type: [bookSchema]
       }
     }
   });
-  let user = new Document(userSchema);
+  let data = {
+    oldBook: {},
+    oldBooks: [null, {}]
+  };
+  let user = new Document(userSchema, data);
 
-  let error = {};
-  try {
-    await user.approve();
-  }
-  catch (e) {
-    error = e;
-  }
-  t.throws(user.approve(), ValidationError);
-  t.is(error.path.length, 0);
-  t.is(error.errors.length, 0);
-  t.is(error.related.length, 1);
+  await user.validate({quiet: true});
+  // invalidate is triggered when a field changes
+  user.name = 'foo';
+  t.deepEqual(user.$name.errors, []);
+  // errors are populated
+  user.invalidate();
+  t.deepEqual(user.$newBook.errors, []);
+  t.deepEqual(user.$newBooks.errors, []);
+  t.deepEqual(user.oldBook.$title.errors, []);
+  t.deepEqual(user.oldBooks[0], null);
+  t.deepEqual(user.oldBooks[1].$title.errors, []);
+});
+
+test('method `applyErrors` should set field `errors` property', async (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      newBook: {
+        type: bookSchema
+      },
+      newBooks: {
+        type: [bookSchema]
+      }
+    }
+  });
+  let data = {
+    newBook: {},
+    newBooks: [{}, {}]
+  };
+  let user = new Document(userSchema, data);
+  let validatorData = {name: 'ValidatorError', validator: 'presence', message: 'is required'};
+  let validatorError = new ValidatorError(validatorData.validator, validatorData.message);
+
+  user.applyErrors([
+    {path: ['name'], errors: [validatorData]},
+    {path: ['newBook', 'title'], errors: [validatorData]},
+    {path: ['newBooks', 1, 'title'], errors: [validatorData]}
+  ]);
+
+  t.deepEqual(user.$name.errors, [validatorError]);
+  t.deepEqual(user.newBook.$title.errors, [validatorError]);
+  t.deepEqual(user.newBooks[0].$title.errors, []);
+  t.deepEqual(user.newBooks[1].$title.errors, [validatorError]);
 });

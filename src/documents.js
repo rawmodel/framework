@@ -36,6 +36,10 @@ export class Document {
     Object.defineProperty(this, '$validator', { // validatable.js instance
       value: this._createValidator()
     });
+    Object.defineProperty(this, '$error', { // last document error instance
+      value: null,
+      writable: true
+    });
 
     this._defineFields();
     this._populateFields(data);
@@ -85,8 +89,8 @@ export class Document {
   * Creates a new ValidationError instance.
   */
 
-  _createValidationError (errors) {
-    return new ValidationError([], [], errors);
+  _createValidationError (paths) {
+    return new ValidationError(paths);
   }
 
   /*
@@ -124,7 +128,7 @@ export class Document {
   * Returns a value at path.
   */
 
-  get (...keys) {
+  getPath (...keys) {
     if (isArray(keys[0])) {
       keys = keys[0];
     }
@@ -136,8 +140,8 @@ export class Document {
   * Returns `true` if field at path exists.
   */
 
-  has (...keys) {
-    return this.get(...keys) !== undefined;
+  hasPath (...keys) {
+    return this.getPath(...keys) !== undefined;
   }
 
   /*
@@ -298,30 +302,17 @@ export class Document {
   * Validates fields and returns errors.
   */
 
-  async validate () {
-    let errors = [];
+  async validate ({quiet = false} = {}) {
     let {fields} = this.$schema;
 
     for (let path in fields) {
-      let error = await this[`$${path}`].validate();
-
-      if (!isAbsent(error)) {
-        errors.push(error);
-      }
+      await this[`$${path}`].validate();
     }
 
-    return errors;
-  }
-
-  /*
-  * Validates fields and throws a ValidationError if not all fields are valid.
-  */
-
-  async approve () {
-    let errors = await this.validate();
-
-    if (errors.length > 0) {
-      throw this._createValidationError(errors);
+    let paths = this.collectErrors().map((e) => e.path);
+    if (!quiet && paths.length > 0) {
+      let error = this._createValidationError(paths);
+      throw error;
     }
 
     return this;
@@ -332,9 +323,85 @@ export class Document {
   */
 
   async isValid () {
-    return isAbsent(
-      await this.validate()
-    );
+    try {
+      await this.validate();
+    }
+    catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  /*
+  * Validates fields and returns errors.
+  */
+
+  async invalidate () {
+    let {fields} = this.$schema;
+
+    for (let path in fields) {
+      this[`$${path}`].invalidate();
+    }
+
+    return this;
+  }
+
+  /*
+  * Returns a list of all field-related errors, including those deeply nested.
+  */
+
+  collectErrors () {
+
+    let getErrors = (doc, prefix = []) => {
+      let errors = [];
+
+      for (let name in doc.$schema.fields) {
+        let field = doc[`$${name}`];
+
+        if (field.value instanceof this.constructor) {
+          errors.push(
+            ...getErrors(field.value, prefix.concat(field.$name))
+          );
+        }
+        else if (isArray(field.value)) {
+          field.value.forEach((d, i) => {
+            if (d instanceof this.constructor) {
+              errors.push(
+                ...getErrors(d, prefix.concat([field.$name, i]))
+              );
+            }
+          });
+        }
+        else if (field.errors.length > 0) {
+          errors.push({
+            path: prefix.concat([field.$name]),
+            errors: field.errors
+          });
+        }
+      }
+
+      return errors;
+    }
+
+    return getErrors(this);
+  }
+
+  /*
+  * Deeply populates fields with the provided `errors`.
+  */
+
+  applyErrors (errors = []) {
+    for (let error of errors) {
+      let path = error.path.concat();
+      path[path.length - 1] = `$${path[path.length - 1]}`;
+
+      let field = this.getPath(path);
+      if (field) {
+        field.errors = error.errors;
+      }
+    }
+
+    return this;
   }
 
 }

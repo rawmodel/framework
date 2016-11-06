@@ -163,6 +163,10 @@ A document is a schema enforced data object. All document properties and configu
 
 > Validator instance, used for validating fields.
 
+**Document.prototype.applyErrors(errors)**: Document
+
+> Deeply populates fields with the provided `errors`.
+
 **Document.prototype.clear()**: Document
 
 > Sets all document fields to `null`.
@@ -170,6 +174,10 @@ A document is a schema enforced data object. All document properties and configu
 **Document.prototype.clone()**: Document
 
 > Returns a new Document instance which is the exact copy of the original.
+
+**Document.prototype.collectErrors()**: Array
+
+> Returns a list of errors for all the fields (e.g. [{path: ['name'], errors: [ValidatorError(), ...]}]).
 
 **Document.prototype.commit()**: Document
 
@@ -179,7 +187,7 @@ A document is a schema enforced data object. All document properties and configu
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
 
-**Document.prototype.get(...keys)**: Field
+**Document.prototype.getPath(...keys)**: Field
 
 > Returns a class instance of the field at path.
 
@@ -187,26 +195,13 @@ A document is a schema enforced data object. All document properties and configu
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
-**Document.prototype.has(...keys)**: Boolean
+**Document.prototype.hasPath(...keys)**: Boolean
 
 > Returns `true` when a field path exists.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
-
-**Document.prototype.approve()**: Document
-
-> The same as method `validate()` but it throws the `ValidationError` when not all fields are valid.
-
-```js
-try {
-  await doc.approve(); // throws a ValidationError when fields are invalid
-}
-catch (e) {
-  // `e` is an instance of ValidationError where root document errors exists inside the `related` property
-}
-```
 
 **Document.prototype.isChanged()**: Boolean
 
@@ -215,6 +210,10 @@ catch (e) {
 **Document.prototype.isValid()**: Promise(Boolean)
 
 > Returns `true` when all document fields are valid.
+
+**Document.prototype.invalidate()**: Document
+
+> Clears `errors` on all fields (the reverse of `validate()`).
 
 **Document.prototype.populate(data)**: Document
 
@@ -236,9 +235,22 @@ catch (e) {
 
 > Converts a document into serialized data object.
 
-**Document.prototype.validate()**: Promise(ValidationError[])
+**Document.prototype.validate({quiet})**: Promise(Document)
 
-> Validates all document fields and returns a list of `ValidationError` errors for all invalid fields.
+> Validates document fields and throws a ValidationError error if not all fields are valid unless the `quiet` is set to `true`.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| quiet | Boolean | No | false | When set to `true`, a ValidationError is thrown.
+
+```js
+try {
+  await doc.validate(); // throws a ValidationError when fields are invalid
+}
+catch (e) {
+  // `e` is an instance of ValidationError, which holds errors for all invalid fields (including those deeply nested)
+}
+```
 
 ### Field
 
@@ -286,7 +298,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 **Field.prototype.initialValue**: Any
 
-> A getter which returns the initial field value (a value from the last commit).
+> A getter which returns the initial field value (last committed value).
 
 **Field.prototype.isChanged()**: Boolean
 
@@ -296,6 +308,10 @@ user.$name.isChanged(); // -> calling field instance method
 
 > Returns `true` if the field and all sub fields are valid.
 
+**Field.prototype.invalidate()**: Field
+
+> Clears the `errors` field on all fields (the reverse of `validate()`).
+
 **Field.prototype.reset()**: Field
 
 > Sets the field to its default value.
@@ -304,9 +320,9 @@ user.$name.isChanged(); // -> calling field instance method
 
 > Sets the field to its initial value (last committed value). This is how you can discharge field's changes.
 
-**Field.prototype.validate()**: Promise(Object)
+**Field.prototype.validate()**: Promise(Field)
 
-> Validates the field and returns errors.
+> Validates the `value` and populates the `errors` property with errors.
 
 **Field.prototype.value**: Any
 
@@ -314,33 +330,15 @@ user.$name.isChanged(); // -> calling field instance method
 
 ### ValidationError
 
-**ValidationError(path, errors, related, message, code)**
+**ValidationError(message, code)**
 
-> A validation error class which holds information about invalid fields of a document.
+> A validation error class which is triggered by method `validate` when not all fields are valid.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| path | String,String[] | No | [] | A path to a field in a document tree (e.g. ['friends', 1, 'name']). If the path is not specified it represents the root field holding a root document.
-| errors | ValidationError[] | No | [] | A list of `ValidatorError` instances of the related document field.
-| related | ValidationError[] | No | A list of related `ValidationError` instances (of a sub document).
-| message | String | No | Fields validation failed | General error message.
+| paths | String[][] | No | [] | A list of all invalid document paths (e.g. [['friends', 1, 'name'], ...])
+| message | String | No | Validation failed | General error message.
 | code | Number | No | 422 | Error code.
-
-**ValidationError.prototype.isEmpty()**: Boolean
-
-> Returns `true` if the instance holds no errors.
-
-**ValidationError.prototype.isRoot()**: Boolean
-
-> Returns `true` if the instance represents the root field error.
-
-**ValidationError.prototype.toArray(flatten)**: ValidationError[]
-
-> When `flatten` is `true`, it returns an flattened array of all errors, including the deeply related errors, otherwise the original nested format array is returned. 
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| flatten | Boolean | No | true | When `true`, an array of all errors, including the deeply related errors, is returned.
 
 ### ValidatorError
 
