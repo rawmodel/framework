@@ -179,7 +179,6 @@ class Field {
 
   reset() {
     this.value = this.defaultValue;
-    this.invalidate();
 
     return this;
   }
