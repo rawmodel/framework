@@ -360,21 +360,21 @@ export class Document {
 
         if (field.value instanceof this.constructor) {
           errors.push(
-            ...getErrors(field.value, prefix.concat(field.$name))
+            ...getErrors(field.value, prefix.concat(field.name))
           );
         }
         else if (isArray(field.value)) {
           field.value.forEach((d, i) => {
             if (d instanceof this.constructor) {
               errors.push(
-                ...getErrors(d, prefix.concat([field.$name, i]))
+                ...getErrors(d, prefix.concat([field.name, i]))
               );
             }
           });
         }
         else if (field.errors.length > 0) {
           errors.push({
-            path: prefix.concat([field.$name]),
+            path: prefix.concat([field.name]),
             errors: field.errors
           });
         }

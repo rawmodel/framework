@@ -41,7 +41,7 @@ class Field {
     Object.defineProperty(this, '$document', { // reference to the Document instance which owns the field
       value: document
     });
-    Object.defineProperty(this, '$name', { // the name that a field has on the document
+    Object.defineProperty(this, 'name', { // the name that a field has on the document
       value: name
     });
     Object.defineProperty(this, '_value', { // current field value
@@ -63,7 +63,7 @@ class Field {
   */
 
   get value() {
-    let get = this.$document.$schema.fields[this.$name].get;
+    let get = this.$document.$schema.fields[this.name].get;
 
 
     let value = this._value;
@@ -79,7 +79,7 @@ class Field {
   */
 
   set value(value) {
-    var _$document$$schema$fi = this.$document.$schema.fields[this.$name];
+    var _$document$$schema$fi = this.$document.$schema.fields[this.name];
     let set = _$document$$schema$fi.set,
         type = _$document$$schema$fi.type;
 
@@ -99,7 +99,7 @@ class Field {
   */
 
   get defaultValue() {
-    var _$document$$schema$fi2 = this.$document.$schema.fields[this.$name];
+    var _$document$$schema$fi2 = this.$document.$schema.fields[this.name];
     let type = _$document$$schema$fi2.type,
         set = _$document$$schema$fi2.set,
         defaultValue = _$document$$schema$fi2.defaultValue;
@@ -263,7 +263,7 @@ class Field {
       }
 
       _this._errors = yield _this.$document.$validator.validate( // validate this field
-      _this.value, _this.$document.$schema.fields[_this.$name].validate);
+      _this.value, _this.$document.$schema.fields[_this.name].validate);
 
       return _this;
     })();

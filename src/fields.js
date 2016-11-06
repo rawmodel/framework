@@ -24,7 +24,7 @@ export class Field {
     Object.defineProperty(this, '$document', { // reference to the Document instance which owns the field
       value: document
     });
-    Object.defineProperty(this, '$name', { // the name that a field has on the document
+    Object.defineProperty(this, 'name', { // the name that a field has on the document
       value: name,
     });
     Object.defineProperty(this, '_value', { // current field value
@@ -46,7 +46,7 @@ export class Field {
   */
 
   get value () {
-    let {get} = this.$document.$schema.fields[this.$name];
+    let {get} = this.$document.$schema.fields[this.name];
 
     let value = this._value;
     if (get) { // transformation with custom getter
@@ -60,7 +60,7 @@ export class Field {
   */
 
   set value (value) {
-    let {set, type} = this.$document.$schema.fields[this.$name];
+    let {set, type} = this.$document.$schema.fields[this.name];
 
     value = this._cast(value, type); // value type casting
     if (set) { // transformation with custom setter
@@ -76,7 +76,7 @@ export class Field {
   */
 
   get defaultValue () {
-    let {type, set, defaultValue} = this.$document.$schema.fields[this.$name];
+    let {type, set, defaultValue} = this.$document.$schema.fields[this.name];
 
     let value = isFunction(defaultValue)
       ? defaultValue(this._document)
@@ -235,7 +235,7 @@ export class Field {
 
     this._errors = await this.$document.$validator.validate( // validate this field
       this.value,
-      this.$document.$schema.fields[this.$name].validate
+      this.$document.$schema.fields[this.name].validate
     );
 
     return this;

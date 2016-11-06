@@ -422,16 +422,16 @@ class Document {
         let field = doc[`$${ name }`];
 
         if (field.value instanceof _this4.constructor) {
-          errors.push(...getErrors(field.value, prefix.concat(field.$name)));
+          errors.push(...getErrors(field.value, prefix.concat(field.name)));
         } else if ((0, _typeable.isArray)(field.value)) {
           field.value.forEach((d, i) => {
             if (d instanceof _this4.constructor) {
-              errors.push(...getErrors(d, prefix.concat([field.$name, i])));
+              errors.push(...getErrors(d, prefix.concat([field.name, i])));
             }
           });
         } else if (field.errors.length > 0) {
           errors.push({
-            path: prefix.concat([field.$name]),
+            path: prefix.concat([field.name]),
             errors: field.errors
           });
         }

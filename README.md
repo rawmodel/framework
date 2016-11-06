@@ -276,7 +276,7 @@ user.$name.isChanged(); // -> calling field instance method
 
 > Document instance.
 
-**Field.prototype.$name**: String
+**Field.prototype.name**: String
 
 > Field name.
 

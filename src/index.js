@@ -3,7 +3,6 @@ import {Document} from './documents';
 import {Field} from './fields';
 import {
   ValidationError,
-  InvalidFieldError,
   ValidatorError
 } from './errors';
 
@@ -16,6 +15,5 @@ export {
   Document,
   Field,
   ValidationError,
-  InvalidFieldError,
   ValidatorError
 };
