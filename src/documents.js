@@ -358,6 +358,13 @@ export class Document {
       for (let name in doc.$schema.fields) {
         let field = doc[`$${name}`];
 
+        if (field.errors.length > 0) {
+          errors.push({
+            path: prefix.concat([field.name]),
+            errors: field.errors
+          });
+        }
+
         if (field.value instanceof this.constructor) {
           errors.push(
             ...getErrors(field.value, prefix.concat(field.name))
@@ -370,12 +377,6 @@ export class Document {
                 ...getErrors(d, prefix.concat([field.name, i]))
               );
             }
-          });
-        }
-        else if (field.errors.length > 0) {
-          errors.push({
-            path: prefix.concat([field.name]),
-            errors: field.errors
           });
         }
       }

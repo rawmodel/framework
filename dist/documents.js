@@ -421,6 +421,13 @@ class Document {
       for (let name in doc.$schema.fields) {
         let field = doc[`$${ name }`];
 
+        if (field.errors.length > 0) {
+          errors.push({
+            path: prefix.concat([field.name]),
+            errors: field.errors
+          });
+        }
+
         if (field.value instanceof _this4.constructor) {
           errors.push(...getErrors(field.value, prefix.concat(field.name)));
         } else if ((0, _typeable.isArray)(field.value)) {
@@ -428,11 +435,6 @@ class Document {
             if (d instanceof _this4.constructor) {
               errors.push(...getErrors(d, prefix.concat([field.name, i])));
             }
-          });
-        } else if (field.errors.length > 0) {
-          errors.push({
-            path: prefix.concat([field.name]),
-            errors: field.errors
           });
         }
       }

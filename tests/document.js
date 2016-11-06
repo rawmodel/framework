@@ -918,7 +918,8 @@ test('method `validate` should validate all fields and throw an error', async (t
       oldBooks: {
         type: [bookSchema],
         validate: [
-          {validator: 'presence', message: 'is required'}
+          {validator: 'presence', message: 'is required'},
+          {validator: 'arrayLength', message: 'is too short', min: 10}
         ]
       },
       prevBooks: {
@@ -931,7 +932,8 @@ test('method `validate` should validate all fields and throw an error', async (t
     oldBooks: [null, {}]
   };
   let user = new Document(userSchema, data);
-  let validatorError = new ValidatorError('presence', 'is required');
+  let validatorError0 = new ValidatorError('presence', 'is required');
+  let validatorError1 = new ValidatorError('arrayLength', 'is too short');
 
   // throws an error
   t.throws(user.validate(), ValidationError);
@@ -947,18 +949,19 @@ test('method `validate` should validate all fields and throw an error', async (t
     ['newBook'],
     ['newBooks'],
     ['oldBook', 'title'],
+    ['oldBooks'],
     ['oldBooks', 1, 'title']
   ]);
   // errors are populated
-  t.deepEqual(user.$name.errors, [validatorError]);
-  t.deepEqual(user.$newBook.errors, [validatorError]);
-  t.deepEqual(user.$newBooks.errors, [validatorError]);
+  t.deepEqual(user.$name.errors, [validatorError0]);
+  t.deepEqual(user.$newBook.errors, [validatorError0]);
+  t.deepEqual(user.$newBooks.errors, [validatorError0]);
   t.deepEqual(user.$oldBook.errors, []);
-  t.deepEqual(user.oldBook.$title.errors, [validatorError]);
+  t.deepEqual(user.oldBook.$title.errors, [validatorError0]);
   t.deepEqual(user.oldBook.$year.errors, []);
-  t.deepEqual(user.$oldBooks.errors, []);
+  t.deepEqual(user.$oldBooks.errors, [validatorError1]);
   t.deepEqual(user.oldBooks[0], null);
-  t.deepEqual(user.oldBooks[1].$title.errors, [validatorError]);
+  t.deepEqual(user.oldBooks[1].$title.errors, [validatorError0]);
   t.deepEqual(user.oldBooks[1].$year.errors, []);
   t.deepEqual(user.$prevBooks.errors, []);
 });
