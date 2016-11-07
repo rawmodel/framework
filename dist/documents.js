@@ -266,6 +266,17 @@ class Document {
     return this;
   }
 
+  fake() {
+    let fields = this.$schema.fields;
+
+
+    for (let name in fields) {
+      this[`$${ name }`].fake();
+    }
+
+    return this;
+  }
+
   /*
   * Removes all fileds values by setting them to `null`.
   */

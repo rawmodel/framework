@@ -89,6 +89,36 @@ export class Field {
     return value;
   }
 
+  get fakeValue () {
+    let {type, set, fakeValue} = this.$owner.$schema.fields[this.name];
+
+    let value = isFunction(fakeValue)
+      ? fakeValue(this._document)
+      : fakeValue;
+
+    function generateFrom(schemaFaker, name) {      
+      let fakeGen = schemaFaker[name]
+      if (!fakeGen) return
+
+      if (typeof fakeGen === 'function') {
+        return fakeGen()
+      }
+    }
+
+    let schemaFaker = this.$owner.$schema.fakes
+    if (!value && schemaFaker) {
+      value = generateFrom(schemaFaker, this.name)
+    } 
+
+    value = this._cast(value, type); // value type casting
+    if (set) { // custom setter
+      value = set.call(this.$owner, value);
+    }
+
+    return value;
+  }
+
+
   /*
   * Returns the value of a field of the last commit.
   */
@@ -150,6 +180,16 @@ export class Field {
 
   reset () {
     this.value = this.defaultValue;
+
+    return this;
+  }
+
+  /*
+  * Sets field to a generated fake value.
+  */
+
+  fake () {
+    this.value = this.fakeValue || this.defaultValue;
 
     return this;
   }

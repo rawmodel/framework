@@ -15,8 +15,10 @@ class Schema {
 
   constructor() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$fields = _ref.fields;
+        _ref$fakes = _ref.fakes;
 
+    let fakes = _ref$fakes === undefined ? {} : _ref$fakes;
+    var _ref$fields = _ref.fields;
     let fields = _ref$fields === undefined ? {} : _ref$fields;
     var _ref$strict = _ref.strict;
     let strict = _ref$strict === undefined ? true : _ref$strict;
@@ -24,6 +26,10 @@ class Schema {
     let validatorOptions = _ref$validatorOptions === undefined ? {} : _ref$validatorOptions;
     var _ref$typeOptions = _ref.typeOptions;
     let typeOptions = _ref$typeOptions === undefined ? {} : _ref$typeOptions;
+
+    Object.defineProperty(this, 'fakes', { // document fields
+      get: () => typeof fakes === 'function' ? fakes() : fakes
+    });
 
     Object.defineProperty(this, 'fields', { // document fields
       get: () => typeof fields === 'function' ? fields() : fields

@@ -43,7 +43,11 @@ import {
 let bookSchema = new Schema({
   fields: {
     title: {
-      type: 'String'
+      type: 'String',
+      defaultValue: 'Lord of the flies',
+      fakeValue: () => {
+        return faker.lorem.sentence()
+      }
     }
   }
 });
@@ -81,8 +85,15 @@ let data = {
 };
 
 let user = new Document(userSchema, data);
+user.title // => True Detective
 await user.validate({quiet: true});
 user.isValid(); // -> false
+
+// generate fake data
+user.fake()
+user.title // => lorem ipsum
+user.reset() // use default value
+user.title // => Lord of the flies
 ```
 
 ## API
@@ -97,23 +108,32 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
-**Schema({fields, strict, validatorOptions, typeOptions})**
+**Schema({fakerRegistry, fields, strict, validatorOptions, typeOptions})**
 
 > A class for defining document structure.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
+| fakes  | Object,Function | No  | - | A registry of faker methods that can be used to generate fake field data   
 | fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the definition object in case of self referencing.
 | strict | Boolean | No | true | A schema type (set to `false` to allow dynamic fields not defined in schema).
 | validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
 | typeOptions | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
 ```js
 
+// reusable fakers
+const fakes = {
+  title: () => {
+    return faker.lorem.sentence()
+  }
+}
+
 new Schema({
+  fakes, 
   fields: { // schema fields definition
     email: { // a field name holding a field definition
       type: 'String', // a field data type provided by typeable.js
-      defaultValue: 'John Smith', // a default field value
+      defaultValue: 'John Smith', // a default field value 
       validate: [ // field validations provided by validatable.js
         { // validator recipe
           validator: 'presence', // validator name
@@ -266,6 +286,10 @@ doc.applyErrors([
 **Document.prototype.reset()**: Document
 
 > Sets each document field to its default value.
+
+**Document.prototype.fake()**: Document
+
+> Sets each document field to its fake value if a fake value generator is registered either on the field itself or in the fake registry of the schema (if not uses default value if present) 
 
 **Document.prototype.rollback()**: Document
 

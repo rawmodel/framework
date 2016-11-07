@@ -8,7 +8,11 @@ export class Schema {
   * Class constructor.
   */
 
-  constructor ({fields={}, strict=true, validatorOptions={}, typeOptions={}}={}) {
+  constructor ({fakes={}, fields={}, strict=true, validatorOptions={}, typeOptions={}}={}) {
+    Object.defineProperty(this, 'fakes', { // document fields
+      get: () => typeof fakes === 'function' ? fakes() : fakes,
+    });
+
     Object.defineProperty(this, 'fields', { // document fields
       get: () => typeof fields === 'function' ? fields() : fields,
     });
