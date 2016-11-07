@@ -298,13 +298,13 @@ user.$name; // -> reference to document field instance
 user.$name.isChanged(); // -> calling field instance method
 ```
 
-**Field(document, name)**
+**Field(owner, name)**
 
-> Document field class which represents each field on a document.
+> A field class which represents each field on a document.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| document | Document | Yes | - | An instance of a Document.
+| owner | Document | Yes | - | An instance of a Document which owns the field.
 | name | String | Yes | - | Field name
 
 **Field.prototype.$owner**: Document
