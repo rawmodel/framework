@@ -54,7 +54,7 @@ let userSchema = new Schema({
       type: 'String', // field type
       validate: [
         {
-          name: 'presence',  // validator name
+          validator: 'presence',  // validator name
           message: 'is required' // validator error message
         }
       ]
@@ -63,7 +63,7 @@ let userSchema = new Schema({
       type: [bookSchema],
       validate: [
         {
-          name: 'presence',
+          validator: 'presence',
           message: 'is required'
         }
       ]
@@ -115,7 +115,7 @@ new Schema({
       defaultValue: 'John Smith', // a default field value
       validate: [ // field validations provided by validatable.js
         { // validator recipe
-          name: 'presence', // validator name
+          validator: 'presence', // validator name
           message: 'is required' // validator error message
         }
       ]
