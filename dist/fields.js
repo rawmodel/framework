@@ -286,15 +286,19 @@ class Field {
   }
 
   /*
-  * Returns `true` when the value is valid.
+  * Returns `true` when the value is valid (inverse of `hasErrors`).
   */
 
   isValid() {
-    var _this2 = this;
+    return !this.hasErrors();
+  }
 
-    return (0, _asyncToGenerator3.default)(function* () {
-      return (0, _typeable.isAbsent)(_this2.errors);
-    })();
+  /*
+  * Returns `true` when errors exist (inverse of `isValid`).
+  */
+
+  hasErrors() {
+    return this.errors.length > 0;
   }
 
 }

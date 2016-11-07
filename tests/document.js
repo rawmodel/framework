@@ -964,7 +964,7 @@ test('method `validate` should validate all fields and throw an error', async (t
   t.deepEqual(user.$prevBooks.errors.length, 0);
 });
 
-test('method `isValid` should return `true` when fields are valid', async (t) => {
+test('methods `isValid` and `hasErrors` should tell if fields are valid', async (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -1010,11 +1010,16 @@ test('method `isValid` should return `true` when fields are valid', async (t) =>
     ]
   };
   let user = new Document(userSchema, data);
+  await user.validate({quiet: true});
 
-  t.is(await user.$name.isValid(), true);
-  t.is(await user.book.$title.isValid(), true);
-  t.is(await user.books[0].$title.isValid(), true);
-  t.is(await user.isValid(), true);
+  t.is(user.$name.isValid(), true);
+  t.is(user.$name.hasErrors(), false);
+  t.is(user.book.$title.isValid(), true);
+  t.is(user.book.$title.hasErrors(), false);
+  t.is(user.books[0].$title.isValid(), true);
+  t.is(user.books[0].$title.hasErrors(), false);
+  t.is(user.isValid(), true);
+  t.is(user.hasErrors(), false);
 });
 
 test('method `invalidate` should clear errors on all fields', async (t) => {

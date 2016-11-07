@@ -1,6 +1,5 @@
 import {
   cast,
-  isAbsent,
   isArray,
   toArray,
   isFunction
@@ -258,11 +257,19 @@ export class Field {
   }
 
   /*
-  * Returns `true` when the value is valid.
+  * Returns `true` when the value is valid (inverse of `hasErrors`).
   */
 
-  async isValid () {
-    return isAbsent(this.errors);
+  isValid () {
+    return !this.hasErrors();
+  }
+
+  /*
+  * Returns `true` when errors exist (inverse of `isValid`).
+  */
+
+  hasErrors () {
+    return this.errors.length > 0;
   }
 
 }

@@ -371,39 +371,34 @@ class Document {
   }
 
   /*
-  * Returns `true` when all document fields are valid.
-  */
-
-  isValid() {
-    var _this2 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      try {
-        yield _this2.validate();
-      } catch (e) {
-        return false;
-      }
-      return true;
-    })();
-  }
-
-  /*
   * Validates fields and returns errors.
   */
 
   invalidate() {
-    var _this3 = this;
-
-    return (0, _asyncToGenerator3.default)(function* () {
-      let fields = _this3.$schema.fields;
+    let fields = this.$schema.fields;
 
 
-      for (let path in fields) {
-        _this3[`$${ path }`].invalidate();
-      }
+    for (let path in fields) {
+      this[`$${ path }`].invalidate();
+    }
 
-      return _this3;
-    })();
+    return this;
+  }
+
+  /*
+  * Returns `true` when all document fields are valid (inverse of `hasErrors`).
+  */
+
+  isValid() {
+    return !this.hasErrors();
+  }
+
+  /*
+  * Returns `true` when errors exist (inverse of `isValid`).
+  */
+
+  hasErrors() {
+    return this.collectErrors().length > 0;
   }
 
   /*
@@ -411,7 +406,7 @@ class Document {
   */
 
   collectErrors() {
-    var _this4 = this;
+    var _this2 = this;
 
     let getErrors = function (doc) {
       let prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
@@ -428,11 +423,11 @@ class Document {
           });
         }
 
-        if (field.value instanceof _this4.constructor) {
+        if (field.value instanceof _this2.constructor) {
           errors.push(...getErrors(field.value, prefix.concat(field.name)));
         } else if ((0, _typeable.isArray)(field.value)) {
           field.value.forEach((d, i) => {
-            if (d instanceof _this4.constructor) {
+            if (d instanceof _this2.constructor) {
               errors.push(...getErrors(d, prefix.concat([field.name, i])));
             }
           });

@@ -81,7 +81,8 @@ let data = {
 };
 
 let user = new Document(userSchema, data);
-await user.isValid(); // -> false
+await user.validate({quiet: true});
+user.isValid(); // -> false
 ```
 
 ## API
@@ -230,6 +231,10 @@ doc.applyErrors([
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
+**Document.prototype.hasErrors()**: Boolean
+
+> Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
+
 **Document.prototype.hasPath(...keys)**: Boolean
 
 > Returns `true` when a field path exists.
@@ -242,9 +247,9 @@ doc.applyErrors([
 
 > Returns `true` if at least one document field has been changed.
 
-**Document.prototype.isValid()**: Promise(Boolean)
+**Document.prototype.isValid()**: Boolean
 
-> Returns `true` when all document fields are valid.
+> Returns `true` when all document fields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
 
 **Document.prototype.invalidate()**: Document
 
@@ -331,6 +336,10 @@ user.$name.isChanged(); // -> calling field instance method
 
 > Returns `true` when the provided `value` represents an object that looks the same.
 
+**Field.prototype.hasErrors()**: Boolean
+
+> Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
+
 **Field.prototype.initialValue**: Any
 
 > A getter which returns the initial field value (last committed value).
@@ -339,9 +348,9 @@ user.$name.isChanged(); // -> calling field instance method
 
 > Returns `true` if the field or at least one sub field have been changed.
 
-**Field.prototype.isValid()**: Promise(Boolean)
+**Field.prototype.isValid()**: Boolean
 
-> Returns `true` if the field and all sub fields are valid.
+> Returns `true` if the field and all sub fields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
 
 **Field.prototype.invalidate()**: Field
 

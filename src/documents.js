@@ -319,24 +319,10 @@ export class Document {
   }
 
   /*
-  * Returns `true` when all document fields are valid.
-  */
-
-  async isValid () {
-    try {
-      await this.validate();
-    }
-    catch (e) {
-      return false;
-    }
-    return true;
-  }
-
-  /*
   * Validates fields and returns errors.
   */
 
-  async invalidate () {
+  invalidate () {
     let {fields} = this.$schema;
 
     for (let path in fields) {
@@ -344,6 +330,22 @@ export class Document {
     }
 
     return this;
+  }
+
+  /*
+  * Returns `true` when all document fields are valid (inverse of `hasErrors`).
+  */
+
+  isValid () {
+    return !this.hasErrors();
+  }
+
+  /*
+  * Returns `true` when errors exist (inverse of `isValid`).
+  */
+
+  hasErrors () {
+    return this.collectErrors().length > 0;
   }
 
   /*
