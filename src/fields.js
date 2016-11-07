@@ -134,9 +134,7 @@ export class Field {
   */
 
   _cast (value, type) {
-    let options = this.$owner.$schema.typeOptions;
-
-    options.types = Object.assign({}, options.types, {
+    let types = Object.assign({}, this.$owner.$schema.typeOptions, {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
 
@@ -144,7 +142,7 @@ export class Field {
       }
     });
 
-    return cast(value, type, options);
+    return cast(value, type, types);
   }
 
   /*

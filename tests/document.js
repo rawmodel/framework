@@ -86,9 +86,7 @@ test('field can be of a custom type', (t) => {
       }
     },
     typeOptions: {
-      types: {
-        cool: (v) => `${v}-cool`
-      }
+      cool: (v) => `${v}-cool`
     }
   });
   let data = {

@@ -160,9 +160,7 @@ class Field {
   */
 
   _cast(value, type) {
-    let options = this.$owner.$schema.typeOptions;
-
-    options.types = (0, _assign2.default)({}, options.types, {
+    let types = (0, _assign2.default)({}, this.$owner.$schema.typeOptions, {
       Schema: value => {
         if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
@@ -170,7 +168,7 @@ class Field {
       }
     });
 
-    return (0, _typeable.cast)(value, type, options);
+    return (0, _typeable.cast)(value, type, types);
   }
 
   /*
