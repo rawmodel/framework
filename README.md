@@ -114,6 +114,7 @@ A Schema can also be used as a custom type object. This way you can create a nes
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
+| name   | String | No  | - | The name of the schema
 | fakes  | Object,Function | No  | - | A registry of faker methods that can be used to generate fake field data   
 | fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the definition object in case of self referencing.
 | strict | Boolean | No | true | A schema type (set to `false` to allow dynamic fields not defined in schema).
@@ -123,8 +124,16 @@ A Schema can also be used as a custom type object. This way you can create a nes
 
 // reusable fakers
 const fakes = {
+  // default faker functions if no key for schema name
   title: () => {
     return faker.lorem.sentence()
+  },
+  schemas: {
+    book: { // used by book schema if present
+      title: () => {
+        return faker.book.title()
+      },    
+    }
   }
 }
 

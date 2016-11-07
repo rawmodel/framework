@@ -14,9 +14,10 @@ class Schema {
   */
 
   constructor() {
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        _ref$fakes = _ref.fakes;
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
+    let name = _ref.name;
+    var _ref$fakes = _ref.fakes;
     let fakes = _ref$fakes === undefined ? {} : _ref$fakes;
     var _ref$fields = _ref.fields;
     let fields = _ref$fields === undefined ? {} : _ref$fields;
@@ -27,7 +28,11 @@ class Schema {
     var _ref$typeOptions = _ref.typeOptions;
     let typeOptions = _ref$typeOptions === undefined ? {} : _ref$typeOptions;
 
-    Object.defineProperty(this, 'fakes', { // document fields
+    Object.defineProperty(this, 'name', { // document name
+      value: name
+    });
+
+    Object.defineProperty(this, 'fakes', { // document fakes registry
       get: () => typeof fakes === 'function' ? fakes() : fakes
     });
 

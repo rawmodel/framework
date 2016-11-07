@@ -8,8 +8,12 @@ export class Schema {
   * Class constructor.
   */
 
-  constructor ({fakes={}, fields={}, strict=true, validatorOptions={}, typeOptions={}}={}) {
-    Object.defineProperty(this, 'fakes', { // document fields
+  constructor ({name, fakes={}, fields={}, strict=true, validatorOptions={}, typeOptions={}}={}) {
+    Object.defineProperty(this, 'name', { // document name
+      value: name
+    });
+
+    Object.defineProperty(this, 'fakes', { // document fakes registry
       get: () => typeof fakes === 'function' ? fakes() : fakes,
     });
 

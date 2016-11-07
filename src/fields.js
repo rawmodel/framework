@@ -96,18 +96,22 @@ export class Field {
       ? fakeValue(this._document)
       : fakeValue;
 
-    function generateFrom(schemaFaker, name) {      
-      let fakeGen = schemaFaker[name]
+    function generateFrom(fakes, name) {
+      if (!fakes) return
+      if (typeof fakes !== 'object') return      
+
+      let fakeGen = fakes[name]
       if (!fakeGen) return
 
       if (typeof fakeGen === 'function') {
         return fakeGen()
       }
     }
-
-    let schemaFaker = this.$owner.$schema.fakes
-    if (!value && schemaFaker) {
-      value = generateFrom(schemaFaker, this.name)
+    let schema = this.$owner.$schema
+    let fakes = this.$owner.$schema.fakes
+    if (!value && fakes) {
+      let schemaFaker = fakes.schemas ? fakes.schemas[schema.name] : fakes
+      value = generateFrom(schemaFaker, this.name) 
     } 
 
     value = this._cast(value, type); // value type casting

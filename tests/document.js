@@ -7,6 +7,10 @@ import {
   ValidatorError
 } from '../dist';
 
+function displayObj(label, obj) {
+  console.log(label, '>>', JSON.stringify(obj, null, 2))
+}
+
 test('field value should be converted to the specified type', (t) => {
   let bookSchema = new Schema({
     fields: () => ({
@@ -102,11 +106,19 @@ test('field can be of a custom type', (t) => {
 const fakes = {
   title: () => {
     return faker.lorem.sentence()
+  },
+  schemas: {
+    book: {
+      title: () => {
+        return 'random book title'
+      }
+    }
   }
 }
 
 test('field can have a default value', (t) => {
   let bookSchema = new Schema({
+    name: 'book',
     fakes,
     fields: {
       title: {
@@ -123,6 +135,8 @@ test('field can have a default value', (t) => {
     }
   });
   let userSchema = new Schema({
+    name: 'user',
+    fakes,    
     fields: {
       name: {
         type: 'String',
@@ -130,6 +144,9 @@ test('field can have a default value', (t) => {
         fakeValue: () => {
           return faker.name.findName()
         }        
+      },
+      title: {
+        type: 'String',
       },
       age: {
         type: 'Integer',
@@ -179,6 +196,9 @@ test('field can have a default value', (t) => {
 
   book2.reset()
   fakeBook.fake()
+
+  // displayObj('user', fakeUser)
+  // displayObj('book', fakeBook)
 
   t.not(user2.name, fakeUser.name);
 
