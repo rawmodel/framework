@@ -24,12 +24,37 @@ class ValidationError extends Error {
     let message = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'Validation failed';
     let code = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 422;
 
-    super();
+    super(message);
 
-    this.name = this.constructor.name;
-    this.paths = (0, _typeable.toArray)(paths);
-    this.message = message;
-    this.code = code;
+    Object.defineProperty(this, 'name', { // class name
+      value: this.constructor.name,
+      writable: true
+    });
+    Object.defineProperty(this, 'message', { // validation error message
+      value: message,
+      writable: true
+    });
+    Object.defineProperty(this, 'paths', { // validator name
+      value: (0, _typeable.toArray)(paths),
+      writable: true
+    });
+    Object.defineProperty(this, 'code', { // error code
+      value: code,
+      writable: true
+    });
+  }
+
+  /*
+  * Returns error data.
+  */
+
+  toObject() {
+    let name = this.name,
+        message = this.message,
+        paths = this.paths,
+        code = this.code;
+
+    return { name, message, paths, code };
   }
 }
 

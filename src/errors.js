@@ -12,12 +12,33 @@ export class ValidationError extends Error {
   */
 
   constructor (paths = [], message = 'Validation failed', code = 422) {
-    super();
+    super(message);
 
-    this.name = this.constructor.name;
-    this.paths = toArray(paths);
-    this.message = message;
-    this.code = code;
+    Object.defineProperty(this, 'name', { // class name
+      value: this.constructor.name,
+      writable: true
+    });
+    Object.defineProperty(this, 'message', { // validation error message
+      value: message,
+      writable: true
+    });
+    Object.defineProperty(this, 'paths', { // validator name
+      value: toArray(paths),
+      writable: true
+    });
+    Object.defineProperty(this, 'code', { // error code
+      value: code,
+      writable: true
+    });
+  }
+
+  /*
+  * Returns error data.
+  */
+
+  toObject () {
+    let {name, message, paths, code} = this;
+    return {name, message, paths, code};
   }
 }
 
