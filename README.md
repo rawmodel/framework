@@ -245,6 +245,10 @@ doc.applyErrors([
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
+**Document.prototype.fake()**: Document
+
+> Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
+
 **Document.prototype.hasErrors()**: Boolean
 
 > Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
@@ -280,10 +284,6 @@ doc.applyErrors([
 **Document.prototype.reset()**: Document
 
 > Sets each document field to its default value.
-
-**Document.prototype.fake()**: Document
-
-> Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
 
 **Document.prototype.rollback()**: Document
 
