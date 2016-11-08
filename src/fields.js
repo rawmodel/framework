@@ -78,8 +78,27 @@ export class Field {
     let {type, set, defaultValue} = this.$owner.$schema.fields[this.name];
 
     let value = isFunction(defaultValue)
-      ? defaultValue(this._document)
+      ? defaultValue.call(this)
       : defaultValue;
+
+    value = this._cast(value, type); // value type casting
+    if (set) { // custom setter
+      value = set.call(this.$owner, value);
+    }
+
+    return value;
+  }
+
+  /*
+  * Returns a fake value of a field.
+  */
+
+  get fakeValue () {
+    let {type, set, fakeValue} = this.$owner.$schema.fields[this.name];
+
+    let value = isFunction(fakeValue)
+      ? fakeValue.call(this)
+      : fakeValue;
 
     value = this._cast(value, type); // value type casting
     if (set) { // custom setter
@@ -150,6 +169,16 @@ export class Field {
 
   reset () {
     this.value = this.defaultValue;
+
+    return this;
+  }
+
+  /*
+  * Sets field to a generated fake value.
+  */
+
+  fake () {
+    this.value = this.fakeValue || this.defaultValue;
 
     return this;
   }

@@ -105,7 +105,29 @@ class Field {
         defaultValue = _$owner$$schema$field2.defaultValue;
 
 
-    let value = (0, _typeable.isFunction)(defaultValue) ? defaultValue(this._document) : defaultValue;
+    let value = (0, _typeable.isFunction)(defaultValue) ? defaultValue.call(this) : defaultValue;
+
+    value = this._cast(value, type); // value type casting
+    if (set) {
+      // custom setter
+      value = set.call(this.$owner, value);
+    }
+
+    return value;
+  }
+
+  /*
+  * Returns a fake value of a field.
+  */
+
+  get fakeValue() {
+    var _$owner$$schema$field3 = this.$owner.$schema.fields[this.name];
+    let type = _$owner$$schema$field3.type,
+        set = _$owner$$schema$field3.set,
+        fakeValue = _$owner$$schema$field3.fakeValue;
+
+
+    let value = (0, _typeable.isFunction)(fakeValue) ? fakeValue.call(this) : fakeValue;
 
     value = this._cast(value, type); // value type casting
     if (set) {
@@ -177,6 +199,16 @@ class Field {
 
   reset() {
     this.value = this.defaultValue;
+
+    return this;
+  }
+
+  /*
+  * Sets field to a generated fake value.
+  */
+
+  fake() {
+    this.value = this.fakeValue || this.defaultValue;
 
     return this;
   }

@@ -2,6 +2,7 @@ import test from 'ava';
 import {
   Document,
   Schema,
+  Field,
   ValidationError,
   ValidatorError
 } from '../dist';
@@ -102,7 +103,7 @@ test('field can have a default value', (t) => {
     fields: {
       title: {
         type: 'String',
-        defaultValue: 100
+        defaultValue: () => 100
       }
     }
   });
@@ -110,7 +111,7 @@ test('field can have a default value', (t) => {
     fields: {
       name: {
         type: 'String',
-        defaultValue: 100
+        defaultValue () { return this instanceof Field ? 'yes' : 'no' } // Field context
       },
       age: {
         type: 'Integer',
@@ -149,7 +150,8 @@ test('field can have a default value', (t) => {
   let book0 = new Document(bookSchema);
   let book1 = new Document(bookSchema, data.books[1])
 
-  t.is(user0.name, '100');
+  t.is(user0.name, 'yes');
+  t.is(user0.$name.defaultValue, 'yes');
   t.is(user0.age, 35);
   t.is(user0.enabled, true);
   t.is(user0.book, null);
@@ -157,6 +159,65 @@ test('field can have a default value', (t) => {
   t.deepEqual(user1.books, [null, book1]);
   t.is(user1.books[0], null);
   t.is(user1.books[1].title, '100');
+});
+
+test('field can have a fake value', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String',
+        fakeValue: () => 100
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String',
+        fakeValue () { return this instanceof Field ? 'yes' : 'no' } // Field context
+      },
+      age: {
+        type: 'Integer',
+        defaultValue: '35'
+      },
+      enabled: {
+        type: 'Boolean',
+        fakeValue: () => true
+      },
+      papers: {
+        type: [bookSchema],
+        defaultValue: [
+          {
+            title: 'Foo'
+          }
+        ]
+      }
+    }
+  });
+  let user0 = new Document(userSchema);
+  let user1 = new Document(userSchema);
+
+  t.is(user0.$name.fakeValue, 'yes');
+  t.is(user0.$age.fakeValue, null);
+  t.is(user0.$enabled.fakeValue, true);
+
+  t.is(user0.$name.value, null);
+  user0.$name.fake();
+  t.is(user0.$name.value, 'yes');
+
+  user0.$age.clear();
+  t.is(user0.$age.value, null);
+  user0.$age.fake();
+  t.is(user0.$age.value, 35);
+
+  user0.$papers.clear();
+  t.is(user0.papers, null);
+  user0.$papers.fake();
+  t.is(user0.papers.length, 1);
+
+  t.is(user1.$name.value, null);
+  user1.fake();
+  t.is(user1.$name.value, 'yes');
 });
 
 test('field can be transformed through custom setter and getter', (t) => {
@@ -180,8 +241,7 @@ test('method `populate` should not set custom fields when schema strict=true', (
     strict: true,
     fields: {
       name: {
-        type: 'String',
-        defaultValue: 100
+        type: 'String'
       }
     }
   });
