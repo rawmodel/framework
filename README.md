@@ -14,6 +14,7 @@ This is a light weight open source package for use on **server or in browser**. 
 * Field fake value
 * Field value transformation with getter and setter
 * Strict and relaxed schemas
+* Schema mixins for extending schemas
 * Document nesting with support for self referencing
 * Change tracking, data commits and rollbacks
 * Advanced field validation
@@ -107,12 +108,13 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
-**Schema({fields, fakes strict, validatorOptions, typeOptions})**
+**Schema({fields, fakes strict, validatorOptions, typeOptions, mixins})**
 
 > A class for defining document structure.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
+| mixins | [] | No | [] | A list of schema instances from which to extend the schema.
 | fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the definition object in case of self referencing.
 | strict | Boolean | No | true | A schema type (set to `false` to allow dynamic fields not defined in schema).
 | validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
@@ -120,11 +122,12 @@ A Schema can also be used as a custom type object. This way you can create a nes
 
 ```js
 new Schema({
+  mixins: [animalSchema, catSchema], // schema extensions
   fields: { // schema fields definition
     email: { // a field name holding a field definition
       type: 'String', // a field data type provided by typeable.js
-      defaultValue: 'John Smith', // a default field value (can be a value of a function) 
-      fakeValue: 'John Smith', // a fake field value (can be a value of a function) 
+      defaultValue: 'John Smith', // a default field value (can be a value of a function)
+      fakeValue: 'John Smith', // a fake field value (can be a value of a function)
       validate: [ // field validations provided by validatable.js
         { // validator recipe
           validator: 'presence', // validator name
