@@ -230,6 +230,21 @@ export class Document {
   }
 
   /*
+  * Sets each document field to its fake value if a fake value generator 
+  * is registered, otherwise the default value is used.
+  */
+
+  fake () {
+    let {fields} = this.$schema;
+
+    for (let name in fields) {
+      this[`$${name}`].fake();
+    }
+
+    return this;
+  }
+
+  /*
   * Removes all fileds values by setting them to `null`.
   */
 

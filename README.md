@@ -11,6 +11,7 @@ This is a light weight open source package for use on **server or in browser**. 
 * Type casting
 * Custom data types
 * Field default value
+* Field fake value
 * Field value transformation with getter and setter
 * Strict and relaxed schemas
 * Document nesting with support for self referencing
@@ -35,6 +36,7 @@ $ npm install --save objectschema
 ## Example
 
 ```js
+import faker from 'faker'; // optional
 import {
   Document,
   Schema
@@ -43,7 +45,9 @@ import {
 let bookSchema = new Schema({
   fields: {
     title: {
-      type: 'String'
+      type: 'String',
+      defaultValue: () => 'Lord of the flies', // value or function
+      fakeValue: () => faker.lorem.sentence() // value or function
     }
   }
 });
@@ -81,8 +85,14 @@ let data = {
 };
 
 let user = new Document(userSchema, data);
+user.title; // => "True Detective"
 await user.validate({quiet: true});
-user.isValid(); // -> false
+user.isValid(); // => false
+
+user.fake(); // generate fake data
+user.title; // => "lorem ipsum"
+user.reset(); // use default value
+user.title; // => "Lord of the flies"
 ```
 
 ## API
@@ -97,7 +107,7 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
-**Schema({fields, strict, validatorOptions, typeOptions})**
+**Schema({fields, fakes strict, validatorOptions, typeOptions})**
 
 > A class for defining document structure.
 
@@ -107,13 +117,14 @@ A Schema can also be used as a custom type object. This way you can create a nes
 | strict | Boolean | No | true | A schema type (set to `false` to allow dynamic fields not defined in schema).
 | validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
 | typeOptions | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
-```js
 
+```js
 new Schema({
   fields: { // schema fields definition
     email: { // a field name holding a field definition
       type: 'String', // a field data type provided by typeable.js
-      defaultValue: 'John Smith', // a default field value
+      defaultValue: 'John Smith', // a default field value (can be a value of a function) 
+      fakeValue: 'John Smith', // a fake field value (can be a value of a function) 
       validate: [ // field validations provided by validatable.js
         { // validator recipe
           validator: 'presence', // validator name
@@ -267,6 +278,10 @@ doc.applyErrors([
 
 > Sets each document field to its default value.
 
+**Document.prototype.fake()**: Document
+
+> Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
+
 **Document.prototype.rollback()**: Document
 
 > Sets each document field to its initial value (last committed value). This is how you can discharge document changes.
@@ -298,9 +313,9 @@ When a document field is defined, another field with the same name but prefixed 
 
 ```js
 let user = new Document(schema);
-user.name = 'John'; // -> actual document field
-user.$name; // -> reference to document field instance
-user.$name.isChanged(); // -> calling field instance method
+user.name = 'John'; // actual document field
+user.$name; // reference to document field instance
+user.$name.isChanged(); // calling field instance method
 ```
 
 **Field(owner, name)**
@@ -335,6 +350,10 @@ user.$name.isChanged(); // -> calling field instance method
 **Field.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object that looks the same.
+
+**Field.prototype.fakeValue**: Any
+
+> A getter which returns a fake field value.
 
 **Field.prototype.hasErrors()**: Boolean
 
