@@ -4,8 +4,8 @@ import {
   toArray,
   isFunction
 } from 'typeable';
-import deeplyEquals from 'deep-equal';
-import {cloneData} from './utils';
+import isEqual from 'lodash.isequal';
+import {serialize} from './utils';
 import {Schema} from './schemas';
 import {ValidatorError} from './errors';
 
@@ -199,7 +199,7 @@ export class Field {
 
   commit () {
     this._commitRelated(this.value);
-    this._initialValue = cloneData(this.value);
+    this._initialValue = serialize(this.value);
 
     return this;
   }
@@ -233,7 +233,10 @@ export class Field {
   */
 
   equals (data) {
-    return deeplyEquals(this.value, data);
+    return isEqual(
+      serialize(this.value), 
+      serialize(data)
+    );
   }
 
   /*

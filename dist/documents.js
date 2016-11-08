@@ -23,9 +23,9 @@ var _assign2 = _interopRequireDefault(_assign);
 
 var _typeable = require('typeable');
 
-var _deepEqual = require('deep-equal');
+var _lodash = require('lodash.isequal');
 
-var _deepEqual2 = _interopRequireDefault(_deepEqual);
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _validatable = require('validatable');
 
@@ -196,7 +196,7 @@ class Document {
   _populateFields() {
     let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
-    data = (0, _utils.cloneData)(data);
+    data = (0, _utils.serialize)(data);
 
     for (let name in data) {
       this._populateField(name, data[name]);
@@ -227,28 +227,7 @@ class Document {
   */
 
   toObject() {
-    let data = {};
-    let names = (0, _keys2.default)(this);
-
-    for (let name of names) {
-      data[name] = this._serializeValue(this[name]);
-    }
-
-    return data;
-  }
-
-  /*
-  * Serializes a value recursivelly and returns a serialized data object.
-  */
-
-  _serializeValue(value) {
-    if (value && value.toObject) {
-      return value.toObject();
-    } else if (value && (0, _typeable.isArray)(value)) {
-      return value.map(value => this._serializeValue(value));
-    } else {
-      return value;
-    }
+    return (0, _utils.serialize)(this);
   }
 
   /*
@@ -333,7 +312,7 @@ class Document {
   */
 
   equals(value) {
-    return (0, _deepEqual2.default)(this, value);
+    return (0, _lodash2.default)((0, _utils.serialize)(this), (0, _utils.serialize)(value));
   }
 
   /*

@@ -6,9 +6,9 @@ import {
   isAbsent,
   isUndefined
 } from 'typeable';
-import deeplyEquals from 'deep-equal';
+import isEqual from 'lodash.isequal';
 import {Validator} from 'validatable';
-import {cloneData} from './utils';
+import {serialize} from './utils';
 import {Schema} from './schemas';
 import {Field} from './fields';
 import {ValidationError} from './errors';
@@ -157,7 +157,7 @@ export class Document {
   */
 
   _populateFields (data={}) {
-    data = cloneData(data);
+    data = serialize(data);
 
     for (let name in data) {
       this._populateField(name, data[name]);
@@ -189,30 +189,7 @@ export class Document {
   */
 
   toObject () {
-    let data = {};
-    let names = Object.keys(this);
-
-    for (let name of names) {
-      data[name] = this._serializeValue(this[name]);
-    }
-
-    return data;
-  }
-
-  /*
-  * Serializes a value recursivelly and returns a serialized data object.
-  */
-
-  _serializeValue (value) {
-    if (value && value.toObject) {
-      return value.toObject();
-    }
-    else if (value && isArray(value)) {
-      return value.map((value) => this._serializeValue(value));
-    }
-    else {
-      return value;
-    }
+    return serialize(this);
   }
 
   /*
@@ -292,7 +269,10 @@ export class Document {
   */
 
   equals (value) {
-    return deeplyEquals(this, value);
+    return isEqual(
+      serialize(this), 
+      serialize(value)
+    );
   }
 
   /*

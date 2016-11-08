@@ -15,9 +15,9 @@ var _assign2 = _interopRequireDefault(_assign);
 
 var _typeable = require('typeable');
 
-var _deepEqual = require('deep-equal');
+var _lodash = require('lodash.isequal');
 
-var _deepEqual2 = _interopRequireDefault(_deepEqual);
+var _lodash2 = _interopRequireDefault(_lodash);
 
 var _utils = require('./utils');
 
@@ -229,7 +229,7 @@ class Field {
 
   commit() {
     this._commitRelated(this.value);
-    this._initialValue = (0, _utils.cloneData)(this.value);
+    this._initialValue = (0, _utils.serialize)(this.value);
 
     return this;
   }
@@ -263,7 +263,7 @@ class Field {
   */
 
   equals(data) {
-    return (0, _deepEqual2.default)(this.value, data);
+    return (0, _lodash2.default)((0, _utils.serialize)(this.value), (0, _utils.serialize)(data));
   }
 
   /*
