@@ -54,7 +54,6 @@ test('can be extended through mixins', async (t) => {
   });
 
   let keys = [];
-  let field = {type: 'String'};
   // fields
   keys = Object.keys(catSchema.fields) // cats
   t.deepEqual(keys, ['kind', 'relatives', 'name', 'dislikes']);
