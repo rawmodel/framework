@@ -108,7 +108,7 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
-**Schema({fields, fakes strict, validatorOptions, typeOptions, mixins})**
+**Schema({mixins, fields, fakes strict, validatorOptions, typeOptions})**
 
 > A class for defining document structure.
 
