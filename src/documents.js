@@ -6,12 +6,14 @@ import {
   isAbsent,
   isUndefined
 } from 'typeable';
-import isEqual from 'lodash.isequal';
 import {Validator} from 'validatable';
-import {serialize} from './utils';
 import {Schema} from './schemas';
 import {Field} from './fields';
 import {ValidationError} from './errors';
+import {
+  serialize,
+  isEqual
+} from './utils';
 
 /*
 * The core schema-based object class.
@@ -207,7 +209,7 @@ export class Document {
   }
 
   /*
-  * Sets each document field to its fake value if a fake value generator 
+  * Sets each document field to its fake value if a fake value generator
   * is registered, otherwise the default value is used.
   */
 
@@ -270,7 +272,7 @@ export class Document {
 
   equals (value) {
     return isEqual(
-      serialize(this), 
+      serialize(this),
       serialize(value)
     );
   }

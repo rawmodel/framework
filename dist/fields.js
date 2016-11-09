@@ -15,10 +15,6 @@ var _assign2 = _interopRequireDefault(_assign);
 
 var _typeable = require('typeable');
 
-var _lodash = require('lodash.isequal');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _utils = require('./utils');
 
 var _schemas = require('./schemas');
@@ -263,7 +259,7 @@ class Field {
   */
 
   equals(data) {
-    return (0, _lodash2.default)((0, _utils.serialize)(this.value), (0, _utils.serialize)(data));
+    return (0, _utils.isEqual)((0, _utils.serialize)(this.value), (0, _utils.serialize)(data));
   }
 
   /*

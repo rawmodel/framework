@@ -5,15 +5,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Schema = undefined;
 
-var _lodash = require('lodash.merge');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _typeable = require('typeable');
 
 var _utils = require('./utils');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
 * A class for defining Document structure and properties.
@@ -40,7 +34,7 @@ class Schema {
 
 
     Object.defineProperty(this, 'fields', { // document fields
-      get: () => (0, _lodash2.default)(...mixins.map(s => (0, _utils.retrieve)(s.fields)), (0, _utils.retrieve)(fields)),
+      get: () => (0, _utils.merge)(...mixins.map(s => (0, _utils.retrieve)(s.fields)), (0, _utils.retrieve)(fields)),
       enumerable: true // required for deep nesting
     });
 
@@ -50,12 +44,12 @@ class Schema {
     });
 
     Object.defineProperty(this, 'validatorOptions', { // options for validatable.js
-      get: () => (0, _lodash2.default)(...mixins.map(v => v.validatorOptions), validatorOptions),
+      get: () => (0, _utils.merge)(...mixins.map(v => v.validatorOptions), validatorOptions),
       enumerable: true // required for deep nesting
     });
 
     Object.defineProperty(this, 'typeOptions', { // options for typeable.js
-      get: () => (0, _lodash2.default)(...mixins.map(v => v.typeOptions), typeOptions),
+      get: () => (0, _utils.merge)(...mixins.map(v => v.typeOptions), typeOptions),
       enumerable: true // required for deep nesting
     });
   }

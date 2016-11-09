@@ -1,6 +1,8 @@
-import merge from 'lodash.merge';
 import {isBoolean} from 'typeable';
-import {retrieve} from './utils';
+import {
+  retrieve,
+  merge
+} from './utils';
 
 /*
 * A class for defining Document structure and properties.

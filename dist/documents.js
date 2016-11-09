@@ -23,19 +23,15 @@ var _assign2 = _interopRequireDefault(_assign);
 
 var _typeable = require('typeable');
 
-var _lodash = require('lodash.isequal');
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 var _validatable = require('validatable');
-
-var _utils = require('./utils');
 
 var _schemas = require('./schemas');
 
 var _fields = require('./fields');
 
 var _errors = require('./errors');
+
+var _utils = require('./utils');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -246,7 +242,7 @@ class Document {
   }
 
   /*
-  * Sets each document field to its fake value if a fake value generator 
+  * Sets each document field to its fake value if a fake value generator
   * is registered, otherwise the default value is used.
   */
 
@@ -312,7 +308,7 @@ class Document {
   */
 
   equals(value) {
-    return (0, _lodash2.default)((0, _utils.serialize)(this), (0, _utils.serialize)(value));
+    return (0, _utils.isEqual)((0, _utils.serialize)(this), (0, _utils.serialize)(value));
   }
 
   /*

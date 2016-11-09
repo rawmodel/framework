@@ -4,8 +4,10 @@ import {
   toArray,
   isFunction
 } from 'typeable';
-import isEqual from 'lodash.isequal';
-import {serialize} from './utils';
+import {
+  serialize,
+  isEqual
+} from './utils';
 import {Schema} from './schemas';
 import {ValidatorError} from './errors';
 
@@ -234,7 +236,7 @@ export class Field {
 
   equals (data) {
     return isEqual(
-      serialize(this.value), 
+      serialize(this.value),
       serialize(data)
     );
   }

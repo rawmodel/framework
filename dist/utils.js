@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.isEqual = exports.merge = undefined;
 
 var _stringify = require('babel-runtime/core-js/json/stringify');
 
@@ -12,6 +13,14 @@ exports.serialize = serialize;
 exports.retrieve = retrieve;
 
 var _typeable = require('typeable');
+
+var _lodash = require('lodash.merge');
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+var _lodash3 = require('lodash.isequal');
+
+var _lodash4 = _interopRequireDefault(_lodash3);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31,3 +40,15 @@ function serialize(data) {
 function retrieve(input) {
   return (0, _typeable.isFunction)(input) ? input() : input;
 }
+
+/*
+* Deeply combines multiple values.
+*/
+
+exports.merge = _lodash2.default;
+
+/*
+* Deeply checks if two objects are equal.
+*/
+
+exports.isEqual = _lodash4.default;
