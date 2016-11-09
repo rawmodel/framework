@@ -334,10 +334,6 @@ user.$name.isChanged(); // calling field instance method
 
 > A reference to a Document instance on which the field is defined.
 
-**Field.prototype.name**: String
-
-> Field name.
-
 **Field.prototype.clear()**: Field
 
 > Sets field and related sub fields to `null`.
@@ -353,6 +349,10 @@ user.$name.isChanged(); // calling field instance method
 **Field.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object that looks the same.
+
+**Field.prototype.fake()**: Field
+
+> Sets field to a generated fake value.
 
 **Field.prototype.fakeValue**: Any
 
@@ -377,6 +377,10 @@ user.$name.isChanged(); // calling field instance method
 **Field.prototype.invalidate()**: Field
 
 > Clears the `errors` field on all fields (the reverse of `validate()`).
+
+**Field.prototype.name**: String
+
+> A getter which returns a name of a field.
 
 **Field.prototype.reset()**: Field
 
