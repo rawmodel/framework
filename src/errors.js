@@ -1,4 +1,3 @@
-import {ValidatorError} from 'validatable';
 import {toArray} from 'typeable';
 
 /*
@@ -32,20 +31,4 @@ export class ValidationError extends Error {
     });
   }
 
-  /*
-  * Returns error data.
-  */
-
-  toObject () {
-    let {name, message, paths, code} = this;
-    return {name, message, paths, code};
-  }
 }
-
-/*
-* A validator error class, provided by the `validatable.js`, which holds
-* information about the validators which do not approve a value that has
-* just been validated.
-*/
-
-export {ValidatorError};

@@ -155,22 +155,7 @@ class Field {
   */
 
   set errors(errors) {
-    this._errors = errors.map(e => this._createError(e));
-  }
-
-  /*
-  * Returns the last error of the field.
-  */
-
-  _createError(data) {
-    switch (data.name) {
-      case 'ValidatorError':
-        return new _errors.ValidatorError(data.validator, data.message, data.code);
-      case 'Error':
-        return new Error(data.message);
-    }
-
-    throw new Error(`Unknown document field error`);
+    this._errors = errors;
   }
 
   /*

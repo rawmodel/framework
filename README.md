@@ -188,9 +188,9 @@ doc.applyErrors([
     path: ['name'], // field path
     errors: [
       {
-        name: 'ValidatorError', // error class name (ValidatorError or Error)
         validator: 'presence',  // validator name
-        message: 'is required' // validator message
+        message: 'is required', // validator message
+        code: 422 // error code
       }
     ]
   },
@@ -198,9 +198,9 @@ doc.applyErrors([
     path: ['newBook', 'title'],
     errors: [
       {
-        name: 'ValidatorError',
         validator: 'absence',
-        message: 'must be blank'
+        message: 'must be blank',
+        code: 422
       }
     ]
   },
@@ -208,9 +208,9 @@ doc.applyErrors([
     path: ['newBooks', 1, 'title'],
     errors: [
       {
-        name: 'ValidatorError',
         validator: 'presence',
-        message: 'is required'
+        message: 'is required',
+        code: 422
       }
     ]
   }
@@ -227,7 +227,7 @@ doc.applyErrors([
 
 **Document.prototype.collectErrors()**: Array
 
-> Returns a list of errors for all the fields (e.g. [{path: ['name'], errors: [ValidatorError(), ...]}]).
+> Returns a list of errors for all the fields ({path, errors}[]).
 
 **Document.prototype.commit()**: Document
 
@@ -295,18 +295,18 @@ doc.applyErrors([
 
 **Document.prototype.validate({quiet})**: Promise(Document)
 
-> Validates document fields and throws a ValidationError error if not all fields are valid unless the `quiet` is set to `true`.
+> Validates document fields and throws an error if not all fields are valid unless the `quiet` is set to `true`.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| quiet | Boolean | No | false | When set to `true`, a ValidationError is thrown.
+| quiet | Boolean | No | false | When set to `true`, a validation error is thrown.
 
 ```js
 try {
-  await doc.validate(); // throws a ValidationError when fields are invalid
+  await doc.validate(); // throws a validation error when fields are invalid
 }
 catch (e) {
-  // `e` is an instance of ValidationError, which holds errors for all invalid fields (including those deeply nested)
+  // `e` is an error, which holds errors for all invalid fields (including those deeply nested)
 }
 ```
 
@@ -397,30 +397,6 @@ user.$name.isChanged(); // calling field instance method
 **Field.prototype.value**: Any
 
 > A getter and setter for the value of the field.
-
-### ValidationError
-
-**ValidationError(message, code)**
-
-> A validation error class which is triggered by method `validate` when not all fields are valid.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| paths | String[][] | No | [] | A list of all invalid document paths (e.g. [['friends', 1, 'name'], ...])
-| message | String | No | Validation failed | General error message.
-| code | Number | No | 422 | Error code.
-
-### ValidatorError
-
-**ValidatorError(validator, message, code)**
-
-> A validator error class, provided by the `validatable.js`, which holds information about the validators which do not approve a value that has just been validated.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| validator | String | Yes | - | Validator name.
-| message | String | No | null | Validation error message.
-| code | Integer | No | 422 | Error status code.
 
 ## License (MIT)
 

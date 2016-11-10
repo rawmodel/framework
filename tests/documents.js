@@ -3,8 +3,7 @@ import {
   Document,
   Schema,
   Field,
-  ValidationError,
-  ValidatorError
+  ValidationError
 } from '../dist';
 
 test('field value should be converted to the specified type', (t) => {
@@ -990,8 +989,8 @@ test('method `validate` should validate all fields and throw an error', async (t
     oldBooks: [null, {}]
   };
   let user = new Document(userSchema, data);
-  let validatorError0 = (new ValidatorError('presence', 'is required')).toObject();
-  let validatorError1 = (new ValidatorError('arrayLength', 'is too short')).toObject();
+  let validatorError0 = {validator: 'presence', message: 'is required', code: 422};
+  let validatorError1 = {validator: 'arrayLength', message: 'is too short', code: 422};
 
   // throws an error
   t.throws(user.validate(), ValidationError);
@@ -1011,15 +1010,15 @@ test('method `validate` should validate all fields and throw an error', async (t
     ['oldBooks', 1, 'title']
   ]);
   // errors are populated
-  t.deepEqual(user.$name.errors[0].toObject(), validatorError0);
-  t.deepEqual(user.$newBook.errors[0].toObject(), validatorError0);
-  t.deepEqual(user.$newBooks.errors[0].toObject(), validatorError0);
+  t.deepEqual(user.$name.errors[0], validatorError0);
+  t.deepEqual(user.$newBook.errors[0], validatorError0);
+  t.deepEqual(user.$newBooks.errors[0], validatorError0);
   t.deepEqual(user.$oldBook.errors.length, 0);
-  t.deepEqual(user.oldBook.$title.errors[0].toObject(), validatorError0);
+  t.deepEqual(user.oldBook.$title.errors[0], validatorError0);
   t.deepEqual(user.oldBook.$year.errors.length, 0);
-  t.deepEqual(user.$oldBooks.errors[0].toObject(), validatorError1);
+  t.deepEqual(user.$oldBooks.errors[0], validatorError1);
   t.deepEqual(user.oldBooks[0], null);
-  t.deepEqual(user.oldBooks[1].$title.errors[0].toObject(), validatorError0);
+  t.deepEqual(user.oldBooks[1].$title.errors[0], validatorError0);
   t.deepEqual(user.oldBooks[1].$year.errors.length, 0);
   t.deepEqual(user.$prevBooks.errors.length, 0);
 });
@@ -1178,13 +1177,12 @@ test('method `applyErrors` should set field `errors` property', async (t) => {
     newBooks: [{}, {}]
   };
   let user = new Document(userSchema, data);
-  let validatorData = {name: 'ValidatorError', validator: 'presence', message: 'is required'};
-  let validatorError = new ValidatorError(validatorData.validator, validatorData.message);
+  let validatorError = {validator: 'presence', message: 'is required', code: 422};
 
   user.applyErrors([
-    {path: ['name'], errors: [validatorData]},
-    {path: ['newBook', 'title'], errors: [validatorData]},
-    {path: ['newBooks', 1, 'title'], errors: [validatorData]}
+    {path: ['name'], errors: [validatorError]},
+    {path: ['newBook', 'title'], errors: [validatorError]},
+    {path: ['newBooks', 1, 'title'], errors: [validatorError]}
   ]);
 
   t.deepEqual(user.$name.errors, [validatorError]);

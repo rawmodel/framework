@@ -3,9 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.ValidatorError = exports.ValidationError = undefined;
-
-var _validatable = require('validatable');
+exports.ValidationError = undefined;
 
 var _typeable = require('typeable');
 
@@ -44,24 +42,5 @@ class ValidationError extends Error {
     });
   }
 
-  /*
-  * Returns error data.
-  */
-
-  toObject() {
-    let name = this.name,
-        message = this.message,
-        paths = this.paths,
-        code = this.code;
-
-    return { name, message, paths, code };
-  }
 }
-
-exports.ValidationError = ValidationError; /*
-                                           * A validator error class, provided by the `validatable.js`, which holds
-                                           * information about the validators which do not approve a value that has
-                                           * just been validated.
-                                           */
-
-exports.ValidatorError = _validatable.ValidatorError;
+exports.ValidationError = ValidationError;
