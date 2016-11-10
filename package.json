@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "2.17.0",
+  "version": "2.18.0",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -44,7 +44,8 @@
   "devDependencies": {
     "ava": "0.16.x",
     "babel-cli": "6.18.x",
-    "babel-plugin-transform-object-assign": "6.8.x",
+    "babel-plugin-syntax-async-functions": "6.13.0",
+    "babel-plugin-transform-async-to-generator": "6.16.0",
     "babel-preset-es2015": "6.18.x"
   },
   "dependencies": {

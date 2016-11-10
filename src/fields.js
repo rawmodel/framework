@@ -9,7 +9,6 @@ import {
   isEqual
 } from './utils';
 import {Schema} from './schemas';
-import {ValidatorError} from './errors';
 
 /*
 * Document field class.

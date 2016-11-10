@@ -9,7 +9,6 @@ import {
 import {Validator} from 'validatable';
 import {Schema} from './schemas';
 import {Field} from './fields';
-import {ValidationError} from './errors';
 import {
   serialize,
   isEqual
@@ -88,11 +87,15 @@ export class Document {
   }
 
   /*
-  * Creates a new ValidationError instance.
+  * Creates a new validation error instance.
   */
 
   _createValidationError (paths) {
-    return new ValidationError(paths);
+    let error = new Error('Validation failed');
+    error.code = 422;
+    error.paths = paths;
+
+    return error;
   }
 
   /*
@@ -308,8 +311,7 @@ export class Document {
 
     let paths = this.collectErrors().map((e) => e.path);
     if (!quiet && paths.length > 0) {
-      let error = this._createValidationError(paths);
-      throw error;
+      throw this._createValidationError(paths);
     }
 
     return this;

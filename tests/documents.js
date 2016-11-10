@@ -2,8 +2,7 @@ import test from 'ava';
 import {
   Document,
   Schema,
-  Field,
-  ValidationError
+  Field
 } from '../dist';
 
 test('field value should be converted to the specified type', (t) => {
@@ -993,14 +992,14 @@ test('method `validate` should validate all fields and throw an error', async (t
   let validatorError1 = {validator: 'arrayLength', message: 'is too short', code: 422};
 
   // throws an error
-  t.throws(user.validate(), ValidationError);
+  t.throws(user.validate());
   let error = null;
   try {
     await user.validate();
   } catch (e) {
     error = e;
   }
-
+  t.is(error.code, 422);
   t.deepEqual(error.paths, [
     ['name'],
     ['newBook'],

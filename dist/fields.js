@@ -5,6 +5,14 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Field = undefined;
 
+var _regenerator = require('babel-runtime/regenerator');
+
+var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
@@ -13,13 +21,19 @@ var _assign = require('babel-runtime/core-js/object/assign');
 
 var _assign2 = _interopRequireDefault(_assign);
 
+var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
+
+var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
+
+var _createClass2 = require('babel-runtime/helpers/createClass');
+
+var _createClass3 = _interopRequireDefault(_createClass2);
+
 var _typeable = require('typeable');
 
 var _utils = require('./utils');
 
 var _schemas = require('./schemas');
-
-var _errors = require('./errors');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -27,13 +41,15 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 * Document field class.
 */
 
-class Field {
+var Field = exports.Field = function () {
 
   /*
   * Class constructor.
   */
 
-  constructor(owner, name) {
+  function Field(owner, name) {
+    (0, _classCallCheck3.default)(this, Field);
+
     Object.defineProperty(this, '$owner', { // reference to the Document instance which owns the field
       value: owner
     });
@@ -58,261 +74,403 @@ class Field {
   * Return field value.
   */
 
-  get value() {
-    let get = this.$owner.$schema.fields[this.name].get;
+  (0, _createClass3.default)(Field, [{
+    key: '_cast',
 
 
-    let value = this._value;
-    if (get) {
-      // transformation with custom getter
-      value = get.call(this.$owner, value);
-    }
-    return value;
-  }
+    /*
+    * Converts the `value` into specified `type`.
+    */
 
-  /*
-  * Sets field value.
-  */
+    value: function _cast(value, type) {
+      var _this = this;
 
-  set value(value) {
-    var _$owner$$schema$field = this.$owner.$schema.fields[this.name];
-    let set = _$owner$$schema$field.set,
-        type = _$owner$$schema$field.type;
+      var types = (0, _assign2.default)({}, this.$owner.$schema.typeOptions, {
+        Schema: function Schema(value) {
+          if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
+          return _this.$owner._createRelative(type, value);
+        }
+      });
 
-    value = this._cast(value, type); // value type casting
-    if (set) {
-      // transformation with custom setter
-      value = set.call(this.$owner, value);
+      return (0, _typeable.cast)(value, type, types);
     }
 
-    this.invalidate(); // remove the last memorized error because the value has changed
-    this._value = value;
-  }
+    /*
+    * Sets field to the default value.
+    */
 
-  /*
-  * Returns the default value of a field.
-  */
+  }, {
+    key: 'reset',
+    value: function reset() {
+      this.value = this.defaultValue;
 
-  get defaultValue() {
-    var _$owner$$schema$field2 = this.$owner.$schema.fields[this.name];
-    let type = _$owner$$schema$field2.type,
-        set = _$owner$$schema$field2.set,
-        defaultValue = _$owner$$schema$field2.defaultValue;
-
-
-    let value = (0, _typeable.isFunction)(defaultValue) ? defaultValue.call(this) : defaultValue;
-
-    value = this._cast(value, type); // value type casting
-    if (set) {
-      // custom setter
-      value = set.call(this.$owner, value);
+      return this;
     }
 
-    return value;
-  }
+    /*
+    * Sets field to a generated fake value.
+    */
 
-  /*
-  * Returns a fake value of a field.
-  */
+  }, {
+    key: 'fake',
+    value: function fake() {
+      this.value = this.fakeValue || this.defaultValue;
 
-  get fakeValue() {
-    var _$owner$$schema$field3 = this.$owner.$schema.fields[this.name];
-    let type = _$owner$$schema$field3.type,
-        set = _$owner$$schema$field3.set,
-        fakeValue = _$owner$$schema$field3.fakeValue;
-
-
-    let value = (0, _typeable.isFunction)(fakeValue) ? fakeValue.call(this) : fakeValue;
-
-    value = this._cast(value, type); // value type casting
-    if (set) {
-      // custom setter
-      value = set.call(this.$owner, value);
+      return this;
     }
 
-    return value;
-  }
+    /*
+    * Removes field's value by setting it to null.
+    */
 
-  /*
-  * Returns the value of a field of the last commit.
-  */
+  }, {
+    key: 'clear',
+    value: function clear() {
+      this.value = null;
 
-  get initialValue() {
-    return this._initialValue;
-  }
+      return this;
+    }
 
-  /*
-  * Returns the last error of the field.
-  */
+    /*
+    * Deeply set's the initial values to the current value of each field.
+    */
 
-  get errors() {
-    return this._errors;
-  }
+  }, {
+    key: 'commit',
+    value: function commit() {
+      this._commitRelated(this.value);
+      this._initialValue = (0, _utils.serialize)(this.value);
 
-  /*
-  * Returns the last error of the field.
-  */
+      return this;
+    }
 
-  set errors(errors) {
-    this._errors = errors;
-  }
+    /*
+    * Deeply set's the initial values of the related `data` object to the current
+    * value of each field.
+    */
 
-  /*
-  * Converts the `value` into specified `type`.
-  */
+  }, {
+    key: '_commitRelated',
+    value: function _commitRelated(data) {
+      var _this2 = this;
 
-  _cast(value, type) {
-    let types = (0, _assign2.default)({}, this.$owner.$schema.typeOptions, {
-      Schema: value => {
-        if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
-
-        return this.$owner._createRelative(type, value);
+      // commit sub fields
+      if (data && data.commit) {
+        data.commit();
+      } else if (data && (0, _typeable.isArray)(data)) {
+        data.forEach(function (d) {
+          return _this2._commitRelated(d);
+        });
       }
-    });
-
-    return (0, _typeable.cast)(value, type, types);
-  }
-
-  /*
-  * Sets field to the default value.
-  */
-
-  reset() {
-    this.value = this.defaultValue;
-
-    return this;
-  }
-
-  /*
-  * Sets field to a generated fake value.
-  */
-
-  fake() {
-    this.value = this.fakeValue || this.defaultValue;
-
-    return this;
-  }
-
-  /*
-  * Removes field's value by setting it to null.
-  */
-
-  clear() {
-    this.value = null;
-
-    return this;
-  }
-
-  /*
-  * Deeply set's the initial values to the current value of each field.
-  */
-
-  commit() {
-    this._commitRelated(this.value);
-    this._initialValue = (0, _utils.serialize)(this.value);
-
-    return this;
-  }
-
-  /*
-  * Deeply set's the initial values of the related `data` object to the current
-  * value of each field.
-  */
-
-  _commitRelated(data) {
-    // commit sub fields
-    if (data && data.commit) {
-      data.commit();
-    } else if (data && (0, _typeable.isArray)(data)) {
-      data.forEach(d => this._commitRelated(d));
     }
-  }
 
-  /*
-  * Sets field's value before last commit.
-  */
+    /*
+    * Sets field's value before last commit.
+    */
 
-  rollback() {
-    this.value = this.initialValue;
+  }, {
+    key: 'rollback',
+    value: function rollback() {
+      this.value = this.initialValue;
 
-    return this;
-  }
+      return this;
+    }
 
-  /*
-  * Returns `true` when the `data` equals to the current value.
-  */
+    /*
+    * Returns `true` when the `data` equals to the current value.
+    */
 
-  equals(data) {
-    return (0, _utils.isEqual)((0, _utils.serialize)(this.value), (0, _utils.serialize)(data));
-  }
+  }, {
+    key: 'equals',
+    value: function equals(data) {
+      return (0, _utils.isEqual)((0, _utils.serialize)(this.value), (0, _utils.serialize)(data));
+    }
 
-  /*
-  * Returns `true` if the field or related sub-fields have been changed.
-  */
+    /*
+    * Returns `true` if the field or related sub-fields have been changed.
+    */
 
-  isChanged() {
-    return !this.equals(this.initialValue);
-  }
+  }, {
+    key: 'isChanged',
+    value: function isChanged() {
+      return !this.equals(this.initialValue);
+    }
 
-  /*
-  * Validates the field by populating the `_errors` property.
-  */
+    /*
+    * Validates the field by populating the `_errors` property.
+    */
 
-  validate() {
-    var _this = this;
+  }, {
+    key: 'validate',
+    value: function () {
+      var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
+        var relatives, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, relative, isDocument;
 
-    return (0, _asyncToGenerator3.default)(function* () {
-      let relatives = (0, _typeable.toArray)(_this.value) || []; // validate related documents
-      for (let relative of relatives) {
-        let isDocument = relative instanceof _this.$owner.constructor;
+        return _regenerator2.default.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
 
-        if (isDocument) {
-          yield relative.validate({ quiet: true }); // don't throw
+                _iteratorNormalCompletion = true;
+                _didIteratorError = false;
+                _iteratorError = undefined;
+                _context.prev = 4;
+                _iterator = (0, _getIterator3.default)(relatives);
+
+              case 6:
+                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                  _context.next = 15;
+                  break;
+                }
+
+                relative = _step.value;
+                isDocument = relative instanceof this.$owner.constructor;
+
+                if (!isDocument) {
+                  _context.next = 12;
+                  break;
+                }
+
+                _context.next = 12;
+                return relative.validate({ quiet: true });
+
+              case 12:
+                _iteratorNormalCompletion = true;
+                _context.next = 6;
+                break;
+
+              case 15:
+                _context.next = 21;
+                break;
+
+              case 17:
+                _context.prev = 17;
+                _context.t0 = _context['catch'](4);
+                _didIteratorError = true;
+                _iteratorError = _context.t0;
+
+              case 21:
+                _context.prev = 21;
+                _context.prev = 22;
+
+                if (!_iteratorNormalCompletion && _iterator.return) {
+                  _iterator.return();
+                }
+
+              case 24:
+                _context.prev = 24;
+
+                if (!_didIteratorError) {
+                  _context.next = 27;
+                  break;
+                }
+
+                throw _iteratorError;
+
+              case 27:
+                return _context.finish(24);
+
+              case 28:
+                return _context.finish(21);
+
+              case 29:
+                _context.next = 31;
+                return this.$owner.$validator.validate( // validate this field
+                this.value, this.$owner.$schema.fields[this.name].validate);
+
+              case 31:
+                this._errors = _context.sent;
+                return _context.abrupt('return', this);
+
+              case 33:
+              case 'end':
+                return _context.stop();
+            }
+          }
+        }, _callee, this, [[4, 17, 21, 29], [22,, 24, 28]]);
+      }));
+
+      function validate() {
+        return _ref.apply(this, arguments);
+      }
+
+      return validate;
+    }()
+
+    /*
+    * Validates the field by clearing the `_errors` property
+    */
+
+  }, {
+    key: 'invalidate',
+    value: function invalidate() {
+      var relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = (0, _getIterator3.default)(relatives), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var relative = _step2.value;
+
+          var isDocument = relative instanceof this.$owner.constructor;
+
+          if (isDocument) {
+            relative.invalidate();
+          }
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
         }
       }
 
-      _this._errors = yield _this.$owner.$validator.validate( // validate this field
-      _this.value, _this.$owner.$schema.fields[_this.name].validate);
+      this._errors = [];
 
-      return _this;
-    })();
-  }
-
-  /*
-  * Validates the field by clearing the `_errors` property
-  */
-
-  invalidate() {
-    let relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
-    for (let relative of relatives) {
-      let isDocument = relative instanceof this.$owner.constructor;
-
-      if (isDocument) {
-        relative.invalidate();
-      }
+      return this;
     }
 
-    this._errors = [];
+    /*
+    * Returns `true` when the value is valid (inverse of `hasErrors`).
+    */
 
-    return this;
-  }
+  }, {
+    key: 'isValid',
+    value: function isValid() {
+      return !this.hasErrors();
+    }
 
-  /*
-  * Returns `true` when the value is valid (inverse of `hasErrors`).
-  */
+    /*
+    * Returns `true` when errors exist (inverse of `isValid`).
+    */
 
-  isValid() {
-    return !this.hasErrors();
-  }
+  }, {
+    key: 'hasErrors',
+    value: function hasErrors() {
+      return this.errors.length > 0;
+    }
+  }, {
+    key: 'value',
+    get: function get() {
+      var get = this.$owner.$schema.fields[this.name].get;
 
-  /*
-  * Returns `true` when errors exist (inverse of `isValid`).
-  */
 
-  hasErrors() {
-    return this.errors.length > 0;
-  }
+      var value = this._value;
+      if (get) {
+        // transformation with custom getter
+        value = get.call(this.$owner, value);
+      }
+      return value;
+    }
 
-}
-exports.Field = Field;
+    /*
+    * Sets field value.
+    */
+
+    ,
+    set: function set(value) {
+      var _$owner$$schema$field = this.$owner.$schema.fields[this.name],
+          set = _$owner$$schema$field.set,
+          type = _$owner$$schema$field.type;
+
+
+      value = this._cast(value, type); // value type casting
+      if (set) {
+        // transformation with custom setter
+        value = set.call(this.$owner, value);
+      }
+
+      this.invalidate(); // remove the last memorized error because the value has changed
+      this._value = value;
+    }
+
+    /*
+    * Returns the default value of a field.
+    */
+
+  }, {
+    key: 'defaultValue',
+    get: function get() {
+      var _$owner$$schema$field2 = this.$owner.$schema.fields[this.name],
+          type = _$owner$$schema$field2.type,
+          set = _$owner$$schema$field2.set,
+          defaultValue = _$owner$$schema$field2.defaultValue;
+
+
+      var value = (0, _typeable.isFunction)(defaultValue) ? defaultValue.call(this) : defaultValue;
+
+      value = this._cast(value, type); // value type casting
+      if (set) {
+        // custom setter
+        value = set.call(this.$owner, value);
+      }
+
+      return value;
+    }
+
+    /*
+    * Returns a fake value of a field.
+    */
+
+  }, {
+    key: 'fakeValue',
+    get: function get() {
+      var _$owner$$schema$field3 = this.$owner.$schema.fields[this.name],
+          type = _$owner$$schema$field3.type,
+          set = _$owner$$schema$field3.set,
+          fakeValue = _$owner$$schema$field3.fakeValue;
+
+
+      var value = (0, _typeable.isFunction)(fakeValue) ? fakeValue.call(this) : fakeValue;
+
+      value = this._cast(value, type); // value type casting
+      if (set) {
+        // custom setter
+        value = set.call(this.$owner, value);
+      }
+
+      return value;
+    }
+
+    /*
+    * Returns the value of a field of the last commit.
+    */
+
+  }, {
+    key: 'initialValue',
+    get: function get() {
+      return this._initialValue;
+    }
+
+    /*
+    * Returns the last error of the field.
+    */
+
+  }, {
+    key: 'errors',
+    get: function get() {
+      return this._errors;
+    }
+
+    /*
+    * Returns the last error of the field.
+    */
+
+    ,
+    set: function set(errors) {
+      this._errors = errors;
+    }
+  }]);
+  return Field;
+}();
