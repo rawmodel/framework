@@ -34,6 +34,13 @@ Run the command below to install the package.
 $ npm install --save objectschema
 ```
 
+This package is targeting `es2015`. If you plan to use it in a browser, you need to transpile it with [Babel](https://babeljs.io) or similar tool.
+
+To support browsers `>= IE9` you need to
+* use the [preset-es2015](https://babeljs.io/docs/plugins/preset-es2015/) preset,
+* include [Babel polyfill](https://babeljs.io/docs/usage/polyfill),
+* use plugins [syntax-async-functions](https://babeljs.io/docs/plugins/syntax-async-functions),  [transform-regenerator](https://babeljs.io/docs/plugins/transform-regenerator/) and [transform-object-assign](https://www.npmjs.com/package/babel-plugin-transform-object-assign).
+
 ## Example
 
 ```js
