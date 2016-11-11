@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "2.19.1",
+  "version": "2.20.0",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -54,7 +54,7 @@
     "babel-runtime": "6.18.x",
     "lodash.isequal": "4.4.x",
     "lodash.merge": "4.6.x",
-    "typeable": "0.16.x",
+    "typeable": "0.19.x",
     "validatable": "0.19.x"
   }
 }
