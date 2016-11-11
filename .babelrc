@@ -6,9 +6,6 @@
     "syntax-async-functions",
     "transform-object-assign",
     "transform-regenerator",
-    ["transform-runtime", {
-      "polyfill": false,
-      "regenerator": true
-    }]
+    "transform-runtime"
   ]
 }

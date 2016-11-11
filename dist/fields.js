@@ -9,6 +9,10 @@ var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _extends2 = require('babel-runtime/helpers/extends');
 
 var _extends3 = _interopRequireDefault(_extends2);
@@ -208,7 +212,7 @@ var Field = exports.Field = function () {
               _didIteratorError = false;
               _iteratorError = undefined;
               _context.prev = 4;
-              _iterator = relatives[Symbol.iterator]();
+              _iterator = (0, _getIterator3.default)(relatives);
 
             case 6:
               if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
@@ -296,7 +300,7 @@ var Field = exports.Field = function () {
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = relatives[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        for (var _iterator2 = (0, _getIterator3.default)(relatives), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var relative = _step2.value;
 
           var isDocument = relative instanceof this.$owner.constructor;

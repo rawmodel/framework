@@ -5,6 +5,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Document = undefined;
 
+var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+
+var _getIterator3 = _interopRequireDefault(_getIterator2);
+
 var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
@@ -12,6 +16,14 @@ var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
+
+var _keys = require('babel-runtime/core-js/object/keys');
+
+var _keys2 = _interopRequireDefault(_keys);
+
+var _defineProperty = require('babel-runtime/core-js/object/define-property');
+
+var _defineProperty2 = _interopRequireDefault(_defineProperty);
 
 var _extends2 = require('babel-runtime/helpers/extends');
 
@@ -164,7 +176,7 @@ var Document = exports.Document = function () {
     value: function _defineField(name) {
       var field = this._createField(name);
 
-      Object.defineProperty(this, name, { // field definition
+      (0, _defineProperty2.default)(this, name, { // field definition
         get: function get() {
           return field.value;
         },
@@ -250,7 +262,7 @@ var Document = exports.Document = function () {
       if (!this.$schema.strict) {
         this[name] = value;
       } else {
-        var names = Object.keys(this.$schema.fields);
+        var names = (0, _keys2.default)(this.$schema.fields);
         var exists = names.indexOf(name) > -1;
 
         if (exists) {
@@ -385,7 +397,7 @@ var Document = exports.Document = function () {
     value: function isChanged() {
       var _this2 = this;
 
-      return Object.keys(this.$schema.fields).some(function (name) {
+      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
         return _this2['$' + name].isChanged();
       });
     }
@@ -541,7 +553,7 @@ var Document = exports.Document = function () {
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = errors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = (0, _getIterator3.default)(errors), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var error = _step.value;
 
           var path = error.path.concat();
