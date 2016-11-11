@@ -9,17 +9,9 @@ var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
+var _extends2 = require('babel-runtime/helpers/extends');
 
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
-
-var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
-
-var _assign = require('babel-runtime/core-js/object/assign');
-
-var _assign2 = _interopRequireDefault(_assign);
+var _extends3 = _interopRequireDefault(_extends2);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
@@ -85,7 +77,7 @@ var Field = exports.Field = function () {
     value: function _cast(value, type) {
       var _this = this;
 
-      var types = (0, _assign2.default)({}, this.$owner.$schema.typeOptions, {
+      var types = (0, _extends3.default)({}, this.$owner.$schema.typeOptions, {
         Schema: function Schema(value) {
           if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
@@ -203,101 +195,93 @@ var Field = exports.Field = function () {
 
   }, {
     key: 'validate',
-    value: function () {
-      var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
-        var relatives, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, relative, isDocument;
+    value: function validate() {
+      var relatives, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, relative, isDocument;
 
-        return _regenerator2.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
+      return _regenerator2.default.async(function validate$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              relatives = (0, _typeable.toArray)(this.value) || []; // validate related documents
 
-                _iteratorNormalCompletion = true;
-                _didIteratorError = false;
-                _iteratorError = undefined;
-                _context.prev = 4;
-                _iterator = (0, _getIterator3.default)(relatives);
+              _iteratorNormalCompletion = true;
+              _didIteratorError = false;
+              _iteratorError = undefined;
+              _context.prev = 4;
+              _iterator = relatives[Symbol.iterator]();
 
-              case 6:
-                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context.next = 15;
-                  break;
-                }
+            case 6:
+              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                _context.next = 15;
+                break;
+              }
 
-                relative = _step.value;
-                isDocument = relative instanceof this.$owner.constructor;
+              relative = _step.value;
+              isDocument = relative instanceof this.$owner.constructor;
 
-                if (!isDocument) {
-                  _context.next = 12;
-                  break;
-                }
-
+              if (!isDocument) {
                 _context.next = 12;
-                return relative.validate({ quiet: true });
-
-              case 12:
-                _iteratorNormalCompletion = true;
-                _context.next = 6;
                 break;
+              }
 
-              case 15:
-                _context.next = 21;
+              _context.next = 12;
+              return _regenerator2.default.awrap(relative.validate({ quiet: true }));
+
+            case 12:
+              _iteratorNormalCompletion = true;
+              _context.next = 6;
+              break;
+
+            case 15:
+              _context.next = 21;
+              break;
+
+            case 17:
+              _context.prev = 17;
+              _context.t0 = _context['catch'](4);
+              _didIteratorError = true;
+              _iteratorError = _context.t0;
+
+            case 21:
+              _context.prev = 21;
+              _context.prev = 22;
+
+              if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
+              }
+
+            case 24:
+              _context.prev = 24;
+
+              if (!_didIteratorError) {
+                _context.next = 27;
                 break;
+              }
 
-              case 17:
-                _context.prev = 17;
-                _context.t0 = _context['catch'](4);
-                _didIteratorError = true;
-                _iteratorError = _context.t0;
+              throw _iteratorError;
 
-              case 21:
-                _context.prev = 21;
-                _context.prev = 22;
+            case 27:
+              return _context.finish(24);
 
-                if (!_iteratorNormalCompletion && _iterator.return) {
-                  _iterator.return();
-                }
+            case 28:
+              return _context.finish(21);
 
-              case 24:
-                _context.prev = 24;
+            case 29:
+              _context.next = 31;
+              return _regenerator2.default.awrap(this.$owner.$validator.validate( // validate this field
+              this.value, this.$owner.$schema.fields[this.name].validate));
 
-                if (!_didIteratorError) {
-                  _context.next = 27;
-                  break;
-                }
+            case 31:
+              this._errors = _context.sent;
+              return _context.abrupt('return', this);
 
-                throw _iteratorError;
-
-              case 27:
-                return _context.finish(24);
-
-              case 28:
-                return _context.finish(21);
-
-              case 29:
-                _context.next = 31;
-                return this.$owner.$validator.validate( // validate this field
-                this.value, this.$owner.$schema.fields[this.name].validate);
-
-              case 31:
-                this._errors = _context.sent;
-                return _context.abrupt('return', this);
-
-              case 33:
-              case 'end':
-                return _context.stop();
-            }
+            case 33:
+            case 'end':
+              return _context.stop();
           }
-        }, _callee, this, [[4, 17, 21, 29], [22,, 24, 28]]);
-      }));
-
-      function validate() {
-        return _ref.apply(this, arguments);
-      }
-
-      return validate;
-    }()
+        }
+      }, null, this, [[4, 17, 21, 29], [22,, 24, 28]]);
+    }
 
     /*
     * Validates the field by clearing the `_errors` property
@@ -312,7 +296,7 @@ var Field = exports.Field = function () {
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = (0, _getIterator3.default)(relatives), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        for (var _iterator2 = relatives[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
           var relative = _step2.value;
 
           var isDocument = relative instanceof this.$owner.constructor;

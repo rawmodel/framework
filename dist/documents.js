@@ -5,10 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Document = undefined;
 
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
 var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
 
 var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
@@ -17,21 +13,9 @@ var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
-var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
+var _extends2 = require('babel-runtime/helpers/extends');
 
-var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
-
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
-var _defineProperty = require('babel-runtime/core-js/object/define-property');
-
-var _defineProperty2 = _interopRequireDefault(_defineProperty);
-
-var _assign = require('babel-runtime/core-js/object/assign');
-
-var _assign2 = _interopRequireDefault(_assign);
+var _extends3 = _interopRequireDefault(_extends2);
 
 var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
 
@@ -117,7 +101,7 @@ var Document = exports.Document = function () {
   }, {
     key: '_createValidator',
     value: function _createValidator() {
-      return new _validatable.Validator((0, _assign2.default)({}, this.$schema.validatorOptions, { context: this }));
+      return new _validatable.Validator((0, _extends3.default)({}, this.$schema.validatorOptions, { context: this }));
     }
 
     /*
@@ -180,7 +164,7 @@ var Document = exports.Document = function () {
     value: function _defineField(name) {
       var field = this._createField(name);
 
-      (0, _defineProperty2.default)(this, name, { // field definition
+      Object.defineProperty(this, name, { // field definition
         get: function get() {
           return field.value;
         },
@@ -266,7 +250,7 @@ var Document = exports.Document = function () {
       if (!this.$schema.strict) {
         this[name] = value;
       } else {
-        var names = (0, _keys2.default)(this.$schema.fields);
+        var names = Object.keys(this.$schema.fields);
         var exists = names.indexOf(name) > -1;
 
         if (exists) {
@@ -401,7 +385,7 @@ var Document = exports.Document = function () {
     value: function isChanged() {
       var _this2 = this;
 
-      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
+      return Object.keys(this.$schema.fields).some(function (name) {
         return _this2['$' + name].isChanged();
       });
     }
@@ -412,63 +396,55 @@ var Document = exports.Document = function () {
 
   }, {
     key: 'validate',
-    value: function () {
-      var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee() {
-        var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-            _ref2$quiet = _ref2.quiet,
-            quiet = _ref2$quiet === undefined ? false : _ref2$quiet;
+    value: function validate() {
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref$quiet = _ref.quiet,
+          quiet = _ref$quiet === undefined ? false : _ref$quiet;
 
-        var fields, path, paths;
-        return _regenerator2.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                fields = this.$schema.fields;
-                _context.t0 = _regenerator2.default.keys(fields);
+      var fields, path, paths;
+      return _regenerator2.default.async(function validate$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              fields = this.$schema.fields;
+              _context.t0 = _regenerator2.default.keys(fields);
 
-              case 2:
-                if ((_context.t1 = _context.t0()).done) {
-                  _context.next = 8;
-                  break;
-                }
-
-                path = _context.t1.value;
-                _context.next = 6;
-                return this['$' + path].validate();
-
-              case 6:
-                _context.next = 2;
+            case 2:
+              if ((_context.t1 = _context.t0()).done) {
+                _context.next = 8;
                 break;
+              }
 
-              case 8:
-                paths = this.collectErrors().map(function (e) {
-                  return e.path;
-                });
+              path = _context.t1.value;
+              _context.next = 6;
+              return _regenerator2.default.awrap(this['$' + path].validate());
 
-                if (!(!quiet && paths.length > 0)) {
-                  _context.next = 11;
-                  break;
-                }
+            case 6:
+              _context.next = 2;
+              break;
 
-                throw this._createValidationError(paths);
+            case 8:
+              paths = this.collectErrors().map(function (e) {
+                return e.path;
+              });
 
-              case 11:
-                return _context.abrupt('return', this);
+              if (!(!quiet && paths.length > 0)) {
+                _context.next = 11;
+                break;
+              }
 
-              case 12:
-              case 'end':
-                return _context.stop();
-            }
+              throw this._createValidationError(paths);
+
+            case 11:
+              return _context.abrupt('return', this);
+
+            case 12:
+            case 'end':
+              return _context.stop();
           }
-        }, _callee, this);
-      }));
-
-      function validate(_x6) {
-        return _ref.apply(this, arguments);
-      }
-
-      return validate;
-    }()
+        }
+      }, null, this);
+    }
 
     /*
     * Validates fields and returns errors.
@@ -565,7 +541,7 @@ var Document = exports.Document = function () {
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = (0, _getIterator3.default)(errors), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = errors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var error = _step.value;
 
           var path = error.path.concat();
