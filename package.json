@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "2.21.0",
+  "version": "2.22.0",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -42,7 +42,7 @@
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",
   "devDependencies": {
-    "ava": "0.16.x",
+    "ava": "0.17.x",
     "babel-cli": "6.18.x",
     "babel-plugin-syntax-async-functions": "6.13.x",
     "babel-plugin-transform-object-assign": "6.8.x",
@@ -54,7 +54,7 @@
     "babel-runtime": "6.18.x",
     "lodash.isequal": "4.4.x",
     "lodash.merge": "4.6.x",
-    "typeable": "0.19.x",
-    "validatable": "0.19.x"
+    "typeable": "0.20.x",
+    "validatable": "0.20.x"
   }
 }

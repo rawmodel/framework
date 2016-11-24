@@ -153,7 +153,8 @@ test('field can have a default value', (t) => {
   t.is(user0.age, 35);
   t.is(user0.enabled, true);
   t.is(user0.book, null);
-  t.deepEqual(user0.papers, [{title: 'Foo'}]);
+
+  t.deepEqual(user0.papers[0].title, 'Foo');
   t.deepEqual(user1.books, [null, book1]);
   t.is(user1.books[0], null);
   t.is(user1.books[1].title, '100');

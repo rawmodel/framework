@@ -125,13 +125,14 @@ new Schema({
   mixins: [animalSchema, catSchema], // schema extensions
   fields: { // schema fields definition
     email: { // a field name holding a field definition
-      type: 'String', // a field data type provided by typeable.js
+      type: 'String', // [required] a field data type provided by typeable.js
       defaultValue: 'John Smith', // a default field value (can be a value of a function)
       fakeValue: 'John Smith', // a fake field value (can be a value of a function)
       validate: [ // field validations provided by validatable.js
         { // validator recipe
-          validator: 'presence', // validator name
-          message: 'is required' // validator error message
+          validator: 'presence', // [required] validator name
+          message: 'is required', // [required] validator error message
+          condition () { return true } // condition to switch off the validator
         }
       ]
     },
