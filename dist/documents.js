@@ -59,30 +59,33 @@ var Document = exports.Document = function () {
   * Class constructor.
   */
 
-  function Document(schema) {
+  function Document() {
     var _this = this;
 
-    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        data = _ref.data,
+        schema = _ref.schema,
+        parent = _ref.parent;
+
     (0, _classCallCheck3.default)(this, Document);
 
     Object.defineProperty(this, '$schema', { // schema instance
-      value: schema
+      value: schema || new _schemas.Schema({ strict: false })
     });
     Object.defineProperty(this, '$parent', { // parent document instance
-      value: parent
+      value: parent || null
     });
     Object.defineProperty(this, '$root', { // root document instance
       get: function get() {
         return _this._getRootDocument();
       }
     });
-    Object.defineProperty(this, '$validator', { // validatable.js instance
-      value: this._createValidator()
-    });
     Object.defineProperty(this, '$error', { // last document error instance
       value: null,
       writable: true
+    });
+    Object.defineProperty(this, '$validator', { // validatable.js instance
+      value: this._createValidator()
     });
 
     this._defineFields();
@@ -113,7 +116,10 @@ var Document = exports.Document = function () {
   }, {
     key: '_createValidator',
     value: function _createValidator() {
-      return new _validatable.Validator((0, _extends3.default)({}, this.$schema.validatorOptions, { context: this }));
+      return new _validatable.Validator((0, _extends3.default)({}, {
+        validators: this.$schema.validators,
+        firstErrorOnly: this.$schema.firstErrorOnly
+      }));
     }
 
     /*
@@ -124,18 +130,6 @@ var Document = exports.Document = function () {
     key: '_createField',
     value: function _createField(name) {
       return new _fields.Field(this, name);
-    }
-
-    /*
-    * Creates a new sub-document instance (a nested document).
-    */
-
-  }, {
-    key: '_createRelative',
-    value: function _createRelative(schema) {
-      var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-      return new this.constructor(schema, data, this);
     }
 
     /*
@@ -385,7 +379,10 @@ var Document = exports.Document = function () {
   }, {
     key: 'clone',
     value: function clone() {
-      return new this.constructor(this.$schema, this.toObject());
+      return new this.constructor({
+        data: this.toObject(),
+        schema: this.$schema
+      });
     }
 
     /*
@@ -409,9 +406,9 @@ var Document = exports.Document = function () {
   }, {
     key: 'validate',
     value: function validate() {
-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref$quiet = _ref.quiet,
-          quiet = _ref$quiet === undefined ? false : _ref$quiet;
+      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref2$quiet = _ref2.quiet,
+          quiet = _ref2$quiet === undefined ? false : _ref2$quiet;
 
       var fields, path, paths;
       return _regenerator2.default.async(function validate$(_context) {

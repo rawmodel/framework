@@ -138,11 +138,15 @@ export class Field {
   */
 
   _cast (value, type) {
-    let types = Object.assign({}, this.$owner.$schema.typeOptions, {
+    let types = Object.assign({}, this.$owner.$schema.types, {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
 
-        return this.$owner._createRelative(type, value);
+        return new this.$owner.constructor({
+          data: value,
+          schema: type,
+          parent: this.$owner
+        });
       }
     });
 

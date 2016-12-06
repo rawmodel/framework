@@ -18,8 +18,9 @@ export class Schema {
     mixins = [], // not a property
     fields = {},
     strict,
-    validatorOptions = {},
-    typeOptions = {}
+    validators = {},
+    types = {},
+    firstErrorOnly
   } = {}) {
 
     Object.defineProperty(this, 'fields', { // document fields
@@ -37,18 +38,25 @@ export class Schema {
       enumerable: true // required for deep nesting
     });
 
-    Object.defineProperty(this, 'validatorOptions', { // options for validatable.js
+    Object.defineProperty(this, 'validators', { // validatable.js configuration option
       get: () => merge(
-        ...mixins.map((v) => v.validatorOptions),
-        validatorOptions
+        ...mixins.map((v) => v.validators),
+        validators
       ),
       enumerable: true // required for deep nesting
     });
 
-    Object.defineProperty(this, 'typeOptions', { // options for typeable.js
+    Object.defineProperty(this, 'types', { // typeable.js configuration option
       get: () => merge(
-        ...mixins.map((v) => v.typeOptions),
-        typeOptions
+        ...mixins.map((v) => v.types),
+        types
+      ),
+      enumerable: true // required for deep nesting
+    });
+
+    Object.defineProperty(this, 'firstErrorOnly', { // validatable.js configuration option
+      get: () => (
+        [false].concat(mixins.map((s) => s.firstErrorOnly), firstErrorOnly).filter((s) => isBoolean(s)).reverse()[0]
       ),
       enumerable: true // required for deep nesting
     });

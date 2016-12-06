@@ -24,22 +24,22 @@ export class Document {
   * Class constructor.
   */
 
-  constructor (schema, data = {}, parent = null) {
+  constructor ({data, schema, parent} = {}) {
     Object.defineProperty(this, '$schema', { // schema instance
-      value: schema
+      value: schema || new Schema({strict: false})
     });
     Object.defineProperty(this, '$parent', { // parent document instance
-      value: parent,
+      value: parent || null
     });
     Object.defineProperty(this, '$root', { // root document instance
-      get: () =>  this._getRootDocument(),
-    });
-    Object.defineProperty(this, '$validator', { // validatable.js instance
-      value: this._createValidator()
+      get: () => this._getRootDocument()
     });
     Object.defineProperty(this, '$error', { // last document error instance
       value: null,
       writable: true
+    });
+    Object.defineProperty(this, '$validator', { // validatable.js instance
+      value: this._createValidator()
     });
 
     this._defineFields();
@@ -67,7 +67,12 @@ export class Document {
   */
 
   _createValidator () {
-    return new Validator(Object.assign({}, this.$schema.validatorOptions, {context: this}));
+    return new Validator(
+      Object.assign({}, {
+        validators: this.$schema.validators,
+        firstErrorOnly: this.$schema.firstErrorOnly
+      })
+    );
   }
 
   /*
@@ -76,14 +81,6 @@ export class Document {
 
   _createField (name) {
     return new Field(this, name);
-  }
-
-  /*
-  * Creates a new sub-document instance (a nested document).
-  */
-
-  _createRelative (schema, data={}) {
-    return new this.constructor(schema, data, this);
   }
 
   /*
@@ -285,7 +282,10 @@ export class Document {
   */
 
   clone () {
-    return new this.constructor(this.$schema, this.toObject());
+    return new this.constructor({
+      data: this.toObject(),
+      schema: this.$schema
+    });
   }
 
   /*

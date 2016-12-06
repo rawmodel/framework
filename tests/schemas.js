@@ -12,12 +12,13 @@ test('can be extended through mixins', async (t) => {
       }
     }),
     strict: true,
-    validatorOptions: {
+    validators: {
       foo: 'foo'
     },
-    typeOptions: {
+    types: {
       foo: 'foo'
-    }
+    },
+    firstErrorOnly: true
   });
   let dogSchema = new Schema({
     mixins: [
@@ -29,12 +30,13 @@ test('can be extended through mixins', async (t) => {
       }
     }),
     strict: false,
-    validatorOptions: {
+    validators: {
       bar: 'bar'
     },
-    typeOptions: {
+    types: {
       bar: 'bar'
-    }
+    },
+    firstErrorOnly: false
   });
   let catSchema = new Schema({
     mixins: [
@@ -45,10 +47,10 @@ test('can be extended through mixins', async (t) => {
         type: [dogSchema]
       }
     }),
-    validatorOptions: {
+    validators: {
       baz: 'baz'
     },
-    typeOptions: {
+    types: {
       baz: 'baz'
     }
   });
@@ -64,10 +66,13 @@ test('can be extended through mixins', async (t) => {
   // strict
   t.is(dogSchema.strict, false);
   t.is(catSchema.strict, false);
-  // validatorOptions
-  keys = Object.keys(catSchema.validatorOptions)
+  // validators
+  keys = Object.keys(catSchema.validators)
   t.deepEqual(keys, ['foo', 'bar', 'baz']);
-  // typeOptions
-  keys = Object.keys(catSchema.typeOptions)
+  // types
+  keys = Object.keys(catSchema.types)
   t.deepEqual(keys, ['foo', 'bar', 'baz']);
+  // firstErrorOnly
+  t.is(dogSchema.firstErrorOnly, false);
+  t.is(catSchema.firstErrorOnly, false);
 });

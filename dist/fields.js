@@ -81,11 +81,15 @@ var Field = exports.Field = function () {
     value: function _cast(value, type) {
       var _this = this;
 
-      var types = (0, _extends3.default)({}, this.$owner.$schema.typeOptions, {
+      var types = (0, _extends3.default)({}, this.$owner.$schema.types, {
         Schema: function Schema(value) {
           if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
-          return _this.$owner._createRelative(type, value);
+          return new _this.$owner.constructor({
+            data: value,
+            schema: type,
+            parent: _this.$owner
+          });
         }
       });
 

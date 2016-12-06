@@ -37,46 +37,42 @@ $ npm install --save objectschema
 ## Example
 
 ```js
-import faker from 'faker'; // optional
-import {
-  Document,
-  Schema
-} from 'objectschema';
+import {Document, Schema} from 'objectschema';
 
 let bookSchema = new Schema({
-  fields: {
-    title: {
-      type: 'String',
+  fields: { // document fields
+    title: { // field name
+      type: 'String', // field type
       defaultValue: () => 'Lord of the flies', // value or function
-      fakeValue: () => faker.lorem.sentence() // value or function
+      fakeValue: () => 'Fake Title' // value or function (use e.g. `faker` for that)
     }
   }
 });
 
-let userSchema = new Schema({
-  fields: {
+let userSchema = new Schema({ // root document
+  fields: { // document fields
     name: { // field name
-      type: 'String', // field type
-      validate: [
+      type: 'String', // field type (string)
+      validate: [ // field validators
         {
           validator: 'presence',  // validator name
           message: 'is required' // validator error message
         }
       ]
     },
-    books: {
-      type: [bookSchema],
-      validate: [
+    books: { // field name
+      type: [bookSchema], // array of `bookSchema` documents
+      validate: [ // validators
         {
-          validator: 'presence',
-          message: 'is required'
+          validator: 'presence',  // validator name
+          message: 'is required' // validator error message
         }
       ]
     }
   }
 });
 
-let data = {
+let initialData = {
   name: 'John Smith',
   books: [
     {
@@ -85,7 +81,11 @@ let data = {
   ]
 };
 
-let user = new Document(userSchema, data);
+let user = new Document({
+  data: initialData,
+  schema: userSchema
+}); // new document instance
+
 user.title; // => "True Detective"
 await user.validate({quiet: true});
 user.isValid(); // => false
@@ -94,13 +94,15 @@ user.fake(); // generate fake data
 user.title; // => "lorem ipsum"
 user.reset(); // use default value
 user.title; // => "Lord of the flies"
+
+user.$title; // => field class instance
 ```
 
 ## API
 
 This package consists of two core classes. The `Schema` class represents a configuration object and the `Document` represents a data object defined by the Schema. There is also the `Field` class which represents a document field.
 
-This package also integrates [*typeable.js*](https://github.com/xpepermint/typeablejs) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
 
 ### Schema
 
@@ -108,7 +110,7 @@ Schema represents a configuration object which configures the `Document`. It hol
 
 A Schema can also be used as a custom type object. This way you can create a nested data structure by setting a schema instance for a field `type`. When a document is created, each schema in a tree of fields will become an instance of a Document - a tree of documents.
 
-**Schema({mixins, fields, fakes strict, validatorOptions, typeOptions})**
+**Schema({mixins, fields, strict, validators, types, firstErrorOnly})**
 
 > A class for defining document structure.
 
@@ -117,8 +119,9 @@ A Schema can also be used as a custom type object. This way you can create a nes
 | mixins | [] | No | [] | A list of schema instances from which to extend the schema.
 | fields | Object,Function | Yes | - | An object with fields definition. You should pass a function which returns the definition object in case of self referencing.
 | strict | Boolean | No | true | A schema type (set to `false` to allow dynamic fields not defined in schema).
-| validatorOptions | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
-| typeOptions | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
+| validators | Object | No | validatable.js defaults | Configuration options for the `Validator` class, provided by the [validatable.js](https://github.com/xpepermint/validatablejs), which is used for field validation.
+| types | Object | No | typeable.js defaults | Configuration options for the `cast` method provided by the [typeable.js](https://github.com/xpepermint/typeablejs), which is used for data type casting.
+| firstErrorOnly | Boolean | No | false | When set to true, the validation stops after the first validation error.
 
 ```js
 new Schema({
@@ -138,30 +141,31 @@ new Schema({
     },
   },
   strict: true, // schema mode
-  validatorOptions: {}, // validatable.js configuration options (see the package's page for details)
-  typeOptions: {} // typeable.js configuration options (see the package's page for details)
+  validators: {}, // validatable.js configuration options (see the package's page for details)
+  types: {}, // typeable.js configuration options (see the package's page for details)
+  firstErrorOnly: false, // validatable.js configuration options (see the package's page for details)
 });
 ```
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported, but we can also define custom types or override existing types through a `typeOptions` key. Please check package's website for a list of supported types and further information.
+This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported, but we can also define custom types or override existing types through a `types` key. Please check package's website for a list of supported types and further information.
 
 By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
-Validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the package by passing the `validatorOptions` option to our schema which will be passed directly to the `Validator` class. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please see package's website for details.
+Validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the package by setting `validators` and `firstErrorOnly` options. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please see package's website for details.
 
 ### Document
 
-A document is a schema enforced data object. All document properties and configuration options are defined by the schema.
+A document is a schema enforced object. All document properties and configuration options are defined by the schema.
 
-**Document(schema, data, parent)**
+**Document({data, schema, parent})**
 
 > A class for creating schema enforced objects.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| schema | Schema | Yes | - | An instance of the Schema class.
 | data | Object | No | - | Initial data object.
-| parent | Document | No | - | Parent document instance (for nesting documents).
+| schema | Schema | No | Schema({strict: false}) | An instance of the Schema class.
+| parent | Document | No | - | A parent document instance (for nesting documents).
 
 **Document.prototype.$parent**: Document
 
@@ -316,7 +320,7 @@ catch (e) {
 When a document field is defined, another field with the same name but prefixed with the `$` sign is set. This special read-only field holds a reference to the actual field instance.
 
 ```js
-let user = new Document(schema);
+let user = new Document({schema});
 user.name = 'John'; // actual document field
 user.$name; // reference to document field instance
 user.$name.isChanged(); // calling field instance method
