@@ -118,7 +118,8 @@ var Document = exports.Document = function () {
     value: function _createValidator() {
       return new _validatable.Validator((0, _extends3.default)({}, {
         validators: this.$schema.validators,
-        firstErrorOnly: this.$schema.firstErrorOnly
+        firstErrorOnly: this.$schema.firstErrorOnly,
+        context: this
       }));
     }
 

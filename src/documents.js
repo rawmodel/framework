@@ -70,7 +70,8 @@ export class Document {
     return new Validator(
       Object.assign({}, {
         validators: this.$schema.validators,
-        firstErrorOnly: this.$schema.firstErrorOnly
+        firstErrorOnly: this.$schema.firstErrorOnly,
+        context: this
       })
     );
   }
