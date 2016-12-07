@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
   "ava": {
@@ -17,7 +17,8 @@
     "build": "babel ./src --out-dir ./dist --copy-files",
     "prepublish": "npm run build",
     "pretest": "npm run build",
-    "test": "ava"
+    "test": "ava",
+    "example": "node ./example"
   },
   "repository": {
     "type": "git",

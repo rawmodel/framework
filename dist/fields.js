@@ -85,11 +85,7 @@ var Field = exports.Field = function () {
         Schema: function Schema(value) {
           if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
-          return new _this.$owner.constructor({
-            data: value,
-            schema: type,
-            parent: _this.$owner
-          });
+          return new _this.$owner.constructor(value, type, _this.$owner);
         }
       });
 

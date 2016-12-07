@@ -59,13 +59,8 @@ var Document = exports.Document = function () {
   * Class constructor.
   */
 
-  function Document() {
+  function Document(data, schema, parent) {
     var _this = this;
-
-    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-        data = _ref.data,
-        schema = _ref.schema,
-        parent = _ref.parent;
 
     (0, _classCallCheck3.default)(this, Document);
 
@@ -380,10 +375,7 @@ var Document = exports.Document = function () {
   }, {
     key: 'clone',
     value: function clone() {
-      return new this.constructor({
-        data: this.serialize(),
-        schema: this.$schema
-      });
+      return new this.constructor(this, this.$schema, this.$parent);
     }
 
     /*
@@ -407,9 +399,9 @@ var Document = exports.Document = function () {
   }, {
     key: 'validate',
     value: function validate() {
-      var _ref2 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref2$quiet = _ref2.quiet,
-          quiet = _ref2$quiet === undefined ? false : _ref2$quiet;
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref$quiet = _ref.quiet,
+          quiet = _ref$quiet === undefined ? false : _ref$quiet;
 
       var fields, path, paths;
       return _regenerator2.default.async(function validate$(_context) {

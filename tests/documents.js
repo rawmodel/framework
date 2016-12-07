@@ -62,7 +62,7 @@ test('field value should be converted to the specified type', (t) => {
     tags: ['foo', 'bar', 100, null],
     keywords: ['foo', 'bar', 100, null]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   t.is(user.name, '100');
   t.is(user.age, 35);
@@ -90,7 +90,7 @@ test('field can be of a custom type', (t) => {
   let data = {
     name: 100
   };
-  let user = new Document({data, schema});
+  let user = new Document(data, schema);
 
   t.is(user.name, '100-cool');
 });
@@ -142,10 +142,10 @@ test('field can have a default value', (t) => {
       }
     ]
   };
-  let user0 = new Document({schema: userSchema});
-  let user1 = new Document({data, schema: userSchema});
-  let book0 = new Document({schema: bookSchema});
-  let book1 = new Document({data: data.books[1], schema: bookSchema});
+  let user0 = new Document(null, userSchema);
+  let user1 = new Document(data, userSchema);
+  let book0 = new Document(null, bookSchema);
+  let book1 = new Document(data.books[1], bookSchema);
 
   t.is(user0.name, 'yes');
   t.is(user0.$name.defaultValue, 'yes');
@@ -192,8 +192,8 @@ test('field can have a fake value', (t) => {
       }
     }
   });
-  let user0 = new Document({schema: userSchema});
-  let user1 = new Document({schema: userSchema});
+  let user0 = new Document(null, userSchema);
+  let user1 = new Document(null, userSchema);
 
   t.is(user0.$name.fakeValue, 'yes');
   t.is(user0.$age.fakeValue, null);
@@ -229,7 +229,7 @@ test('field can be transformed through custom setter and getter', (t) => {
       }
     }
   });
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
 
   t.is(user.name, '100-set-get');
 });
@@ -247,7 +247,7 @@ test('method `populate` should not set custom fields when schema strict=true', (
     name: 'John',
     age: 35.5
   };
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   user.populate(data);
 
   t.is(user.name, 'John');
@@ -268,7 +268,7 @@ test('method `populate` should set custom fields when schema strict=false', (t) 
     name: 'John',
     age: 35.5
   };
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   user.populate(data);
 
   t.is(user.name, 'John');
@@ -306,7 +306,7 @@ test('variable `$parent` should return the parent document', (t) => {
       }
     ]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   t.is(user.$parent, null);
   t.is(user.book.$parent, user);
@@ -344,7 +344,7 @@ test('variable `$root` should return the first document in a tree of nested docu
       }
     ]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   t.is(user.$root, user);
   t.is(user.book.$root, user);
@@ -383,8 +383,8 @@ test('method `getPath` should return an instance of a field at path', (t) => {
       }
     ]
   };
-  let user0 = new Document({schema: userSchema});
-  let user1 = new Document({data, schema: userSchema});
+  let user0 = new Document(null, userSchema);
+  let user1 = new Document(data, userSchema);
 
   t.is(user0.getPath('name'), null);
   t.is(user1.getPath('name'), 'Foo');
@@ -427,8 +427,8 @@ test('method `hasPath` should check field existance at path', (t) => {
       }
     ]
   };
-  let user0 = new Document({schema: userSchema});
-  let user1 = new Document({data, schema: userSchema});
+  let user0 = new Document(null, userSchema);
+  let user1 = new Document(data, userSchema);
 
   t.is(user0.hasPath('name'), true);
   t.is(user0.hasPath('book', 'title'), false);
@@ -489,7 +489,7 @@ test('method `serialize` should convert a document into serialized data object',
       }
     ]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   t.deepEqual(user.serialize(), {
     name: 'John Smith',
@@ -556,7 +556,7 @@ test('method `reset` should deeply set fields to their default values and invali
       }
     ]
   };
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   user.populate(data);
   user.$name._errors = ['foo'];
 
@@ -607,7 +607,7 @@ test('method `clear` should deeply clear fields', (t) => {
       }
     }
   });
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   user.clear();
 
   t.deepEqual(user.serialize(), {
@@ -648,7 +648,7 @@ test('method `clear` should deeply clear fields', (t) => {
       }
     }
   });
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   user.clear();
 
   t.deepEqual(user.serialize(), {
@@ -703,7 +703,7 @@ test('method `commit` should deeply reset information about changed fields.', (t
       }
     ]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   t.is(user.$name.initialValue, 'Bar');
   user.commit();
@@ -757,7 +757,7 @@ test('method `rollback` should deeply reset fields to their initial values', (t)
       }
     ]
   };
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   user.populate(data);
   user.rollback();
 
@@ -796,7 +796,7 @@ test('method `isChanged` should return `true` if at least one field has been cha
     }
   });
 
-  let user = new Document({schema: userSchema});
+  let user = new Document(null, userSchema);
   t.is(user.isChanged(), false);
   user.name = 'Foo';
   t.is(user.$name.isChanged(), true);
@@ -869,10 +869,10 @@ test('method `equals` should return `true` when the passing object looks the sam
   let data1 = {
     name: 'Mandy'
   };
-  let user0 = new Document({schema: new Schema(userSchema)});
-  let user1 = new Document({schema: new Schema(userSchema)});
-  let user2 = new Document({data: data0, schema: new Schema(userSchema)});
-  let user3 = new Document({data: data1, schema: new Schema(userSchema)});
+  let user0 = new Document(null, new Schema(userSchema));
+  let user1 = new Document(null, new Schema(userSchema));
+  let user2 = new Document(data0, new Schema(userSchema));
+  let user3 = new Document(data1, new Schema(userSchema));
 
   t.is(user0.equals(user1), true);
   t.is(user0.equals(user2), false);
@@ -925,7 +925,7 @@ test('method `clone` should return an exact copy of the original', (t) => {
     ]
   };
 
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   t.is(user.clone() === user, false);
   t.deepEqual(user.clone(), user);
@@ -987,7 +987,7 @@ test('method `validate` should validate all fields and throw an error', async (t
     oldBook: {},
     oldBooks: [null, {}]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
   let validatorError0 = {validator: 'presence', message: 'is required', code: 422};
   let validatorError1 = {validator: 'arrayLength', message: 'is too short', code: 422};
 
@@ -1067,7 +1067,7 @@ test('methods `isValid` and `hasErrors` should tell if fields are valid', async 
       }
     ]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
   await user.validate({quiet: true});
 
   t.is(user.$name.isValid(), true);
@@ -1135,7 +1135,7 @@ test('method `invalidate` should clear errors on all fields', async (t) => {
     oldBook: {},
     oldBooks: [null, {}]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
 
   await user.validate({quiet: true});
   // invalidate is triggered when a field changes
@@ -1175,7 +1175,7 @@ test('method `applyErrors` should set field `errors` property', async (t) => {
     newBook: {},
     newBooks: [{}, {}]
   };
-  let user = new Document({data, schema: userSchema});
+  let user = new Document(data, userSchema);
   let validatorError = {validator: 'presence', message: 'is required', code: 422};
 
   user.applyErrors([

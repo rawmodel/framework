@@ -82,10 +82,7 @@ let initialData = {
   ]
 };
 
-let user = new Document({
-  data: initialData,
-  schema: userSchema
-}); // new document instance
+let user = new Document(initialData, userSchema); // new document instance
 
 user.title; // => "True Detective"
 await user.validate({quiet: true});
@@ -158,7 +155,7 @@ Validation is handled by the [*validatable.js*](https://github.com/xpepermint/va
 
 A document is a schema enforced object. All document properties and configuration options are defined by the schema.
 
-**Document({data, schema, parent})**
+**Document(data, schema, parent)**
 
 > A class for creating schema enforced objects.
 
@@ -321,7 +318,7 @@ catch (e) {
 When a document field is defined, another field with the same name but prefixed with the `$` sign is set. This special read-only field holds a reference to the actual field instance.
 
 ```js
-let user = new Document({schema});
+let user = new Document(null, schema);
 user.name = 'John'; // actual document field
 user.$name; // reference to document field instance
 user.$name.isChanged(); // calling field instance method

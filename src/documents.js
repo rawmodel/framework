@@ -24,7 +24,7 @@ export class Document {
   * Class constructor.
   */
 
-  constructor ({data, schema, parent} = {}) {
+  constructor (data, schema, parent) {
     Object.defineProperty(this, '$schema', { // schema instance
       value: schema || new Schema({strict: false})
     });
@@ -283,10 +283,7 @@ export class Document {
   */
 
   clone () {
-    return new this.constructor({
-      data: this.serialize(),
-      schema: this.$schema
-    });
+    return new this.constructor(this, this.$schema, this.$parent);
   }
 
   /*

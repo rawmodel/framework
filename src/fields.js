@@ -142,11 +142,7 @@ export class Field {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
 
-        return new this.$owner.constructor({
-          data: value,
-          schema: type,
-          parent: this.$owner
-        });
+        return new this.$owner.constructor(value, type, this.$owner);
       }
     });
 

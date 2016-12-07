@@ -1,5 +1,7 @@
 const {Schema, Document} = require('../dist');
 
+/* Model definition ***********************************************************/
+
 let schema = new Schema({ // root document
   fields: { // document fields
     name: { // field name
@@ -14,18 +16,33 @@ let schema = new Schema({ // root document
   }
 });
 
-let data = {
+class User extends Document { // creating a model
+
+  constructor (data) {
+    super(data, schema);
+  }
+
+  echo () {
+    return `echo for ${this.name}`;
+  }
+}
+
+/* Usage example **************************************************************/
+
+let user = new User({ // new model instance with data
   name: 'John Smith',
   books: [
     {
       title: 'True Detective'
     }
   ]
-};
+});
 
-let user = new Document({data, schema}); // new document instance
-console.log('title:', user.name);
+console.log('title:', user.name); // fields
 console.log('$title:', user.$name.value);
-user.validate({quiet: true}).then(() => {
+
+user.validate({quiet: true}).then(() => { // built-in methods
   console.log('isValid:', user.isValid());
 });
+
+console.log('echo():', user.echo()); // custom methods
