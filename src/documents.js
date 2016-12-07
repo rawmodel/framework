@@ -190,7 +190,7 @@ export class Document {
   * Converts this class into serialized data object.
   */
 
-  toObject () {
+  serialize () {
     return serialize(this);
   }
 
@@ -283,7 +283,7 @@ export class Document {
 
   clone () {
     return new this.constructor({
-      data: this.toObject(),
+      data: this.serialize(),
       schema: this.$schema
     });
   }

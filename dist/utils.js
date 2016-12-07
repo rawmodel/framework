@@ -25,6 +25,18 @@ var _lodash4 = _interopRequireDefault(_lodash3);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*
+* Deeply combines multiple values.
+*/
+
+exports.merge = _lodash2.default;
+
+/*
+* Deeply checks if two objects are equal.
+*/
+
+exports.isEqual = _lodash4.default;
+
+/*
 * Returns a duplicated data object (useful to remove data bindings).
 */
 
@@ -40,15 +52,3 @@ function serialize(data) {
 function retrieve(input) {
   return (0, _typeable.isFunction)(input) ? input() : input;
 }
-
-/*
-* Deeply combines multiple values.
-*/
-
-exports.merge = _lodash2.default;
-
-/*
-* Deeply checks if two objects are equal.
-*/
-
-exports.isEqual = _lodash4.default;

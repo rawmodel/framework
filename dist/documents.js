@@ -270,8 +270,8 @@ var Document = exports.Document = function () {
     */
 
   }, {
-    key: 'toObject',
-    value: function toObject() {
+    key: 'serialize',
+    value: function serialize() {
       return (0, _utils.serialize)(this);
     }
 
@@ -380,7 +380,7 @@ var Document = exports.Document = function () {
     key: 'clone',
     value: function clone() {
       return new this.constructor({
-        data: this.toObject(),
+        data: this.serialize(),
         schema: this.$schema
       });
     }

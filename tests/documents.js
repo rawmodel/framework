@@ -440,7 +440,7 @@ test('method `hasPath` should check field existance at path', (t) => {
   t.is(user1.hasPath(['books', 0, 'title']), true);
 });
 
-test('method `toObject` should convert a document into serialized data object', (t) => {
+test('method `serialize` should convert a document into serialized data object', (t) => {
   let bookSchema = new Schema({
     fields: {
       title: {
@@ -491,7 +491,7 @@ test('method `toObject` should convert a document into serialized data object', 
   };
   let user = new Document({data, schema: userSchema});
 
-  t.deepEqual(user.toObject(), {
+  t.deepEqual(user.serialize(), {
     name: 'John Smith',
     age: null,
     enabled: null,
@@ -563,7 +563,7 @@ test('method `reset` should deeply set fields to their default values and invali
   user.reset();
 
   t.deepEqual(user.$name.errors, []);
-  t.deepEqual(user.toObject(), {
+  t.deepEqual(user.serialize(), {
     name: 'Bar',
     book: {
       title: 'Baz'
@@ -610,7 +610,7 @@ test('method `clear` should deeply clear fields', (t) => {
   let user = new Document({schema: userSchema});
   user.clear();
 
-  t.deepEqual(user.toObject(), {
+  t.deepEqual(user.serialize(), {
     name: null,
     book: null,
     books: null
@@ -651,7 +651,7 @@ test('method `clear` should deeply clear fields', (t) => {
   let user = new Document({schema: userSchema});
   user.clear();
 
-  t.deepEqual(user.toObject(), {
+  t.deepEqual(user.serialize(), {
     name: null,
     book: null,
     books: null
@@ -761,7 +761,7 @@ test('method `rollback` should deeply reset fields to their initial values', (t)
   user.populate(data);
   user.rollback();
 
-  t.deepEqual(user.toObject(), {
+  t.deepEqual(user.serialize(), {
     name: 'Bar',
     book: {
       title: 'Baz'

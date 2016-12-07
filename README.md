@@ -15,6 +15,7 @@ This is a light weight open source package for use on **server** or in **browser
 * Field value transformation with getter and setter
 * Strict and relaxed schemas
 * Schema mixins for extending schemas
+* Document serialization
 * Document nesting with support for self referencing
 * Change tracking, data commits and rollbacks
 * Advanced field validation
@@ -294,7 +295,7 @@ doc.applyErrors([
 
 > Sets each document field to its initial value (last committed value). This is how you can discharge document changes.
 
-**Document.prototype.toObject()**: Object
+**Document.prototype.serialize()**: Object
 
 > Converts a document into serialized data object.
 
