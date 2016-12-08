@@ -16,27 +16,16 @@ let schema = new Schema({ // root document
   }
 });
 
-class User extends Document { // creating a model
-
-  constructor (data) {
-    super(data, schema);
-  }
-
-  echo () {
-    return `echo for ${this.name}`;
-  }
-}
-
 /* Usage example **************************************************************/
 
-let user = new User({ // new model instance with data
+let user = new Document({ // new model instance with data
   name: 'John Smith',
   books: [
     {
       title: 'True Detective'
     }
   ]
-});
+}, schema);
 
 console.log('title:', user.name); // fields
 console.log('$title:', user.$name.value);
@@ -44,5 +33,3 @@ console.log('$title:', user.$name.value);
 user.validate({quiet: true}).then(() => { // built-in methods
   console.log('isValid:', user.isValid());
 });
-
-console.log('echo():', user.echo()); // custom methods
