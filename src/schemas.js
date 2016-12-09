@@ -1,8 +1,5 @@
 import {isBoolean} from 'typeable';
-import {
-  retrieve,
-  merge
-} from './utils';
+import {retrieve, merge} from './utils';
 
 /*
 * A class for defining Document structure and properties.

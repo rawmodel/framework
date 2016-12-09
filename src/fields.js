@@ -1,13 +1,5 @@
-import {
-  cast,
-  isArray,
-  toArray,
-  isFunction
-} from 'typeable';
-import {
-  serialize,
-  isEqual
-} from './utils';
+import {cast, isArray, toArray, isFunction} from 'typeable';
+import {serialize, isEqual} from './utils';
 import {Schema} from './schemas';
 
 /*
@@ -142,7 +134,7 @@ export class Field {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
 
-        return new this.$owner.constructor(value, type, this.$owner);
+        return this.$owner._createDocument(value, type, this.$owner);
       }
     });
 

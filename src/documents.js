@@ -1,18 +1,8 @@
-import {
-  isObject,
-  isArray,
-  isFunction,
-  isPresent,
-  isAbsent,
-  isUndefined
-} from 'typeable';
+import {isObject, isArray} from 'typeable';
 import {Validator} from 'validatable';
 import {Schema} from './schemas';
 import {Field} from './fields';
-import {
-  serialize,
-  isEqual
-} from './utils';
+import {serialize, isEqual} from './utils';
 
 /*
 * The core schema-based object class.
@@ -24,12 +14,12 @@ export class Document {
   * Class constructor.
   */
 
-  constructor (data, schema, parent) {
+  constructor (data, schema, parent = null) {
     Object.defineProperty(this, '$schema', { // schema instance
-      value: schema || new Schema({strict: false})
+      value: schema
     });
     Object.defineProperty(this, '$parent', { // parent document instance
-      value: parent || null
+      value: parent
     });
     Object.defineProperty(this, '$root', { // root document instance
       get: () => this._getRootDocument()
@@ -44,6 +34,24 @@ export class Document {
 
     this._defineFields();
     this._populateFields(data);
+  }
+
+  /*
+  * Creates a new document instance. This method is especially useful when
+  * extending this class.
+  */
+
+  _createDocument (data = null, schema = null, parent = null) {
+    return new this.constructor(data, schema, parent);
+  }
+
+  /*
+  * Creates a new field instance. This method is especially useful when
+  * extending this class.
+  */
+
+  _createField (name) {
+    return new Field(this, name);
   }
 
   /*
@@ -74,14 +82,6 @@ export class Document {
         context: this
       })
     );
-  }
-
-  /*
-  * Creates a new Field instance.
-  */
-
-  _createField (name) {
-    return new Field(this, name);
   }
 
   /*
@@ -283,7 +283,7 @@ export class Document {
   */
 
   clone () {
-    return new this.constructor(this, this.$schema, this.$parent);
+    return this._createDocument(this, this.$schema, this.$parent);
   }
 
   /*

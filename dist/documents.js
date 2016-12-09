@@ -59,16 +59,17 @@ var Document = exports.Document = function () {
   * Class constructor.
   */
 
-  function Document(data, schema, parent) {
+  function Document(data, schema) {
     var _this = this;
 
+    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
     (0, _classCallCheck3.default)(this, Document);
 
     Object.defineProperty(this, '$schema', { // schema instance
-      value: schema || new _schemas.Schema({ strict: false })
+      value: schema
     });
     Object.defineProperty(this, '$parent', { // parent document instance
-      value: parent || null
+      value: parent
     });
     Object.defineProperty(this, '$root', { // root document instance
       get: function get() {
@@ -88,10 +89,36 @@ var Document = exports.Document = function () {
   }
 
   /*
-  * Loops up on the tree and returns the first document in the tree.
+  * Creates a new document instance. This method is especially useful when
+  * extending this class.
   */
 
   (0, _createClass3.default)(Document, [{
+    key: '_createDocument',
+    value: function _createDocument() {
+      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var schema = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      return new this.constructor(data, schema, parent);
+    }
+
+    /*
+    * Creates a new field instance. This method is especially useful when
+    * extending this class.
+    */
+
+  }, {
+    key: '_createField',
+    value: function _createField(name) {
+      return new _fields.Field(this, name);
+    }
+
+    /*
+    * Loops up on the tree and returns the first document in the tree.
+    */
+
+  }, {
     key: '_getRootDocument',
     value: function _getRootDocument() {
       var root = this;
@@ -116,16 +143,6 @@ var Document = exports.Document = function () {
         firstErrorOnly: this.$schema.firstErrorOnly,
         context: this
       }));
-    }
-
-    /*
-    * Creates a new Field instance.
-    */
-
-  }, {
-    key: '_createField',
-    value: function _createField(name) {
-      return new _fields.Field(this, name);
     }
 
     /*
@@ -375,7 +392,7 @@ var Document = exports.Document = function () {
   }, {
     key: 'clone',
     value: function clone() {
-      return new this.constructor(this, this.$schema, this.$parent);
+      return this._createDocument(this, this.$schema, this.$parent);
     }
 
     /*

@@ -98,7 +98,7 @@ user.$title; // => field class instance
 
 ## API
 
-This package consists of two core classes. The `Schema` class represents a configuration object and the `Document` represents a data object defined by the Schema. There is also the `Field` class which represents a document field.
+This package consists of two core classes. A `Schema` represents a configuration object and a `Document` represents a data object defined by the Schema. There is also the `Field` class which represents a document field.
 
 This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) module for type casting and [*validatable.js*](https://github.com/xpepermint/validatablejs) for validating fields.
 
@@ -149,7 +149,7 @@ This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for 
 
 By default, all fields in a schema are set to `null`. We can set a default value for a field by setting the `defaultValue` option.
 
-Validation is handled by the [*validatable.js*](https://github.com/xpepermint/validatablejs) package. We can configure the package by setting `validators` and `firstErrorOnly` options. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please see package's website for details.
+Validation is handled by [*validatable.js*](https://github.com/xpepermint/validatablejs). We can configure the package through `validators` and `firstErrorOnly` options. The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please see package's website for details.
 
 ### Document
 
@@ -162,7 +162,7 @@ A document is a schema enforced object. All document properties and configuratio
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | data | Object | No | - | Initial data object.
-| schema | Schema | No | Schema({strict: false}) | An instance of the Schema class.
+| schema | Schema | No | - | An instance of the Schema class.
 | parent | Document | No | - | A parent document instance (for nesting documents).
 
 **Document.prototype.$parent**: Document

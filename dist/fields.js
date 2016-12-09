@@ -85,7 +85,7 @@ var Field = exports.Field = function () {
         Schema: function Schema(value) {
           if ((0, _typeable.isArray)(type)) type = type[0]; // in case of {type: [Schema]}
 
-          return new _this.$owner.constructor(value, type, _this.$owner);
+          return _this.$owner._createDocument(value, type, _this.$owner);
         }
       });
 
