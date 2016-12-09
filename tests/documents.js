@@ -440,6 +440,78 @@ test('method `hasPath` should check field existance at path', (t) => {
   t.is(user1.hasPath(['books', 0, 'title']), true);
 });
 
+test.only('method `flatten` should return an array of fields', async (t) => {
+  let styleSchema = new Schema({
+    fields: {
+      kind: {
+        type: 'String'
+      }
+    }
+  });
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      },
+      style: {
+        type: styleSchema
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      newBook: {
+        type: bookSchema
+      },
+      newBooks: {
+        type: [bookSchema]
+      },
+      // oldBook: {
+      //   type: bookSchema
+      // },
+      // oldBooks: {
+      //   type: [bookSchema]
+      // }
+    }
+  });
+  let data = {
+    name: 'John Smith',
+    newBook: {
+      title: 100,
+      style: {
+        kind: 'foo'
+      }
+    },
+    newBooks: [
+      null,
+      {
+        title: 100,
+        style: [
+          {
+            kind: 'foo'
+          }
+        ]
+      }
+    ]
+  };
+  let user = new Document(data, userSchema);
+
+  t.deepEqual(user.flatten().map((f) => f.path), [
+    ['name'],
+    ['newBook'],
+    ['newBook', 'title'],
+    ['newBook', 'style'],
+    ['newBook', 'style', 'kind'],
+    ['newBooks'],
+    ['newBooks', 1, 'title'],
+    ['newBooks', 1, 'style'],
+    ['newBooks', 1, 'style', 'kind']
+  ]);
+});
+
 test('method `serialize` should convert a document into serialized data object', (t) => {
   let bookSchema = new Schema({
     fields: {

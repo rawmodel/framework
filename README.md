@@ -252,6 +252,10 @@ doc.applyErrors([
 
 > Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
 
+**Document.prototype.flatten()**: Array
+
+> Converts the document into an array of fields.
+
 **Document.prototype.hasErrors()**: Boolean
 
 > Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.

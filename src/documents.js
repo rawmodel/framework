@@ -37,6 +37,22 @@ export class Document {
   }
 
   /*
+  * Loops up on the tree and returns the first document in the tree.
+  */
+
+  _getRootDocument () {
+    let root = this;
+    do {
+      if (root.$parent) {
+        root = root.$parent;
+      }
+      else {
+        return root;
+      }
+    } while (true);
+  }
+
+  /*
   * Creates a new document instance. This method is especially useful when
   * extending this class.
   */
@@ -52,22 +68,6 @@ export class Document {
 
   _createField (name) {
     return new Field(this, name);
-  }
-
-  /*
-  * Loops up on the tree and returns the first document in the tree.
-  */
-
-  _getRootDocument () {
-    let root = this;
-    do {
-      if (root.$parent) {
-        root = root.$parent;
-      }
-      else {
-        return root;
-      }
-    } while (true);
   }
 
   /*
@@ -145,6 +145,40 @@ export class Document {
 
   hasPath (...keys) {
     return this.getPath(...keys) !== undefined;
+  }
+
+  /*
+  * Scrolls through all set fields and returns an array of results.
+  */
+
+  flatten (prefix = []) {
+    let fields = [];
+
+    for (let name in this.$schema.fields) {
+      let {type} = this.$schema.fields[name];
+      let field = this[`$${name}`];
+      let path = (prefix || []).concat(name);
+      let value = field.value;
+
+      fields.push({path, field});
+
+      if (value === null) continue;
+
+      if (type instanceof Schema) {
+        fields = fields.concat(
+          value.flatten(path)
+        );
+      }
+      else if (isArray(type) && type[0] instanceof Schema) {
+        fields = fields.concat(
+          value
+            .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
+            .filter((f) => f !== null)[0]
+        );
+      }
+    }
+
+    return fields;
   }
 
   /*

@@ -89,11 +89,28 @@ var Document = exports.Document = function () {
   }
 
   /*
-  * Creates a new document instance. This method is especially useful when
-  * extending this class.
+  * Loops up on the tree and returns the first document in the tree.
   */
 
   (0, _createClass3.default)(Document, [{
+    key: '_getRootDocument',
+    value: function _getRootDocument() {
+      var root = this;
+      do {
+        if (root.$parent) {
+          root = root.$parent;
+        } else {
+          return root;
+        }
+      } while (true);
+    }
+
+    /*
+    * Creates a new document instance. This method is especially useful when
+    * extending this class.
+    */
+
+  }, {
     key: '_createDocument',
     value: function _createDocument() {
       var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
@@ -112,23 +129,6 @@ var Document = exports.Document = function () {
     key: '_createField',
     value: function _createField(name) {
       return new _fields.Field(this, name);
-    }
-
-    /*
-    * Loops up on the tree and returns the first document in the tree.
-    */
-
-  }, {
-    key: '_getRootDocument',
-    value: function _getRootDocument() {
-      var root = this;
-      do {
-        if (root.$parent) {
-          root = root.$parent;
-        } else {
-          return root;
-        }
-      } while (true);
     }
 
     /*
@@ -227,6 +227,50 @@ var Document = exports.Document = function () {
     key: 'hasPath',
     value: function hasPath() {
       return this.getPath.apply(this, arguments) !== undefined;
+    }
+
+    /*
+    * Scrolls through all set fields and returns an array of results.
+    */
+
+  }, {
+    key: 'flatten',
+    value: function flatten() {
+      var _this2 = this;
+
+      var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+      var fields = [];
+
+      var _loop = function _loop(name) {
+        var type = _this2.$schema.fields[name].type;
+
+        var field = _this2['$' + name];
+        var path = (prefix || []).concat(name);
+        var value = field.value;
+
+        fields.push({ path: path, field: field });
+
+        if (value === null) return 'continue';
+
+        if (type instanceof _schemas.Schema) {
+          fields = fields.concat(value.flatten(path));
+        } else if ((0, _typeable.isArray)(type) && type[0] instanceof _schemas.Schema) {
+          fields = fields.concat(value.map(function (f, i) {
+            return f ? f.flatten(path.concat([i])) : null;
+          }).filter(function (f) {
+            return f !== null;
+          })[0]);
+        }
+      };
+
+      for (var name in this.$schema.fields) {
+        var _ret = _loop(name);
+
+        if (_ret === 'continue') continue;
+      }
+
+      return fields;
     }
 
     /*
@@ -402,10 +446,10 @@ var Document = exports.Document = function () {
   }, {
     key: 'isChanged',
     value: function isChanged() {
-      var _this2 = this;
+      var _this3 = this;
 
       return (0, _keys2.default)(this.$schema.fields).some(function (name) {
-        return _this2['$' + name].isChanged();
+        return _this3['$' + name].isChanged();
       });
     }
 
@@ -420,7 +464,8 @@ var Document = exports.Document = function () {
           _ref$quiet = _ref.quiet,
           quiet = _ref$quiet === undefined ? false : _ref$quiet;
 
-      var fields, path, paths;
+      var fields, _path, paths;
+
       return _regenerator2.default.async(function validate$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
@@ -434,9 +479,9 @@ var Document = exports.Document = function () {
                 break;
               }
 
-              path = _context.t1.value;
+              _path = _context.t1.value;
               _context.next = 6;
-              return _regenerator2.default.awrap(this['$' + path].validate());
+              return _regenerator2.default.awrap(this['$' + _path].validate());
 
             case 6:
               _context.next = 2;
@@ -475,8 +520,8 @@ var Document = exports.Document = function () {
       var fields = this.$schema.fields;
 
 
-      for (var path in fields) {
-        this['$' + path].invalidate();
+      for (var _path2 in fields) {
+        this['$' + _path2].invalidate();
       }
 
       return this;
@@ -509,14 +554,14 @@ var Document = exports.Document = function () {
   }, {
     key: 'collectErrors',
     value: function collectErrors() {
-      var _this3 = this;
+      var _this4 = this;
 
       var getErrors = function getErrors(doc) {
         var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
 
         var errors = [];
 
-        var _loop = function _loop(name) {
+        var _loop2 = function _loop2(name) {
           var field = doc['$' + name];
 
           if (field.errors.length > 0) {
@@ -526,11 +571,11 @@ var Document = exports.Document = function () {
             });
           }
 
-          if (field.value instanceof _this3.constructor) {
+          if (field.value instanceof _this4.constructor) {
             errors.push.apply(errors, (0, _toConsumableArray3.default)(getErrors(field.value, prefix.concat(field.name))));
           } else if ((0, _typeable.isArray)(field.value)) {
             field.value.forEach(function (d, i) {
-              if (d instanceof _this3.constructor) {
+              if (d instanceof _this4.constructor) {
                 errors.push.apply(errors, (0, _toConsumableArray3.default)(getErrors(d, prefix.concat([field.name, i]))));
               }
             });
@@ -538,7 +583,7 @@ var Document = exports.Document = function () {
         };
 
         for (var name in doc.$schema.fields) {
-          _loop(name);
+          _loop2(name);
         }
 
         return errors;
@@ -563,10 +608,10 @@ var Document = exports.Document = function () {
         for (var _iterator = (0, _getIterator3.default)(errors), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var error = _step.value;
 
-          var path = error.path.concat();
-          path[path.length - 1] = '$' + path[path.length - 1];
+          var _path3 = error.path.concat();
+          _path3[_path3.length - 1] = '$' + _path3[_path3.length - 1];
 
-          var _field = this.getPath(path);
+          var _field = this.getPath(_path3);
           if (_field) {
             _field.errors = error.errors;
           }
