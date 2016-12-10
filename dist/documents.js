@@ -356,6 +356,26 @@ var Document = exports.Document = function () {
     }
 
     /*
+    * Scrolls through object fields and collects results.
+    */
+
+  }, {
+    key: 'collect',
+    value: function collect(handler) {
+      return this.flatten().map(handler);
+    }
+
+    /*
+    * Scrolls through document fields and executes a handler on each field.
+    */
+
+  }, {
+    key: 'scroll',
+    value: function scroll(handler) {
+      return this.flatten().map(handler).length;
+    }
+
+    /*
     * Sets each document field to its default value.
     */
 

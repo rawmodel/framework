@@ -251,6 +251,22 @@ export class Document {
   }
 
   /*
+  * Scrolls through object fields and collects results.
+  */
+
+  collect (handler) {
+    return this.flatten().map(handler);
+  }
+
+  /*
+  * Scrolls through document fields and executes a handler on each field.
+  */
+
+  scroll (handler) {
+    return this.flatten().map(handler).length;
+  }
+
+  /*
   * Sets each document field to its default value.
   */
 

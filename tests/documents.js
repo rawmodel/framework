@@ -1443,3 +1443,65 @@ test('method `applyErrors` should set field `errors` property', async (t) => {
   t.deepEqual(user.newBooks[0].$title.errors, []);
   t.deepEqual(user.newBooks[1].$title.errors, [validatorError]);
 });
+
+test('method `collect` should return an array of results', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      }
+    }
+  });
+  let data = {
+    book: {
+      title: 'foo'
+    }
+  };
+  let user = new Document(data, userSchema);
+  let results = user.collect(({path, field}) => path);
+
+  t.deepEqual(results, [
+    ['name'],
+    ['book'],
+    ['book', 'title']
+  ]);
+});
+
+test('method `collect` should return an array of results', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      }
+    }
+  });
+  let data = {
+    book: {
+      title: 'foo'
+    }
+  };
+  let user = new Document(data, userSchema);
+  let count = user.scroll(({path, field}) => {});
+
+  t.deepEqual(count, 3);
+});

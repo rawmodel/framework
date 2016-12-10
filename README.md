@@ -228,6 +228,14 @@ doc.applyErrors([
 
 > Returns a new Document instance which is the exact copy of the original.
 
+**Document.prototype.collect(handler)**: Array
+
+> Scrolls through document fields and collects results.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| handler | Function | Yes | - | A handler method which is executed for each document field.
+
 **Document.prototype.collectErrors()**: Array
 
 > Returns a list of errors for all the fields ({path, errors}[]).
@@ -252,13 +260,13 @@ doc.applyErrors([
 
 > Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
 
-**Document.prototype.filter(condition)**: Object
+**Document.prototype.filter(handler)**: Object
 
 > Converts a document into serialized data object with only the keys that pass the test.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| condition | Function | Yes | - | A function to test each key value. If the function returns `true` then the key is included in the returned object.
+| handler | Function | Yes | - | A function to test each key value. If the function returns `true` then the key is included in the returned object.
 
 **Document.prototype.flatten()**: Array
 
@@ -307,6 +315,14 @@ doc.applyErrors([
 **Document.prototype.rollback()**: Document
 
 > Sets each document field to its initial value (last committed value). This is how you can discharge document changes.
+
+**Document.prototype.scroll(handler)**: Integer
+
+> Scrolls through document fields and executes a handler on each field.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| handler | Function | Yes | - | A handler method which is executed for each document field.
 
 **Document.prototype.serialize()**: Object
 
