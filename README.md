@@ -252,6 +252,14 @@ doc.applyErrors([
 
 > Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
 
+**Document.prototype.filter(condition)**: Object
+
+> Converts a document into serialized data object with only the keys that pass the test.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| condition | Function | Yes | - | A function to test each key value. If the function returns `true` then the key is included in the returned object.
+
 **Document.prototype.flatten()**: Array
 
 > Converts the document into an array of fields.

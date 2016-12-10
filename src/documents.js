@@ -231,6 +231,26 @@ export class Document {
   }
 
   /*
+  * Converts this class into serialized data object having only the keys that
+  * pass the `test`.
+  */
+
+  filter (test) {
+    let data = serialize(this);
+
+    this.flatten()
+    .sort((a, b) => a.path.length < b.path.length)
+    .filter((field) => !test(field))
+    .forEach((field) => {
+      let names = field.path.concat();
+      let lastName = names.pop();
+      delete names.reduce((o, k) => o[k], data)[lastName];
+    });
+
+    return data;
+  }
+
+  /*
   * Sets each document field to its default value.
   */
 

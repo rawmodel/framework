@@ -331,6 +331,31 @@ var Document = exports.Document = function () {
     }
 
     /*
+    * Converts this class into serialized data object having only the keys that
+    * pass the `test`.
+    */
+
+  }, {
+    key: 'filter',
+    value: function filter(test) {
+      var data = (0, _utils.serialize)(this);
+
+      this.flatten().sort(function (a, b) {
+        return a.path.length < b.path.length;
+      }).filter(function (field) {
+        return !test(field);
+      }).forEach(function (field) {
+        var names = field.path.concat();
+        var lastName = names.pop();
+        delete names.reduce(function (o, k) {
+          return o[k];
+        }, data)[lastName];
+      });
+
+      return data;
+    }
+
+    /*
     * Sets each document field to its default value.
     */
 

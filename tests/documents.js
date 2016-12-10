@@ -1287,6 +1287,58 @@ test('method `invalidate` should clear errors on all fields', async (t) => {
   t.deepEqual(user.oldBooks[1].$title.errors, []);
 });
 
+test('method `filter` should convert a document into serialized object with only keys that pass the test', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      },
+      author: {
+        type: 'String'
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+  let data = {
+    book: {
+      title: 'foo'
+    },
+    books: [
+      null,
+      {
+        title: 'bar'
+      }
+    ]
+  };
+  let user = new Document(data, userSchema);
+  let validKeys = ['book', 'books', 'books.1', 'book.title', 'books.1.author'];
+  let filtered = user.filter(({path}) => validKeys.indexOf(path.join('.')) !== -1);
+
+  t.deepEqual(filtered, {
+    book: {
+      title: 'foo'
+    },
+    books: [
+      null,
+      {
+        author: null
+      }
+    ]
+  });
+});
+
 test('method `collectErrors` should return an array of field errors', async (t) => {
   let bookSchema = new Schema({
     fields: {
