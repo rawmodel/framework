@@ -1,4 +1,4 @@
-import {isObject, isArray} from 'typeable';
+import {isPresent, isObject, isArray} from 'typeable';
 import {Validator} from 'validatable';
 import {Schema} from './schemas';
 import {Field} from './fields';
@@ -162,7 +162,7 @@ export class Document {
 
       fields.push({path, field});
 
-      if (value === null) continue;
+      if (!isPresent(value)) continue;
 
       if (type instanceof Schema) {
         fields = fields.concat(
@@ -173,7 +173,8 @@ export class Document {
         fields = fields.concat(
           value
             .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
-            .filter((f) => f !== null)[0]
+            .filter((f) => isArray(f))
+            .reduce((a, b) => a.concat(b))
         );
       }
     }
@@ -372,11 +373,23 @@ export class Document {
   }
 
   /*
+  * Returns `true` if nested fields exist.
+  */
+
+  isNested () {
+    return Object.keys(this.$schema.fields).some((name) => {
+      return this[`$${name}`].isNested();
+    });
+  }
+
+  /*
   * Returns `true` when errors exist (inverse of `isValid`).
   */
 
   hasErrors () {
-    return this.collectErrors().length > 0;
+    return Object.keys(this.$schema.fields).some((name) => {
+      return this[`$${name}`].hasErrors();
+    });
   }
 
   /*
@@ -384,40 +397,11 @@ export class Document {
   */
 
   collectErrors () {
-
-    let getErrors = (doc, prefix = []) => {
-      let errors = [];
-
-      for (let name in doc.$schema.fields) {
-        let field = doc[`$${name}`];
-
-        if (field.errors.length > 0) {
-          errors.push({
-            path: prefix.concat([field.name]),
-            errors: field.errors
-          });
-        }
-
-        if (field.value instanceof this.constructor) {
-          errors.push(
-            ...getErrors(field.value, prefix.concat(field.name))
-          );
-        }
-        else if (isArray(field.value)) {
-          field.value.forEach((d, i) => {
-            if (d instanceof this.constructor) {
-              errors.push(
-                ...getErrors(d, prefix.concat([field.name, i]))
-              );
-            }
-          });
-        }
-      }
-
-      return errors;
-    }
-
-    return getErrors(this);
+    return this.flatten().map(({path, field}) => {
+      return {path, errors: field.errors};
+    }).filter(({path, errors}) => {
+      return errors.length > 0;
+    });
   }
 
   /*

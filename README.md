@@ -272,6 +272,10 @@ doc.applyErrors([
 
 > Returns `true` if at least one document field has been changed.
 
+**Document.prototype.isNested()**: Boolean
+
+> Returns `true` if nested fields exist.
+
 **Document.prototype.isValid()**: Boolean
 
 > Returns `true` when all document fields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
@@ -376,6 +380,10 @@ user.$name.isChanged(); // calling field instance method
 **Field.prototype.isChanged()**: Boolean
 
 > Returns `true` if the field or at least one sub field have been changed.
+
+**Field.prototype.isNested()**: Boolean
+
+> Returns `true` if the field is a nested document.
 
 **Field.prototype.isValid()**: Boolean
 

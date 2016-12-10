@@ -226,7 +226,24 @@ export class Field {
   }
 
   /*
+  * Returns `true` if the field is a Document field.
+  */
+
+  isNested () {
+    let {type} = this.$owner.$schema.fields[this.name];
+    if (isArray(type)) type = type[0];
+
+    if (type.fields) {
+      return type instanceof Schema;
+    }
+    return false;
+  }
+
+  /*
   * Validates the field by populating the `_errors` property.
+  *
+  * IMPORTANT: Array null values for nested objects are not treated as an object
+  * but as an empty item thus isValid() for [null] succeeds.
   */
 
   async validate () {
@@ -279,7 +296,15 @@ export class Field {
   */
 
   hasErrors () {
-    return this.errors.length > 0;
+    if (this.errors.length > 0) {
+      return true;
+    }
+    else if (!this.isNested()) {
+      return false;
+    }
+    else {
+      return toArray(this.value).filter((f) => !!f).some((f) => f.hasErrors())
+    }
   }
 
 }

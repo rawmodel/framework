@@ -20,11 +20,6 @@ let schema = new Schema({ // root document
 
 let user = new Document({ // new model instance with data
   name: 'John Smith',
-  books: [
-    {
-      title: 'True Detective'
-    }
-  ]
 }, schema);
 
 console.log('title:', user.name); // fields

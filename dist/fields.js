@@ -194,7 +194,27 @@ var Field = exports.Field = function () {
     }
 
     /*
+    * Returns `true` if the field is a Document field.
+    */
+
+  }, {
+    key: 'isNested',
+    value: function isNested() {
+      var type = this.$owner.$schema.fields[this.name].type;
+
+      if ((0, _typeable.isArray)(type)) type = type[0];
+
+      if (type.fields) {
+        return type instanceof _schemas.Schema;
+      }
+      return false;
+    }
+
+    /*
     * Validates the field by populating the `_errors` property.
+    *
+    * IMPORTANT: Array null values for nested objects are not treated as an object
+    * but as an empty item thus isValid() for [null] succeeds.
     */
 
   }, {
@@ -346,7 +366,17 @@ var Field = exports.Field = function () {
   }, {
     key: 'hasErrors',
     value: function hasErrors() {
-      return this.errors.length > 0;
+      if (this.errors.length > 0) {
+        return true;
+      } else if (!this.isNested()) {
+        return false;
+      } else {
+        return (0, _typeable.toArray)(this.value).filter(function (f) {
+          return !!f;
+        }).some(function (f) {
+          return f.hasErrors();
+        });
+      }
     }
   }, {
     key: 'value',

@@ -440,7 +440,7 @@ test('method `hasPath` should check field existance at path', (t) => {
   t.is(user1.hasPath(['books', 0, 'title']), true);
 });
 
-test.only('method `flatten` should return an array of fields', async (t) => {
+test('method `flatten` should return an array of fields', async (t) => {
   let styleSchema = new Schema({
     fields: {
       kind: {
@@ -469,12 +469,12 @@ test.only('method `flatten` should return an array of fields', async (t) => {
       newBooks: {
         type: [bookSchema]
       },
-      // oldBook: {
-      //   type: bookSchema
-      // },
-      // oldBooks: {
-      //   type: [bookSchema]
-      // }
+      oldBook: {
+        type: bookSchema
+      },
+      oldBooks: {
+        type: [bookSchema]
+      }
     }
   });
   let data = {
@@ -489,13 +489,13 @@ test.only('method `flatten` should return an array of fields', async (t) => {
       null,
       {
         title: 100,
-        style: [
-          {
-            kind: 'foo'
-          }
-        ]
+        style: {
+          kind: 'foo'
+        }
       }
-    ]
+    ],
+    oldBook: null,
+    oldBooks: []
   };
   let user = new Document(data, userSchema);
 
@@ -508,7 +508,9 @@ test.only('method `flatten` should return an array of fields', async (t) => {
     ['newBooks'],
     ['newBooks', 1, 'title'],
     ['newBooks', 1, 'style'],
-    ['newBooks', 1, 'style', 'kind']
+    ['newBooks', 1, 'style', 'kind'],
+    ['oldBook'],
+    ['oldBooks']
   ]);
 });
 
@@ -892,6 +894,51 @@ test('method `isChanged` should return `true` if at least one field has been cha
   t.is(user.isChanged(), true);
 });
 
+test('method `isNested` should return `true` if nested fields exist', (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String'
+      }
+    }
+  });
+  let schema0 = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      }
+    }
+  });
+  let schema1 = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      book: {
+        type: bookSchema
+      }
+    }
+  });
+  let schema2 = new Schema({
+    fields: {
+      name: {
+        type: 'String'
+      },
+      books: {
+        type: [bookSchema]
+      }
+    }
+  });
+
+  let doc0 = new Document(null, schema0);
+  let doc1 = new Document(null, schema1);
+  let doc2 = new Document(null, schema2);
+
+  t.is(doc0.isNested(), false);
+  t.is(doc1.isNested(), true);
+  t.is(doc2.isNested(), true);
+});
+
 test('method `equals` should return `true` when the passing object looks the same', (t) => {
   let authorSchema = new Schema({
     fields: {
@@ -1113,13 +1160,25 @@ test('methods `isValid` and `hasErrors` should tell if fields are valid', async 
           {validator: 'presence', message: 'is required'}
         ]
       },
-      book: {
+      newBook: {
         type: bookSchema,
         validate: [
           {validator: 'presence', message: 'is required'}
         ]
       },
-      books: {
+      newBooks: {
+        type: [bookSchema],
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      oldBook: {
+        type: bookSchema,
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      oldBooks: {
         type: [bookSchema],
         validate: [
           {validator: 'presence', message: 'is required'}
@@ -1130,26 +1189,32 @@ test('methods `isValid` and `hasErrors` should tell if fields are valid', async 
 
   let data = {
     name: 'Foo',
-    book: {
+    newBook: {
       title: 'Bar'
     },
-    books: [
+    newBooks: [
+      null,
       {
         title: 'Baz'
       }
-    ]
+    ],
+    oldBook: {},
+    oldBooks: [null, {}]
   };
   let user = new Document(data, userSchema);
   await user.validate({quiet: true});
 
   t.is(user.$name.isValid(), true);
   t.is(user.$name.hasErrors(), false);
-  t.is(user.book.$title.isValid(), true);
-  t.is(user.book.$title.hasErrors(), false);
-  t.is(user.books[0].$title.isValid(), true);
-  t.is(user.books[0].$title.hasErrors(), false);
-  t.is(user.isValid(), true);
-  t.is(user.hasErrors(), false);
+  t.is(user.$newBook.isValid(), true);
+  t.is(user.newBook.$title.isValid(), true);
+  t.is(user.newBook.$title.hasErrors(), false);
+  t.is(user.$newBooks.hasErrors(), false);
+  t.is(user.newBooks[1].$title.hasErrors(), false);
+  t.is(user.$oldBook.isValid(), false);
+  t.is(user.oldBook.$title.isValid(), false);
+  t.is(user.$oldBooks.hasErrors(), true);
+  t.is(user.oldBooks[1].$title.hasErrors(), true);
 });
 
 test('method `invalidate` should clear errors on all fields', async (t) => {
@@ -1220,6 +1285,71 @@ test('method `invalidate` should clear errors on all fields', async (t) => {
   t.deepEqual(user.oldBook.$title.errors, []);
   t.deepEqual(user.oldBooks[0], null);
   t.deepEqual(user.oldBooks[1].$title.errors, []);
+});
+
+test('method `collectErrors` should return an array of field errors', async (t) => {
+  let bookSchema = new Schema({
+    fields: {
+      title: {
+        type: 'String',
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      }
+    }
+  });
+  let userSchema = new Schema({
+    fields: {
+      name: {
+        type: 'String',
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      age: {
+        type: 'Integer',
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      newBook: {
+        type: bookSchema,
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      },
+      newBooks: {
+        type: [bookSchema],
+        validate: [
+          {validator: 'presence', message: 'is required'}
+        ]
+      }
+    }
+  });
+  let data = {age: 30};
+  let user = new Document(data, userSchema);
+  await user.validate({quiet: true});
+
+  t.deepEqual(user.collectErrors(), [
+    {
+      path: ['name'],
+      errors: [
+        {validator: 'presence', message: 'is required', code: 422}
+      ]
+    },
+    {
+      path: ['newBook'],
+      errors: [
+        {validator: 'presence', message: 'is required', code: 422}
+      ]
+    },
+    {
+      path: ['newBooks'],
+      errors: [
+        {validator: 'presence', message: 'is required', code: 422}
+      ]
+    }
+  ]);
 });
 
 test('method `applyErrors` should set field `errors` property', async (t) => {

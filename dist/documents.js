@@ -9,10 +9,6 @@ var _getIterator2 = require('babel-runtime/core-js/get-iterator');
 
 var _getIterator3 = _interopRequireDefault(_getIterator2);
 
-var _toConsumableArray2 = require('babel-runtime/helpers/toConsumableArray');
-
-var _toConsumableArray3 = _interopRequireDefault(_toConsumableArray2);
-
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -251,7 +247,7 @@ var Document = exports.Document = function () {
 
         fields.push({ path: path, field: field });
 
-        if (value === null) return 'continue';
+        if (!(0, _typeable.isPresent)(value)) return 'continue';
 
         if (type instanceof _schemas.Schema) {
           fields = fields.concat(value.flatten(path));
@@ -259,8 +255,10 @@ var Document = exports.Document = function () {
           fields = fields.concat(value.map(function (f, i) {
             return f ? f.flatten(path.concat([i])) : null;
           }).filter(function (f) {
-            return f !== null;
-          })[0]);
+            return (0, _typeable.isArray)(f);
+          }).reduce(function (a, b) {
+            return a.concat(b);
+          }));
         }
       };
 
@@ -538,13 +536,31 @@ var Document = exports.Document = function () {
     }
 
     /*
+    * Returns `true` if nested fields exist.
+    */
+
+  }, {
+    key: 'isNested',
+    value: function isNested() {
+      var _this4 = this;
+
+      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
+        return _this4['$' + name].isNested();
+      });
+    }
+
+    /*
     * Returns `true` when errors exist (inverse of `isValid`).
     */
 
   }, {
     key: 'hasErrors',
     value: function hasErrors() {
-      return this.collectErrors().length > 0;
+      var _this5 = this;
+
+      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
+        return _this5['$' + name].hasErrors();
+      });
     }
 
     /*
@@ -554,42 +570,17 @@ var Document = exports.Document = function () {
   }, {
     key: 'collectErrors',
     value: function collectErrors() {
-      var _this4 = this;
+      return this.flatten().map(function (_ref2) {
+        var path = _ref2.path,
+            field = _ref2.field;
 
-      var getErrors = function getErrors(doc) {
-        var prefix = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+        return { path: path, errors: field.errors };
+      }).filter(function (_ref3) {
+        var path = _ref3.path,
+            errors = _ref3.errors;
 
-        var errors = [];
-
-        var _loop2 = function _loop2(name) {
-          var field = doc['$' + name];
-
-          if (field.errors.length > 0) {
-            errors.push({
-              path: prefix.concat([field.name]),
-              errors: field.errors
-            });
-          }
-
-          if (field.value instanceof _this4.constructor) {
-            errors.push.apply(errors, (0, _toConsumableArray3.default)(getErrors(field.value, prefix.concat(field.name))));
-          } else if ((0, _typeable.isArray)(field.value)) {
-            field.value.forEach(function (d, i) {
-              if (d instanceof _this4.constructor) {
-                errors.push.apply(errors, (0, _toConsumableArray3.default)(getErrors(d, prefix.concat([field.name, i]))));
-              }
-            });
-          }
-        };
-
-        for (var name in doc.$schema.fields) {
-          _loop2(name);
-        }
-
-        return errors;
-      };
-
-      return getErrors(this);
+        return errors.length > 0;
+      });
     }
 
     /*
@@ -611,9 +602,9 @@ var Document = exports.Document = function () {
           var _path3 = error.path.concat();
           _path3[_path3.length - 1] = '$' + _path3[_path3.length - 1];
 
-          var _field = this.getPath(_path3);
-          if (_field) {
-            _field.errors = error.errors;
+          var field = this.getPath(_path3);
+          if (field) {
+            field.errors = error.errors;
           }
         }
       } catch (err) {
