@@ -15,7 +15,7 @@ This is a light weight open source package for use on **server** or in **browser
 * Field value transformation with getter and setter
 * Strict and relaxed schemas
 * Schema mixins for extending schemas
-* Document serialization
+* Document serialization and filtering
 * Document nesting with support for self referencing
 * Change tracking, data commits and rollbacks
 * Advanced field validation
