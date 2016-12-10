@@ -234,7 +234,7 @@ doc.applyErrors([
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| handler | Function | Yes | - | A handler method which is executed for each document field.
+| handler | Function | Yes | - | A handler method which is executed for each field.
 
 **Document.prototype.collectErrors()**: Array
 
@@ -247,14 +247,6 @@ doc.applyErrors([
 **Document.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
-
-**Document.prototype.getPath(...keys)**: Field
-
-> Returns a class instance of the field at path.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
 **Document.prototype.fake()**: Document
 
@@ -271,6 +263,14 @@ doc.applyErrors([
 **Document.prototype.flatten()**: Array
 
 > Converts the document into an array of fields.
+
+**Document.prototype.getPath(...keys)**: Field
+
+> Returns a class instance of the field at path.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
 **Document.prototype.hasErrors()**: Boolean
 
@@ -322,7 +322,7 @@ doc.applyErrors([
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| handler | Function | Yes | - | A handler method which is executed for each document field.
+| handler | Function | Yes | - | A handler method which is executed for each field.
 
 **Document.prototype.serialize()**: Object
 
