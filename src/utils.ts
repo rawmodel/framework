@@ -1,6 +1,6 @@
 import {isFunction} from 'typeable';
-import merge from 'lodash.merge';
-import isEqual from 'lodash.isequal';
+import * as merge from 'lodash.merge';
+import * as isEqual from 'lodash.isequal';
 
 /*
 * Deeply combines multiple values.

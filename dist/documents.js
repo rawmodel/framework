@@ -1,674 +1,434 @@
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.Document = undefined;
-
-var _getIterator2 = require('babel-runtime/core-js/get-iterator');
-
-var _getIterator3 = _interopRequireDefault(_getIterator2);
-
-var _regenerator = require('babel-runtime/regenerator');
-
-var _regenerator2 = _interopRequireDefault(_regenerator);
-
-var _keys = require('babel-runtime/core-js/object/keys');
-
-var _keys2 = _interopRequireDefault(_keys);
-
-var _defineProperty = require('babel-runtime/core-js/object/define-property');
-
-var _defineProperty2 = _interopRequireDefault(_defineProperty);
-
-var _extends2 = require('babel-runtime/helpers/extends');
-
-var _extends3 = _interopRequireDefault(_extends2);
-
-var _classCallCheck2 = require('babel-runtime/helpers/classCallCheck');
-
-var _classCallCheck3 = _interopRequireDefault(_classCallCheck2);
-
-var _createClass2 = require('babel-runtime/helpers/createClass');
-
-var _createClass3 = _interopRequireDefault(_createClass2);
-
-var _typeable = require('typeable');
-
-var _validatable = require('validatable');
-
-var _schemas = require('./schemas');
-
-var _fields = require('./fields');
-
-var _utils = require('./utils');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments)).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
+    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var typeable_1 = require("typeable");
+var validatable_1 = require("validatable");
+var schemas_1 = require("./schemas");
+var fields_1 = require("./fields");
+var utils_1 = require("./utils");
 /*
 * The core schema-based object class.
 */
-
-var Document = exports.Document = function () {
-
-  /*
-  * Class constructor.
-  */
-
-  function Document(data, schema) {
-    var _this = this;
-
-    var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-    (0, _classCallCheck3.default)(this, Document);
-
-    Object.defineProperty(this, '$schema', { // schema instance
-      value: schema
-    });
-    Object.defineProperty(this, '$parent', { // parent document instance
-      value: parent
-    });
-    Object.defineProperty(this, '$root', { // root document instance
-      get: function get() {
-        return _this._getRootDocument();
-      }
-    });
-    Object.defineProperty(this, '$error', { // last document error instance
-      value: null,
-      writable: true
-    });
-    Object.defineProperty(this, '$validator', { // validatable.js instance
-      value: this._createValidator()
-    });
-
-    this._defineFields();
-    this._populateFields(data);
-  }
-
-  /*
-  * Loops up on the tree and returns the first document in the tree.
-  */
-
-  (0, _createClass3.default)(Document, [{
-    key: '_getRootDocument',
-    value: function _getRootDocument() {
-      var root = this;
-      do {
-        if (root.$parent) {
-          root = root.$parent;
-        } else {
-          return root;
-        }
-      } while (true);
+var Document = (function () {
+    /*
+    * Class constructor.
+    */
+    function Document(data, schema, parent) {
+        var _this = this;
+        Object.defineProperty(this, '$schema', {
+            value: schema
+        });
+        Object.defineProperty(this, '$parent', {
+            value: parent || null
+        });
+        Object.defineProperty(this, '$root', {
+            get: function () { return _this._getRootDocument(); }
+        });
+        Object.defineProperty(this, '$validator', {
+            value: this._createValidator()
+        });
+        this._defineFields();
+        this._populateFields(data);
     }
-
+    /*
+    * Loops up on the tree and returns the first document in the tree.
+    */
+    Document.prototype._getRootDocument = function () {
+        var root = this;
+        do {
+            if (root.$parent) {
+                root = root.$parent;
+            }
+            else {
+                return root;
+            }
+        } while (true);
+    };
     /*
     * Creates a new document instance. This method is especially useful when
     * extending this class.
     */
-
-  }, {
-    key: '_createDocument',
-    value: function _createDocument() {
-      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      var schema = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-      var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-      return new this.constructor(data, schema, parent);
-    }
-
+    Document.prototype._createDocument = function (data, schema, parent) {
+        if (data === void 0) { data = null; }
+        if (schema === void 0) { schema = null; }
+        if (parent === void 0) { parent = null; }
+        return new this.constructor(data, schema, parent);
+    };
     /*
     * Creates a new field instance. This method is especially useful when
     * extending this class.
     */
-
-  }, {
-    key: '_createField',
-    value: function _createField(name) {
-      return new _fields.Field(this, name);
-    }
-
+    Document.prototype._createField = function (name) {
+        return new fields_1.Field(this, name);
+    };
     /*
     * Returns a new instance of validator.
     */
-
-  }, {
-    key: '_createValidator',
-    value: function _createValidator() {
-      return new _validatable.Validator((0, _extends3.default)({}, {
-        validators: this.$schema.validators,
-        firstErrorOnly: this.$schema.firstErrorOnly,
-        context: this
-      }));
-    }
-
+    Document.prototype._createValidator = function () {
+        return new validatable_1.Validator(utils_1.merge({}, {
+            validators: this.$schema.validators,
+            firstErrorOnly: this.$schema.firstErrorOnly,
+            context: this
+        }));
+    };
     /*
     * Creates a new validation error instance.
     */
-
-  }, {
-    key: '_createValidationError',
-    value: function _createValidationError(paths) {
-      var error = new Error('Validation failed');
-      error.code = 422;
-      error.paths = paths;
-
-      return error;
-    }
-
+    Document.prototype._createValidationError = function (paths) {
+        var error = new Error('Validation failed');
+        error.code = 422;
+        error.paths = paths;
+        return error;
+    };
     /*
     * Defines class fields from schema.
     */
-
-  }, {
-    key: '_defineFields',
-    value: function _defineFields() {
-      var fields = this.$schema.fields;
-
-
-      for (var name in fields) {
-        this._defineField(name);
-      }
-    }
-
+    Document.prototype._defineFields = function () {
+        var fields = this.$schema.fields;
+        for (var name in fields) {
+            this._defineField(name);
+        }
+    };
     /*
     * Defines a schema field by name.
     */
-
-  }, {
-    key: '_defineField',
-    value: function _defineField(name) {
-      var field = this._createField(name);
-
-      (0, _defineProperty2.default)(this, name, { // field definition
-        get: function get() {
-          return field.value;
-        },
-        set: function set(v) {
-          return field.value = v;
-        },
-        enumerable: true,
-        configurable: true
-      });
-
-      Object.defineProperty(this, '$' + name, { // field class instance definition
-        value: field
-      });
-    }
-
+    Document.prototype._defineField = function (name) {
+        var field = this._createField(name);
+        Object.defineProperty(this, name, {
+            get: function () { return field.value; },
+            set: function (v) { return field.value = v; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(this, "$" + name, {
+            value: field
+        });
+    };
     /*
     * Returns a value at path.
     */
-
-  }, {
-    key: 'getPath',
-    value: function getPath() {
-      for (var _len = arguments.length, keys = Array(_len), _key = 0; _key < _len; _key++) {
-        keys[_key] = arguments[_key];
-      }
-
-      if ((0, _typeable.isArray)(keys[0])) {
-        keys = keys[0];
-      }
-
-      return keys.reduce(function (a, b) {
-        return (a || {})[b];
-      }, this);
-    }
-
+    Document.prototype.getPath = function () {
+        var keys = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            keys[_i] = arguments[_i];
+        }
+        if (typeable_1.isArray(keys[0])) {
+            keys = keys[0];
+        }
+        return keys.reduce(function (a, b) { return (a || {})[b]; }, this);
+    };
     /*
     * Returns `true` if field at path exists.
     */
-
-  }, {
-    key: 'hasPath',
-    value: function hasPath() {
-      return this.getPath.apply(this, arguments) !== undefined;
-    }
-
+    Document.prototype.hasPath = function () {
+        var keys = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            keys[_i] = arguments[_i];
+        }
+        return this.getPath.apply(this, keys) !== undefined;
+    };
     /*
     * Scrolls through all set fields and returns an array of results.
     */
-
-  }, {
-    key: 'flatten',
-    value: function flatten() {
-      var _this2 = this;
-
-      var prefix = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
-      var fields = [];
-
-      var _loop = function _loop(name) {
-        var type = _this2.$schema.fields[name].type;
-
-        var field = _this2['$' + name];
-        var path = (prefix || []).concat(name);
-        var value = field.value;
-
-        fields.push({ path: path, field: field });
-
-        if (!(0, _typeable.isPresent)(value)) return 'continue';
-
-        if (type instanceof _schemas.Schema) {
-          fields = fields.concat(value.flatten(path));
-        } else if ((0, _typeable.isArray)(type) && type[0] instanceof _schemas.Schema) {
-          fields = fields.concat(value.map(function (f, i) {
-            return f ? f.flatten(path.concat([i])) : null;
-          }).filter(function (f) {
-            return (0, _typeable.isArray)(f);
-          }).reduce(function (a, b) {
-            return a.concat(b);
-          }));
+    Document.prototype.flatten = function (prefix) {
+        if (prefix === void 0) { prefix = []; }
+        var fields = [];
+        var _loop_1 = function (name) {
+            var type = this_1.$schema.fields[name].type;
+            var field = this_1["$" + name];
+            var path = (prefix || []).concat(name);
+            var value = field.value;
+            fields.push({ path: path, field: field });
+            if (!typeable_1.isPresent(value))
+                return "continue";
+            if (type instanceof schemas_1.Schema) {
+                fields = fields.concat(value.flatten(path));
+            }
+            else if (typeable_1.isArray(type) && type[0] instanceof schemas_1.Schema) {
+                fields = fields.concat(value
+                    .map(function (f, i) { return (f ? f.flatten(path.concat([i])) : null); })
+                    .filter(function (f) { return typeable_1.isArray(f); })
+                    .reduce(function (a, b) { return a.concat(b); }));
+            }
+        };
+        var this_1 = this;
+        for (var name in this.$schema.fields) {
+            _loop_1(name);
         }
-      };
-
-      for (var name in this.$schema.fields) {
-        var _ret = _loop(name);
-
-        if (_ret === 'continue') continue;
-      }
-
-      return fields;
-    }
-
+        return fields;
+    };
     /*
     * Sets field values from the provided by data object.
     */
-
-  }, {
-    key: 'populate',
-    value: function populate() {
-      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-      return this._populateFields(data);
-    }
-
+    Document.prototype.populate = function (data) {
+        if (data === void 0) { data = {}; }
+        return this._populateFields(data);
+    };
     /*
     * Sets field values from the provided by data object.
     */
-
-  }, {
-    key: '_populateFields',
-    value: function _populateFields() {
-      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-      data = (0, _utils.serialize)(data);
-
-      for (var name in data) {
-        this._populateField(name, data[name]);
-      }
-
-      return this;
-    }
-
+    Document.prototype._populateFields = function (data) {
+        if (data === void 0) { data = {}; }
+        data = utils_1.serialize(data);
+        for (var name in data) {
+            this._populateField(name, data[name]);
+        }
+        return this;
+    };
     /*
     * Sets a value of a field by name.
     */
-
-  }, {
-    key: '_populateField',
-    value: function _populateField(name, value) {
-      if (!this.$schema.strict) {
-        this[name] = value;
-      } else {
-        var names = (0, _keys2.default)(this.$schema.fields);
-        var exists = names.indexOf(name) > -1;
-
-        if (exists) {
-          this[name] = value;
+    Document.prototype._populateField = function (name, value) {
+        if (!this.$schema.strict) {
+            this[name] = value;
         }
-      }
-    }
-
+        else {
+            var names = Object.keys(this.$schema.fields);
+            var exists = names.indexOf(name) > -1;
+            if (exists) {
+                this[name] = value;
+            }
+        }
+    };
     /*
     * Converts this class into serialized data object.
     */
-
-  }, {
-    key: 'serialize',
-    value: function serialize() {
-      return (0, _utils.serialize)(this);
-    }
-
+    Document.prototype.serialize = function () {
+        return utils_1.serialize(this);
+    };
     /*
     * Converts this class into serialized data object having only the keys that
     * pass the `test`.
     */
-
-  }, {
-    key: 'filter',
-    value: function filter(test) {
-      var data = (0, _utils.serialize)(this);
-
-      this.flatten().sort(function (a, b) {
-        return a.path.length < b.path.length;
-      }).filter(function (field) {
-        return !test(field);
-      }).forEach(function (field) {
-        var names = field.path.concat();
-        var lastName = names.pop();
-        delete names.reduce(function (o, k) {
-          return o[k];
-        }, data)[lastName];
-      });
-
-      return data;
-    }
-
+    Document.prototype.filter = function (test) {
+        var data = utils_1.serialize(this);
+        this.flatten()
+            .sort(function (a, b) { return b.path.length - a.path.length; })
+            .filter(function (field) { return !test(field); })
+            .forEach(function (field) {
+            var names = field.path.concat();
+            var lastName = names.pop();
+            delete names.reduce(function (o, k) { return o[k]; }, data)[lastName];
+        });
+        return data;
+    };
     /*
     * Scrolls through object fields and collects results.
     */
-
-  }, {
-    key: 'collect',
-    value: function collect(handler) {
-      return this.flatten().map(handler);
-    }
-
+    Document.prototype.collect = function (handler) {
+        return this.flatten().map(handler);
+    };
     /*
     * Scrolls through document fields and executes a handler on each field.
     */
-
-  }, {
-    key: 'scroll',
-    value: function scroll(handler) {
-      return this.flatten().map(handler).length;
-    }
-
+    Document.prototype.scroll = function (handler) {
+        return this.flatten().map(handler).length;
+    };
     /*
     * Sets each document field to its default value.
     */
-
-  }, {
-    key: 'reset',
-    value: function reset() {
-      var fields = this.$schema.fields;
-
-
-      for (var name in fields) {
-        this['$' + name].reset();
-      }
-
-      return this;
-    }
-
+    Document.prototype.reset = function () {
+        var fields = this.$schema.fields;
+        for (var name in fields) {
+            this["$" + name].reset();
+        }
+        return this;
+    };
     /*
     * Sets each document field to its fake value if a fake value generator
     * is registered, otherwise the default value is used.
     */
-
-  }, {
-    key: 'fake',
-    value: function fake() {
-      var fields = this.$schema.fields;
-
-
-      for (var name in fields) {
-        this['$' + name].fake();
-      }
-
-      return this;
-    }
-
+    Document.prototype.fake = function () {
+        var fields = this.$schema.fields;
+        for (var name in fields) {
+            this["$" + name].fake();
+        }
+        return this;
+    };
     /*
     * Removes all fileds values by setting them to `null`.
     */
-
-  }, {
-    key: 'clear',
-    value: function clear() {
-      var fields = this.$schema.fields;
-
-
-      for (var name in fields) {
-        this['$' + name].clear();
-      }
-
-      return this;
-    }
-
+    Document.prototype.clear = function () {
+        var fields = this.$schema.fields;
+        for (var name in fields) {
+            this["$" + name].clear();
+        }
+        return this;
+    };
     /*
     * Sets initial value of each document field to the current value of a field.
     */
-
-  }, {
-    key: 'commit',
-    value: function commit() {
-      var fields = this.$schema.fields;
-
-
-      for (var name in fields) {
-        this['$' + name].commit();
-      }
-
-      return this;
-    }
-
+    Document.prototype.commit = function () {
+        var fields = this.$schema.fields;
+        for (var name in fields) {
+            this["$" + name].commit();
+        }
+        return this;
+    };
     /*
     * Sets each document field to its initial value (value before last commit).
     */
-
-  }, {
-    key: 'rollback',
-    value: function rollback() {
-      var fields = this.$schema.fields;
-
-
-      for (var name in fields) {
-        this['$' + name].rollback();
-      }
-
-      return this;
-    }
-
+    Document.prototype.rollback = function () {
+        var fields = this.$schema.fields;
+        for (var name in fields) {
+            this["$" + name].rollback();
+        }
+        return this;
+    };
     /*
     * Returns `true` when the `value` represents an object with the
     * same field values as the original document.
     */
-
-  }, {
-    key: 'equals',
-    value: function equals(value) {
-      return (0, _utils.isEqual)((0, _utils.serialize)(this), (0, _utils.serialize)(value));
-    }
-
+    Document.prototype.equals = function (value) {
+        return utils_1.isEqual(utils_1.serialize(this), utils_1.serialize(value));
+    };
     /*
     * Returns a new Document instance which is the exact copy of the original.
     */
-
-  }, {
-    key: 'clone',
-    value: function clone() {
-      return this._createDocument(this, this.$schema, this.$parent);
-    }
-
+    Document.prototype.clone = function () {
+        return this._createDocument(this, this.$schema, this.$parent);
+    };
     /*
     * Returns a `true` if at least one field has been changed.
     */
-
-  }, {
-    key: 'isChanged',
-    value: function isChanged() {
-      var _this3 = this;
-
-      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
-        return _this3['$' + name].isChanged();
-      });
-    }
-
+    Document.prototype.isChanged = function () {
+        var _this = this;
+        return Object.keys(this.$schema.fields).some(function (name) {
+            return _this["$" + name].isChanged();
+        });
+    };
     /*
     * Validates fields and returns errors.
     */
-
-  }, {
-    key: 'validate',
-    value: function validate() {
-      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
-          _ref$quiet = _ref.quiet,
-          quiet = _ref$quiet === undefined ? false : _ref$quiet;
-
-      var fields, _path, paths;
-
-      return _regenerator2.default.async(function validate$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              fields = this.$schema.fields;
-              _context.t0 = _regenerator2.default.keys(fields);
-
-            case 2:
-              if ((_context.t1 = _context.t0()).done) {
-                _context.next = 8;
-                break;
-              }
-
-              _path = _context.t1.value;
-              _context.next = 6;
-              return _regenerator2.default.awrap(this['$' + _path].validate());
-
-            case 6:
-              _context.next = 2;
-              break;
-
-            case 8:
-              paths = this.collectErrors().map(function (e) {
-                return e.path;
-              });
-
-              if (!(!quiet && paths.length > 0)) {
-                _context.next = 11;
-                break;
-              }
-
-              throw this._createValidationError(paths);
-
-            case 11:
-              return _context.abrupt('return', this);
-
-            case 12:
-            case 'end':
-              return _context.stop();
-          }
+    Document.prototype.validate = function (_a) {
+        var _b = (_a === void 0 ? {} : _a).quiet, quiet = _b === void 0 ? false : _b;
+        return __awaiter(this, void 0, void 0, function () {
+            var fields, _a, _b, _i, path, paths;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        fields = this.$schema.fields;
+                        _a = [];
+                        for (_b in fields)
+                            _a.push(_b);
+                        _i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < _a.length))
+                            return [3 /*break*/, 4];
+                        path = _a[_i];
+                        return [4 /*yield*/, this["$" + path].validate()];
+                    case 2:
+                        _c.sent();
+                        _c.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 4:
+                        paths = this.collectErrors().map(function (e) { return e.path; });
+                        if (!quiet && paths.length > 0) {
+                            throw this._createValidationError(paths);
+                        }
+                        return [2 /*return*/, this];
+                }
+            });
+        });
+    };
+    /*
+    * Validates fields and returns errors.
+    */
+    Document.prototype.invalidate = function () {
+        var fields = this.$schema.fields;
+        for (var path in fields) {
+            this["$" + path].invalidate();
         }
-      }, null, this);
-    }
-
-    /*
-    * Validates fields and returns errors.
-    */
-
-  }, {
-    key: 'invalidate',
-    value: function invalidate() {
-      var fields = this.$schema.fields;
-
-
-      for (var _path2 in fields) {
-        this['$' + _path2].invalidate();
-      }
-
-      return this;
-    }
-
+        return this;
+    };
     /*
     * Returns `true` when all document fields are valid (inverse of `hasErrors`).
     */
-
-  }, {
-    key: 'isValid',
-    value: function isValid() {
-      return !this.hasErrors();
-    }
-
+    Document.prototype.isValid = function () {
+        return !this.hasErrors();
+    };
     /*
     * Returns `true` if nested fields exist.
     */
-
-  }, {
-    key: 'isNested',
-    value: function isNested() {
-      var _this4 = this;
-
-      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
-        return _this4['$' + name].isNested();
-      });
-    }
-
+    Document.prototype.isNested = function () {
+        var _this = this;
+        return Object.keys(this.$schema.fields).some(function (name) {
+            return _this["$" + name].isNested();
+        });
+    };
     /*
     * Returns `true` when errors exist (inverse of `isValid`).
     */
-
-  }, {
-    key: 'hasErrors',
-    value: function hasErrors() {
-      var _this5 = this;
-
-      return (0, _keys2.default)(this.$schema.fields).some(function (name) {
-        return _this5['$' + name].hasErrors();
-      });
-    }
-
+    Document.prototype.hasErrors = function () {
+        var _this = this;
+        return Object.keys(this.$schema.fields).some(function (name) {
+            return _this["$" + name].hasErrors();
+        });
+    };
     /*
     * Returns a list of all field-related errors, including those deeply nested.
     */
-
-  }, {
-    key: 'collectErrors',
-    value: function collectErrors() {
-      return this.flatten().map(function (_ref2) {
-        var path = _ref2.path,
-            field = _ref2.field;
-
-        return { path: path, errors: field.errors };
-      }).filter(function (_ref3) {
-        var path = _ref3.path,
-            errors = _ref3.errors;
-
-        return errors.length > 0;
-      });
-    }
-
+    Document.prototype.collectErrors = function () {
+        return this.flatten().map(function (_a) {
+            var path = _a.path, field = _a.field;
+            return { path: path, errors: field.errors };
+        }).filter(function (_a) {
+            var path = _a.path, errors = _a.errors;
+            return errors.length > 0;
+        });
+    };
     /*
     * Deeply populates fields with the provided `errors`.
     */
-
-  }, {
-    key: 'applyErrors',
-    value: function applyErrors() {
-      var errors = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
-
-      try {
-        for (var _iterator = (0, _getIterator3.default)(errors), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var error = _step.value;
-
-          var _path3 = error.path.concat();
-          _path3[_path3.length - 1] = '$' + _path3[_path3.length - 1];
-
-          var field = this.getPath(_path3);
-          if (field) {
-            field.errors = error.errors;
-          }
+    Document.prototype.applyErrors = function (errors) {
+        if (errors === void 0) { errors = []; }
+        for (var _i = 0, errors_1 = errors; _i < errors_1.length; _i++) {
+            var error = errors_1[_i];
+            var path = error.path.concat();
+            path[path.length - 1] = "$" + path[path.length - 1];
+            var field = this.getPath(path);
+            if (field) {
+                field.errors = error.errors;
+            }
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
-        }
-      }
-
-      return this;
-    }
-  }]);
-  return Document;
-}();
+        return this;
+    };
+    return Document;
+}());
+exports.Document = Document;

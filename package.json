@@ -1,8 +1,9 @@
 {
   "name": "objectschema",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "description": "Advanced schema enforced JavaScript objects.",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "ava": {
     "files": [
       "./tests/*.js",
@@ -13,11 +14,9 @@
   },
   "scripts": {
     "clean": "rm -Rf ./dist",
-    "prebuild": "npm run clean; mkdir -p ./dist",
-    "build": "babel ./src --out-dir ./dist --copy-files",
+    "build": "npm run clean; tsc",
     "prepublish": "npm run build",
-    "pretest": "npm run build",
-    "test": "ava",
+    "test": "npm run build && ava",
     "example": "node ./example"
   },
   "repository": {
@@ -44,15 +43,9 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "^0.17.0",
-    "babel-cli": "^6.18.0",
-    "babel-plugin-syntax-async-functions": "^6.13.0",
-    "babel-plugin-transform-object-assign": "^6.8.0",
-    "babel-plugin-transform-regenerator": "^6.21.0",
-    "babel-plugin-transform-runtime": "^6.15.0",
-    "babel-preset-es2015": "^6.18.0"
+    "typescript": "^2.1.4"
   },
   "dependencies": {
-    "babel-runtime": "^6.20.0",
     "lodash.isequal": "^4.4.0",
     "lodash.merge": "^4.6.0",
     "typeable": "^0.21.0",

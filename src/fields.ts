@@ -1,33 +1,66 @@
 import {cast, isArray, toArray, isFunction} from 'typeable';
-import {serialize, isEqual} from './utils';
+import {serialize, isEqual, merge} from './utils';
 import {Schema} from './schemas';
+import {Document} from './documents';
 
 /*
 * Document field class.
 */
 
 export class Field {
+  private _value: any;
+  private _initialValue: any;
+  $owner: Document;
+  name: string;
+  value: any;
+  defaultValue: any;
+  initialValue: any;
+  fakeValue: any;
+  errors: any[];
 
   /*
   * Class constructor.
   */
 
-  constructor (owner, name) {
+  constructor (owner: Document, name) {
     Object.defineProperty(this, '$owner', { // reference to the Document instance which owns the field
       value: owner
     });
-    Object.defineProperty(this, 'name', { // the name that a field has on the document
+
+    Object.defineProperty(this, 'name', { // field name
       value: name,
     });
+
+    Object.defineProperty(this, 'defaultValue', { // default field value
+      get: () => this._getDefaultValue(),
+      enumerable: true
+    });
+
     Object.defineProperty(this, '_value', { // current field value
       value: this.defaultValue,
       writable: true
     });
+    Object.defineProperty(this, 'value', {
+      get: () => this._getValue(),
+      set: (v) => this._setValue(v),
+      enumerable: true
+    });
+
     Object.defineProperty(this, '_initialValue', { // last committed field value
       value: this._value,
       writable: true
     });
-    Object.defineProperty(this, '_errors', { // last action errors
+    Object.defineProperty(this, 'initialValue', {
+      get: () => this._initialValue,
+      enumerable: true
+    });
+
+    Object.defineProperty(this, 'fakeValue', {
+      get: () => this._getFakeValue(),
+      enumerable: true
+    });
+
+    Object.defineProperty(this, 'errors', { // last action errors
       value: [],
       writable: true
     });
@@ -37,7 +70,7 @@ export class Field {
   * Return field value.
   */
 
-  get value () {
+  _getValue () {
     let {get} = this.$owner.$schema.fields[this.name];
 
     let value = this._value;
@@ -51,7 +84,7 @@ export class Field {
   * Sets field value.
   */
 
-  set value (value) {
+  _setValue (value) {
     let {set, type} = this.$owner.$schema.fields[this.name];
 
     value = this._cast(value, type); // value type casting
@@ -67,7 +100,7 @@ export class Field {
   * Returns the default value of a field.
   */
 
-  get defaultValue () {
+  _getDefaultValue () {
     let {type, set, defaultValue} = this.$owner.$schema.fields[this.name];
 
     let value = isFunction(defaultValue)
@@ -86,7 +119,7 @@ export class Field {
   * Returns a fake value of a field.
   */
 
-  get fakeValue () {
+  _getFakeValue () {
     let {type, set, fakeValue} = this.$owner.$schema.fields[this.name];
 
     let value = isFunction(fakeValue)
@@ -102,35 +135,11 @@ export class Field {
   }
 
   /*
-  * Returns the value of a field of the last commit.
-  */
-
-  get initialValue () {
-    return this._initialValue;
-  }
-
-  /*
-  * Returns the last error of the field.
-  */
-
-  get errors () {
-    return this._errors;
-  }
-
-  /*
-  * Returns the last error of the field.
-  */
-
-  set errors (errors) {
-    this._errors = errors;
-  }
-
-  /*
   * Converts the `value` into specified `type`.
   */
 
   _cast (value, type) {
-    let types = Object.assign({}, this.$owner.$schema.types, {
+    let types = merge(this.$owner.$schema.types, {
       Schema: (value) => {
         if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
 
@@ -145,7 +154,7 @@ export class Field {
   * Sets field to the default value.
   */
 
-  reset () {
+  reset (): this {
     this.value = this.defaultValue;
 
     return this;
@@ -155,7 +164,7 @@ export class Field {
   * Sets field to a generated fake value.
   */
 
-  fake () {
+  fake (): this {
     this.value = this.fakeValue || this.defaultValue;
 
     return this;
@@ -165,7 +174,7 @@ export class Field {
   * Removes field's value by setting it to null.
   */
 
-  clear () {
+  clear (): this {
     this.value = null;
 
     return this;
@@ -175,7 +184,7 @@ export class Field {
   * Deeply set's the initial values to the current value of each field.
   */
 
-  commit () {
+  commit (): this {
     this._commitRelated(this.value);
     this._initialValue = serialize(this.value);
 
@@ -200,7 +209,7 @@ export class Field {
   * Sets field's value before last commit.
   */
 
-  rollback () {
+  rollback (): this {
     this.value = this.initialValue;
 
     return this;
@@ -210,7 +219,7 @@ export class Field {
   * Returns `true` when the `data` equals to the current value.
   */
 
-  equals (data) {
+  equals (data): boolean {
     return isEqual(
       serialize(this.value),
       serialize(data)
@@ -221,7 +230,7 @@ export class Field {
   * Returns `true` if the field or related sub-fields have been changed.
   */
 
-  isChanged () {
+  isChanged (): boolean {
     return !this.equals(this.initialValue);
   }
 
@@ -229,7 +238,7 @@ export class Field {
   * Returns `true` if the field is a Document field.
   */
 
-  isNested () {
+  isNested (): boolean {
     let {type} = this.$owner.$schema.fields[this.name];
     if (isArray(type)) type = type[0];
 
@@ -240,13 +249,13 @@ export class Field {
   }
 
   /*
-  * Validates the field by populating the `_errors` property.
+  * Validates the field by populating the `errors` property.
   *
   * IMPORTANT: Array null values for nested objects are not treated as an object
   * but as an empty item thus isValid() for [null] succeeds.
   */
 
-  async validate () {
+  async validate (): Promise<this> {
     let relatives = toArray(this.value) || []; // validate related documents
     for (let relative of relatives) {
       let isDocument = relative instanceof this.$owner.constructor;
@@ -256,7 +265,7 @@ export class Field {
       }
     }
 
-    this._errors = await this.$owner.$validator.validate( // validate this field
+    this.errors = await this.$owner.$validator.validate( // validate this field
       this.value,
       this.$owner.$schema.fields[this.name].validate
     );
@@ -265,10 +274,10 @@ export class Field {
   }
 
   /*
-  * Validates the field by clearing the `_errors` property
+  * Validates the field by clearing the `errors` property
   */
 
-  invalidate () {
+  invalidate (): this {
     let relatives = toArray(this.value) || []; // validate related documents
     for (let relative of relatives) {
       let isDocument = relative instanceof this.$owner.constructor;
@@ -278,7 +287,7 @@ export class Field {
       }
     }
 
-    this._errors = [];
+    this.errors = [];
 
     return this;
   }
@@ -287,7 +296,7 @@ export class Field {
   * Returns `true` when the value is valid (inverse of `hasErrors`).
   */
 
-  isValid () {
+  isValid (): boolean {
     return !this.hasErrors();
   }
 
@@ -295,7 +304,7 @@ export class Field {
   * Returns `true` when errors exist (inverse of `isValid`).
   */
 
-  hasErrors () {
+  hasErrors (): boolean {
     if (this.errors.length > 0) {
       return true;
     }

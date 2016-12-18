@@ -35,6 +35,8 @@ Run the command below to install the package.
 $ npm install --save objectschema
 ```
 
+This package uses promises thus you need to use [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) when promises are not supported.
+
 ## Example
 
 ```js

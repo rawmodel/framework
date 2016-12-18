@@ -1,0 +1,31 @@
+import { Document } from './documents';
+export declare class Field {
+    private _value;
+    private _initialValue;
+    $owner: Document;
+    name: string;
+    value: any;
+    defaultValue: any;
+    initialValue: any;
+    fakeValue: any;
+    errors: any[];
+    constructor(owner: Document, name: any);
+    _getValue(): any;
+    _setValue(value: any): void;
+    _getDefaultValue(): any;
+    _getFakeValue(): any;
+    _cast(value: any, type: any): any;
+    reset(): this;
+    fake(): this;
+    clear(): this;
+    commit(): this;
+    _commitRelated(data: any): void;
+    rollback(): this;
+    equals(data: any): boolean;
+    isChanged(): boolean;
+    isNested(): boolean;
+    validate(): Promise<this>;
+    invalidate(): this;
+    isValid(): boolean;
+    hasErrors(): boolean;
+}

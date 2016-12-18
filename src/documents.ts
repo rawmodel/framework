@@ -2,31 +2,49 @@ import {isPresent, isObject, isArray} from 'typeable';
 import {Validator} from 'validatable';
 import {Schema} from './schemas';
 import {Field} from './fields';
-import {serialize, isEqual} from './utils';
+import {serialize, isEqual, merge} from './utils';
+
+/*
+* Flattened field reference type definition.
+*/
+
+export interface FieldRef {
+  path: string[];
+  field: Field;
+}
+
+/*
+* Field error type definition.
+*/
+
+export interface FieldError extends Error {
+  path: string[];
+  errors: any[];
+}
 
 /*
 * The core schema-based object class.
 */
 
 export class Document {
+  $schema: Schema;
+  $parent: Document;
+  $root: Document;
+  $validator: Validator;
 
   /*
   * Class constructor.
   */
 
-  constructor (data, schema, parent = null) {
+  constructor (data, schema: Schema, parent?: Document) {
     Object.defineProperty(this, '$schema', { // schema instance
       value: schema
     });
     Object.defineProperty(this, '$parent', { // parent document instance
-      value: parent
+      value: parent || null
     });
     Object.defineProperty(this, '$root', { // root document instance
       get: () => this._getRootDocument()
-    });
-    Object.defineProperty(this, '$error', { // last document error instance
-      value: null,
-      writable: true
     });
     Object.defineProperty(this, '$validator', { // validatable.js instance
       value: this._createValidator()
@@ -41,7 +59,7 @@ export class Document {
   */
 
   _getRootDocument () {
-    let root = this;
+    let root: any = this;
     do {
       if (root.$parent) {
         root = root.$parent;
@@ -58,7 +76,7 @@ export class Document {
   */
 
   _createDocument (data = null, schema = null, parent = null) {
-    return new this.constructor(data, schema, parent);
+    return new (this.constructor as any)(data, schema, parent);
   }
 
   /*
@@ -76,7 +94,7 @@ export class Document {
 
   _createValidator () {
     return new Validator(
-      Object.assign({}, {
+      merge({}, {
         validators: this.$schema.validators,
         firstErrorOnly: this.$schema.firstErrorOnly,
         context: this
@@ -89,7 +107,7 @@ export class Document {
   */
 
   _createValidationError (paths) {
-    let error = new Error('Validation failed');
+    let error: any = new Error('Validation failed');
     error.code = 422;
     error.paths = paths;
 
@@ -131,7 +149,7 @@ export class Document {
   * Returns a value at path.
   */
 
-  getPath (...keys) {
+  getPath (...keys): Field {
     if (isArray(keys[0])) {
       keys = keys[0];
     }
@@ -143,7 +161,7 @@ export class Document {
   * Returns `true` if field at path exists.
   */
 
-  hasPath (...keys) {
+  hasPath (...keys): boolean {
     return this.getPath(...keys) !== undefined;
   }
 
@@ -151,7 +169,7 @@ export class Document {
   * Scrolls through all set fields and returns an array of results.
   */
 
-  flatten (prefix = []) {
+  flatten (prefix: string[] = []): FieldRef[] {
     let fields = [];
 
     for (let name in this.$schema.fields) {
@@ -186,7 +204,7 @@ export class Document {
   * Sets field values from the provided by data object.
   */
 
-  populate (data={}) {
+  populate (data = {}): this {
     return this._populateFields(data);
   }
 
@@ -194,7 +212,7 @@ export class Document {
   * Sets field values from the provided by data object.
   */
 
-  _populateFields (data={}) {
+  _populateFields (data = {}) {
     data = serialize(data);
 
     for (let name in data) {
@@ -226,7 +244,7 @@ export class Document {
   * Converts this class into serialized data object.
   */
 
-  serialize () {
+  serialize (): {} {
     return serialize(this);
   }
 
@@ -235,11 +253,11 @@ export class Document {
   * pass the `test`.
   */
 
-  filter (test) {
+  filter (test: (field: FieldRef) => boolean): {} {
     let data = serialize(this);
 
     this.flatten()
-    .sort((a, b) => a.path.length < b.path.length)
+    .sort((a, b) => b.path.length - a.path.length)
     .filter((field) => !test(field))
     .forEach((field) => {
       let names = field.path.concat();
@@ -254,7 +272,7 @@ export class Document {
   * Scrolls through object fields and collects results.
   */
 
-  collect (handler) {
+  collect (handler: (field: FieldRef) => FieldRef): FieldRef[] {
     return this.flatten().map(handler);
   }
 
@@ -262,7 +280,7 @@ export class Document {
   * Scrolls through document fields and executes a handler on each field.
   */
 
-  scroll (handler) {
+  scroll (handler: (field: FieldRef) => void): number {
     return this.flatten().map(handler).length;
   }
 
@@ -270,7 +288,7 @@ export class Document {
   * Sets each document field to its default value.
   */
 
-  reset () {
+  reset (): this {
     let {fields} = this.$schema;
 
     for (let name in fields) {
@@ -285,7 +303,7 @@ export class Document {
   * is registered, otherwise the default value is used.
   */
 
-  fake () {
+  fake (): this {
     let {fields} = this.$schema;
 
     for (let name in fields) {
@@ -299,7 +317,7 @@ export class Document {
   * Removes all fileds values by setting them to `null`.
   */
 
-  clear () {
+  clear (): this {
     let {fields} = this.$schema;
 
     for (let name in fields) {
@@ -313,7 +331,7 @@ export class Document {
   * Sets initial value of each document field to the current value of a field.
   */
 
-  commit () {
+  commit (): this {
     let {fields} = this.$schema;
 
     for (let name in fields) {
@@ -327,7 +345,7 @@ export class Document {
   * Sets each document field to its initial value (value before last commit).
   */
 
-  rollback () {
+  rollback (): this {
     let {fields} = this.$schema;
 
     for (let name in fields) {
@@ -342,7 +360,7 @@ export class Document {
   * same field values as the original document.
   */
 
-  equals (value) {
+  equals (value: any): boolean {
     return isEqual(
       serialize(this),
       serialize(value)
@@ -353,7 +371,7 @@ export class Document {
   * Returns a new Document instance which is the exact copy of the original.
   */
 
-  clone () {
+  clone (): this {
     return this._createDocument(this, this.$schema, this.$parent);
   }
 
@@ -361,7 +379,7 @@ export class Document {
   * Returns a `true` if at least one field has been changed.
   */
 
-  isChanged () {
+  isChanged (): boolean {
     return Object.keys(this.$schema.fields).some((name) => {
       return this[`$${name}`].isChanged();
     });
@@ -371,7 +389,7 @@ export class Document {
   * Validates fields and returns errors.
   */
 
-  async validate ({quiet = false} = {}) {
+  async validate ({quiet = false}: {quiet?: boolean} = {}): Promise<this> {
     let {fields} = this.$schema;
 
     for (let path in fields) {
@@ -390,7 +408,7 @@ export class Document {
   * Validates fields and returns errors.
   */
 
-  invalidate () {
+  invalidate (): this {
     let {fields} = this.$schema;
 
     for (let path in fields) {
@@ -404,7 +422,7 @@ export class Document {
   * Returns `true` when all document fields are valid (inverse of `hasErrors`).
   */
 
-  isValid () {
+  isValid (): boolean {
     return !this.hasErrors();
   }
 
@@ -412,7 +430,7 @@ export class Document {
   * Returns `true` if nested fields exist.
   */
 
-  isNested () {
+  isNested (): boolean {
     return Object.keys(this.$schema.fields).some((name) => {
       return this[`$${name}`].isNested();
     });
@@ -422,7 +440,7 @@ export class Document {
   * Returns `true` when errors exist (inverse of `isValid`).
   */
 
-  hasErrors () {
+  hasErrors (): boolean {
     return Object.keys(this.$schema.fields).some((name) => {
       return this[`$${name}`].hasErrors();
     });
@@ -432,9 +450,9 @@ export class Document {
   * Returns a list of all field-related errors, including those deeply nested.
   */
 
-  collectErrors () {
+  collectErrors (): FieldError[] {
     return this.flatten().map(({path, field}) => {
-      return {path, errors: field.errors};
+      return {path, errors: field.errors} as FieldError;
     }).filter(({path, errors}) => {
       return errors.length > 0;
     });
@@ -444,7 +462,7 @@ export class Document {
   * Deeply populates fields with the provided `errors`.
   */
 
-  applyErrors (errors = []) {
+  applyErrors (errors: FieldError[] = []): this {
     for (let error of errors) {
       let path = error.path.concat();
       path[path.length - 1] = `$${path[path.length - 1]}`;

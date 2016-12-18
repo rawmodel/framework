@@ -6,6 +6,11 @@ import {retrieve, merge} from './utils';
 */
 
 export class Schema {
+  fields: {};
+  strict: boolean;
+  validators: {};
+  types: {};
+  firstErrorOnly?: boolean;
 
   /*
   * Class constructor.
@@ -18,6 +23,13 @@ export class Schema {
     validators = {},
     types = {},
     firstErrorOnly
+  }: {
+    mixins?: Schema[],
+    fields?: {},
+    strict?: boolean,
+    validators?: {},
+    types?: {},
+    firstErrorOnly?: boolean
   } = {}) {
 
     Object.defineProperty(this, 'fields', { // document fields
