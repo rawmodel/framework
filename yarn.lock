@@ -2644,7 +2644,7 @@ typeable@^0.21.0:
   dependencies:
     lodash.merge "4.6.0"
 
-typescript@2.1.4:
+typescript@^2.1.4:
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.1.4.tgz#b53b69fb841126acb1dd4b397d21daba87572251"
 
