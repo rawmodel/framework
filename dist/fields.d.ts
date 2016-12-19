@@ -9,7 +9,7 @@ export declare class Field {
     initialValue: any;
     fakeValue: any;
     errors: any[];
-    constructor(owner: Document, name: any);
+    constructor(owner: Document, name: string);
     _getValue(): any;
     _setValue(value: any): void;
     _getDefaultValue(): any;

@@ -38,7 +38,7 @@ export class Document {
 
   constructor (data, schema: Schema, parent?: Document) {
     Object.defineProperty(this, '$schema', { // schema instance
-      value: schema
+      value: schema || this.$schema
     });
     Object.defineProperty(this, '$parent', { // parent document instance
       value: parent || null

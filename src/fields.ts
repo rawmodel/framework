@@ -22,7 +22,7 @@ export class Field {
   * Class constructor.
   */
 
-  constructor (owner: Document, name) {
+  constructor (owner: Document, name: string) {
     Object.defineProperty(this, '$owner', { // reference to the Document instance which owns the field
       value: owner
     });

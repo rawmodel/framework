@@ -49,7 +49,7 @@ var Document = (function () {
     function Document(data, schema, parent) {
         var _this = this;
         Object.defineProperty(this, '$schema', {
-            value: schema
+            value: schema || this.$schema
         });
         Object.defineProperty(this, '$parent', {
             value: parent || null
