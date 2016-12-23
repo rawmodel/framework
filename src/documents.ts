@@ -58,7 +58,7 @@ export class Document {
   * Loops up on the tree and returns the first document in the tree.
   */
 
-  _getRootDocument () {
+  protected _getRootDocument () {
     let root: Document = this;
     do {
       if (root.parent) {
@@ -71,13 +71,22 @@ export class Document {
   }
 
   /*
+  * Creates a new field instance. This method is especially useful when
+  * extending this class.
+  */
+
+  protected _createField (recipe?: FieldRecipe) {
+    return new Field(recipe, {
+      owner: this
+    });
+  }
+
+  /*
   * Defines a new field property.
   */
 
-  defineField (name: string, recipe?: FieldRecipe) {
-    let field = new Field(recipe, {
-      owner: this
-    });
+  public defineField (name: string, recipe?: FieldRecipe) {
+    let field = this._createField(recipe);
 
     Object.defineProperty(this, name, {
       get: () => field.value,
@@ -93,7 +102,7 @@ export class Document {
   * Returns a value at path.
   */
 
-  getPath (...keys): Field {
+  public getPath (...keys): Field {
     keys = [].concat(isArray(keys[0]) ? keys[0] : keys);
     
     let lastKey = keys.pop();
@@ -109,7 +118,7 @@ export class Document {
   * Returns `true` if the field exists.
   */
 
-  hasPath (...keys): boolean {
+  public hasPath (...keys): boolean {
     return !isUndefined(this.getPath(...keys));
   }
 
@@ -117,7 +126,7 @@ export class Document {
   * Deeply applies data to the fields.
   */
 
-  populate (data = {}): this {
+  public populate (data = {}): this {
     data = serialize(data);
 
     Object.keys(data).forEach((name) => {
@@ -133,7 +142,7 @@ export class Document {
   * Converts this class into serialized data object.
   */
 
-  serialize (): {} {
+  public serialize (): {} {
     return serialize(this);
   }
 
@@ -141,7 +150,7 @@ export class Document {
   * Scrolls through the document and returns an array of fields.
   */
 
-  flatten (prefix: string[] = []): FieldRef[] {
+  public flatten (prefix: string[] = []): FieldRef[] {
     let fields = [];
 
     Object.keys(this._fields).forEach((name) => {
@@ -176,7 +185,7 @@ export class Document {
   * Scrolls through object fields and collects results.
   */
 
-  collect (handler: (field: FieldRef) => any): any[] {
+  public collect (handler: (field: FieldRef) => any): any[] {
     return this.flatten().map(handler);
   }
 
@@ -184,7 +193,7 @@ export class Document {
   * Scrolls through document fields and executes a handler on each field.
   */
 
-  scroll (handler: (field: FieldRef) => void): number {
+  public scroll (handler: (field: FieldRef) => void): number {
     return this.flatten().map(handler).length;
   }
 
@@ -193,7 +202,7 @@ export class Document {
   * pass the provided `test`.
   */
 
-  filter (test: (field: FieldRef) => boolean): {} {
+  public filter (test: (field: FieldRef) => boolean): {} {
     let data = serialize(this);
 
     this.flatten()
@@ -217,13 +226,6 @@ export class Document {
 
 
 
-// import {isPresent, isObject, isArray} from 'typeable';
-// import {Validator} from 'validatable';
-// import {Schema} from './schemas';
-// import {Field} from './fields';
-// import {serialize, isEqual, merge} from './utils';
-//
-//
 // /*
 // * Field error type definition.
 // */
@@ -272,14 +274,6 @@ export class Document {
 //     return new (this.constructor as any)(data, schema, parent);
 //   }
 //
-//   /*
-//   * Creates a new field instance. This method is especially useful when
-//   * extending this class.
-//   */
-//
-//   _createField (name) {
-//     return new Field(this, name);
-//   }
 //
 //
 //   /*
@@ -293,42 +287,6 @@ export class Document {
 //
 //     return error;
 //   }
-//
-//   /*
-//   * Defines class fields from schema.
-//   */
-//
-//   _defineFields () {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this._defineField(name);
-//     }
-//   }
-//
-//   /*
-//   * Defines a schema field by name.
-//   */
-//
-//   _defineField (name) {
-//     let field = this._createField(name);
-//
-//     Object.defineProperty(this, name, { // field definition
-//       get: () => field.value,
-//       set: (v) => field.value = v,
-//       enumerable: true,
-//       configurable: true
-//     });
-//
-//     Object.defineProperty(this, `$${name}`, { // field class instance definition
-//       value: field
-//     });
-//   }
-//
-//
-//
-//
-//
 //
 //   /*
 //   * Sets each document field to its default value.

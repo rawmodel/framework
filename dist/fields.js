@@ -64,8 +64,8 @@ class Field {
         });
     }
     /*
-      * Returns a new instance of validator.
-      */
+    * Returns a new instance of validator.
+    */
     _createValidator() {
         let { validators, firstErrorOnly } = this.options;
         let context = this;

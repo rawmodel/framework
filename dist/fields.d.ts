@@ -38,12 +38,12 @@ export declare class Field {
     value: any;
     errors: FieldError[];
     constructor(recipe?: FieldRecipe, options?: FieldOptions);
-    _createValidator(): Validator;
-    _getValue(): any;
-    _setValue(data: any): void;
-    _cast(data: any, type: any): any;
-    _getDefaultValue(): any;
-    _getFakeValue(): any;
+    protected _createValidator(): Validator;
+    protected _getValue(): any;
+    protected _setValue(data: any): void;
+    protected _cast(data: any, type: any): any;
+    protected _getDefaultValue(): any;
+    protected _getFakeValue(): any;
     reset(): this;
     fake(): this;
     clear(): this;

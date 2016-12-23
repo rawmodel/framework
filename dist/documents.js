@@ -42,12 +42,19 @@ class Document {
         } while (true);
     }
     /*
+    * Creates a new field instance. This method is especially useful when
+    * extending this class.
+    */
+    _createField(recipe) {
+        return new fields_1.Field(recipe, {
+            owner: this
+        });
+    }
+    /*
     * Defines a new field property.
     */
     defineField(name, recipe) {
-        let field = new fields_1.Field(recipe, {
-            owner: this
-        });
+        let field = this._createField(recipe);
         Object.defineProperty(this, name, {
             get: () => field.value,
             set: (v) => field.value = v,
@@ -147,13 +154,6 @@ class Document {
     }
 }
 exports.Document = Document;
-// import {isPresent, isObject, isArray} from 'typeable';
-// import {Validator} from 'validatable';
-// import {Schema} from './schemas';
-// import {Field} from './fields';
-// import {serialize, isEqual, merge} from './utils';
-//
-//
 // /*
 // * Field error type definition.
 // */
@@ -202,14 +202,6 @@ exports.Document = Document;
 //     return new (this.constructor as any)(data, schema, parent);
 //   }
 //
-//   /*
-//   * Creates a new field instance. This method is especially useful when
-//   * extending this class.
-//   */
-//
-//   _createField (name) {
-//     return new Field(this, name);
-//   }
 //
 //
 //   /*
@@ -223,42 +215,6 @@ exports.Document = Document;
 //
 //     return error;
 //   }
-//
-//   /*
-//   * Defines class fields from schema.
-//   */
-//
-//   _defineFields () {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this._defineField(name);
-//     }
-//   }
-//
-//   /*
-//   * Defines a schema field by name.
-//   */
-//
-//   _defineField (name) {
-//     let field = this._createField(name);
-//
-//     Object.defineProperty(this, name, { // field definition
-//       get: () => field.value,
-//       set: (v) => field.value = v,
-//       enumerable: true,
-//       configurable: true
-//     });
-//
-//     Object.defineProperty(this, `$${name}`, { // field class instance definition
-//       value: field
-//     });
-//   }
-//
-//
-//
-//
-//
 //
 //   /*
 //   * Sets each document field to its default value.

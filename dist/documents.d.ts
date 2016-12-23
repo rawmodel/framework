@@ -13,7 +13,8 @@ export declare class Document {
     readonly options: DocumentOptions;
     readonly parent: Document;
     constructor(data?: any, options?: DocumentOptions);
-    _getRootDocument(): Document;
+    protected _getRootDocument(): Document;
+    protected _createField(recipe?: FieldRecipe): Field;
     defineField(name: string, recipe?: FieldRecipe): void;
     getPath(...keys: any[]): Field;
     hasPath(...keys: any[]): boolean;

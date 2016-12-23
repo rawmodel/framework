@@ -117,11 +117,11 @@ export class Field {
     });
   }
 
-/*
+  /*
   * Returns a new instance of validator.
   */
 
-  _createValidator () {
+  protected _createValidator () {
     let {validators, firstErrorOnly} = this.options;
     let context = this;
 
@@ -132,7 +132,7 @@ export class Field {
   * Returns current field value.
   */
 
-  _getValue () {
+  protected _getValue () {
     let data = this._data;
     if (isFunction(data)) {
       data = data.call(this);
@@ -150,7 +150,7 @@ export class Field {
   * Sets current field value.
   */
 
-  _setValue (data) {
+  protected _setValue (data) {
     let {set} = this.recipe;
     if (isFunction(set)) {
       data = set.call(this, data);
@@ -165,7 +165,7 @@ export class Field {
   * Converts a `value` into specified `type`.
   */
 
-  _cast (data, type) {
+  protected _cast (data, type) {
     let converter = type;
 
     if (isPresent(data)) { // cast to Document
@@ -184,7 +184,7 @@ export class Field {
   * Returns the default value of a field.
   */
 
-  _getDefaultValue () {
+  protected _getDefaultValue () {
     let data = null;
     
     let {defaultValue} = this.recipe;
@@ -202,7 +202,7 @@ export class Field {
   * Returns the fake value of a field.
   */
 
-  _getFakeValue () {
+  protected _getFakeValue () {
     let data = null;
     
     let {fakeValue} = this.recipe;
@@ -220,7 +220,7 @@ export class Field {
   * Sets data to the default value.
   */
 
-  reset (): this {
+  public reset (): this {
     this.value = this._getDefaultValue.bind(this);
 
     return this;
@@ -230,7 +230,7 @@ export class Field {
   * Sets data to the fake value.
   */
 
-  fake (): this {
+  public fake (): this {
     this.value = this._getFakeValue.bind(this);
 
     return this;
@@ -240,7 +240,7 @@ export class Field {
   * Sets data to `null`.
   */
 
-  clear (): this {
+  public clear (): this {
     this.value = null;
 
     return this;
@@ -250,7 +250,7 @@ export class Field {
   * Set's the initial value to the current value.
   */
 
-  commit (): this {
+  public commit (): this {
     // this._commitRelated(this.value);
     this._initialData = serialize(this.value);
 
@@ -261,7 +261,7 @@ export class Field {
   * Sets value to the initial value.
   */
 
-  rollback (): this {
+  public rollback (): this {
     this.value = this.initialValue;
 
     return this;
@@ -271,7 +271,7 @@ export class Field {
   * Returns `true` when `data` equals to the current value.
   */
 
-  equals (data): boolean {
+  public equals (data): boolean {
     let value = data instanceof Field ? data.value : data;
 
     return isEqual(
@@ -284,7 +284,7 @@ export class Field {
   * Returns `true` if the value has been changed.
   */
 
-  isChanged (): boolean {
+  public isChanged (): boolean {
     return !this.equals(this.initialValue);
   }
 
@@ -292,7 +292,7 @@ export class Field {
   * Returns `true` if the data is a Document.
   */
 
-  isNested (): boolean {
+  public isNested (): boolean {
     let type = this.type;
     if (isArray(type)) type = type[0];
 
@@ -313,7 +313,7 @@ export class Field {
   * but as an empty item thus isValid() for [null] succeeds.
   */
 
-  async validate (): Promise<this> {
+  public async validate (): Promise<this> {
     // let relatives = toArray(this.value) || []; // validate related documents
     // for (let relative of relatives) {
     //   let isDocument = relative instanceof this.$owner.constructor;
@@ -335,7 +335,7 @@ export class Field {
   * Clears errors.
   */
 
-  invalidate (): this {
+  public invalidate (): this {
     // let relatives = toArray(this.value) || []; // validate related documents
     // for (let relative of relatives) {
     //   let isDocument = relative instanceof this.$owner.constructor;
@@ -354,7 +354,7 @@ export class Field {
   * Returns `true` when errors exist (inverse of `isValid`).
   */
 
-  hasErrors (): boolean {
+  public hasErrors (): boolean {
     if (this.errors.length > 0) {
       return true;
     }
@@ -370,7 +370,7 @@ export class Field {
   * Returns `true` when the value is valid (inverse of `hasErrors`).
   */
 
-  isValid (): boolean {
+  public isValid (): boolean {
     return !this.hasErrors();
   }
   
