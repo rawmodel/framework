@@ -101,13 +101,14 @@ class Field {
     */
     _cast(data, type) {
         let converter = type;
-        if (typeable_1.isPresent(data)) {
-            let Klass = (typeable_1.isArray(type) ? type[0] : type);
-            if (Klass && Klass.prototype instanceof documents_1.Document) {
-                let options = utils_1.merge({}, this.owner.options, { parent: this.owner });
-                let toDocument = (d) => new Klass(d, options);
-                converter = typeable_1.isArray(type) ? [toDocument] : toDocument;
-            }
+        if (!typeable_1.isValue(data)) {
+            return null;
+        }
+        let Klass = (typeable_1.isArray(type) ? type[0] : type);
+        if (Klass && Klass.prototype instanceof documents_1.Document) {
+            let options = utils_1.merge({}, this.owner.options, { parent: this.owner });
+            let toDocument = (d) => new Klass(d, options);
+            converter = typeable_1.isArray(type) ? [toDocument] : toDocument;
         }
         return typeable_1.cast(data, converter);
     }

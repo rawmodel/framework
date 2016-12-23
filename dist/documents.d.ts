@@ -24,4 +24,6 @@ export declare class Document {
     collect(handler: (field: FieldRef) => any): any[];
     scroll(handler: (field: FieldRef) => void): number;
     filter(test: (field: FieldRef) => boolean): {};
+    reset(): this;
+    clear(): this;
 }

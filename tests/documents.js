@@ -341,14 +341,89 @@ test('method `filter` converts a document into serialized object with only keys 
   });
 });
 
+test('method `reset` sets fields to their default values', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {defaultValue: 'foo'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {defaultValue: 'bar'});
+      this.defineField('book', {type: Book, defaultValue: {}});
+      this.defineField('books', {type: [Book], defaultValue: [null, {}]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'fake',
+    book: {
+      title: 'fake'
+    },
+    books: [
+      {
+        title: 'fake'
+      }
+    ]
+  });
+  user.reset();
+  t.deepEqual(user.serialize(), {
+    name: 'bar',
+    book: {
+      title: 'foo'
+    },
+    books: [
+      null,
+      {
+        title: 'foo'
+      }
+    ]
+  });
+});
 
-// test('method `reset` deeply set fields to their default values', (t) => {
+test('method `clear` sets fields to `null`', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {defaultValue: 'foo'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {defaultValue: 'bar'});
+      this.defineField('book', {type: Book, defaultValue: {}});
+      this.defineField('books', {type: [Book], defaultValue: [null, {}]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'fake',
+    book: {
+      title: 'fake'
+    },
+    books: [
+      {
+        title: 'fake'
+      }
+    ]
+  });
+  user.clear();
+  t.deepEqual(user.serialize(), {
+    name: null,
+    book: null,
+    books: null
+  });
+});
 
-// });
+
+
 
 // test('field can have a fake value', (t) => {
-// test('method `clear` should deeply clear fields', (t) => {
-// test('method `clear` should deeply clear fields', (t) => {
 // test('method `commit` should deeply reset information about changed fields.', (t) => {
 // test('method `rollback` should deeply reset fields to their initial values', (t) => {
 // test('method `isChanged` should return `true` if at least one field has been changed', (t) => {

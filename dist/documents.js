@@ -152,6 +152,24 @@ class Document {
         });
         return data;
     }
+    /*
+    * Sets each document field to its default value.
+    */
+    reset() {
+        Object.keys(this._fields).forEach((name) => {
+            this._fields[name].reset();
+        });
+        return this;
+    }
+    /*
+    * Sets all fileds to `null`.
+    */
+    clear() {
+        Object.keys(this._fields).forEach((name) => {
+            this._fields[name].clear();
+        });
+        return this;
+    }
 }
 exports.Document = Document;
 // /*
@@ -216,19 +234,6 @@ exports.Document = Document;
 //     return error;
 //   }
 //
-//   /*
-//   * Sets each document field to its default value.
-//   */
-//
-//   reset (): this {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this[`$${name}`].reset();
-//     }
-//
-//     return this;
-//   }
 //
 //   /*
 //   * Sets each document field to its fake value if a fake value generator
@@ -245,19 +250,6 @@ exports.Document = Document;
 //     return this;
 //   }
 //
-//   /*
-//   * Removes all fileds values by setting them to `null`.
-//   */
-//
-//   clear (): this {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this[`$${name}`].clear();
-//     }
-//
-//     return this;
-//   }
 //
 //   /*
 //   * Sets initial value of each document field to the current value of a field.

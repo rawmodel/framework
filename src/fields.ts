@@ -1,4 +1,4 @@
-import {isFunction, isUndefined, isPresent, isArray, cast} from 'typeable';
+import {isFunction, isUndefined, isPresent, isArray, isValue, cast} from 'typeable';
 import {serialize, isEqual, merge} from './utils';
 import {Validator, ValidatorRecipe} from 'validatable';
 import {Document} from './documents';
@@ -168,13 +168,15 @@ export class Field {
   protected _cast (data, type) {
     let converter = type;
 
-    if (isPresent(data)) { // cast to Document
-      let Klass = (isArray(type) ? type[0] : type);
-      if (Klass && Klass.prototype instanceof Document) {
-        let options = merge({}, this.owner.options, {parent: this.owner});
-        let toDocument = (d) => new Klass(d, options);
-        converter = isArray(type) ? [toDocument] : toDocument;
-      }
+    if (!isValue(data)) {
+      return null;
+    }
+
+    let Klass = (isArray(type) ? type[0] : type);
+    if (Klass && Klass.prototype instanceof Document) {
+      let options = merge({}, this.owner.options, {parent: this.owner});
+      let toDocument = (d) => new Klass(d, options);
+      converter = isArray(type) ? [toDocument] : toDocument;
     }
 
     return cast(data, converter);
