@@ -1,31 +1,55 @@
-import { Document } from './documents';
+import { Validator } from 'validatable';
+export interface FieldOptions {
+    validators?: {
+        [name: string]: () => boolean | Promise<boolean>;
+    };
+    firstErrorOnly?: boolean;
+}
+export interface ValidationRecipe {
+    validator: string;
+    message: string;
+    [key: string]: any;
+}
+export interface FieldRecipe {
+    type?: any;
+    get?: (v: any) => any;
+    set?: (v: any) => void;
+    defaultValue?: any;
+    fakeValue?: any;
+    validate?: ValidationRecipe[];
+}
+export interface FieldError {
+    message: string;
+    [key: string]: any;
+}
 export declare class Field {
-    private _value;
-    private _initialValue;
-    $owner: Document;
-    name: string;
+    protected _data: any;
+    protected _initialData: any;
+    protected _validator: Validator;
+    readonly recipe: FieldRecipe;
+    readonly options: FieldOptions;
+    readonly defaultValue: any;
+    readonly fakeValue: any;
+    readonly initialValue: any;
     value: any;
-    defaultValue: any;
-    initialValue: any;
-    fakeValue: any;
-    errors: any[];
-    constructor(owner: Document, name: string);
+    errors: FieldError[];
+    constructor(recipe?: FieldRecipe, options?: FieldOptions);
+    _createValidator(): Validator;
     _getValue(): any;
-    _setValue(value: any): void;
+    _setValue(data: any): void;
+    _cast(data: any, type: any): any;
     _getDefaultValue(): any;
     _getFakeValue(): any;
-    _cast(value: any, type: any): any;
     reset(): this;
     fake(): this;
     clear(): this;
     commit(): this;
-    _commitRelated(data: any): void;
     rollback(): this;
     equals(data: any): boolean;
     isChanged(): boolean;
     isNested(): boolean;
     validate(): Promise<this>;
     invalidate(): this;
-    isValid(): boolean;
     hasErrors(): boolean;
+    isValid(): boolean;
 }

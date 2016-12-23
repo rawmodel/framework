@@ -1,177 +1,221 @@
-import {cast, isArray, toArray, isFunction} from 'typeable';
-import {serialize, isEqual, merge} from './utils';
-import {Schema} from './schemas';
-import {Document} from './documents';
+import {isFunction, isUndefined, isArray, cast} from 'typeable';
+import {serialize, isEqual} from './utils';
+import {Validator, ValidatorRecipe} from 'validatable';
 
 /*
-* Document field class.
+* Field context definition interface.
+*/
+
+export interface FieldOptions {
+  // owner: any;
+  validators?: {[name: string]: () => boolean | Promise<boolean>};
+  firstErrorOnly?: boolean;
+}
+
+/*
+* Field validation definition interface.
+*/
+
+export interface ValidationRecipe {
+  validator: string;
+  message: string;
+  [key: string]: any;
+}
+
+/*
+* Field definition interface.
+*/
+
+export interface FieldRecipe {
+  type?: any;
+  get?: (v: any) => any;
+  set?: (v: any) => void;
+  defaultValue?: any;
+  fakeValue?: any;
+  validate?: ValidationRecipe[];
+}
+
+/*
+* Field error interface.
+*/
+
+export interface FieldError {
+  message: string;
+  [key: string]: any;  
+}
+
+/*
+* Field class.
 */
 
 export class Field {
-  private _value: any;
-  private _initialValue: any;
-  $owner: Document;
-  name: string;
-  value: any;
-  defaultValue: any;
-  initialValue: any;
-  fakeValue: any;
-  errors: any[];
+  protected _data: any;
+  protected _initialData: any;
+  protected _validator: Validator;
+  readonly recipe: FieldRecipe;
+  readonly options: FieldOptions;
+  readonly defaultValue: any;
+  readonly fakeValue: any;
+  readonly initialValue: any;
+  public value: any;
+  public errors: FieldError[];
 
   /*
   * Class constructor.
   */
 
-  constructor (owner: Document, name: string) {
-    Object.defineProperty(this, '$owner', { // reference to the Document instance which owns the field
-      value: owner
-    });
+  constructor (recipe: FieldRecipe = {}, options: FieldOptions = {}) {
+    this.recipe = Object.freeze(recipe);
+    this.options = Object.freeze(options);
+    this.errors = [];
 
-    Object.defineProperty(this, 'name', { // field name
-      value: name,
-    });
-
-    Object.defineProperty(this, 'defaultValue', { // default field value
-      get: () => this._getDefaultValue(),
-      enumerable: true
-    });
-
-    Object.defineProperty(this, '_value', { // current field value
-      value: this.defaultValue,
+    Object.defineProperty(this, '_data', { // current value
+      value: this._getDefaultValue.bind(this),
       writable: true
     });
+    Object.defineProperty(this, '_initialData', { // last commited value
+      value: this._getDefaultValue(),
+      writable: true
+    });
+    Object.defineProperty(this, '_validator', { // validatable.js instance
+      value: this._createValidator()
+    });
+
     Object.defineProperty(this, 'value', {
       get: () => this._getValue(),
       set: (v) => this._setValue(v),
       enumerable: true
     });
-
-    Object.defineProperty(this, '_initialValue', { // last committed field value
-      value: this._value,
-      writable: true
-    });
-    Object.defineProperty(this, 'initialValue', {
-      get: () => this._initialValue,
+    Object.defineProperty(this, 'defaultValue', { 
+      get: () => this._getDefaultValue(),
       enumerable: true
     });
-
-    Object.defineProperty(this, 'fakeValue', {
+    Object.defineProperty(this, 'fakeValue', { 
       get: () => this._getFakeValue(),
       enumerable: true
     });
-
-    Object.defineProperty(this, 'errors', { // last action errors
-      value: [],
-      writable: true
+    Object.defineProperty(this, 'initialValue', { 
+      get: () => this._initialData,
+      enumerable: true
     });
   }
 
+/*
+  * Returns a new instance of validator.
+  */
+
+  _createValidator () {
+    let {validators, firstErrorOnly} = this.options;
+    let context = this;
+
+    return new Validator({validators, firstErrorOnly, context});
+  }
+
   /*
-  * Return field value.
+  * Returns current field value.
   */
 
   _getValue () {
-    let {get} = this.$owner.$schema.fields[this.name];
-
-    let value = this._value;
-    if (get) { // transformation with custom getter
-      value = get.call(this.$owner, value);
+    let data = this._data;
+    if (isFunction(data)) {
+      data = data.call(this);
     }
-    return value;
+    
+    let {get} = this.recipe;
+    if (isFunction(get)) {
+      data = get.call(this, data);
+    }
+
+    let {type} = this.recipe;
+    data = this._cast(data, type);
+
+    return data;
   }
 
   /*
-  * Sets field value.
+  * Sets current field value.
   */
 
-  _setValue (value) {
-    let {set, type} = this.$owner.$schema.fields[this.name];
-
-    value = this._cast(value, type); // value type casting
-    if (set) { // transformation with custom setter
-      value = set.call(this.$owner, value);
+  _setValue (data) {
+    let {set} = this.recipe;
+    if (isFunction(set)) {
+      data = set.call(this, data);
     }
 
-    this.invalidate(); // remove the last memorized error because the value has changed
-    this._value = value;
+    this.invalidate();
+
+    this._data = data;
   }
+
+  /*
+  * Converts a `value` into specified `type`.
+  */
+
+  _cast (data, type) {
+    if (isUndefined(type)) {
+      return data;
+    }
+    return cast(data, type);
+  }  
 
   /*
   * Returns the default value of a field.
   */
 
   _getDefaultValue () {
-    let {type, set, defaultValue} = this.$owner.$schema.fields[this.name];
-
-    let value = isFunction(defaultValue)
-      ? defaultValue.call(this)
-      : defaultValue;
-
-    value = this._cast(value, type); // value type casting
-    if (set) { // custom setter
-      value = set.call(this.$owner, value);
+    let data = null;
+    
+    let {defaultValue} = this.recipe;
+    if (isFunction(defaultValue)) {
+      data = defaultValue.call(this);
+    }
+    else if (!isUndefined(defaultValue)) {
+      data = defaultValue;
     }
 
-    return value;
+    return data;
   }
 
   /*
-  * Returns a fake value of a field.
+  * Returns the fake value of a field.
   */
 
   _getFakeValue () {
-    let {type, set, fakeValue} = this.$owner.$schema.fields[this.name];
-
-    let value = isFunction(fakeValue)
-      ? fakeValue.call(this)
-      : fakeValue;
-
-    value = this._cast(value, type); // value type casting
-    if (set) { // custom setter
-      value = set.call(this.$owner, value);
+    let data = null;
+    
+    let {fakeValue} = this.recipe;
+    if (isFunction(fakeValue)) {
+      data = fakeValue.call(this);
+    }
+    else if (!isUndefined(fakeValue)) {
+      data = fakeValue;
     }
 
-    return value;
+    return data;
   }
 
   /*
-  * Converts the `value` into specified `type`.
-  */
-
-  _cast (value, type) {
-    let types = merge(this.$owner.$schema.types, {
-      Schema: (value) => {
-        if (isArray(type)) type = type[0]; // in case of {type: [Schema]}
-
-        return this.$owner._createDocument(value, type, this.$owner);
-      }
-    });
-
-    return cast(value, type, types);
-  }
-
-  /*
-  * Sets field to the default value.
+  * Sets data to the default value.
   */
 
   reset (): this {
-    this.value = this.defaultValue;
+    this.value = this._getDefaultValue.bind(this);
 
     return this;
   }
 
   /*
-  * Sets field to a generated fake value.
+  * Sets data to the fake value.
   */
 
   fake (): this {
-    this.value = this.fakeValue || this.defaultValue;
+    this.value = this._getFakeValue.bind(this);
 
     return this;
   }
 
   /*
-  * Removes field's value by setting it to null.
+  * Sets data to `null`.
   */
 
   clear (): this {
@@ -181,32 +225,18 @@ export class Field {
   }
 
   /*
-  * Deeply set's the initial values to the current value of each field.
+  * Set's the initial value to the current value.
   */
 
   commit (): this {
-    this._commitRelated(this.value);
-    this._initialValue = serialize(this.value);
+    // this._commitRelated(this.value);
+    this._initialData = serialize(this.value);
 
     return this;
   }
 
   /*
-  * Deeply set's the initial values of the related `data` object to the current
-  * value of each field.
-  */
-
-  _commitRelated (data) { // commit sub fields
-    if (data && data.commit) {
-      data.commit();
-    }
-    else if (data && isArray(data)) {
-      data.forEach((d) => this._commitRelated(d));
-    }
-  }
-
-  /*
-  * Sets field's value before last commit.
+  * Sets value to the initial value.
   */
 
   rollback (): this {
@@ -216,18 +246,20 @@ export class Field {
   }
 
   /*
-  * Returns `true` when the `data` equals to the current value.
+  * Returns `true` when `data` equals to the current value.
   */
 
   equals (data): boolean {
+    let value = data instanceof Field ? data.value : data;
+
     return isEqual(
       serialize(this.value),
-      serialize(data)
+      serialize(value)
     );
   }
 
   /*
-  * Returns `true` if the field or related sub-fields have been changed.
+  * Returns `true` if the value has been changed.
   */
 
   isChanged (): boolean {
@@ -235,16 +267,17 @@ export class Field {
   }
 
   /*
-  * Returns `true` if the field is a Document field.
+  * Returns `true` if the data is a Document.
   */
 
   isNested (): boolean {
-    let {type} = this.$owner.$schema.fields[this.name];
+    let {type} = this.recipe;
     if (isArray(type)) type = type[0];
 
-    if (type.fields) {
-      return type instanceof Schema;
-    }
+    // TODO !!!!!
+    // if (type instanceof this.constructor.owner) {
+    //   return true;
+    // }
     return false;
   }
 
@@ -256,48 +289,40 @@ export class Field {
   */
 
   async validate (): Promise<this> {
-    let relatives = toArray(this.value) || []; // validate related documents
-    for (let relative of relatives) {
-      let isDocument = relative instanceof this.$owner.constructor;
+    // let relatives = toArray(this.value) || []; // validate related documents
+    // for (let relative of relatives) {
+    //   let isDocument = relative instanceof this.$owner.constructor;
 
-      if (isDocument) {
-        await relative.validate({quiet: true}); // don't throw
-      }
-    }
+    //   if (isDocument) {
+    //     await relative.validate({quiet: true}); // don't throw
+    //   }
+    // }
 
-    this.errors = await this.$owner.$validator.validate( // validate this field
+    this.errors = await this._validator.validate(
       this.value,
-      this.$owner.$schema.fields[this.name].validate
+      this.recipe.validate
     );
 
     return this;
   }
 
   /*
-  * Validates the field by clearing the `errors` property
+  * Clears errors.
   */
 
   invalidate (): this {
-    let relatives = toArray(this.value) || []; // validate related documents
-    for (let relative of relatives) {
-      let isDocument = relative instanceof this.$owner.constructor;
+    // let relatives = toArray(this.value) || []; // validate related documents
+    // for (let relative of relatives) {
+    //   let isDocument = relative instanceof this.$owner.constructor;
 
-      if (isDocument) {
-        relative.invalidate();
-      }
-    }
+    //   if (isDocument) {
+    //     relative.invalidate();
+    //   }
+    // }
 
     this.errors = [];
 
     return this;
-  }
-
-  /*
-  * Returns `true` when the value is valid (inverse of `hasErrors`).
-  */
-
-  isValid (): boolean {
-    return !this.hasErrors();
   }
 
   /*
@@ -311,9 +336,17 @@ export class Field {
     else if (!this.isNested()) {
       return false;
     }
-    else {
-      return toArray(this.value).filter((f) => !!f).some((f) => f.hasErrors())
-    }
+    // else {
+    //   return toArray(this.value).filter((f) => !!f).some((f) => f.hasErrors())
+    // }
   }
 
+  /*
+  * Returns `true` when the value is valid (inverse of `hasErrors`).
+  */
+
+  isValid (): boolean {
+    return !this.hasErrors();
+  }
+  
 }

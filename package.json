@@ -17,7 +17,7 @@
     "build": "npm run clean; tsc",
     "prepublish": "npm run build",
     "test": "npm run build && ava",
-    "example": "node ./example"
+    "example": "tsc example/index.ts && node example/index.js"
   },
   "repository": {
     "type": "git",

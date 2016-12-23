@@ -1,3 +1,18 @@
+- nested documents
+- nested type casting
+- validator validate only if present
+
+
+
+
+
+
+
+
+
+
+
+
 ![Build Status](https://travis-ci.org/xpepermint/objectschemajs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/objectschema.svg)](https://badge.fury.io/js/objectschema)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/objectschemajs.svg)](https://gemnasium.com/xpepermint/objectschemajs)
 
 # objectschema.js
@@ -8,17 +23,17 @@ This is a light weight open source package for use on **server** or in **browser
 
 ## Features
 
-* Type casting
-* Custom data types
-* Field default value
-* Field fake value
+* Simple and intuitive API
+* Field type casting
+* Custom field data types
+* Field dynamic default value
+* Field dynamic fake value
 * Field value transformation with getter and setter
-* Strict and relaxed schemas
-* Schema mixins for extending schemas
 * Document serialization and filtering
 * Document nesting with support for self referencing
 * Change tracking, data commits and rollbacks
 * Advanced field validation
+* Built-in and custom validators
 
 ## Related Projects
 
