@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const typeable_1 = require("typeable");
 const utils_1 = require("./utils");
 const validatable_1 = require("validatable");
+const documents_1 = require("./documents");
 /*
 * Field class.
 */
@@ -17,10 +18,14 @@ class Field {
     /*
     * Class constructor.
     */
-    constructor(recipe = {}, options = {}) {
-        this.recipe = Object.freeze(recipe);
-        this.options = Object.freeze(options);
+    constructor(recipe, options) {
         this.errors = [];
+        Object.defineProperty(this, 'recipe', {
+            value: Object.freeze(recipe || {})
+        });
+        Object.defineProperty(this, 'options', {
+            value: Object.freeze(options || {})
+        });
         Object.defineProperty(this, '_data', {
             value: this._getDefaultValue.bind(this),
             writable: true
@@ -49,6 +54,14 @@ class Field {
             get: () => this._initialData,
             enumerable: true
         });
+        Object.defineProperty(this, 'type', {
+            get: () => this.recipe.type || null,
+            enumerable: true
+        });
+        Object.defineProperty(this, 'owner', {
+            get: () => this.options.owner || null,
+            enumerable: true
+        });
     }
     /*
       * Returns a new instance of validator.
@@ -70,9 +83,7 @@ class Field {
         if (typeable_1.isFunction(get)) {
             data = get.call(this, data);
         }
-        let { type } = this.recipe;
-        data = this._cast(data, type);
-        return data;
+        return this._cast(data, this.type);
     }
     /*
     * Sets current field value.
@@ -89,10 +100,16 @@ class Field {
     * Converts a `value` into specified `type`.
     */
     _cast(data, type) {
-        if (typeable_1.isUndefined(type)) {
-            return data;
+        let converter = type;
+        if (typeable_1.isPresent(data)) {
+            let Klass = (typeable_1.isArray(type) ? type[0] : type);
+            if (Klass && Klass.prototype instanceof documents_1.Document) {
+                let options = utils_1.merge({}, this.owner.options, { parent: this.owner });
+                let toDocument = (d) => new Klass(d, options);
+                converter = typeable_1.isArray(type) ? [toDocument] : toDocument;
+            }
         }
-        return typeable_1.cast(data, type);
+        return typeable_1.cast(data, converter);
     }
     /*
     * Returns the default value of a field.
@@ -175,14 +192,13 @@ class Field {
     * Returns `true` if the data is a Document.
     */
     isNested() {
-        let { type } = this.recipe;
+        let type = this.type;
         if (typeable_1.isArray(type))
             type = type[0];
-        // TODO !!!!!
-        // if (type instanceof this.constructor.owner) {
-        //   return true;
-        // }
-        return false;
+        return (typeable_1.isPresent(type)
+            && typeable_1.isPresent(type.prototype)
+            && (type.prototype instanceof documents_1.Document
+                || type.prototype.constructor === documents_1.Document));
     }
     /*
     * Validates the field by populating the `errors` property.

@@ -1,13 +1,14 @@
-import {isFunction, isUndefined, isArray, cast} from 'typeable';
-import {serialize, isEqual} from './utils';
+import {isFunction, isUndefined, isPresent, isArray, cast} from 'typeable';
+import {serialize, isEqual, merge} from './utils';
 import {Validator, ValidatorRecipe} from 'validatable';
+import {Document} from './documents';
 
 /*
 * Field context definition interface.
 */
 
 export interface FieldOptions {
-  // owner: any;
+  owner?: Document;
   validators?: {[name: string]: () => boolean | Promise<boolean>};
   firstErrorOnly?: boolean;
 }
@@ -41,7 +42,7 @@ export interface FieldRecipe {
 
 export interface FieldError {
   message: string;
-  [key: string]: any;  
+  [key: string]: any;
 }
 
 /*
@@ -57,6 +58,8 @@ export class Field {
   readonly defaultValue: any;
   readonly fakeValue: any;
   readonly initialValue: any;
+  readonly owner: Document;
+  readonly type: any;
   public value: any;
   public errors: FieldError[];
 
@@ -64,10 +67,15 @@ export class Field {
   * Class constructor.
   */
 
-  constructor (recipe: FieldRecipe = {}, options: FieldOptions = {}) {
-    this.recipe = Object.freeze(recipe);
-    this.options = Object.freeze(options);
+  constructor (recipe?: FieldRecipe, options?: FieldOptions) {
     this.errors = [];
+
+    Object.defineProperty(this, 'recipe', {
+      value: Object.freeze(recipe || {})
+    });
+    Object.defineProperty(this, 'options', {
+      value: Object.freeze(options || {})
+    });
 
     Object.defineProperty(this, '_data', { // current value
       value: this._getDefaultValue.bind(this),
@@ -98,6 +106,15 @@ export class Field {
       get: () => this._initialData,
       enumerable: true
     });
+
+    Object.defineProperty(this, 'type', { 
+      get: () => this.recipe.type || null,
+      enumerable: true
+    });
+    Object.defineProperty(this, 'owner', { 
+      get: () => this.options.owner || null,
+      enumerable: true
+    });
   }
 
 /*
@@ -126,10 +143,7 @@ export class Field {
       data = get.call(this, data);
     }
 
-    let {type} = this.recipe;
-    data = this._cast(data, type);
-
-    return data;
+    return this._cast(data, this.type);
   }
 
   /*
@@ -152,11 +166,19 @@ export class Field {
   */
 
   _cast (data, type) {
-    if (isUndefined(type)) {
-      return data;
+    let converter = type;
+
+    if (isPresent(data)) { // cast to Document
+      let Klass = (isArray(type) ? type[0] : type);
+      if (Klass && Klass.prototype instanceof Document) {
+        let options = merge({}, this.owner.options, {parent: this.owner});
+        let toDocument = (d) => new Klass(d, options);
+        converter = isArray(type) ? [toDocument] : toDocument;
+      }
     }
-    return cast(data, type);
-  }  
+
+    return cast(data, converter);
+  }
 
   /*
   * Returns the default value of a field.
@@ -271,14 +293,17 @@ export class Field {
   */
 
   isNested (): boolean {
-    let {type} = this.recipe;
+    let type = this.type;
     if (isArray(type)) type = type[0];
 
-    // TODO !!!!!
-    // if (type instanceof this.constructor.owner) {
-    //   return true;
-    // }
-    return false;
+    return (
+      isPresent(type)
+      && isPresent(type.prototype)
+      && (
+        type.prototype instanceof Document
+        || type.prototype.constructor === Document
+      )
+    );
   }
 
   /*

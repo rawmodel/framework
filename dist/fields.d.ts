@@ -1,5 +1,7 @@
 import { Validator } from 'validatable';
+import { Document } from './documents';
 export interface FieldOptions {
+    owner?: Document;
     validators?: {
         [name: string]: () => boolean | Promise<boolean>;
     };
@@ -31,6 +33,8 @@ export declare class Field {
     readonly defaultValue: any;
     readonly fakeValue: any;
     readonly initialValue: any;
+    readonly owner: Document;
+    readonly type: any;
     value: any;
     errors: FieldError[];
     constructor(recipe?: FieldRecipe, options?: FieldOptions);

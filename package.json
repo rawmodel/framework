@@ -48,7 +48,7 @@
   "dependencies": {
     "lodash.isequal": "^4.4.0",
     "lodash.merge": "^4.6.0",
-    "typeable": "^0.21.0",
+    "typeable": "2.0.0",
     "validatable": "^0.22.0"
   }
 }

@@ -1,5 +1,7 @@
 "use strict";
+const typeable_1 = require("typeable");
 const fields_1 = require("./fields");
+const utils_1 = require("./utils");
 /*
 * The core schema object class.
 */
@@ -9,26 +11,43 @@ class Document {
     /*
     * Class constructor.
     */
-    constructor() {
-        this._fields = {}; //
-        Object.defineProperty(null, '_fields', {
+    constructor(data, options) {
+        Object.defineProperty(this, 'options', {
+            value: Object.freeze(options || {})
+        });
+        Object.defineProperty(this, 'parent', {
+            value: this.options.parent || null
+        });
+        Object.defineProperty(this, 'root', {
+            get: () => this._getRootDocument()
+        });
+        Object.defineProperty(this, '_fields', {
             value: {},
             writable: true
         });
-        // Object.defineProperty(this, '_types', { // custom types
-        //   value: {},
-        //   enumerable: false
-        // });
-        // Object.defineProperty(this, '_validators', { // custom validators
-        //   value: {},
-        //   enumerable: false
-        // });
+        this.populate(data);
+    }
+    /*
+    * Loops up on the tree and returns the first document in the tree.
+    */
+    _getRootDocument() {
+        let root = this;
+        do {
+            if (root.parent) {
+                root = root.parent;
+            }
+            else {
+                return root;
+            }
+        } while (true);
     }
     /*
     * Defines a new field property.
     */
     defineField(name, recipe) {
-        let field = new fields_1.Field(null, recipe);
+        let field = new fields_1.Field(recipe, {
+            owner: this
+        });
         Object.defineProperty(this, name, {
             get: () => field.value,
             set: (v) => field.value = v,
@@ -36,6 +55,68 @@ class Document {
             configurable: true
         });
         this._fields[name] = field;
+    }
+    /*
+    * Returns a value at path.
+    */
+    getPath(...keys) {
+        keys = [].concat(typeable_1.isArray(keys[0]) ? keys[0] : keys);
+        let lastKey = keys.pop();
+        if (keys.length === 0) {
+            return this._fields[lastKey];
+        }
+        let field = keys.reduce((a, c) => (a[c] || {}), this);
+        return field instanceof Document ? field.getPath(lastKey) : undefined;
+    }
+    /*
+    * Returns `true` if the field exists.
+    */
+    hasPath(...keys) {
+        return !typeable_1.isUndefined(this.getPath(...keys));
+    }
+    /*
+    * Deeply applies data to the fields.
+    */
+    populate(data = {}) {
+        data = utils_1.serialize(data);
+        Object.keys(data).forEach((name) => {
+            if (this._fields[name]) {
+                this[name] = data[name];
+            }
+        });
+        return this;
+    }
+    /*
+    * Scrolls through the document and returns an array of fields.
+    */
+    flatten(prefix = []) {
+        let fields = [];
+        Object.keys(this._fields).forEach((name) => {
+            let field = this._fields[name];
+            let type = field.type;
+            let path = (prefix || []).concat(name);
+            let value = field.value;
+            fields.push({ path, field });
+            if (typeable_1.isPresent(value) && typeable_1.isPresent(type)) {
+                if (type.prototype instanceof Document) {
+                    fields = fields.concat(value.flatten(path));
+                }
+                else if (typeable_1.isArray(type) && type[0].prototype instanceof Document) {
+                    fields = fields.concat(value
+                        .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
+                        .filter((f) => typeable_1.isArray(f))
+                        .reduce((a, b) => a.concat(b)));
+                }
+            }
+        });
+        return fields;
+    }
+    /*
+    * Converts this class into serialized data object.
+    */
+    serialize() {
+        console.log(Object.keys(this));
+        return utils_1.serialize(this);
     }
 }
 exports.Document = Document;
@@ -45,14 +126,6 @@ exports.Document = Document;
 // import {Field} from './fields';
 // import {serialize, isEqual, merge} from './utils';
 //
-// /*
-// * Flattened field reference type definition.
-// */
-//
-// export interface FieldRef {
-//   path: string[];
-//   field: Field;
-// }
 //
 // /*
 // * Field error type definition.
@@ -92,21 +165,6 @@ exports.Document = Document;
 //     this._populateFields(data);
 //   }
 //
-//   /*
-//   * Loops up on the tree and returns the first document in the tree.
-//   */
-//
-//   _getRootDocument () {
-//     let root: any = this;
-//     do {
-//       if (root.$parent) {
-//         root = root.$parent;
-//       }
-//       else {
-//         return root;
-//       }
-//     } while (true);
-//   }
 //
 //   /*
 //   * Creates a new document instance. This method is especially useful when
@@ -170,108 +228,8 @@ exports.Document = Document;
 //     });
 //   }
 //
-//   /*
-//   * Returns a value at path.
-//   */
 //
-//   getPath (...keys): Field {
-//     if (isArray(keys[0])) {
-//       keys = keys[0];
-//     }
 //
-//     return keys.reduce((a, b) => (a || {})[b], this);
-//   }
-//
-//   /*
-//   * Returns `true` if field at path exists.
-//   */
-//
-//   hasPath (...keys): boolean {
-//     return this.getPath(...keys) !== undefined;
-//   }
-//
-//   /*
-//   * Scrolls through all set fields and returns an array of results.
-//   */
-//
-//   flatten (prefix: string[] = []): FieldRef[] {
-//     let fields = [];
-//
-//     for (let name in this.$schema.fields) {
-//       let {type} = this.$schema.fields[name];
-//       let field = this[`$${name}`];
-//       let path = (prefix || []).concat(name);
-//       let value = field.value;
-//
-//       fields.push({path, field});
-//
-//       if (!isPresent(value)) continue;
-//
-//       if (type instanceof Schema) {
-//         fields = fields.concat(
-//           value.flatten(path)
-//         );
-//       }
-//       else if (isArray(type) && type[0] instanceof Schema) {
-//         fields = fields.concat(
-//           value
-//             .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
-//             .filter((f) => isArray(f))
-//             .reduce((a, b) => a.concat(b))
-//         );
-//       }
-//     }
-//
-//     return fields;
-//   }
-//
-//   /*
-//   * Sets field values from the provided by data object.
-//   */
-//
-//   populate (data = {}): this {
-//     return this._populateFields(data);
-//   }
-//
-//   /*
-//   * Sets field values from the provided by data object.
-//   */
-//
-//   _populateFields (data = {}) {
-//     data = serialize(data);
-//
-//     for (let name in data) {
-//       this._populateField(name, data[name]);
-//     }
-//
-//     return this;
-//   }
-//
-//   /*
-//   * Sets a value of a field by name.
-//   */
-//
-//   _populateField (name, value) {
-//     if (!this.$schema.strict) {
-//       this[name] = value;
-//     }
-//     else {
-//       let names = Object.keys(this.$schema.fields);
-//       let exists = names.indexOf(name) > -1;
-//
-//       if (exists) {
-//         this[name] = value;
-//       }
-//     }
-//   }
-//
-//   /*
-//   * Converts this class into serialized data object.
-//   */
-//
-//   serialize (): {} {
-//     return serialize(this);
-//   }
 //
 //   /*
 //   * Converts this class into serialized data object having only the keys that

@@ -1,5 +1,5 @@
 import test from 'ava';
-import {Field} from '../dist';
+import {Field, Document} from '../dist';
 import {Validator} from 'validatable';
 
 test('nullifies a value by default', (t) => {
@@ -23,10 +23,12 @@ test('supports custom getter and setter for the current value', (t) => {
 });
 
 test('can automatically cast a value to a specific data type', (t) => {
-  let f = new Field({type: ['String']});
-  f.value = 100;
-  t.deepEqual(f.value, ['100']);
-  // TODO for custom types !!!!!
+  let f0 = new Field({type: ['String']});
+  let f1 = new Field({type: (v) => `${v}-foo`}); // custom type
+  f0.value = 100;
+  f1.value = 100;
+  t.deepEqual(f0.value, ['100']);
+  t.deepEqual(f1.value, '100-foo');
 });
 
 test('can have a default value', (t) => {
@@ -105,11 +107,12 @@ test('method `isChanged()` returns `true` if the value have been changed', (t) =
 });
 
 test('method `isNested()` returns `true` if the field type is un instance of a Document', (t) => {
-  let f = new Field();
-  t.is(f.isNested(), false);
-  f.value = 'foo';
-  t.is(f.isNested(), false);
-  // TODO !!!!!
+  let f0 = new Field();
+  let f1 = new Field({type: [Document]});
+  let f2 = new Field({type: [class Model extends Document {}]});
+  t.is(f0.isNested(), false);
+  t.is(f1.isNested(), true);
+  t.is(f2.isNested(), true);
 });
 
 test('method `validate()` validates the value and populates the `errors` property', async (t) => {
@@ -156,4 +159,9 @@ test('method `isValid()` returns `true` when no errors exist', (t) => {
   t.is(f.isValid(), true);
   f.errors.push({message: 'foo'});
   t.is(f.isValid(), false);
+});
+
+test('has enumeratable properties', (t) => {
+  let f = new Field();
+  t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'type', 'owner']);
 });

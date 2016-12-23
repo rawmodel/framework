@@ -1,42 +1,248 @@
 import test from 'ava';
 import {Document, Field} from '../dist';
 
-test('method `defineField` should define an enumerable property', (t) => {
+test('method `defineField` initializes nullified enumerable property', (t) => {
   let user = new class User extends Document {
     constructor () {
       super();
       this.defineField('name');
     }
   }
-
   let descriptor = Object.getOwnPropertyDescriptor(user, 'name');
-  t.is(typeof descriptor.get === 'function', true);
-  t.is(typeof descriptor.set === 'function', true);
+  t.is(typeof descriptor.get, 'function');
+  t.is(typeof descriptor.set, 'function');
   t.is(descriptor.enumerable, true);
   t.is(descriptor.configurable, true);
-
   t.is(user.name, null);
 });
 
+test('method `populate` deeply populates fields', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 100,
+    book: {
+      title: 200
+    },
+    books: [
+      undefined,
+      {
+        title: 300
+      }
+    ]
+  });
+  t.is(user.name, '100');
+  t.is(user.book.title, '200');
+  t.is(user.books[0], null);
+  t.is(user.books[1].title, '300');
+});
 
+test('property `parent` holds an instance of a parent document', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    book: {
+      title: 200
+    },
+    books: [
+      undefined,
+      {
+        title: 300
+      }
+    ]
+  });
+  t.is(user.parent, null);
+  t.is(user.book.parent, user);
+  t.is(user.books[1].parent, user);
+});
 
+test('property `root` return the first document in a tree of nested documents', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title');
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('book', {type: Book});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    book: {
+      title: 200
+    }
+  });
+  t.is(user.root, user);
+  t.is(user.book.root, user);
+});
 
+test('method `getPath` returns an instance of a field at path', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      undefined,
+      {
+        title: 'baz'
+      }
+    ]
+  });
+  t.is(user.getPath(['name']).value, 'foo');
+  t.is(user.getPath(['book', 'title']).value, 'bar');
+  t.is(user.getPath(['books', 1, 'title']).value, 'baz');
+  t.is(user.getPath(['fake']), undefined);
+  t.is(user.getPath(['fake', 10, 'title']), undefined);
+  t.is(user.getPath(), undefined);
+});
 
+test('method `hasPath` returns `true` if the field exists', (t) => {
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  let user = new User();
+  t.is(user.hasPath(['name']), true);
+  t.is(user.hasPath(['book', 'title']), false);
+});
 
+test('method `flatten` returns an array of fields', async (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      undefined,
+      {
+        title: 'baz'
+      }
+    ]
+  });
+  t.deepEqual(user.flatten().map((f) => f.path), [
+    ['name'],
+    ['book'],
+    ['book', 'title'],
+    ['books'],
+    ['books', 1, 'title']
+  ]);
+  t.deepEqual(Object.keys(user.flatten()[0]), ['path', 'field']);
+  t.deepEqual(user.flatten()[0].path, ['name']);
+  t.is(user.flatten()[0].field.value, 'foo');
+});
 
+test('method `serialize` converts document into a serialized data object', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      undefined,
+      {
+        title: 'baz'
+      }
+    ]
+  });
+  t.deepEqual(user.serialize(), {
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      null,
+      {
+        title: 'baz'
+      }
+    ]
+  });  
+});
 
-// test('field value should be converted to the specified type', (t) => {
-// test('field can be of a custom type', (t) => {
 // test('field can have a fake value', (t) => {
-// test('field can be transformed through custom setter and getter', (t) => {
-// test('method `populate` should not set custom fields when schema strict=true', (t) => {
-// test('method `populate` should set custom fields when schema strict=false', (t) => {
-// test('variable `$parent` should return the parent document', (t) => {
-// test('variable `$root` should return the first document in a tree of nested documents', (t) => {
-// test('method `getPath` should return an instance of a field at path', (t) => {
-// test('method `hasPath` should check field existance at path', (t) => {
-// test('method `flatten` should return an array of fields', async (t) => {
-// test('method `serialize` should convert a document into serialized data object', (t) => {
 // test('method `reset` should deeply set fields to their default values and invalidate the errors', (t) => {
 // test('method `clear` should deeply clear fields', (t) => {
 // test('method `clear` should deeply clear fields', (t) => {
