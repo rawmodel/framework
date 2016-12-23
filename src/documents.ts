@@ -130,6 +130,16 @@ export class Document {
   }
 
   /*
+  * Converts this class into serialized data object.
+  */
+
+  serialize (): {} {
+    console.log(Object.keys(this));
+
+    return serialize(this);
+  }
+
+  /*
   * Scrolls through the document and returns an array of fields.
   */
 
@@ -165,13 +175,19 @@ export class Document {
   }
 
   /*
-  * Converts this class into serialized data object.
+  * Scrolls through object fields and collects results.
   */
 
-  serialize (): {} {
-    console.log(Object.keys(this));
+  collect (handler: (field: FieldRef) => any): any[] {
+    return this.flatten().map(handler);
+  }
 
-    return serialize(this);
+  /*
+  * Scrolls through document fields and executes a handler on each field.
+  */
+
+  scroll (handler: (field: FieldRef) => void): number {
+    return this.flatten().map(handler).length;
   }
 
 }
@@ -314,21 +330,6 @@ export class Document {
 //     return data;
 //   }
 //
-//   /*
-//   * Scrolls through object fields and collects results.
-//   */
-//
-//   collect (handler: (field: FieldRef) => FieldRef): FieldRef[] {
-//     return this.flatten().map(handler);
-//   }
-//
-//   /*
-//   * Scrolls through document fields and executes a handler on each field.
-//   */
-//
-//   scroll (handler: (field: FieldRef) => void): number {
-//     return this.flatten().map(handler).length;
-//   }
 //
 //   /*
 //   * Sets each document field to its default value.

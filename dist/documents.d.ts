@@ -18,6 +18,8 @@ export declare class Document {
     getPath(...keys: any[]): Field;
     hasPath(...keys: any[]): boolean;
     populate(data?: {}): this;
-    flatten(prefix?: string[]): FieldRef[];
     serialize(): {};
+    flatten(prefix?: string[]): FieldRef[];
+    collect(handler: (field: FieldRef) => any): any[];
+    scroll(handler: (field: FieldRef) => void): number;
 }

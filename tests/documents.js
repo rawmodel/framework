@@ -158,47 +158,6 @@ test('method `hasPath` returns `true` if the field exists', (t) => {
   t.is(user.hasPath(['book', 'title']), false);
 });
 
-test('method `flatten` returns an array of fields', async (t) => {
-  class Book extends Document {
-    constructor (data, options) {
-      super(data, options);
-      this.defineField('title', {type: 'String'});
-      this.populate(data);
-    }
-  }
-  class User extends Document {
-    constructor (data, options) {
-      super(data, options);
-      this.defineField('name', {type: 'String'});
-      this.defineField('book', {type: Book});
-      this.defineField('books', {type: [Book]});
-      this.populate(data);
-    }
-  }
-  let user = new User({
-    name: 'foo',
-    book: {
-      title: 'bar'
-    },
-    books: [
-      undefined,
-      {
-        title: 'baz'
-      }
-    ]
-  });
-  t.deepEqual(user.flatten().map((f) => f.path), [
-    ['name'],
-    ['book'],
-    ['book', 'title'],
-    ['books'],
-    ['books', 1, 'title']
-  ]);
-  t.deepEqual(Object.keys(user.flatten()[0]), ['path', 'field']);
-  t.deepEqual(user.flatten()[0].path, ['name']);
-  t.is(user.flatten()[0].field.value, 'foo');
-});
-
 test('method `serialize` converts document into a serialized data object', (t) => {
   class Book extends Document {
     constructor (data, options) {
@@ -242,8 +201,109 @@ test('method `serialize` converts document into a serialized data object', (t) =
   });  
 });
 
+test('method `flatten` returns an array of fields', async (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      undefined,
+      {
+        title: 'baz'
+      }
+    ]
+  });
+  t.deepEqual(user.flatten().map((f) => f.path), [
+    ['name'],
+    ['book'],
+    ['book', 'title'],
+    ['books'],
+    ['books', 1, 'title']
+  ]);
+  t.deepEqual(Object.keys(user.flatten()[0]), ['path', 'field']);
+  t.deepEqual(user.flatten()[0].path, ['name']);
+  t.is(user.flatten()[0].field.value, 'foo');
+});
+
+test('method `collect` returns an array of results', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    }
+  });
+  let results = user.collect(({path}) => path);
+  t.deepEqual(results, [
+    ['name'],
+    ['book'],
+    ['book', 'title']
+  ]);
+});
+
+test('method `scroll` runs the provided handler on each field', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    }
+  });
+  let count = user.scroll(({path}) => null);
+  t.deepEqual(count, 3);
+});
+
+
+// test('method `reset` deeply set fields to their default values', (t) => {
+
+// });
+
 // test('field can have a fake value', (t) => {
-// test('method `reset` should deeply set fields to their default values and invalidate the errors', (t) => {
 // test('method `clear` should deeply clear fields', (t) => {
 // test('method `clear` should deeply clear fields', (t) => {
 // test('method `commit` should deeply reset information about changed fields.', (t) => {
@@ -258,8 +318,6 @@ test('method `serialize` converts document into a serialized data object', (t) =
 // test('method `filter` should convert a document into serialized object with only keys that pass the test', (t) => {
 // test('method `collectErrors` should return an array of field errors', async (t) => {
 // test('method `applyErrors` should set field `errors` property', async (t) => {
-// test('method `collect` should return an array of results', (t) => {
-// test('method `collect` should return an array of results', (t) => {
 
 
 
@@ -1735,64 +1793,5 @@ test('method `serialize` converts document into a serialized data object', (t) =
 //   t.deepEqual(user.newBooks[1].$title.errors, [validatorError]);
 // });
 
-// test('method `collect` should return an array of results', (t) => {
-//   let bookSchema = new Schema({
-//     fields: {
-//       title: {
-//         type: 'String'
-//       }
-//     }
-//   });
-//   let userSchema = new Schema({
-//     fields: {
-//       name: {
-//         type: 'String'
-//       },
-//       book: {
-//         type: bookSchema
-//       }
-//     }
-//   });
-//   let data = {
-//     book: {
-//       title: 'foo'
-//     }
-//   };
-//   let user = new Document(data, userSchema);
-//   let results = user.collect(({path, field}) => path);
 
-//   t.deepEqual(results, [
-//     ['name'],
-//     ['book'],
-//     ['book', 'title']
-//   ]);
-// });
 
-// test('method `collect` should return an array of results', (t) => {
-//   let bookSchema = new Schema({
-//     fields: {
-//       title: {
-//         type: 'String'
-//       }
-//     }
-//   });
-//   let userSchema = new Schema({
-//     fields: {
-//       name: {
-//         type: 'String'
-//       },
-//       book: {
-//         type: bookSchema
-//       }
-//     }
-//   });
-//   let data = {
-//     book: {
-//       title: 'foo'
-//     }
-//   };
-//   let user = new Document(data, userSchema);
-//   let count = user.scroll(({path, field}) => {});
-
-//   t.deepEqual(count, 3);
-// });
