@@ -22,4 +22,5 @@ export declare class Document {
     flatten(prefix?: string[]): FieldRef[];
     collect(handler: (field: FieldRef) => any): any[];
     scroll(handler: (field: FieldRef) => void): number;
+    filter(test: (field: FieldRef) => boolean): {};
 }

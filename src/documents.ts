@@ -134,8 +134,6 @@ export class Document {
   */
 
   serialize (): {} {
-    console.log(Object.keys(this));
-
     return serialize(this);
   }
 
@@ -188,6 +186,26 @@ export class Document {
 
   scroll (handler: (field: FieldRef) => void): number {
     return this.flatten().map(handler).length;
+  }
+
+  /*
+  * Converts this class into serialized data object with only the keys that
+  * pass the provided `test`.
+  */
+
+  filter (test: (field: FieldRef) => boolean): {} {
+    let data = serialize(this);
+
+    this.flatten()
+    .sort((a, b) => b.path.length - a.path.length)
+    .filter((field) => !test(field))
+    .forEach((field) => {
+      let names = field.path.concat();
+      let lastName = names.pop();
+      delete names.reduce((o, k) => o[k], data)[lastName];
+    });
+
+    return data;
   }
 
 }
@@ -310,25 +328,6 @@ export class Document {
 //
 //
 //
-//   /*
-//   * Converts this class into serialized data object having only the keys that
-//   * pass the `test`.
-//   */
-//
-//   filter (test: (field: FieldRef) => boolean): {} {
-//     let data = serialize(this);
-//
-//     this.flatten()
-//     .sort((a, b) => b.path.length - a.path.length)
-//     .filter((field) => !test(field))
-//     .forEach((field) => {
-//       let names = field.path.concat();
-//       let lastName = names.pop();
-//       delete names.reduce((o, k) => o[k], data)[lastName];
-//     });
-//
-//     return data;
-//   }
 //
 //
 //   /*

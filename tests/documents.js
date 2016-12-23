@@ -298,6 +298,49 @@ test('method `scroll` runs the provided handler on each field', (t) => {
   t.deepEqual(count, 3);
 });
 
+test('method `filter` converts a document into serialized object with only keys that pass the test', (t) => {
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('title', {type: 'String'});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineField('name', {type: 'String'});
+      this.defineField('book', {type: Book});
+      this.defineField('books', {type: [Book]});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      undefined,
+      {
+        title: 'bar'
+      }
+    ]
+  });
+  let result = user.filter(({path, field}) => field.value !== 'foo');
+  t.deepEqual(result, {
+    book: {
+      title: 'bar'
+    },
+    books: [
+      null,
+      {
+        title: 'bar'
+      }
+    ]
+  });
+});
+
 
 // test('method `reset` deeply set fields to their default values', (t) => {
 
@@ -315,7 +358,6 @@ test('method `scroll` runs the provided handler on each field', (t) => {
 // test('method `validate` should validate all fields and throw an error', async (t) => {
 // test('methods `isValid` and `hasErrors` should tell if fields are valid', async (t) => {
 // test('method `invalidate` should clear errors on all fields', async (t) => {
-// test('method `filter` should convert a document into serialized object with only keys that pass the test', (t) => {
 // test('method `collectErrors` should return an array of field errors', async (t) => {
 // test('method `applyErrors` should set field `errors` property', async (t) => {
 
@@ -1636,57 +1678,6 @@ test('method `scroll` runs the provided handler on each field', (t) => {
 //   t.deepEqual(user.oldBooks[1].$title.errors, []);
 // });
 
-// test('method `filter` should convert a document into serialized object with only keys that pass the test', (t) => {
-//   let bookSchema = new Schema({
-//     fields: {
-//       title: {
-//         type: 'String'
-//       },
-//       author: {
-//         type: 'String'
-//       }
-//     }
-//   });
-//   let userSchema = new Schema({
-//     fields: {
-//       name: {
-//         type: 'String'
-//       },
-//       book: {
-//         type: bookSchema
-//       },
-//       books: {
-//         type: [bookSchema]
-//       }
-//     }
-//   });
-//   let data = {
-//     book: {
-//       title: 'foo'
-//     },
-//     books: [
-//       null,
-//       {
-//         title: 'bar'
-//       }
-//     ]
-//   };
-//   let user = new Document(data, userSchema);
-//   let validKeys = ['book', 'books', 'books.1', 'book.title', 'books.1.author'];
-//   let filtered = user.filter(({path}) => validKeys.indexOf(path.join('.')) !== -1);
-
-//   t.deepEqual(filtered, {
-//     book: {
-//       title: 'foo'
-//     },
-//     books: [
-//       null,
-//       {
-//         author: null
-//       }
-//     ]
-//   });
-// });
 
 // test('method `collectErrors` should return an array of field errors', async (t) => {
 //   let bookSchema = new Schema({
