@@ -1,6 +1,6 @@
 import {isArray, isUndefined, isPresent} from 'typeable';
-import {Field, FieldRecipe} from './fields';
-import {serialize} from './utils';
+import {Field, FieldRecipe, FieldError} from './fields';
+import {serialize, isEqual} from './utils';
 
 /*
 * Flattened field reference type definition.
@@ -9,6 +9,15 @@ import {serialize} from './utils';
 export interface FieldRef {
   path: string[];
   field: Field;
+}
+
+/*
+* Field error type definition.
+*/
+
+export interface FieldErrorRef extends Error {
+  path: string[];
+  errors: FieldError[];
 }
 
 /*
@@ -82,6 +91,26 @@ export class Document {
   }
 
   /*
+  * Creates a new validation error instance.
+  */
+
+  protected _createValidationError (message = 'Validation failed', code = 422): FieldError {
+    let error: FieldError = new Error(message);
+    error.code = code;
+
+    return error;
+  }
+
+  /*
+  * Creates a new document instance. This method is especially useful when
+  * extending this class.
+  */
+
+  protected _createDocument (data?, options?: DocumentOptions) {
+    return new (this.constructor as any)(data, options);
+  }
+
+  /*
   * Defines a new field property.
   */
 
@@ -129,11 +158,9 @@ export class Document {
   public populate (data = {}): this {
     data = serialize(data);
 
-    Object.keys(data).forEach((name) => {
-      if (this._fields[name]) {
-        this[name] = data[name];
-      }
-    });
+    Object.keys(data)
+      .filter((n) => !!this._fields[n])
+      .forEach((name) => this[name] = data[name]);
 
     return this;
   }
@@ -170,9 +197,9 @@ export class Document {
         else if (isArray(type) && type[0].prototype instanceof Document) {
           fields = fields.concat(
             value
-            .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
-            .filter((f) => isArray(f))
-            .reduce((a, b) => a.concat(b))
+              .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
+              .filter((f) => isArray(f))
+              .reduce((a, b) => a.concat(b))
           );
         }
       }
@@ -206,13 +233,13 @@ export class Document {
     let data = serialize(this);
 
     this.flatten()
-    .sort((a, b) => b.path.length - a.path.length)
-    .filter((field) => !test(field))
-    .forEach((field) => {
-      let names = field.path.concat();
-      let lastName = names.pop();
-      delete names.reduce((o, k) => o[k], data)[lastName];
-    });
+      .sort((a, b) => b.path.length - a.path.length)
+      .filter((field) => !test(field))
+      .forEach((field) => {
+        let names = field.path.concat();
+        let lastName = names.pop();
+        delete names.reduce((o, k) => o[k], data)[lastName];
+      });
 
     return data;
   }
@@ -222,9 +249,19 @@ export class Document {
   */
 
   reset (): this {
-    Object.keys(this._fields).forEach((name) => {
-      this._fields[name].reset();
-    });
+    Object.keys(this._fields)
+      .forEach((name) => this._fields[name].reset());
+
+    return this;
+  }
+
+  /*
+  * Resets fields then sets fields to their fake values.
+  */
+
+  fake (): this {
+    Object.keys(this._fields)
+      .forEach((name) => this._fields[name].fake());
 
     return this;
   }
@@ -234,248 +271,146 @@ export class Document {
   */
 
   clear (): this {
-    Object.keys(this._fields).forEach((name) => {
-      this._fields[name].clear();
+    Object.keys(this._fields)
+      .forEach((name) => this._fields[name].clear());
+
+    return this;
+  }
+
+  /*
+  * Resets information about changed fields by setting initial value of each field.
+  */
+
+  commit (): this {
+    Object.keys(this._fields)
+      .forEach((name) => this._fields[name].commit());
+
+    return this;
+  }
+
+  /*
+  * Sets each field to its initial value (value before last commit).
+  */
+
+  rollback (): this {
+    Object.keys(this._fields)
+      .forEach((name) => this._fields[name].rollback());
+
+    return this;
+  }
+
+  /*
+  * Returns `true` when the `value` represents an object with the
+  * same field values as the original document.
+  */
+
+  equals (value: any): boolean {
+    return isEqual(
+      serialize(this),
+      serialize(value)
+    );
+  }
+
+  /*
+  * Returns `true` if at least one field has been changed.
+  */
+
+  isChanged (): boolean {
+    return Object.keys(this._fields)
+      .some((name) => this._fields[name].isChanged());
+  }
+
+  /*
+  * Returns `true` if nested fields exist.
+  */
+
+  isNested (): boolean {
+    return Object.keys(this._fields)
+      .some((name) => this._fields[name].isNested());
+  }
+
+  /*
+  * Validates fields and throws an error.
+  */
+
+  async validate ({
+    quiet = false
+  }: {
+    quiet?: boolean
+  } = {}): Promise<this> {
+    let fields = this._fields;
+
+    await Promise.all(
+      Object.keys(fields)
+        .map((n) => fields[n].validate())
+    );
+
+    if (!quiet && this.hasErrors()) {
+      throw this._createValidationError();
+    }
+
+    return this;
+  }
+
+  /*
+  * Returns a list of all fields with errors.
+  */
+
+  collectErrors (): FieldErrorRef[] {
+    return this.flatten()
+      .map(({path, field}) => ({path, errors: field.errors} as FieldErrorRef))
+      .filter(({path, errors}) => errors.length > 0);
+  }
+
+  /*
+  * Sets fields errors.
+  */
+
+  applyErrors (errors: FieldErrorRef[] = []): this {
+    errors.forEach((error) => {
+      let field = this.getPath(...error.path);
+      if (field) {
+        field.errors = error.errors;
+      }
     });
 
     return this;
   }
 
+  /*
+  * Returns `true` when errors exist (inverse of `isValid`).
+  */
+
+  hasErrors (): boolean {
+    return Object.keys(this._fields)
+      .some((name) => this._fields[name].hasErrors());
+  }
+
+  /*
+  * Returns `true` when no errors exist (inverse of `hasErrors`).
+  */
+
+  isValid (): boolean {
+    return !this.hasErrors();
+  }
+
+  /*
+  * Removes fields errors.
+  */
+
+  invalidate (): this {
+    Object.keys(this._fields)
+      .forEach((name) => this._fields[name].invalidate());
+
+    return this;
+  }
+
+  /*
+  * Returns a new Document instance which is the exact copy of the original.
+  */
+
+  clone (): this {
+    return this._createDocument(this, this.options);
+  }
+
 }
-
-
-
-
-
-
-
-
-// /*
-// * Field error type definition.
-// */
-//
-// export interface FieldError extends Error {
-//   path: string[];
-//   errors: any[];
-// }
-//
-//
-// export class Document {
-//   $schema: Schema;
-//   $parent: Document;
-//   $root: Document;
-//   $validator: Validator;
-//
-//   /*
-//   * Class constructor.
-//   */
-//
-//   constructor (data, schema: Schema, parent?: Document) {
-//     Object.defineProperty(this, '$schema', { // schema instance
-//       value: schema || this.$schema
-//     });
-//     Object.defineProperty(this, '$parent', { // parent document instance
-//       value: parent || null
-//     });
-//     Object.defineProperty(this, '$root', { // root document instance
-//       get: () => this._getRootDocument()
-//     });
-//     Object.defineProperty(this, '$validator', { // validatable.js instance
-//       value: this._createValidator()
-//     });
-//
-//     this._defineFields();
-//     this._populateFields(data);
-//   }
-//
-//
-//   /*
-//   * Creates a new document instance. This method is especially useful when
-//   * extending this class.
-//   */
-//
-//   _createDocument (data = null, schema = null, parent = null) {
-//     return new (this.constructor as any)(data, schema, parent);
-//   }
-//
-//
-//
-//   /*
-//   * Creates a new validation error instance.
-//   */
-//
-//   _createValidationError (paths) {
-//     let error: any = new Error('Validation failed');
-//     error.code = 422;
-//     error.paths = paths;
-//
-//     return error;
-//   }
-//
-//
-//   /*
-//   * Sets each document field to its fake value if a fake value generator
-//   * is registered, otherwise the default value is used.
-//   */
-//
-//   fake (): this {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this[`$${name}`].fake();
-//     }
-//
-//     return this;
-//   }
-//
-//
-//   /*
-//   * Sets initial value of each document field to the current value of a field.
-//   */
-//
-//   commit (): this {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this[`$${name}`].commit();
-//     }
-//
-//     return this;
-//   }
-//
-//   /*
-//   * Sets each document field to its initial value (value before last commit).
-//   */
-//
-//   rollback (): this {
-//     let {fields} = this.$schema;
-//
-//     for (let name in fields) {
-//       this[`$${name}`].rollback();
-//     }
-//
-//     return this;
-//   }
-//
-//   /*
-//   * Returns `true` when the `value` represents an object with the
-//   * same field values as the original document.
-//   */
-//
-//   equals (value: any): boolean {
-//     return isEqual(
-//       serialize(this),
-//       serialize(value)
-//     );
-//   }
-//
-//   /*
-//   * Returns a new Document instance which is the exact copy of the original.
-//   */
-//
-//   clone (): this {
-//     return this._createDocument(this, this.$schema, this.$parent);
-//   }
-//
-//   /*
-//   * Returns a `true` if at least one field has been changed.
-//   */
-//
-//   isChanged (): boolean {
-//     return Object.keys(this.$schema.fields).some((name) => {
-//       return this[`$${name}`].isChanged();
-//     });
-//   }
-//
-//   /*
-//   * Validates fields and returns errors.
-//   */
-//
-//   async validate ({quiet = false}: {quiet?: boolean} = {}): Promise<this> {
-//     let {fields} = this.$schema;
-//
-//     for (let path in fields) {
-//       await this[`$${path}`].validate();
-//     }
-//
-//     let paths = this.collectErrors().map((e) => e.path);
-//     if (!quiet && paths.length > 0) {
-//       throw this._createValidationError(paths);
-//     }
-//
-//     return this;
-//   }
-//
-//   /*
-//   * Validates fields and returns errors.
-//   */
-//
-//   invalidate (): this {
-//     let {fields} = this.$schema;
-//
-//     for (let path in fields) {
-//       this[`$${path}`].invalidate();
-//     }
-//
-//     return this;
-//   }
-//
-//   /*
-//   * Returns `true` when all document fields are valid (inverse of `hasErrors`).
-//   */
-//
-//   isValid (): boolean {
-//     return !this.hasErrors();
-//   }
-//
-//   /*
-//   * Returns `true` if nested fields exist.
-//   */
-//
-//   isNested (): boolean {
-//     return Object.keys(this.$schema.fields).some((name) => {
-//       return this[`$${name}`].isNested();
-//     });
-//   }
-//
-//   /*
-//   * Returns `true` when errors exist (inverse of `isValid`).
-//   */
-//
-//   hasErrors (): boolean {
-//     return Object.keys(this.$schema.fields).some((name) => {
-//       return this[`$${name}`].hasErrors();
-//     });
-//   }
-//
-//   /*
-//   * Returns a list of all field-related errors, including those deeply nested.
-//   */
-//
-//   collectErrors (): FieldError[] {
-//     return this.flatten().map(({path, field}) => {
-//       return {path, errors: field.errors} as FieldError;
-//     }).filter(({path, errors}) => {
-//       return errors.length > 0;
-//     });
-//   }
-//
-//   /*
-//   * Deeply populates fields with the provided `errors`.
-//   */
-//
-//   applyErrors (errors: FieldError[] = []): this {
-//     for (let error of errors) {
-//       let path = error.path.concat();
-//       path[path.length - 1] = `$${path[path.length - 1]}`;
-//
-//       let field = this.getPath(path);
-//       if (field) {
-//         field.errors = error.errors;
-//       }
-//     }
-//
-//     return this;
-//   }
-//
-// }

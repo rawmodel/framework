@@ -27,7 +27,7 @@ class Field {
             value: Object.freeze(options || {})
         });
         Object.defineProperty(this, '_data', {
-            value: this._getDefaultValue.bind(this),
+            value: this._getDefaultValue(),
             writable: true
         });
         Object.defineProperty(this, '_initialData', {
@@ -76,23 +76,24 @@ class Field {
     */
     _getValue() {
         let data = this._data;
-        if (typeable_1.isFunction(data)) {
-            data = data.call(this);
-        }
         let { get } = this.recipe;
         if (typeable_1.isFunction(get)) {
             data = get.call(this, data);
         }
-        return this._cast(data, this.type);
+        return data;
     }
     /*
     * Sets current field value.
     */
     _setValue(data) {
+        if (typeable_1.isFunction(data)) {
+            data = data.call(this);
+        }
         let { set } = this.recipe;
         if (typeable_1.isFunction(set)) {
             data = set.call(this, data);
         }
+        data = this._cast(data, this.type);
         this.invalidate();
         this._data = data;
     }
@@ -104,8 +105,8 @@ class Field {
         if (!typeable_1.isValue(data)) {
             return null;
         }
-        let Klass = (typeable_1.isArray(type) ? type[0] : type);
-        if (Klass && Klass.prototype instanceof documents_1.Document) {
+        if (this.isNested()) {
+            let Klass = typeable_1.isArray(type) ? type[0] : type;
             let options = utils_1.merge({}, this.owner.options, { parent: this.owner });
             let toDocument = (d) => new Klass(d, options);
             converter = typeable_1.isArray(type) ? [toDocument] : toDocument;
@@ -144,14 +145,20 @@ class Field {
     * Sets data to the default value.
     */
     reset() {
-        this.value = this._getDefaultValue.bind(this);
+        this.value = this._getDefaultValue();
         return this;
     }
     /*
-    * Sets data to the fake value.
+    * Resets the value then sets data to the fake value.
     */
     fake() {
-        this.value = this._getFakeValue.bind(this);
+        this.reset();
+        if (this.fakeValue) {
+            this.value = this.fakeValue;
+        }
+        (typeable_1.toArray(this.value) || []) // related fake values
+            .filter((doc) => doc instanceof documents_1.Document)
+            .map((doc) => doc.fake());
         return this;
     }
     /*
@@ -165,7 +172,11 @@ class Field {
     * Set's the initial value to the current value.
     */
     commit() {
-        // this._commitRelated(this.value);
+        if (typeable_1.isValue(this.value)) {
+            typeable_1.toArray(this.value)
+                .filter((v) => v && v.commit)
+                .forEach((v) => v.commit());
+        }
         this._initialData = utils_1.serialize(this.value);
         return this;
     }
@@ -209,13 +220,10 @@ class Field {
     */
     validate() {
         return __awaiter(this, void 0, void 0, function* () {
-            // let relatives = toArray(this.value) || []; // validate related documents
-            // for (let relative of relatives) {
-            //   let isDocument = relative instanceof this.$owner.constructor;
-            //   if (isDocument) {
-            //     await relative.validate({quiet: true}); // don't throw
-            //   }
-            // }
+            yield Promise.all(// invalidate related documents
+            (typeable_1.toArray(this.value) || [])
+                .filter((doc) => doc instanceof documents_1.Document)
+                .map((doc) => doc.validate({ quiet: true })));
             this.errors = yield this._validator.validate(this.value, this.recipe.validate);
             return this;
         });
@@ -224,13 +232,9 @@ class Field {
     * Clears errors.
     */
     invalidate() {
-        // let relatives = toArray(this.value) || []; // validate related documents
-        // for (let relative of relatives) {
-        //   let isDocument = relative instanceof this.$owner.constructor;
-        //   if (isDocument) {
-        //     relative.invalidate();
-        //   }
-        // }
+        (typeable_1.toArray(this.value) || []) // invalidate related documents
+            .filter((doc) => doc instanceof documents_1.Document)
+            .forEach((doc) => doc.invalidate());
         this.errors = [];
         return this;
     }
@@ -244,9 +248,11 @@ class Field {
         else if (!this.isNested()) {
             return false;
         }
-        // else {
-        //   return toArray(this.value).filter((f) => !!f).some((f) => f.hasErrors())
-        // }
+        else {
+            return typeable_1.toArray(this.value)
+                .filter((f) => !!f)
+                .some((f) => f.hasErrors());
+        }
     }
     /*
     * Returns `true` when the value is valid (inverse of `hasErrors`).

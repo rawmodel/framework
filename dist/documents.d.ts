@@ -1,7 +1,11 @@
-import { Field, FieldRecipe } from './fields';
+import { Field, FieldRecipe, FieldError } from './fields';
 export interface FieldRef {
     path: string[];
     field: Field;
+}
+export interface FieldErrorRef extends Error {
+    path: string[];
+    errors: FieldError[];
 }
 export interface DocumentOptions {
     parent?: Document;
@@ -15,6 +19,8 @@ export declare class Document {
     constructor(data?: any, options?: DocumentOptions);
     protected _getRootDocument(): Document;
     protected _createField(recipe?: FieldRecipe): Field;
+    protected _createValidationError(message?: string, code?: number): FieldError;
+    protected _createDocument(data?: any, options?: DocumentOptions): any;
     defineField(name: string, recipe?: FieldRecipe): void;
     getPath(...keys: any[]): Field;
     hasPath(...keys: any[]): boolean;
@@ -25,5 +31,20 @@ export declare class Document {
     scroll(handler: (field: FieldRef) => void): number;
     filter(test: (field: FieldRef) => boolean): {};
     reset(): this;
+    fake(): this;
     clear(): this;
+    commit(): this;
+    rollback(): this;
+    equals(value: any): boolean;
+    isChanged(): boolean;
+    isNested(): boolean;
+    validate({quiet}?: {
+        quiet?: boolean;
+    }): Promise<this>;
+    collectErrors(): FieldErrorRef[];
+    applyErrors(errors?: FieldErrorRef[]): this;
+    hasErrors(): boolean;
+    isValid(): boolean;
+    invalidate(): this;
+    clone(): this;
 }

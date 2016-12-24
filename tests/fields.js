@@ -52,24 +52,30 @@ test('can have a fake value', (t) => {
 });
 
 test('method `reset()` sets value to the default value', (t) => {
-  let f0 = new Field({defaultValue: 'foo'});
-  let f1 = new Field({defaultValue () { return Math.random() }});
-  f0.value = 'bar';
-  f0.reset();
-  t.is(f0.value, 'foo');
+  let f0 = new Field();
+  let f1 = new Field({defaultValue: 'foo'});
+  let f2 = new Field({defaultValue () { return Math.random() }});
+  t.is(f0.value, null);
+  f1.value = 'bar';
   f1.reset();
-  t.is(f1.value != f1.value, true); // dynamic values
+  t.is(f1.value, 'foo');
+  f2.reset();
+  t.is(f1.value != f2.value, true); // dynamic values
 });
 
 test('method `fake()` sets value to the fake value', (t) => {
-  let f0 = new Field({fakeValue: 'foo'});
-  let f1 = new Field({fakeValue () { return Math.random() }});
-  f0.value = 'bar';
+  let f0 = new Field();
+  let f1 = new Field({fakeValue: 'foo'});
+  let f2 = new Field({fakeValue () { return Math.random() }});
+  f0.value = 'foo';
   f0.fake();
-  t.is(f0.value, 'foo');
-  f1.value = 'foo';
+  t.is(f0.value, null);
+  f1.value = 'bar';
   f1.fake();
-  t.is(f1.value != f1.value, true); // dynamic values
+  t.is(f1.value, 'foo');
+  f2.value = 'foo';
+  f2.fake();
+  t.is(f2.value != f1.value, true); // dynamic values
 });
 
 test('method `clear()` sets value to `null`', (t) => {

@@ -22,6 +22,8 @@ export interface FieldRecipe {
 }
 export interface FieldError {
     message: string;
+    name?: string;
+    code?: number;
     [key: string]: any;
 }
 export declare class Field {
