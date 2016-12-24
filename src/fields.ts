@@ -9,8 +9,8 @@ import {Document} from './documents';
 
 export interface FieldOptions {
   owner?: Document;
-  validators?: {[name: string]: () => boolean | Promise<boolean>};
-  firstErrorOnly?: boolean;
+  validators?: {[name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>};
+  failFast?: boolean;
 }
 
 /*
@@ -124,10 +124,10 @@ export class Field {
   */
 
   protected _createValidator () {
-    let {validators, firstErrorOnly} = this.options;
+    let {validators, failFast} = this.options;
     let context = this;
 
-    return new Validator({validators, firstErrorOnly, context});
+    return new Validator({validators, failFast, context});
   }
 
   /*

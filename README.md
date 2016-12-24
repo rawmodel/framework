@@ -281,7 +281,7 @@ doc.applyErrors([
 
 > Converts the document into an array of fields.
 
-**Document.prototype.getPath(...keys)**: Field
+**Document.prototype.getField(...keys)**: Field
 
 > Returns a class instance of the field at path.
 
@@ -293,7 +293,7 @@ doc.applyErrors([
 
 > Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
 
-**Document.prototype.hasPath(...keys)**: Boolean
+**Document.prototype.hasField(...keys)**: Boolean
 
 > Returns `true` when a field path exists.
 

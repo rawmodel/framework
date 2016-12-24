@@ -67,9 +67,9 @@ class Field {
     * Returns a new instance of validator.
     */
     _createValidator() {
-        let { validators, firstErrorOnly } = this.options;
+        let { validators, failFast } = this.options;
         let context = this;
-        return new validatable_1.Validator({ validators, firstErrorOnly, context });
+        return new validatable_1.Validator({ validators, failFast, context });
     }
     /*
     * Returns current field value.

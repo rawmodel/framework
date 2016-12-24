@@ -14,8 +14,6 @@ const utils_1 = require("./utils");
 * The core schema object class.
 */
 class Document {
-    // private _types: {[key: string]: () => any} = {}; // custom types for typeable.js
-    // private _validators: {[key: string]: () => boolean | Promise<boolean>} = {}; // custom validations for validatable.js
     /*
     * Class constructor.
     */
@@ -31,6 +29,18 @@ class Document {
         });
         Object.defineProperty(this, '_fields', {
             value: {},
+            writable: true
+        });
+        Object.defineProperty(this, '_types', {
+            value: {},
+            writable: true
+        });
+        Object.defineProperty(this, '_validators', {
+            value: {},
+            writable: true
+        });
+        Object.defineProperty(this, '_failFast', {
+            value: false,
             writable: true
         });
         this.populate(data);
@@ -53,9 +63,12 @@ class Document {
     * Creates a new field instance. This method is especially useful when
     * extending this class.
     */
-    _createField(recipe) {
-        return new fields_1.Field(recipe, {
-            owner: this
+    _createField(recipe = {}) {
+        let { type } = recipe;
+        return new fields_1.Field(utils_1.merge(recipe, { type: this._types[type] || type }), {
+            owner: this,
+            validators: this._validators,
+            failFast: this._failFast
         });
     }
     /*
@@ -70,8 +83,14 @@ class Document {
     * Creates a new document instance. This method is especially useful when
     * extending this class.
     */
-    _createDocument(data, options) {
+    _createDocument(data = {}, options = {}) {
         return new this.constructor(data, options);
+    }
+    /*
+    * Configures validator to stop validating field on the first error.
+    */
+    failFast(fail = true) {
+        this._failFast = typeable_1.toBoolean(fail);
     }
     /*
     * Defines a new field property.
@@ -87,22 +106,34 @@ class Document {
         this._fields[name] = field;
     }
     /*
+    * Defines a new custom data type.
+    */
+    defineType(name, converter) {
+        this._types[name] = converter;
+    }
+    /*
+    * Defines a new custom validator.
+    */
+    defineValidator(name, handler) {
+        this._validators[name] = handler;
+    }
+    /*
     * Returns a value at path.
     */
-    getPath(...keys) {
+    getField(...keys) {
         keys = [].concat(typeable_1.isArray(keys[0]) ? keys[0] : keys);
         let lastKey = keys.pop();
         if (keys.length === 0) {
             return this._fields[lastKey];
         }
         let field = keys.reduce((a, c) => (a[c] || {}), this);
-        return field instanceof Document ? field.getPath(lastKey) : undefined;
+        return field instanceof Document ? field.getField(lastKey) : undefined;
     }
     /*
     * Returns `true` if the field exists.
     */
-    hasPath(...keys) {
-        return !typeable_1.isUndefined(this.getPath(...keys));
+    hasField(...keys) {
+        return !typeable_1.isUndefined(this.getField(...keys));
     }
     /*
     * Deeply applies data to the fields.
@@ -261,7 +292,7 @@ class Document {
     */
     applyErrors(errors = []) {
         errors.forEach((error) => {
-            let field = this.getPath(...error.path);
+            let field = this.getField(...error.path);
             if (field) {
                 field.errors = error.errors;
             }

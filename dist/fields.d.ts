@@ -1,11 +1,11 @@
-import { Validator } from 'validatable';
+import { Validator, ValidatorRecipe } from 'validatable';
 import { Document } from './documents';
 export interface FieldOptions {
     owner?: Document;
     validators?: {
-        [name: string]: () => boolean | Promise<boolean>;
+        [name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>;
     };
-    firstErrorOnly?: boolean;
+    failFast?: boolean;
 }
 export interface ValidationRecipe {
     validator: string;

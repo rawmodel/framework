@@ -16,6 +16,18 @@ test('method `defineField` initializes nullified enumerable property', (t) => {
   t.is(user.name, null);
 });
 
+test('method `defineType` defines a custom data type', (t) => {
+  let user = new class User extends Document {
+    constructor () {
+      super();
+      this.defineType('cool', (v) => `${v}-cool`);
+      this.defineField('name', {type: 'cool'});
+    }
+  }
+  user.name = 'foo';
+  t.is(user.name, 'foo-cool');
+});
+
 test('method `populate` deeply populates fields', (t) => {
   class Book extends Document {
     constructor (data, options) {
@@ -108,7 +120,7 @@ test('property `root` return the first document in a tree of nested documents', 
   t.is(user.book.root, user);
 });
 
-test('method `getPath` returns an instance of a field at path', (t) => {
+test('method `getField` returns an instance of a field at path', (t) => {
   class Book extends Document {
     constructor (data, options) {
       super(data, options);
@@ -137,18 +149,18 @@ test('method `getPath` returns an instance of a field at path', (t) => {
       }
     ]
   });
-  t.is(user.getPath(['name']).value, 'foo');
-  t.is(user.getPath('name').value, 'foo');
-  t.is(user.getPath(['book', 'title']).value, 'bar');
-  t.is(user.getPath('book', 'title').value, 'bar');
-  t.is(user.getPath(['books', 1, 'title']).value, 'baz');
-  t.is(user.getPath('books', 1, 'title').value, 'baz');
-  t.is(user.getPath(['fake']), undefined);
-  t.is(user.getPath(['fake', 10, 'title']), undefined);
-  t.is(user.getPath(), undefined);
+  t.is(user.getField(['name']).value, 'foo');
+  t.is(user.getField('name').value, 'foo');
+  t.is(user.getField(['book', 'title']).value, 'bar');
+  t.is(user.getField('book', 'title').value, 'bar');
+  t.is(user.getField(['books', 1, 'title']).value, 'baz');
+  t.is(user.getField('books', 1, 'title').value, 'baz');
+  t.is(user.getField(['fake']), undefined);
+  t.is(user.getField(['fake', 10, 'title']), undefined);
+  t.is(user.getField(), undefined);
 });
 
-test('method `hasPath` returns `true` if the field exists', (t) => {
+test('method `hasField` returns `true` if the field exists', (t) => {
   class User extends Document {
     constructor (data, options) {
       super(data, options);
@@ -157,8 +169,8 @@ test('method `hasPath` returns `true` if the field exists', (t) => {
     }
   }
   let user = new User();
-  t.is(user.hasPath(['name']), true);
-  t.is(user.hasPath(['book', 'title']), false);
+  t.is(user.hasField(['name']), true);
+  t.is(user.hasField(['book', 'title']), false);
 });
 
 test('method `serialize` converts document into a serialized data object', (t) => {
@@ -485,9 +497,9 @@ test('methods `commit()` and `rollback()` manage committed states', (t) => {
     ]
   });
   user.commit();
-  t.is(user.getPath('name').initialValue, 'foo');
-  t.is(user.getPath('book', 'title').initialValue, 'bar');
-  t.is(user.getPath('books', 0, 'title').initialValue, 'baz');
+  t.is(user.getField('name').initialValue, 'foo');
+  t.is(user.getField('book', 'title').initialValue, 'bar');
+  t.is(user.getField('books', 0, 'title').initialValue, 'baz');
   user.populate({
     name: 'foo-new',
     book: {
@@ -500,9 +512,9 @@ test('methods `commit()` and `rollback()` manage committed states', (t) => {
     ]
   });
   user.rollback();
-  t.is(user.getPath('name').value, 'foo');
-  t.is(user.getPath('book', 'title').value, 'bar');
-  t.is(user.getPath('books', 0, 'title').value, 'baz');
+  t.is(user.getField('name').value, 'foo');
+  t.is(user.getField('book', 'title').value, 'bar');
+  t.is(user.getField('books', 0, 'title').value, 'baz');
 });
 
 test('method `equals` returns `true` when the passing object looks the same', (t) => {
@@ -624,9 +636,9 @@ test('method `collectErrors` returns an array of field errors', (t) => {
     book: {},
     books: [{}]
   });
-  user.getPath('name').errors = [{message: 'foo'}];
-  user.getPath('book', 'title').errors = [{message: 'bar'}];
-  user.getPath('books', 0, 'title').errors = [{message: 'baz'}];
+  user.getField('name').errors = [{message: 'foo'}];
+  user.getField('book', 'title').errors = [{message: 'bar'}];
+  user.getField('books', 0, 'title').errors = [{message: 'baz'}];
   t.deepEqual(user.collectErrors(), [
     {path: ['name'], errors: [{message: 'foo'}]},
     {path: ['book', 'title'], errors: [{message: 'bar'}]},
@@ -660,9 +672,9 @@ test('method `applyErrors` sets fields errors', (t) => {
     {path: ['book', 'title'], errors: [{message: 'bar'}]},
     {path: ['books', 1, 'title'], errors: [{message: 'baz'}]}
   ]);
-  t.deepEqual(user.getPath('name').errors, [{message: 'foo'}]);
-  t.deepEqual(user.getPath('book', 'title').errors, [{message: 'bar'}]);
-  t.deepEqual(user.getPath('books', 1, 'title').errors, [{message: 'baz'}]);
+  t.deepEqual(user.getField('name').errors, [{message: 'foo'}]);
+  t.deepEqual(user.getField('book', 'title').errors, [{message: 'bar'}]);
+  t.deepEqual(user.getField('books', 1, 'title').errors, [{message: 'baz'}]);
 });
 
 test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
@@ -734,6 +746,74 @@ test('method `validate` validates fields and throws an error', async (t) => {
   ]);
 });
 
+test('method `defineValidator` defines a custom field validator', async (t) => {
+  let validator = function (v) { 
+    return this.value === 'cool' && v === 'cool';
+  };
+  let validate = [{
+    validator: 'coolness',
+    message: 'foo'
+  }];
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineValidator('coolness', validator);
+      this.defineField('title', {validate});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.defineValidator('coolness', validator);
+      this.defineField('name', {validate});
+      this.defineField('book', {type: Book, validate});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    book: {}
+  });
+  let errors = [{validator: 'coolness', message: 'foo', code: 422}];
+  await user.validate({quiet: true});
+  t.deepEqual(user.collectErrors(), [
+    {path: ['name'], errors},
+    {path: ['book'], errors},
+    {path: ['book', 'title'], errors},
+  ]);
+});
+
+test('method `failFast` configures validator to stop validating field on the first error', async (t) => {
+  let validate = [
+    {validator: 'presence', message: 'foo'},
+    {validator: 'presence', message: 'foo'}
+  ];
+  class Book extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.failFast();
+      this.defineField('title', {validate});
+      this.populate(data);
+    }
+  }
+  class User extends Document {
+    constructor (data, options) {
+      super(data, options);
+      this.failFast();
+      this.defineField('name', {validate});
+      this.defineField('book', {type: Book});
+      this.populate(data);
+    }
+  }
+  let user = new User({
+    book: {}
+  });
+  let errors = [{validator: 'presence', message: 'foo', code: 422}];
+  await user.validate({quiet: true});
+  t.is(user.getField('name').errors.length, 1);
+  t.is(user.getField('book', 'title').errors.length, 1);
+});
+
 test('method `invalidate` clears fields errors', async (t) => {
   class Book extends Document {
     constructor (data, options) {
@@ -761,9 +841,9 @@ test('method `invalidate` clears fields errors', async (t) => {
     {path: ['books', 1, 'title'], errors: [{message: 'baz'}]}
   ]);
   user.invalidate();
-  t.deepEqual(user.getPath('name').errors, []);
-  t.deepEqual(user.getPath('book', 'title').errors, []);
-  t.deepEqual(user.getPath('books', 1, 'title').errors, []);
+  t.deepEqual(user.getField('name').errors, []);
+  t.deepEqual(user.getField('book', 'title').errors, []);
+  t.deepEqual(user.getField('books', 1, 'title').errors, []);
 });
 
 test('method `clone` returns an exact copy of the original', (t) => {

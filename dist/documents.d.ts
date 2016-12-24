@@ -1,3 +1,4 @@
+import { ValidatorRecipe } from 'validatable';
 import { Field, FieldRecipe, FieldError } from './fields';
 export interface FieldRef {
     path: string[];
@@ -14,16 +15,26 @@ export declare class Document {
     protected _fields: {
         [name: string]: Field;
     };
+    protected _types: {
+        [key: string]: (v?) => any;
+    };
+    protected _validators: {
+        [key: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>;
+    };
+    protected _failFast: boolean;
     readonly options: DocumentOptions;
     readonly parent: Document;
     constructor(data?: any, options?: DocumentOptions);
     protected _getRootDocument(): Document;
     protected _createField(recipe?: FieldRecipe): Field;
     protected _createValidationError(message?: string, code?: number): FieldError;
-    protected _createDocument(data?: any, options?: DocumentOptions): any;
+    protected _createDocument(data?: {}, options?: DocumentOptions): any;
+    failFast(fail?: boolean): void;
     defineField(name: string, recipe?: FieldRecipe): void;
-    getPath(...keys: any[]): Field;
-    hasPath(...keys: any[]): boolean;
+    defineType(name: string, converter: (v?) => any): void;
+    defineValidator(name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>): void;
+    getField(...keys: any[]): Field;
+    hasField(...keys: any[]): boolean;
     populate(data?: {}): this;
     serialize(): {};
     flatten(prefix?: string[]): FieldRef[];

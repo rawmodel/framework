@@ -1,6 +1,7 @@
-import {isArray, isUndefined, isPresent} from 'typeable';
+import {isArray, isUndefined, isPresent, toBoolean} from 'typeable';
+import {ValidatorRecipe} from 'validatable';
 import {Field, FieldRecipe, FieldError} from './fields';
-import {serialize, isEqual} from './utils';
+import {serialize, isEqual, merge} from './utils';
 
 /*
 * Flattened field reference type definition.
@@ -33,12 +34,12 @@ export interface DocumentOptions {
 */
 
 export class Document {
-  protected _fields: {[name: string]: Field};
+  protected _fields: {[name: string]: Field}; // document fields
+  protected _types: {[key: string]: (v?) => any}; // custom data types
+  protected _validators: {[key: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>}; // custom validators
+  protected _failFast: boolean; // stop validating on first error
   readonly options: DocumentOptions;
   readonly parent: Document;
-  
-  // private _types: {[key: string]: () => any} = {}; // custom types for typeable.js
-  // private _validators: {[key: string]: () => boolean | Promise<boolean>} = {}; // custom validations for validatable.js
 
   /*
   * Class constructor.
@@ -57,6 +58,18 @@ export class Document {
 
     Object.defineProperty(this, '_fields', {
       value: {},
+      writable: true
+    });
+    Object.defineProperty(this, '_types', {
+      value: {},
+      writable: true
+    });
+    Object.defineProperty(this, '_validators', {
+      value: {},
+      writable: true
+    });
+    Object.defineProperty(this, '_failFast', {
+      value: false,
       writable: true
     });
 
@@ -84,9 +97,16 @@ export class Document {
   * extending this class.
   */
 
-  protected _createField (recipe?: FieldRecipe) {
-    return new Field(recipe, {
-      owner: this
+  protected _createField (recipe: FieldRecipe = {}) {
+    let {type} = recipe;
+
+    return new Field(merge(
+      recipe,
+      {type: this._types[type] || type}
+    ), {
+      owner: this,
+      validators: this._validators,
+      failFast: this._failFast
     });
   }
 
@@ -106,8 +126,16 @@ export class Document {
   * extending this class.
   */
 
-  protected _createDocument (data?, options?: DocumentOptions) {
+  protected _createDocument (data = {}, options: DocumentOptions = {}) {
     return new (this.constructor as any)(data, options);
+  }
+
+  /*
+  * Configures validator to stop validating field on the first error.
+  */
+
+  public failFast (fail: boolean = true): void {
+    this._failFast = toBoolean(fail);
   }
 
   /*
@@ -128,10 +156,26 @@ export class Document {
   }
 
   /*
+  * Defines a new custom data type.
+  */
+
+  public defineType (name: string, converter: (v?) => any) {
+    this._types[name] = converter;
+  }
+
+  /*
+  * Defines a new custom validator.
+  */
+
+  public defineValidator (name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>) {
+    this._validators[name] = handler;
+  }
+
+  /*
   * Returns a value at path.
   */
 
-  public getPath (...keys): Field {
+  public getField (...keys): Field {
     keys = [].concat(isArray(keys[0]) ? keys[0] : keys);
     
     let lastKey = keys.pop();
@@ -140,15 +184,15 @@ export class Document {
     }
 
     let field = keys.reduce((a, c) => (a[c] || {}), this);
-    return field instanceof Document ? field.getPath(lastKey) : undefined;
+    return field instanceof Document ? field.getField(lastKey) : undefined;
   }
 
   /*
   * Returns `true` if the field exists.
   */
 
-  public hasPath (...keys): boolean {
-    return !isUndefined(this.getPath(...keys));
+  public hasField (...keys): boolean {
+    return !isUndefined(this.getField(...keys));
   }
 
   /*
@@ -368,7 +412,7 @@ export class Document {
 
   applyErrors (errors: FieldErrorRef[] = []): this {
     errors.forEach((error) => {
-      let field = this.getPath(...error.path);
+      let field = this.getField(...error.path);
       if (field) {
         field.errors = error.errors;
       }
