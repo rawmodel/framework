@@ -7,3 +7,4 @@ function serialize(data) {
     return JSON.parse(JSON.stringify(data));
 }
 exports.serialize = serialize;
+//# sourceMappingURL=utils.js.map

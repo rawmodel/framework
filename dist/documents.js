@@ -298,3 +298,4 @@ var Document = (function () {
     return Document;
 }());
 exports.Document = Document;
+//# sourceMappingURL=documents.js.map
