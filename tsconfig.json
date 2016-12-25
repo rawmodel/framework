@@ -4,9 +4,17 @@
     "target": "es3",
     "noImplicitAny": false,
     "removeComments": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "dist",
     "declaration": true,
     "lib": ["es2015.promise", "es5"]
-  }
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "tests",
+    "example"
+  ]
 }

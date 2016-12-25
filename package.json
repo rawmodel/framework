@@ -1,6 +1,6 @@
 {
   "name": "objectschema",
-  "version": "3.10.0",
+  "version": "4.0.0",
   "description": "Advanced strongly-typed JavaScript object.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,7 +17,7 @@
     "build": "npm run clean; tsc",
     "prepublish": "npm run build",
     "test": "npm run build && ava",
-    "example": "tsc example/index.ts && node example/index.js"
+    "example": "tsc -p example/tsconfig.json && node example/dist"
   },
   "repository": {
     "type": "git",

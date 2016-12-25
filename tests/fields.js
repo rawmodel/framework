@@ -1,5 +1,5 @@
 import test from 'ava';
-import {Field, Document} from '../dist';
+import {Field, Document} from '..';
 import {Validator} from 'validatable';
 
 test('nullifies a value by default', (t) => {

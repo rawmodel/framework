@@ -49,10 +49,11 @@ import {Document} from 'objectschema';
 
 class User extends Document { // User model
   public name: string; // class property
-  public constructor (data, options) {
+  public constructor (data?, options?) {
     super(data, options);
     this.defineField('name'); // field definition (for class property `name`)
-    this.populate(data); // set values
+    this.populate(data); // populating document
+    this.commit(); // commiting changes
   }
 }
 
@@ -75,6 +76,7 @@ class User extends Document { // User model
     super(data, options);
     this.defineField('name'); // field definition
     this.populate(data); // set values
+    this.commit(); // commits changes
   }
 }
 
@@ -109,12 +111,12 @@ A document is an advanced strongly-typed JavaScript object where properties are 
 | parent | Document | No | - | Parent document instance (for nesting).
 
 ```js
-class Model extends Document { // User model
+class Model extends Document {
   constructor (data, options) {
     super(data, options);
 
     this.defineField('name', {
-      type: 'String', // converts value to string
+      type: 'String', // field type casting
       get (v) { return v }, // custom getter
       set (v) { return v }, // custom setter
       validate: [ // value validations

@@ -1,5 +1,5 @@
 import test from 'ava';
-import {Document, Field} from '../dist';
+import {Document, Field} from '..';
 
 test('method `defineField` initializes nullified enumerable property', (t) => {
   let user = new class User extends Document {
