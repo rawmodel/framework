@@ -1764,7 +1764,7 @@ lodash.isequal@^4.4.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.4.0.tgz#6295768e98e14dc15ce8d362ef6340db82852031"
 
-lodash.merge@4.6.0, lodash.merge@^4.6.0:
+lodash.merge@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.0.tgz#69884ba144ac33fe699737a6086deffadd0f89c5"
 
@@ -2638,11 +2638,9 @@ type-name@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/type-name/-/type-name-2.0.2.tgz#efe7d4123d8ac52afff7f40c7e4dec5266008fb4"
 
-typeable@^0.21.0:
-  version "0.21.0"
-  resolved "https://registry.yarnpkg.com/typeable/-/typeable-0.21.0.tgz#25c9072e7af527086e6610b85444aa06468be09c"
-  dependencies:
-    lodash.merge "4.6.0"
+typeable@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/typeable/-/typeable-2.0.0.tgz#24a622debd12550a40e238d128f06fcbca8d9e69"
 
 typescript@^2.1.4:
   version "2.1.4"
@@ -2699,12 +2697,12 @@ uuid@^3.0.0:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.0.1.tgz#6544bba2dfda8c1cf17e629a3a305e2bb1fee6c1"
 
-validatable@^0.22.0:
-  version "0.22.0"
-  resolved "https://registry.yarnpkg.com/validatable/-/validatable-0.22.0.tgz#90fb79da614a71c4d76304905e89847bb198522a"
+validatable@^0.24.0:
+  version "0.24.0"
+  resolved "https://registry.yarnpkg.com/validatable/-/validatable-0.24.0.tgz#046bd935e5b4cb27eeb690c4ab8be6cc53452982"
   dependencies:
     lodash.merge "^4.6.0"
-    typeable "^0.21.0"
+    typeable "^2.0.0"
 
 validate-npm-package-license@^3.0.1:
   version "3.0.1"
