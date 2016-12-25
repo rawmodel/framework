@@ -115,16 +115,16 @@ class Model extends Document { // User model
 
     this.defineField('name', {
       type: 'String', // converts value to string
-      get: (v) => v; // custom getter
-      set: (v) => v; // custom setter
+      get (v) { return v }, // custom getter
+      set (v) { return v }, // custom setter
       validate: [ // value validations
         { // validator recipe (check validatable.js for more)
           validator: 'presence', // validator name
           message: 'must be present' // error message
         }
       ],
-      defaultValue: 'Noname', // field default value
-      fakeValue: () => 'Noname', // field fake value
+      defaultValue: 'Noname', // field default value (value or function)
+      fakeValue: 'Noname', // field fake value (value or function)
     });
 
     this.populate(data);
