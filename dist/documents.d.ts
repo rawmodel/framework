@@ -24,6 +24,7 @@ export declare class Document {
     protected _failFast: boolean;
     readonly options: DocumentOptions;
     readonly parent: Document;
+    readonly root: Document;
     constructor(data?: any, options?: DocumentOptions);
     protected _getRootDocument(): Document;
     protected _createField(recipe?: FieldRecipe): Field;

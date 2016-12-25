@@ -1,7 +1,7 @@
 {
   "name": "objectschema",
   "version": "3.10.0",
-  "description": "Advanced schema enforced JavaScript objects.",
+  "description": "Advanced strongly-typed JavaScript object.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "ava": {

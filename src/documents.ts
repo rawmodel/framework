@@ -40,6 +40,7 @@ export class Document {
   protected _failFast: boolean; // stop validating on first error
   readonly options: DocumentOptions;
   readonly parent: Document;
+  readonly root: Document;
 
   /*
   * Class constructor.
