@@ -1,4 +1,3 @@
-import {isFunction} from 'typeable';
 import * as merge from 'lodash.merge';
 import * as isEqual from 'lodash.isequal';
 
@@ -20,13 +19,4 @@ export {isEqual};
 
 export function serialize (data) {
   return JSON.parse(JSON.stringify(data));
-}
-
-/*
-* A helper method for retrieving a value from an input which can be
-* a value or a function.
-*/
-
-export function retrieve (input) {
-  return isFunction(input) ? input() : input;
 }

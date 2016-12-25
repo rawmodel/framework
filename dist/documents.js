@@ -37,13 +37,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var typeable_1 = require("typeable");
 var fields_1 = require("./fields");
 var utils_1 = require("./utils");
-/*
-* The core schema object class.
-*/
 var Document = (function () {
-    /*
-    * Class constructor.
-    */
     function Document(data, options) {
         var _this = this;
         Object.defineProperty(this, 'options', {
@@ -73,9 +67,6 @@ var Document = (function () {
         });
         this.populate(data);
     }
-    /*
-    * Loops up on the tree and returns the first document in the tree.
-    */
     Document.prototype._getRootDocument = function () {
         var root = this;
         do {
@@ -87,10 +78,6 @@ var Document = (function () {
             }
         } while (true);
     };
-    /*
-    * Creates a new field instance. This method is especially useful when
-    * extending this class.
-    */
     Document.prototype._createField = function (recipe) {
         if (recipe === void 0) { recipe = {}; }
         var type = recipe.type;
@@ -100,9 +87,6 @@ var Document = (function () {
             failFast: this._failFast
         });
     };
-    /*
-    * Creates a new validation error instance.
-    */
     Document.prototype._createValidationError = function (message, code) {
         if (message === void 0) { message = 'Validation failed'; }
         if (code === void 0) { code = 422; }
@@ -110,25 +94,15 @@ var Document = (function () {
         error.code = code;
         return error;
     };
-    /*
-    * Creates a new document instance. This method is especially useful when
-    * extending this class.
-    */
     Document.prototype._createDocument = function (data, options) {
         if (data === void 0) { data = {}; }
         if (options === void 0) { options = {}; }
         return new this.constructor(data, options);
     };
-    /*
-    * Configures validator to stop validating field on the first error.
-    */
     Document.prototype.failFast = function (fail) {
         if (fail === void 0) { fail = true; }
         this._failFast = typeable_1.toBoolean(fail);
     };
-    /*
-    * Defines a new document property.
-    */
     Document.prototype.defineField = function (name, recipe) {
         var field = this._createField(recipe);
         Object.defineProperty(this, name, {
@@ -139,21 +113,12 @@ var Document = (function () {
         });
         this._fields[name] = field;
     };
-    /*
-    * Defines a new custom data type.
-    */
     Document.prototype.defineType = function (name, converter) {
         this._types[name] = converter;
     };
-    /*
-    * Defines a new custom validator.
-    */
     Document.prototype.defineValidator = function (name, handler) {
         this._validators[name] = handler;
     };
-    /*
-    * Returns a value at path.
-    */
     Document.prototype.getField = function () {
         var keys = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -167,9 +132,6 @@ var Document = (function () {
         var field = keys.reduce(function (a, c) { return (a[c] || {}); }, this);
         return field instanceof Document ? field.getField(lastKey) : undefined;
     };
-    /*
-    * Returns `true` if the field exists.
-    */
     Document.prototype.hasField = function () {
         var keys = [];
         for (var _i = 0; _i < arguments.length; _i++) {
@@ -177,9 +139,6 @@ var Document = (function () {
         }
         return !typeable_1.isUndefined(this.getField.apply(this, keys));
     };
-    /*
-    * Deeply applies data to the fields.
-    */
     Document.prototype.populate = function (data) {
         var _this = this;
         if (data === void 0) { data = {}; }
@@ -189,15 +148,9 @@ var Document = (function () {
             .forEach(function (name) { return _this[name] = data[name]; });
         return this;
     };
-    /*
-    * Converts this class into serialized data object.
-    */
     Document.prototype.serialize = function () {
         return utils_1.serialize(this);
     };
-    /*
-    * Scrolls through the document and returns an array of fields.
-    */
     Document.prototype.flatten = function (prefix) {
         var _this = this;
         if (prefix === void 0) { prefix = []; }
@@ -222,22 +175,12 @@ var Document = (function () {
         });
         return fields;
     };
-    /*
-    * Scrolls through object fields and collects results.
-    */
     Document.prototype.collect = function (handler) {
         return this.flatten().map(handler);
     };
-    /*
-    * Scrolls through document fields and executes a handler on each field.
-    */
     Document.prototype.scroll = function (handler) {
         return this.flatten().map(handler).length;
     };
-    /*
-    * Converts this class into serialized data object with only the keys that
-    * pass the provided `test`.
-    */
     Document.prototype.filter = function (test) {
         var data = utils_1.serialize(this);
         this.flatten()
@@ -250,77 +193,49 @@ var Document = (function () {
         });
         return data;
     };
-    /*
-    * Sets each document field to its default value.
-    */
     Document.prototype.reset = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].reset(); });
         return this;
     };
-    /*
-    * Resets fields then sets fields to their fake values.
-    */
     Document.prototype.fake = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].fake(); });
         return this;
     };
-    /*
-    * Sets all fileds to `null`.
-    */
     Document.prototype.clear = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].clear(); });
         return this;
     };
-    /*
-    * Resets information about changed fields by setting initial value of each field.
-    */
     Document.prototype.commit = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].commit(); });
         return this;
     };
-    /*
-    * Sets each field to its initial value (value before last commit).
-    */
     Document.prototype.rollback = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].rollback(); });
         return this;
     };
-    /*
-    * Returns `true` when the `value` represents an object with the
-    * same field values as the original document.
-    */
     Document.prototype.equals = function (value) {
         return utils_1.isEqual(utils_1.serialize(this), utils_1.serialize(value));
     };
-    /*
-    * Returns `true` if at least one field has been changed.
-    */
     Document.prototype.isChanged = function () {
         var _this = this;
         return Object.keys(this._fields)
             .some(function (name) { return _this._fields[name].isChanged(); });
     };
-    /*
-    * Returns `true` if nested fields exist.
-    */
     Document.prototype.isNested = function () {
         var _this = this;
         return Object.keys(this._fields)
             .some(function (name) { return _this._fields[name].isNested(); });
     };
-    /*
-    * Validates fields and throws an error.
-    */
     Document.prototype.validate = function (_a) {
         var _b = (_a === void 0 ? {} : _a).quiet, quiet = _b === void 0 ? false : _b;
         return __awaiter(this, void 0, void 0, function () {
@@ -341,9 +256,6 @@ var Document = (function () {
             });
         });
     };
-    /*
-    * Returns a list of all fields with errors.
-    */
     Document.prototype.collectErrors = function () {
         return this.flatten()
             .map(function (_a) {
@@ -355,9 +267,6 @@ var Document = (function () {
             return errors.length > 0;
         });
     };
-    /*
-    * Sets fields errors.
-    */
     Document.prototype.applyErrors = function (errors) {
         var _this = this;
         if (errors === void 0) { errors = []; }
@@ -369,32 +278,20 @@ var Document = (function () {
         });
         return this;
     };
-    /*
-    * Returns `true` when errors exist (inverse of `isValid`).
-    */
     Document.prototype.hasErrors = function () {
         var _this = this;
         return Object.keys(this._fields)
             .some(function (name) { return _this._fields[name].hasErrors(); });
     };
-    /*
-    * Returns `true` when no errors exist (inverse of `hasErrors`).
-    */
     Document.prototype.isValid = function () {
         return !this.hasErrors();
     };
-    /*
-    * Removes fields errors.
-    */
     Document.prototype.invalidate = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].invalidate(); });
         return this;
     };
-    /*
-    * Returns a new Document instance which is the exact copy of the original.
-    */
     Document.prototype.clone = function () {
         return this._createDocument(this, this.options);
     };

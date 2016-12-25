@@ -3,4 +3,3 @@ import * as isEqual from 'lodash.isequal';
 export { merge };
 export { isEqual };
 export declare function serialize(data: any): any;
-export declare function retrieve(input: any): any;

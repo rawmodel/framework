@@ -46,7 +46,7 @@ export class Document {
   * Class constructor.
   */
 
-  constructor (data?, options?: DocumentOptions) {    
+  public constructor (data?, options?: DocumentOptions) {    
     Object.defineProperty(this, 'options', {
       value: Object.freeze(options || {})
     });

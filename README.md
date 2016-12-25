@@ -49,8 +49,7 @@ import {Document} from 'objectschema';
 
 class User extends Document { // User model
   public name: string; // class property
-  
-  constructor (data, options) {
+  public constructor (data, options) {
     super(data, options);
     this.defineField('name'); // field definition (for class property `name`)
     this.populate(data); // set values

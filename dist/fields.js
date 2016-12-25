@@ -38,13 +38,7 @@ var typeable_1 = require("typeable");
 var utils_1 = require("./utils");
 var validatable_1 = require("validatable");
 var documents_1 = require("./documents");
-/*
-* Field class.
-*/
 var Field = (function () {
-    /*
-    * Class constructor.
-    */
     function Field(recipe, options) {
         var _this = this;
         this.errors = [];
@@ -91,17 +85,11 @@ var Field = (function () {
             enumerable: true
         });
     }
-    /*
-    * Returns a new instance of validator.
-    */
     Field.prototype._createValidator = function () {
         var _a = this.options, validators = _a.validators, failFast = _a.failFast;
         var context = this;
         return new validatable_1.Validator({ validators: validators, failFast: failFast, context: context });
     };
-    /*
-    * Returns current field value.
-    */
     Field.prototype._getValue = function () {
         var data = this._data;
         var get = this.recipe.get;
@@ -110,9 +98,6 @@ var Field = (function () {
         }
         return data;
     };
-    /*
-    * Sets current field value.
-    */
     Field.prototype._setValue = function (data) {
         if (typeable_1.isFunction(data)) {
             data = data.call(this);
@@ -125,9 +110,6 @@ var Field = (function () {
         this.invalidate();
         this._data = data;
     };
-    /*
-    * Converts a `value` into specified `type`.
-    */
     Field.prototype._cast = function (data, type) {
         var converter = type;
         if (!typeable_1.isValue(data)) {
@@ -141,9 +123,6 @@ var Field = (function () {
         }
         return typeable_1.cast(data, converter);
     };
-    /*
-    * Returns the default value of a field.
-    */
     Field.prototype._getDefaultValue = function () {
         var data = null;
         var defaultValue = this.recipe.defaultValue;
@@ -155,9 +134,6 @@ var Field = (function () {
         }
         return data;
     };
-    /*
-    * Returns the fake value of a field.
-    */
     Field.prototype._getFakeValue = function () {
         var data = null;
         var fakeValue = this.recipe.fakeValue;
@@ -169,36 +145,24 @@ var Field = (function () {
         }
         return data;
     };
-    /*
-    * Sets data to the default value.
-    */
     Field.prototype.reset = function () {
         this.value = this._getDefaultValue();
         return this;
     };
-    /*
-    * Resets the value then sets data to the fake value.
-    */
     Field.prototype.fake = function () {
         this.reset();
         if (this.fakeValue) {
             this.value = this.fakeValue;
         }
-        (typeable_1.toArray(this.value) || []) // related fake values
+        (typeable_1.toArray(this.value) || [])
             .filter(function (doc) { return doc instanceof documents_1.Document; })
             .map(function (doc) { return doc.fake(); });
         return this;
     };
-    /*
-    * Sets data to `null`.
-    */
     Field.prototype.clear = function () {
         this.value = null;
         return this;
     };
-    /*
-    * Set's the initial value to the current value.
-    */
     Field.prototype.commit = function () {
         if (typeable_1.isValue(this.value)) {
             typeable_1.toArray(this.value)
@@ -208,29 +172,17 @@ var Field = (function () {
         this._initialData = utils_1.serialize(this.value);
         return this;
     };
-    /*
-    * Sets value to the initial value.
-    */
     Field.prototype.rollback = function () {
         this.value = this.initialValue;
         return this;
     };
-    /*
-    * Returns `true` when `data` equals to the current value.
-    */
     Field.prototype.equals = function (data) {
         var value = data instanceof Field ? data.value : data;
         return utils_1.isEqual(utils_1.serialize(this.value), utils_1.serialize(value));
     };
-    /*
-    * Returns `true` if the value has been changed.
-    */
     Field.prototype.isChanged = function () {
         return !this.equals(this.initialValue);
     };
-    /*
-    * Returns `true` if the data is a Document.
-    */
     Field.prototype.isNested = function () {
         var type = this.type;
         if (typeable_1.isArray(type))
@@ -240,19 +192,12 @@ var Field = (function () {
             && (type.prototype instanceof documents_1.Document
                 || type.prototype.constructor === documents_1.Document));
     };
-    /*
-    * Validates the field by populating the `errors` property.
-    *
-    * IMPORTANT: Array null values for nested objects are not treated as an object
-    * but as an empty item thus isValid() for [null] succeeds.
-    */
     Field.prototype.validate = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0: return [4 /*yield*/, Promise.all(// invalidate related documents
-                        (typeable_1.toArray(this.value) || [])
+                    case 0: return [4 /*yield*/, Promise.all((typeable_1.toArray(this.value) || [])
                             .filter(function (doc) { return doc instanceof documents_1.Document; })
                             .map(function (doc) { return doc.validate({ quiet: true }); }))];
                     case 1:
@@ -266,19 +211,13 @@ var Field = (function () {
             });
         });
     };
-    /*
-    * Clears errors.
-    */
     Field.prototype.invalidate = function () {
-        (typeable_1.toArray(this.value) || []) // invalidate related documents
+        (typeable_1.toArray(this.value) || [])
             .filter(function (doc) { return doc instanceof documents_1.Document; })
             .forEach(function (doc) { return doc.invalidate(); });
         this.errors = [];
         return this;
     };
-    /*
-    * Returns `true` when errors exist (inverse of `isValid`).
-    */
     Field.prototype.hasErrors = function () {
         if (this.errors.length > 0) {
             return true;
@@ -292,9 +231,6 @@ var Field = (function () {
                 .some(function (f) { return f.hasErrors(); });
         }
     };
-    /*
-    * Returns `true` when the value is valid (inverse of `hasErrors`).
-    */
     Field.prototype.isValid = function () {
         return !this.hasErrors();
     };

@@ -69,7 +69,7 @@ export class Field {
   * Class constructor.
   */
 
-  constructor (recipe?: FieldRecipe, options?: FieldOptions) {
+  public constructor (recipe?: FieldRecipe, options?: FieldOptions) {
     this.errors = [];
 
     Object.defineProperty(this, 'recipe', {
