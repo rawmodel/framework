@@ -157,27 +157,7 @@ class Model extends Document { // User model
 ```js
 doc.applyErrors([
   {
-    path: ['name'], // field path
-    errors: [
-      {
-        validator: 'presence',  // validator name
-        message: 'is required', // validator message
-        code: 422 // error code
-      }
-    ]
-  },
-  {
-    path: ['newBook', 'title'],
-    errors: [
-      {
-        validator: 'absence',
-        message: 'must be blank',
-        code: 422
-      }
-    ]
-  },
-  {
-    path: ['newBooks', 1, 'title'],
+    path: ['books', 1, 'title'], // field path
     errors: [
       {
         validator: 'presence',
@@ -217,9 +197,49 @@ doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', mess
 
 > Sets initial value of each document field to the current value of a field. This is how field change tracking is restarted.
 
+**Document.prototype.defineField(name, {type, get, set, defaultValue, fakeValue, validate})**: Void
+
+> Defines a new document property.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | String | Yes | - | Property name.
+| type | String, Document | No | - | Data type (pass a Document to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
+| get | Function | No | - | Custom getter.
+| set | Function | No | - | Custom setter.
+| defaultValue | Any | No | - | Field default value.
+| fakeValue | Any | No | - | Field fake value.
+| validate | Array | No | - | List of validation recipies (check [validatable.js](https://github.com/xpepermint/validatablejs) for more).
+
+**Document.prototype.defineType(name, converter)**: Void
+
+> Defines a custom data type.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | String | Yes | - | Type name.
+| converter | Function | Yes | - | Type converter.
+
+**Document.prototype.defineValidator(name, handler)**: Void
+
+> Defines a custom validator.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | String | Yes | - | Validator name.
+| handler | Function, Promise | Yes | - | Validator handler.
+
 **Document.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object with the same fields as the document itself.
+
+**Document.prototype.failFast(fail)**: Void
+
+> Configures validator to stop field validation on the first error.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| fail | Boolean | No | false | Stops field validation on the first error when set to `true`.
 
 **Document.prototype.fake()**: Document
 

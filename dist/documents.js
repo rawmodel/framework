@@ -127,7 +127,7 @@ var Document = (function () {
         this._failFast = typeable_1.toBoolean(fail);
     };
     /*
-    * Defines a new field property.
+    * Defines a new document property.
     */
     Document.prototype.defineField = function (name, recipe) {
         var field = this._createField(recipe);

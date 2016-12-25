@@ -140,10 +140,10 @@ export class Document {
   }
 
   /*
-  * Defines a new field property.
+  * Defines a new document property.
   */
 
-  public defineField (name: string, recipe?: FieldRecipe) {
+  public defineField (name: string, recipe?: FieldRecipe): void {
     let field = this._createField(recipe);
 
     Object.defineProperty(this, name, {
@@ -160,7 +160,7 @@ export class Document {
   * Defines a new custom data type.
   */
 
-  public defineType (name: string, converter: (v?) => any) {
+  public defineType (name: string, converter: (v?) => any): void {
     this._types[name] = converter;
   }
 
@@ -168,7 +168,7 @@ export class Document {
   * Defines a new custom validator.
   */
 
-  public defineValidator (name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>) {
+  public defineValidator (name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>): void {
     this._validators[name] = handler;
   }
 

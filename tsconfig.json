@@ -3,6 +3,7 @@
     "module": "commonjs",
     "target": "es3",
     "noImplicitAny": false,
+    "removeComments": true,
     "sourceMap": false,
     "outDir": "dist",
     "declaration": true,
