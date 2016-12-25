@@ -90,12 +90,12 @@ let user = new User({ // new model instance
 ## API
 
 This package consists of two core classes:
-* `Document` represents a data object with fields.
+* `Document` represents strongly-typed data object with fields.
 * `Field` represents a document property.
 
 This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported, but we can also use custom types. Please check package's website for a list of supported types and further information.
 
-Validation is handled by [*validatable.js*](https://github.com/xpepermint/validatablejs). The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validator methods share document's context thus we can write context-aware checks. Please see package's website for details.
+Validation is handled by [*validatable.js*](https://github.com/xpepermint/validatablejs). The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validators share field's context thus we can write context-aware checks. Please see package's website for details.
 
 ### Document
 
@@ -103,7 +103,7 @@ A document is an advanced strongly-typed JavaScript object where properties are 
 
 **Document(data, {parent})**
 
-> A class for creating schema enforced objects.
+> Strongly-typed JavaScript object.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
