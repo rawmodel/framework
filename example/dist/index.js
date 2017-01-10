@@ -1,5 +1,8 @@
 "use strict";
 const __1 = require("../..");
+/*
+* Book model
+*/
 class Book extends __1.Model {
     constructor(data, options) {
         super(data, options);
@@ -16,6 +19,9 @@ class Book extends __1.Model {
         this.commit();
     }
 }
+/*
+* User model
+*/
 class User extends __1.Model {
     constructor(data, options) {
         super(data, options);
@@ -41,6 +47,9 @@ class User extends __1.Model {
         this.commit();
     }
 }
+/*
+* Usage
+*/
 let user = new User({
     name: 'John Smith',
     book: {

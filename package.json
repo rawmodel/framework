@@ -1,6 +1,6 @@
 {
-  "name": "contextable",
-  "version": "4.0.0",
+  "name": "rawmodel",
+  "version": "1.0.0-rc1",
   "description": "Strongly-typed JavaScript object with support for validation and error handling.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -21,13 +21,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xpepermint/contextablejs.git"
+    "url": "git+https://github.com/xpepermint/rawmodeljs.git"
   },
   "bugs": {
-    "url": "https://github.com/xpepermint/contextablejs/issues"
+    "url": "https://github.com/xpepermint/rawmodeljs/issues"
   },
-  "homepage": "https://github.com/xpepermint/contextablejs#readme",
+  "homepage": "https://github.com/xpepermint/rawmodeljs#readme",
   "keywords": [
+    "model",
+    "modeling",
+    "document",
     "object",
     "schema",
     "orm",
@@ -36,10 +39,7 @@
     "mapping",
     "context",
     "contextify",
-    "contextable",
-    "model",
-    "modeling",
-    "document",
+    "rawmodel",
     "class",
     "db",
     "database",
@@ -55,7 +55,6 @@
     "validation",
     "validator",
     "validating",
-    "form",
     "type",
     "cast",
     "casting",

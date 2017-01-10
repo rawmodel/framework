@@ -1,27 +1,25 @@
-![Build Status](https://travis-ci.org/xpepermint/contextablejs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/contextable.svg)](https://badge.fury.io/js/contextable)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/contextablejs.svg)](https://gemnasium.com/xpepermint/contextablejs)
+![Build Status](https://travis-ci.org/xpepermint/rawmodeljs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/rawmodel.svg)](https://badge.fury.io/js/rawmodel)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/rawmodeljs.svg)](https://gemnasium.com/xpepermint/rawmodeljs)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│                   _            _        _     _         _       │
-│    ___ ___  _ __ | |_ _____  _| |_ __ _| |__ | | ___   (_)___   │
-│   / __/ _ \| '_ \| __/ _ \ \/ / __/ _` | '_ \| |/ _ \  | / __|  │
-│  | (_| (_) | | | | ||  __/>  <| || (_| | |_) | |  __/_ | \__ \  │
-│   \___\___/|_| |_|\__\___/_/\_\\__\__,_|_.__/|_|\___(_)/ |___/  │
-│                                                      |__/       │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│    ____                __  __           _      _   │
+│   |  _ \ __ ___      _|  \/  | ___   __| | ___| |  │
+│   | |_) / _` \ \ /\ / / |\/| |/ _ \ / _` |/ _ \ |  │
+│   |  _ < (_| |\ V  V /| |  | | (_) | (_| |  __/ |  │
+│   |_| \_\__,_| \_/\_/ |_|  |_|\___/ \__,_|\___|_|  │
+│                                                    │
+└────────────────────────────────────────────────────┘
 ```
 
-# contextable.js
+# RawModel.js
 
 > Strongly-typed JavaScript object with support for validation and error handling.
 
-This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and ready for production environments. The source code is available on [GitHub](https://github.com/xpepermint/contextablejs) where you can also find our [issue tracker](https://github.com/xpepermint/contextablejs/issues).
+This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and ready for production environments. The source code is available on [GitHub](https://github.com/xpepermint/rawmodeljs) where you can also find our [issue tracker](https://github.com/xpepermint/rawmodeljs/issues).
 
 ## Introduction
 
-Contextable.js provides a mechanism for creating strongly-typed data objects with built-in logic for unified data validation and error handling. It has a simple and intuitive API and tends to be a powerful, magic-free, minimalistic and unopinionated framework for writing application data layers where you have a full control. It could be a perfect fit when writing an [Express.js](http://expressjs.com/) action, [GraphQL](http://graphql.org/) resolver or similar and it's easily extendable.
+RawModel provides a mechanism for creating strongly-typed data objects with built-in logic for unified data validation and error handling. It has a simple and intuitive API and tends to be a powerful, magic-free, minimalistic and unopinionated framework for writing application data layers where you have a full control. It could be a perfect fit when writing an [Express.js](http://expressjs.com/) action, [GraphQL](http://graphql.org/) resolver or similar and it's easily extendable.
 
 It provides two core classes:
 * `Model` represents strongly-typed data object with properties.
@@ -36,7 +34,7 @@ Both classes can be used independently but most likely you will use only the `Mo
 Run the command below to install the package.
 
 ```
-npm install --save contextable
+npm install --save rawmodel
 ```
 
 This package uses promises thus you need to use [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) when promises are not supported.
@@ -46,7 +44,7 @@ This package uses promises thus you need to use [Promise polyfill](https://githu
 The code below shows a basic usage example.
 
 ```js
-import {Model} from 'objectschema';
+import {Model} from 'rawmodel';
 
 // defining a basic model
 class User extends Model {
@@ -68,8 +66,8 @@ model.name; // => 'John Smith'
 
 Examples are also available inside the `./example` folder. You should also check the links below:
 
-* [graphql-example](https://github.com/xpepermint/graphql-example): A GraphQL application example (intuitive rootValue resolvers using contextable.js)
-* [vue-example](https://github.com/xpepermint/vue-example): Vue.js example application (server-side rendering, router, vuex store, forms validation with contextable.js)
+* [graphql-example](https://github.com/xpepermint/graphql-example): A GraphQL application example (intuitive rootValue resolvers using rawmodel.js)
+* [vue-example](https://github.com/xpepermint/vue-example): Vue.js example application (server-side rendering, router, vuex store, forms validation with rawmodel.js)
 
 ## Usage
 
@@ -78,7 +76,7 @@ Examples are also available inside the `./example` folder. You should also check
 Model fields are defined using the `defineField` method. The code below is an example of a basic model class with a property `name` of type `Any`.
 
 ```js
-import {Model} from 'objectschema';
+import {Model} from 'rawmodel';
 
 class User extends Model {
   public name: string; // typescript property definition for field `name`
@@ -113,7 +111,7 @@ Each model also represents a type. This way you can create complex nested struct
 > Make sure that you preserve the constructor's initial parameter structure on nested models.
 
 ```js
-import {Model, ModelOptions} from 'contextable';
+import {Model, ModelOptions} from 'rawmodel';
 
 class Book extends Model {
   public title: string;
@@ -175,7 +173,7 @@ this.defineField('name', {
 
 ### Commits & Rollbacks
 
-Contextable.js tracks changes for all fields and provides a mechanism for committing values and rollbacks.
+RawModel tracks changes for all fields and provides a mechanism for committing values and rollbacks.
 
 The example below explains how to setup and use these features.
 
@@ -224,7 +222,7 @@ The code above is only a quick example of what's possible. Please check the API 
 
 ### Validation
 
-Contextable.js provides a simple mechanism for validating fields.
+RawModel provides a simple mechanism for validating fields.
 
 ```js
 class User extends Model {
@@ -277,7 +275,7 @@ class User extends Model {
 
 ### Error Handling
 
-Contextable.js provides a mechanism for handling field-related errors. The logic is aligned with validation thus validation and error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in unified format.
+RawModel provides a mechanism for handling field-related errors. The logic is aligned with validation thus validation and error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in unified format.
 
 ```js
 class User extends Model {
@@ -309,7 +307,7 @@ user.handle(error).then(() => {
 
 This mechanism is especially handful when saving data to a database. MongoDB could, for example, throw a uniqueness error (E11000) if we try to insert a value that already exists in the database. We can catch that error by using the `handle()` and then return a unified validation error message to a user.
 
-Contextable.js already includes some useful built-in handlers but it's super simple to define your own handler. Note that each handler function shares the context of a field instance thus you have access to all the features of the `Field` class.
+RawModel already includes some useful built-in handlers but it's super simple to define your own handler. Note that each handler function shares the context of a field instance thus you have access to all the features of the `Field` class.
 
 ```js
 class User extends Model {
