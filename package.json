@@ -1,7 +1,7 @@
 {
-  "name": "objectschema",
-  "version": "4.1.1",
-  "description": "Advanced strongly-typed JavaScript object.",
+  "name": "contextable",
+  "version": "4.0.0",
+  "description": "Strongly-typed JavaScript object with support for validation and error handling.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "ava": {
@@ -21,23 +21,49 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xpepermint/objectschemajs.git"
+    "url": "git+https://github.com/xpepermint/contextablejs.git"
   },
   "bugs": {
-    "url": "https://github.com/xpepermint/objectschemajs/issues"
+    "url": "https://github.com/xpepermint/contextablejs/issues"
   },
-  "homepage": "https://github.com/xpepermint/objectschemajs#readme",
+  "homepage": "https://github.com/xpepermint/contextablejs#readme",
   "keywords": [
     "object",
     "schema",
-    "openobject",
-    "dynamic",
+    "orm",
+    "odm",
     "map",
+    "mapping",
+    "context",
+    "contextify",
+    "contextable",
     "model",
     "modeling",
-    "javascript",
-    "extends",
-    "array"
+    "document",
+    "class",
+    "db",
+    "database",
+    "storage",
+    "structure",
+    "structuring",
+    "error",
+    "errors",
+    "handling",
+    "handle",
+    "valid",
+    "validate",
+    "validation",
+    "validator",
+    "validating",
+    "form",
+    "type",
+    "cast",
+    "casting",
+    "history",
+    "tracking",
+    "change",
+    "field",
+    "fields"
   ],
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",
@@ -46,6 +72,7 @@
     "typescript": "^2.1.4"
   },
   "dependencies": {
+    "handleable": "^0.19.0",
     "lodash.isequal": "^4.4.0",
     "lodash.merge": "^4.6.0",
     "typeable": "^2.0.0",

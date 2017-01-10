@@ -1,8 +1,8 @@
-import {Document} from './documents';
+import {Model} from './models';
 import {Field} from './fields';
 
 /*
 * Exposing public classes.
 */
 
-export {Document, Field};
+export {Model, Field};

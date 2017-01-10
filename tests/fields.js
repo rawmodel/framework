@@ -1,5 +1,5 @@
 import test from 'ava';
-import {Field, Document} from '..';
+import {Field, Model} from '..';
 import {Validator} from 'validatable';
 
 test('nullifies a value by default', (t) => {
@@ -112,10 +112,10 @@ test('method `isChanged()` returns `true` if the value have been changed', (t) =
   t.is(f.isChanged(), true);
 });
 
-test('method `isNested()` returns `true` if the field type is un instance of a Document', (t) => {
+test('method `isNested()` returns `true` if the field type is un instance of a Model', (t) => {
   let f0 = new Field();
-  let f1 = new Field({type: [Document]});
-  let f2 = new Field({type: [class Model extends Document {}]});
+  let f1 = new Field({type: [Model]});
+  let f2 = new Field({type: [class User extends Model {}]});
   t.is(f0.isNested(), false);
   t.is(f1.isNested(), true);
   t.is(f2.isNested(), true);
@@ -170,4 +170,23 @@ test('method `isValid()` returns `true` when no errors exist', (t) => {
 test('has enumeratable properties', (t) => {
   let f = new Field();
   t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'type', 'owner']);
+});
+
+test('method `handle()` handles an error and populates the `errors` property', async (t) => {
+  let f = new Field({
+    handle: [
+      {handler: 'block', block () { return true }, message: 'foo'},
+      {handler: 'coolness', message: 'cool'} // custom
+    ]
+  }, {
+    handlers: {
+      coolness (error) { return error.message === 'cool' } // custom validators
+    }
+  });
+  let e = new Error('cool');
+  await f.handle(e);
+  t.deepEqual(f.errors, [
+    {handler: 'block', message: 'foo', code: 422},
+    {handler: 'coolness', message: 'cool', code: 422}
+  ]);
 });

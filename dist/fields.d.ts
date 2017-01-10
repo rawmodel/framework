@@ -1,16 +1,15 @@
 import { Validator, ValidatorRecipe } from 'validatable';
-import { Document } from './documents';
+import { Handler, HandlerRecipe } from 'handleable';
+import { Model } from './models';
 export interface FieldOptions {
-    owner?: Document;
+    owner?: Model;
     validators?: {
         [name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>;
     };
+    handlers?: {
+        [name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>;
+    };
     failFast?: boolean;
-}
-export interface ValidationRecipe {
-    validator: string;
-    message: string;
-    [key: string]: any;
 }
 export interface FieldRecipe {
     type?: any;
@@ -18,7 +17,8 @@ export interface FieldRecipe {
     set?: (v: any) => void;
     defaultValue?: any;
     fakeValue?: any;
-    validate?: ValidationRecipe[];
+    validate?: ValidatorRecipe[];
+    handle?: HandlerRecipe[];
 }
 export interface FieldError {
     message: string;
@@ -30,17 +30,19 @@ export declare class Field {
     protected _data: any;
     protected _initialData: any;
     protected _validator: Validator;
-    readonly recipe: FieldRecipe;
-    readonly options: FieldOptions;
+    protected _handler: Handler;
+    protected _recipe: FieldRecipe;
+    protected _options: FieldOptions;
     readonly defaultValue: any;
     readonly fakeValue: any;
     readonly initialValue: any;
-    readonly owner: Document;
+    readonly owner: Model;
     readonly type: any;
     value: any;
     errors: FieldError[];
     constructor(recipe?: FieldRecipe, options?: FieldOptions);
     protected _createValidator(): Validator;
+    protected _createHandler(): Handler;
     protected _getValue(): any;
     protected _setValue(data: any): void;
     protected _cast(data: any, type: any): any;
@@ -55,6 +57,7 @@ export declare class Field {
     isChanged(): boolean;
     isNested(): boolean;
     validate(): Promise<this>;
+    handle(error: any): Promise<this>;
     invalidate(): this;
     hasErrors(): boolean;
     isValid(): boolean;

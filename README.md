@@ -1,128 +1,430 @@
-![Build Status](https://travis-ci.org/xpepermint/objectschemajs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/objectschema.svg)](https://badge.fury.io/js/objectschema)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/objectschemajs.svg)](https://gemnasium.com/xpepermint/objectschemajs)
+![Build Status](https://travis-ci.org/xpepermint/contextablejs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/contextable.svg)](https://badge.fury.io/js/contextable)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/contextablejs.svg)](https://gemnasium.com/xpepermint/contextablejs)
 
-# objectschema.js
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│                   _            _        _     _         _       │
+│    ___ ___  _ __ | |_ _____  _| |_ __ _| |__ | | ___   (_)___   │
+│   / __/ _ \| '_ \| __/ _ \ \/ / __/ _` | '_ \| |/ _ \  | / __|  │
+│  | (_| (_) | | | | ||  __/>  <| || (_| | |_) | |  __/_ | \__ \  │
+│   \___\___/|_| |_|\__\___/_/\_\\__\__,_|_.__/|_|\___(_)/ |___/  │
+│                                                      |__/       │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-> Advanced strongly-typed JavaScript object.
+# contextable.js
 
-This is a light weight open source package for the **server** and **browser** (using module bundler). The source code is available on [GitHub](https://github.com/xpepermint/objectschemajs) where you can also find our [issue tracker](https://github.com/xpepermint/objectschemajs/issues).
+> Strongly-typed JavaScript object with support for validation and error handling.
 
-## Features
+This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and ready for production environments. The source code is available on [GitHub](https://github.com/xpepermint/contextablejs) where you can also find our [issue tracker](https://github.com/xpepermint/contextablejs/issues).
 
-* Simple and intuitive API
-* TypeScript ready
-* Field type casting
-* Custom field data types
-* Field dynamic default value
-* Field dynamic fake value
-* Field value transformation with getter and setter
-* Document serialization and filtering
-* Document nesting with support for self referencing
-* Change tracking, data commits and rollbacks
-* Advanced field validation
-* Built-in and custom validators
+## Introduction
 
-## Related Projects
+Contextable.js provides a mechanism for creating strongly-typed data objects with built-in logic for unified data validation and error handling. It has a simple and intuitive API and tends to be a powerful, magic-free, minimalistic and unopinionated framework for writing application data layers where you have a full control. It could be a perfect fit when writing an [Express.js](http://expressjs.com/) action, [GraphQL](http://graphql.org/) resolver or similar and it's easily extendable.
 
-* [Contextable.js](https://github.com/xpepermint/contextablejs): Simple, unopinionated and minimalist framework for creating context objects with support for unopinionated ORM, object schemas, type casting, validation and error handling and more.
-* [Validatable.js](https://github.com/xpepermint/validatablejs): A library for synchronous and asynchronous validation.
-* [Handleable.js](https://github.com/xpepermint/handleablejs): A library for synchronous and asynchronous error handling.
-* [Typeable.js](https://github.com/xpepermint/typeablejs): A library for checking and casting types.
+It provides two core classes:
+* `Model` represents strongly-typed data object with properties.
+* `Field` represents model's property.
 
-## Install
+Both classes can be used independently but most likely you will use only the `Model` class.
+
+> We will be using TypeScript for code examples for the rest of the docs. If you haven't picked it up, [you should](https://www.typescriptlang.org)!
+
+## Installation
 
 Run the command below to install the package.
 
 ```
-$ npm install --save objectschema
+npm install --save contextable
 ```
 
 This package uses promises thus you need to use [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) when promises are not supported.
 
 ## Example
 
-### TypeScript
+The code below shows a basic usage example.
 
 ```js
-import {Document} from 'objectschema';
+import {Model} from 'objectschema';
 
-/* Model */
+// defining a basic model
+class User extends Model {
+  public name: string;
 
-class User extends Document { // User model
-  public name: string; // class property
-  public constructor (data?, options?) {
-    super(data, options);
-    this.defineField('name'); // field definition (for class property `name`)
-    this.populate(data); // populating document
-    this.commit(); // commiting changes
+  public constructor (data = {}) {
+    super();
+    this.defineField('name');
+    this.populate(data);
   }
 }
 
-/* Usage */
-
-let user = new User({ // new model instance
+// usage example
+let model = new User({
   name: 'John Smith'
+});
+model.name; // => 'John Smith'
+```
+
+Examples are also available inside the `./example` folder. You should also check the links below:
+
+* [graphql-example](https://github.com/xpepermint/graphql-example): A GraphQL application example (intuitive rootValue resolvers using contextable.js)
+* [vue-example](https://github.com/xpepermint/vue-example): Vue.js example application (server-side rendering, router, vuex store, forms validation with contextable.js)
+
+## Usage
+
+### Defining Fields
+
+Model fields are defined using the `defineField` method. The code below is an example of a basic model class with a property `name` of type `Any`.
+
+```js
+import {Model} from 'objectschema';
+
+class User extends Model {
+  public name: string; // typescript property definition for field `name`
+
+  public constructor () {
+    super();
+    this.defineField('name'); // definition of the `name` field
+  }
+}
+
+let user = new User();
+user.name = 'John Smith';
+user.name; // -> "John Smith"
+```
+
+### Type Casting
+
+Each field has a built-in system for type casting thus we can force a value to be automatically converted to a specific type.
+
+```js
+this.defineField('name', {
+  type: 'String' // automatically cast values to `String`
 });
 ```
 
-### JavaScript
+Please see the API section for a list of all supported types.
+
+### Nested Models
+
+Each model also represents a type. This way you can create complex nested structures by nesting models as shown in the example below.
+
+> Make sure that you preserve the constructor's initial parameter structure on nested models.
 
 ```js
-import {Document} from 'objectschema';
+import {Model, ModelOptions} from 'contextable';
 
-/* Model */
+class Book extends Model {
+  public title: string;
 
-class User extends Document { // User model
-  constructor (data, options) {
+  public constructor (data?: any, options?: ModelOptions) {
     super(data, options);
-    this.defineField('name'); // field definition
-    this.populate(data); // set values
-    this.commit(); // commits changes
+    this.defineField('title');
+    this.populate(data);
   }
 }
 
-/* Usage */
+class User extends Model {
+  public book: Book;
 
-let user = new User({ // new model instance
-  name: 'John Smith'
+  public constructor (data?: any, options?: ModelOptions) {
+    super(data, options);
+    this.defineField('book', {type: Book});
+    this.populate(data);
+  }
+}
+```
+
+### Field Default Value
+
+We can set a `defaultValue` options for each field which will populate a field when it is created.
+
+The `defaultValue` can also be a method which returns a value. Note that this function shares the context of a field instance thus you have access to all the features of the `Field` class.
+
+```js
+this.defineField('name', {
+  defaultValue () { return this.value }
+});
+```
+
+### Field Fake Value
+
+We can set a `fakeValue` options for each field which will populate a field when calling the `fake()` method.
+
+The `fakeValue` can also be a method which returns a value. Note that this function shares the context of a field instance thus you have access to all the features of the `Field` class.
+
+```js
+this.defineField('name', {
+  fakeValue () { return this.value }
+});
+```
+
+### Field Value Transformation
+
+A field can have a custom getter and a custom setter.
+
+These methods all share the context of a field instance thus you have access to all the features of the `Field` class.
+
+```js
+this.defineField('name', {
+  get (value) { return value },
+  set (value) { return value }
+});
+```
+
+### Commits & Rollbacks
+
+Contextable.js tracks changes for all fields and provides a mechanism for committing values and rollbacks.
+
+The example below explains how to setup and use these features.
+
+```js
+class User extends Model {
+  public name: string;
+
+  public constructor (data?: any) {
+    super();
+    this.defineField('name');
+    this.populate(data); // populate model with initial values
+    this.commit(); // restart change tracking
+  }
+}
+
+let user = new User({
+  name: 'John Smith' // initial value
+});
+user.name = 'Mandy Taylor'; // changing field's value
+user.isChanged(); // -> true
+user.commit(); // set `initialValue` of each field to the value of  `value`
+user.isChanged(); // -> false
+user.name = 'Tina Fey'; // changing field's value
+user.rollback(); // -> reset `value` of each field to its `initialValue` (last committed value)
+```
+
+Note that the logic above applies also the the `Field` class.
+
+### Serialization & Filtering
+
+Model class provides useful methods for object serialization and filtering.
+
+```js
+let user = new User({
+  name: 'John Smith' // initial value
+});
+
+user.scroll(function (field) { // argument is an instance of a field
+  // do something useful
+}).then((count) => { // number of processed fields
+  user.serialize(); // -> {"name": "John Smith"}
+});
+```
+
+The code above is only a quick example of what's possible. Please check the API section for all available methods.
+
+### Validation
+
+Contextable.js provides a simple mechanism for validating fields.
+
+```js
+class User extends Model {
+  public name: string;
+
+  public constructor () {
+    super();
+
+    this.defineField('name', {
+      validate: [ // field validation setup
+        { // validator recipe
+          validator: 'presence', // validator name
+          message: '%{it} must be present', // error message
+          condition () { return true }, // optional condition which switches the validation on/off
+          it: 'it' // optional custom variable for the `message`
+        }
+      ]
+    });
+  }
+}
+
+let user = new User();
+user.validate().then((err) => {
+  user.collectErrors(); // -> [{path: ['name'], errors: [{validator: 'presence', message: 'is must be present', code: 422}]}]
+});
+```
+
+It already includes some useful built-in validators but it's super simple to define your own validator. Note that each validator function shares the context of a field instance thus you have access to all the features of the `Field` class.
+
+```js
+class User extends Model {
+  constructor () {
+    super();
+
+    this.defineValidator('coolness', function (v) {
+      return v === 'cool';
+    });
+
+    this.defineField('name', {
+      validate: [
+        {
+          validator: 'coolness',
+          message: 'must be cool'
+        }
+      ]
+    });
+  }
+}
+```
+
+### Error Handling
+
+Contextable.js provides a mechanism for handling field-related errors. The logic is aligned with validation thus validation and error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in unified format.
+
+```js
+class User extends Model {
+  public name: string;
+
+  public constructor () {
+    super();
+
+    this.defineField('name', {
+      handle: [ // field error handling setup
+        { // handler recipe
+          handler: 'block', // handler name
+          message: '%{is} unknown', // error message
+          block (error) { return true }, // block handler-specific option
+          condition () { return true }, // optional condition which switches the handling on/off
+          is: 'is' // optional custom variable for the `message`
+        }
+      ]
+    });
+  }
+}
+
+let error = new Error();
+let user = new User();
+user.handle(error).then(() => {
+  user.collectErrors(); // -> [{path: ['name'], errors: [{handler: 'block', message: 'is unknown', code: 422}]}]
+});
+```
+
+This mechanism is especially handful when saving data to a database. MongoDB could, for example, throw a uniqueness error (E11000) if we try to insert a value that already exists in the database. We can catch that error by using the `handle()` and then return a unified validation error message to a user.
+
+Contextable.js already includes some useful built-in handlers but it's super simple to define your own handler. Note that each handler function shares the context of a field instance thus you have access to all the features of the `Field` class.
+
+```js
+class User extends Model {
+  public name: string;
+
+  public constructor () {
+    super();
+
+    this.defineHandler('coolness', function (e) {
+      return e.message === 'cool';
+    });
+
+    this.defineField('name', {
+      handle: [ // field error handling setup
+        { // handler recipe
+          handler: 'coolness', // handler name
+          message: 'cool' // error message
+        }
+      ]
+    });
+  }
+}
+```
+
+### Managing Context & GraphQL
+
+Sometimes it's handy to create a `root` model and then make it accessible from `dependent models`. The root model in this case represents a `context` object. Because the dependent models have access to that context we say that these models are `context aware`.
+
+Usually you will use this technic for your main application class as shown in the example below.
+
+```js
+class User extends Model { // user model
+  public name: string;
+
+  public constructor () {
+    super();
+    this.defineField('name');
+  }
+}
+
+class App extends Model { // application context
+  public name: string;
+
+  public constructor () {
+    super();
+    this.defineModel(User); // defining a context-aware model from `User` model
+  }
+
+  public hello () { // root
+    return 'Hello World!';
+  }
+}
+
+let app = new App();
+app.User.context; // accessing App instance
+let user = new app.User();
+user.context; // accessing App instance
+user.context.echo(); // -> "Hello World!"
+```
+
+This feature is especially useful when writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
+
+```js
+const {graphql, buildSchema} = require('graphql');
+
+const schema = buildSchema(`
+  type Query {
+    hello: String
+  }
+`);
+
+var root = new App(); // root resolver
+
+graphql(schema, '{hello}', root).then((response) => {
+  console.log(response);
 });
 ```
 
 ## API
 
-This package consists of two core classes:
-* `Document` represents strongly-typed data object with fields.
-* `Field` represents a document property.
+### Model Class
 
-This package uses [*typeable.js*](https://github.com/xpepermint/typeablejs) for data type casting. Many common data types and array types are supported, but we can also use custom types. Please check package's website for a list of supported types and further information.
+**Model({parent, context})**
 
-Validation is handled by [*validatable.js*](https://github.com/xpepermint/validatablejs). The package provides many built-in validators, allows adding custom validators and overriding existing ones. When a document is created all validators share field's context thus we can write context-aware checks. Please see package's website for details.
-
-### Document
-
-A document is an advanced strongly-typed JavaScript object where properties are instances of the `Field` class.
-
-**Document(data, {parent})**
-
-> Strongly-typed JavaScript object.
+> Abstract class which represents a strongly-typed JavaScript object.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| data | Object | No | - | Initial data object.
-| parent | Document | No | - | Parent document instance (for nesting).
+| parent | Model | No | - | Parent model instance.
+| context | Model | No | - | Root model instance representing application context.
 
 ```js
-class Model extends Document {
+class Model extends Model {
   constructor (data, options) {
-    super(data, options);
+    super(); // initializing the Model
 
     this.defineField('name', {
       type: 'String', // field type casting
       get (v) { return v }, // custom getter
       set (v) { return v }, // custom setter
-      validate: [ // value validations
+      validate: [ // value validator recipes
         { // validator recipe (check validatable.js for more)
           validator: 'presence', // validator name
-          message: 'must be present' // error message
+          condition () { return true }, // optional condition which switches the validation on/off
+          message: '%{it} must be present', // error message
+          it: 'it' // custom variable for the `message`
+        }
+      ],
+      handle: [ // error handling recipies
+        { // handler recipe
+          handler: 'block', // handler name
+          condition () { return true }, // optional condition which switches the handling on/off
+          message: '%{is} unknown', // error message
+          block (error) { return true }, // block handler-specific option
+          is: 'is' // optional custom variable for the `message`
         }
       ],
       defaultValue: 'Noname', // field default value (value or function)
@@ -135,28 +437,12 @@ class Model extends Document {
 }
 ```
 
-#### Properties
-
-**Document.prototype.options**: Object
-
-> Document options.
-
-**Document.prototype.parent**: Document
-
-> Parent document instance.
-
-**Document.prototype.root**: Document
-
-> The first document instance in a tree of documents.
-
-#### Methods
-
-**Document.prototype.applyErrors(errors)**: Document
+**Model.prototype.applyErrors(errors)**: Model
 
 > Deeply populates fields with the provided `errors`.
 
 ```js
-doc.applyErrors([
+model.applyErrors([
   {
     path: ['books', 1, 'title'], // field path
     errors: [
@@ -170,49 +456,58 @@ doc.applyErrors([
 ]);
 ```
 
-**Document.prototype.clear()**: Document
+**Model.prototype.clear()**: Model
 
-> Sets all document fields to `null`.
+> Sets all model fields to `null`.
 
-**Document.prototype.clone()**: Document
+**Model.prototype.clone()**: Model
 
-> Returns a new Document instance which is the exact copy of the original.
+> Returns a new Model instance which is the exact copy of the original.
 
-**Document.prototype.collect(handler)**: Array
+**Model.prototype.collect(handler)**: Array
 
-> Scrolls through document fields and collects results.
+> Scrolls through model fields and collects results.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | handler | Function | Yes | - | A handler method which is executed for each field.
 
-**Document.prototype.collectErrors()**: Array
+**Model.prototype.collectErrors()**: Array
 
 > Returns a list of errors for all the fields ({path, errors}[]).
 
 ```js
-doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', message: 'must be blank', code: 422}]}
+model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', message: 'must be blank', code: 422}]}
 ```
 
-**Document.prototype.commit()**: Document
+**Model.prototype.commit()**: Model
 
-> Sets initial value of each document field to the current value of a field. This is how field change tracking is restarted.
+> Sets initial value of each model field to the current value of a field. This is how field change tracking is restarted.
 
-**Document.prototype.defineField(name, {type, get, set, defaultValue, fakeValue, validate})**: Void
+**Model.prototype.defineField(name, {type, get, set, defaultValue, fakeValue, validate})**: Void
 
-> Defines a new document property.
+> Defines a new model property.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | name | String | Yes | - | Property name.
-| type | String, Document | No | - | Data type (pass a Document to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
+| type | String, Model | No | - | Data type (pass a Model to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
 | get | Function | No | - | Custom getter.
 | set | Function | No | - | Custom setter.
 | defaultValue | Any | No | - | Field default value.
 | fakeValue | Any | No | - | Field fake value.
 | validate | Array | No | - | List of validation recipies (check [validatable.js](https://github.com/xpepermint/validatablejs) for more).
 
-**Document.prototype.defineType(name, converter)**: Void
+**Model.prototype.defineModel(name, Model)**: Void
+
+> Defines a a new context-aware model.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| name | String | Yes | Model's name | Model name (pass `null` to use Model's name).
+| Model | Model | Yes | - | Model class.
+
+**Model.prototype.defineType(name, converter)**: Void
 
 > Defines a custom data type.
 
@@ -221,7 +516,7 @@ doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', mess
 | name | String | Yes | - | Type name.
 | converter | Function | Yes | - | Type converter.
 
-**Document.prototype.defineValidator(name, handler)**: Void
+**Model.prototype.defineValidator(name, handler)**: Void
 
 > Defines a custom validator.
 
@@ -230,11 +525,11 @@ doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', mess
 | name | String | Yes | - | Validator name.
 | handler | Function, Promise | Yes | - | Validator handler.
 
-**Document.prototype.equals(value)**: Boolean
+**Model.prototype.equals(value)**: Boolean
 
-> Returns `true` when the provided `value` represents an object with the same fields as the document itself.
+> Returns `true` when the provided `value` represents an object with the same fields as the model itself.
 
-**Document.prototype.failFast(fail)**: Void
+**Model.prototype.failFast(fail)**: Void
 
 > Configures validator to stop field validation on the first error.
 
@@ -242,23 +537,27 @@ doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', mess
 |--------|------|----------|---------|------------
 | fail | Boolean | No | false | Stops field validation on the first error when set to `true`.
 
-**Document.prototype.fake()**: Document
+**Model.prototype.fake()**: Model
 
-> Sets each document field to its fake value if a fake value generator is registered, otherwise the default value is used.
+> Sets each model field to its fake value if a fake value generator is registered, otherwise the default value is used.
 
-**Document.prototype.filter(handler)**: Object
+**Model.prototype.filter(handler)**: Object
 
-> Converts a document into serialized data object with only the keys that pass the test.
+> Converts a model into serialized data object with only the keys that pass the test.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | handler | Function | Yes | - | A function to test each key value. If the function returns `true` then the key is included in the returned object.
 
-**Document.prototype.flatten()**: Array
+**Model.prototype.flatten()**: Array
 
-> Converts the document into an array of fields.
+> Converts the model into an array of fields.
 
-**Document.prototype.getField(...keys)**: Field
+```js
+user.flatten(); // -> [{path: [...], field: ...}, ...]
+```
+
+**Model.prototype.getField(...keys)**: Field
 
 > Returns a class instance of a field at path.
 
@@ -266,11 +565,29 @@ doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', mess
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
-**Document.prototype.hasErrors()**: Boolean
+**Model.prototype.handle(error, {quiet}): Promise(Model)**
+
+> Tries to handle the `error` against each field handlers and populates model with possible errors.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| error | Error | Yes | - | Instance of an Error object.
+| quiet | Boolean | No | true | When set to `false`, a handled validation error is thrown. This doesn't affect the unhandled errors (they are always thrown).
+
+```js
+try {
+  // throws an error (e.g. you can call the `validate()` method)
+}
+catch (e) {
+  model.handle(e);
+}
+```
+
+**Model.prototype.hasErrors()**: Boolean
 
 > Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
 
-**Document.prototype.hasField(...keys)**: Boolean
+**Model.prototype.hasField(...keys)**: Boolean
 
 > Returns `true` when a field path exists.
 
@@ -278,126 +595,95 @@ doc.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', mess
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
-**Document.prototype.isChanged()**: Boolean
+**Model.prototype.isChanged()**: Boolean
 
-> Returns `true` if at least one document field has been changed.
+> Returns `true` if at least one model field has been changed.
 
-**Document.prototype.isNested()**: Boolean
+**Model.prototype.isNested()**: Boolean
 
 > Returns `true` if nested fields exist.
 
-**Document.prototype.isValid()**: Boolean
+**Model.prototype.isValid()**: Boolean
 
-> Returns `true` when all document fields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
+> Returns `true` when all model fields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
 
-**Document.prototype.invalidate()**: Document
+**Model.prototype.invalidate()**: Model
 
 > Clears `errors` on all fields.
 
-**Document.prototype.populate(data)**: Document
+**Model.prototype.options**: Object
 
-> Applies data to a document.
+> Model options.
+**Model.prototype.parent**: Model
+
+> Parent model instance.
+
+**Model.prototype.populate(data)**: Model
+
+> Applies data to a model.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
 
-**Document.prototype.reset()**: Document
+**Model.prototype.reset()**: Model
 
-> Sets each document field to its default value.
+> Sets each model field to its default value.
 
-**Document.prototype.rollback()**: Document
+**Model.prototype.rollback()**: Model
 
-> Sets each document field to its initial value (last committed value). This is how you can discharge document changes.
+> Sets each model field to its initial value (last committed value). This is how you can discharge model changes.
 
-**Document.prototype.scroll(handler)**: Integer
+**Model.prototype.root**: Model
 
-> Scrolls through document fields and executes a handler on each field.
+> The first model instance in a tree of models.
+
+**Model.prototype.scroll(handler)**: Integer
+
+> Scrolls through model fields and executes a handler on each field.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | handler | Function | Yes | - | A handler method which is executed for each field.
 
-**Document.prototype.serialize()**: Object
+**Model.prototype.serialize()**: Object
 
-> Converts a document into serialized data object.
+> Converts a model into serialized data object.
 
-**Document.prototype.validate({quiet})**: Promise(Document)
+**Model.prototype.validate({quiet})**: Promise(Model)
 
-> Validates document fields and throws an error if not all fields are valid unless the `quiet` is set to `true`.
+> Validates model fields, populates model with possible errors and throws a validation error if not all fields are valid unless the `quiet` is set to `true`.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| quiet | Boolean | No | false | When set to `true`, a validation error is thrown.
+| quiet | Boolean | No | true | When set to `false`, a validation error is thrown.
 
 ```js
 try {
-  await doc.validate(); // throws a validation error when invalid fields exist
+  await model.validate(); // throws a validation error when invalid fields exist
 }
 catch (e) {
   // `e` is a 422 validation error
 }
 ```
 
-### Field
-
-Every document field is an instance of the `Field` class.
+### Field Class
 
 **Field({type, get, set, defaultValue, fakeValue, validate}, {owner, validators, failFast})**
 
-> A document field.
+> A model field.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| type | String, Document | No | - | Data type (pass a Document to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
+| type | String, Model | No | - | Data type (pass a Model to create a nested structure).
 | get | Function | No | - | Custom getter.
 | set | Function | No | - | Custom setter.
 | defaultValue | Any | No | - | Field default value.
 | fakeValue | Any | No | - | Field fake value.
-| validate | Array | No | - | List of validation recipies (check [validatable.js](https://github.com/xpepermint/validatablejs) for more).
-| owner | Document | No | - | An instance of a Document which owns the field.
-| validators | Object | No | - | Custom validators (check [validatable.js](https://github.com/xpepermint/validatablejs) for more)
+| validate | Array | No | - | List of validator recipes.
+| owner | Model | No | - | An instance of a Model which owns the field.
+| validators | Object | No | - | Custom validators
 | failFast | Boolean | No | false | Stops validation on the first error when set to `true`.
-
-#### Properties
-
-**Field.prototype.defaultValue**: Any
-
-> A getter which returns the default field value.
-
-**Field.prototype.errors**: Object[];
-
-> List of field errors (sets the `validate` method).
-
-**Field.prototype.fakeValue**: Any
-
-> A getter which returns a fake field value.
-
-**Field.prototype.initialValue**: Any
-
-> A getter which returns the last commited field value.
-
-**Field.prototype.options**: Object
-
-> A getter which returns field options.
-
-**Field.prototype.owner**: Document
-
-> A getter which returns a reference to a Document instance on which the field is defined.
-
-**Field.prototype.recipe**: Object
-
-> A getter which returns a field recipe object.
-
-**Field.prototype.type**: Any
-
-> A getter which returns field type (set to `Document` for a nested structure).
-
-**Field.prototype.value**: Any
-
-> Field current value (the actula document's property).
-
-#### Methods
 
 **Field.prototype.clear()**: Field
 
@@ -407,6 +693,14 @@ Every document field is an instance of the `Field` class.
 
 > Sets initial value to the current value. This is how field change tracking is restarted.
 
+**Field.prototype.defaultValue**: Any
+
+> A getter which returns the default field value.
+
+**Field.prototype.errors**: Object[]
+
+> List of field errors (sets the `validate` method).
+
 **Field.prototype.equals(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object that looks the same.
@@ -415,9 +709,17 @@ Every document field is an instance of the `Field` class.
 
 > Sets field to a generated fake value.
 
+**Field.prototype.fakeValue**: Any
+
+> A getter which returns a fake field value.
+
 **Field.prototype.hasErrors()**: Boolean
 
 > Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
+
+**Field.prototype.initialValue**: Any
+
+> A getter which returns the last committed field value.
 
 **Field.prototype.isChanged()**: Boolean
 
@@ -425,7 +727,7 @@ Every document field is an instance of the `Field` class.
 
 **Field.prototype.isNested()**: Boolean
 
-> Returns `true` if the field is a nested document.
+> Returns `true` if the field is a nested model.
 
 **Field.prototype.isValid()**: Boolean
 
@@ -435,6 +737,18 @@ Every document field is an instance of the `Field` class.
 
 > Clears the `errors` field on all fields (the reverse of `validate()`).
 
+**Field.prototype.options**: Object
+
+> A getter which returns field options.
+
+**Field.prototype.owner**: Model
+
+> A getter which returns a reference to a Model instance on which the field is defined.
+
+**Field.prototype.recipe**: Object
+
+> A getter which returns a field recipe object.
+
 **Field.prototype.reset()**: Field
 
 > Sets the field to its default value.
@@ -443,17 +757,245 @@ Every document field is an instance of the `Field` class.
 
 > Sets the field to its initial value (last committed value). This is how you can discharge field's changes.
 
+**Field.prototype.type**: Any
+
+> A getter which returns field type (set to `Model` for a nested structure).
+
 **Field.prototype.validate()**: Promise(Field)
 
 > Validates the `value` and populates the `errors` property with errors.
 
+**Field.prototype.value**: Any
+
+> Field current value (the actual model's property).
+
+### Built-in Data Types
+
+| Type | Description
+|------|------------
+| 'Any' | A value of different types (excluding arrays).
+| ['Any'] | An array with values of different types.
+| 'String' | A string value.
+| ['String'] | An array of string values.
+| 'Boolean' | A boolean value.
+| ['Boolean'] | An array of boolean values.
+| 'Number' | An integer or a float number.
+| ['Number'] | An array of integer or float numbers.
+| 'Integer' | An integer number.
+| ['Integer'] | An array of integer numbers.
+| 'Float' | A float number.
+| ['Float'] | An array of float numbers.
+| 'Date' | A date.
+| ['Date'] | An array of dates.
+| Function | Custom type.
+| [Function] | Custom type.
+
+### Built-in Validators
+
+**absence**
+
+> Validates that the specified field is blank.
+
+**arrayExclusion**
+
+> Validates that the specified field is not in an array of values.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| values | Array | Yes | - | Array of restricted values.
+
+**arrayInclusion**
+
+> Validates that the specified field is in an array of values.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| values | Array | Yes | - | Array of allowed values.
+
+**arrayLength**
+
+> Validates the size of an array.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| min | Number | No | - | Allowed minimum items count.
+| minOrEqual | Number | No | - | Allowed minimum items count (allowing equal).
+| max | Number | No | - | Allowed maximum items count.
+| maxOrEqual | Number | No | - | Allowed maximum items count (allowing equal).
+
+**block**
+
+> Validates the specified field against the provided block function. If the function returns true then the field is treated as valid.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| block | Function,Promise | Yes | - | Synchronous or asynchronous function (e.g. `async () => true`)
+
+```js
+let recipe = {
+  validator: 'block',
+  message: 'must be present',
+  async block (value, recipe) { return true }
+};
+```
+
+**BSONObjectID**
+
+> Validates that the specified field is a valid hex-encoded representation of a [MongoDB ObjectID](http://docs.mongodb.org/manual/reference/object-id/).
+
+**numberSize**
+
+> Validates the size of a number.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| min | Number | No | - | Allowed minimum value.
+| minOrEqual | Number | No | - | Allowed minimum value (allowing equal).
+| max | Number | No | - | Allowed maximum value.
+| maxOrEqual | Number | No | - | Allowed maximum value (allowing equal).
+
+**presence**
+
+> Validates that the specified field is not blank.
+
+**stringBase64**
+
+> Validates that the specified field is base64 encoded string.
+
+**stringDate**
+
+> Validates that the specified field is a date string.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|----------|-----------
+| iso | Boolean | No | false | When `true` only ISO-8601 date format is accepted.
+
+**stringEmail**
+
+> Validates that the specified field is an email.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| allowDisplayName | Boolean | No | false | When set to true, the validator will also match `name <address>`.
+| allowUtf8LocalPart | Boolean | No | false | When set to false, the validator will not allow any non-English UTF8 character in email address' local part.
+| requireTld | Boolean | No | true | When set to false, email addresses without having TLD in their domain will also be matched.
+
+**stringExclusion**
+
+> Checks if the string does not contain the seed.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| seed | String | Yes | - | The seed which should exist in the string.
+
+**stringFQDN**
+
+> Validates that the specified field is a fully qualified domain name (e.g. domain.com).
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| requireTld | Boolean | No | true | Require top-level domain name.
+| allowUnderscores | Boolean | No | false | Allow string to include underscores.
+| allowTrailingDot | Boolean | No | false | Allow string to include a trailing dot.
+
+**stringHexColor**
+
+> Validates that the specified field is a hexadecimal color string.
+
+**stringHexadecimal**
+
+> Validates that the specified field is a hexadecimal number.
+
+**stringInclusion**
+
+> Checks if the string contains the seed.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| seed | String | Yes | - | The seed which should exist in the string.
+
+**stringJSON**
+
+> Validates that the specified field is a JSON string.
+
+**stringLength**
+
+> Validates the length of the specified field.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| bytes | Boolean | No | false | When `true` the number of bytes is returned.
+| min | Number | No | - | Allowed minimum number of characters.
+| minOrEqual | Number | No | - | Allowed minimum value number of characters (allowing equal).
+| max | Number | No | - | Allowed maximum number of characters.
+| maxOrEqual | Number | No | - | Allowed maximum number of characters (allowing equal).
+
+**stringLowercase**
+
+> Validates that the specified field is lowercase.
+
+**stringMatch**
+
+> Validates that the specified field matches the pattern.
+
+| Key | Type | Required | Default | Description
+|-----|------|----------|---------|------------
+| pattern | String | Yes | - | Regular expression pattern.
+| modifiers | String | No | - | Regular expression modifiers.
+
+**stringUppercase**
+
+> Validates that the specified field is uppercase.
+
+**stringUUID**
+
+> Validates that the specified field is a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| version | Integer | No | - | UUID version (1, 2, 3, 4 or 5).
+
+### Built-in Handlers
+
+**block**
+
+> Checks if the provided block function succeeds.
+
+| Option | Type | Required | Description
+|--------|------|----------|------------
+| block | Function,Promise | Yes | Synchronous or asynchronous function (e.g. `async () => true`).
+
+```js
+let recipe = {
+  handler: 'block',
+  message: 'is unknown error',
+  async block (error, recipe) { return true }
+};
+```
+
+**mongoUniqueness**
+
+> Checks if the error represents a MongoDB unique constraint error.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| indexName | String | Yes | - | MongoDB collection's unique index name.
+
+```js
+let recipe = {
+  handler: 'mongoUniqueness',
+  message: 'is unknown error',
+  indexName: 'uniqueEmail' // make sure that this index name exists in your MongoDB collection
+};
+```
+
 ## License (MIT)
 
 ```
-Copyright (c) 2016 Kristijan Sedlak <xpepermint@gmail.com>
+Copyright (c) 2016+ Kristijan Sedlak <xpepermint@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
+of this software and associated modelation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is

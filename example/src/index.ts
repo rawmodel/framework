@@ -1,10 +1,10 @@
-import {Document} from '../..';
+import {Model} from '../..';
 
 /*
 * Book model
 */
 
-class Book extends Document {
+class Book extends Model {
   public title: string;
 
   public constructor (data?, options?) {
@@ -14,7 +14,7 @@ class Book extends Document {
       type: 'String',
       validate: [
         {
-          validator: 'presence', 
+          validator: 'presence',
           message: 'must be present'
         }
       ]
@@ -29,7 +29,7 @@ class Book extends Document {
 * User model
 */
 
-class User extends Document {
+class User extends Model {
   public name: string;
   public book: Book;
 
@@ -40,7 +40,7 @@ class User extends Document {
       type: 'String',
       validate: [
         {
-          validator: 'presence', 
+          validator: 'presence',
           message: 'must be present'
         }
       ]
@@ -49,7 +49,7 @@ class User extends Document {
       type: Book,
       validate: [
         {
-          validator: 'presence', 
+          validator: 'presence',
           message: 'must be present'
         }
       ]

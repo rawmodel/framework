@@ -37,15 +37,16 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var typeable_1 = require("typeable");
 var utils_1 = require("./utils");
 var validatable_1 = require("validatable");
-var documents_1 = require("./documents");
+var handleable_1 = require("handleable");
+var models_1 = require("./models");
 var Field = (function () {
     function Field(recipe, options) {
         var _this = this;
         this.errors = [];
-        Object.defineProperty(this, 'recipe', {
+        Object.defineProperty(this, '_recipe', {
             value: Object.freeze(recipe || {})
         });
-        Object.defineProperty(this, 'options', {
+        Object.defineProperty(this, '_options', {
             value: Object.freeze(options || {})
         });
         Object.defineProperty(this, '_data', {
@@ -58,6 +59,9 @@ var Field = (function () {
         });
         Object.defineProperty(this, '_validator', {
             value: this._createValidator()
+        });
+        Object.defineProperty(this, '_handler', {
+            value: this._createHandler()
         });
         Object.defineProperty(this, 'value', {
             get: function () { return _this._getValue(); },
@@ -77,22 +81,27 @@ var Field = (function () {
             enumerable: true
         });
         Object.defineProperty(this, 'type', {
-            get: function () { return _this.recipe.type || null; },
+            get: function () { return _this._recipe.type || null; },
             enumerable: true
         });
         Object.defineProperty(this, 'owner', {
-            get: function () { return _this.options.owner || null; },
+            get: function () { return _this._options.owner || null; },
             enumerable: true
         });
     }
     Field.prototype._createValidator = function () {
-        var _a = this.options, validators = _a.validators, failFast = _a.failFast;
+        var _a = this._options, validators = _a.validators, failFast = _a.failFast;
         var context = this;
         return new validatable_1.Validator({ validators: validators, failFast: failFast, context: context });
     };
+    Field.prototype._createHandler = function () {
+        var _a = this._options, handlers = _a.handlers, failFast = _a.failFast;
+        var context = this;
+        return new handleable_1.Handler({ handlers: handlers, failFast: failFast, context: context });
+    };
     Field.prototype._getValue = function () {
         var data = this._data;
-        var get = this.recipe.get;
+        var get = this._recipe.get;
         if (typeable_1.isFunction(get)) {
             data = get.call(this, data);
         }
@@ -102,7 +111,7 @@ var Field = (function () {
         if (typeable_1.isFunction(data)) {
             data = data.call(this);
         }
-        var set = this.recipe.set;
+        var set = this._recipe.set;
         if (typeable_1.isFunction(set)) {
             data = set.call(this, data);
         }
@@ -111,21 +120,24 @@ var Field = (function () {
         this._data = data;
     };
     Field.prototype._cast = function (data, type) {
+        var _this = this;
         var converter = type;
         if (!typeable_1.isValue(data)) {
             return null;
         }
         if (this.isNested()) {
             var Klass_1 = typeable_1.isArray(type) ? type[0] : type;
-            var options_1 = utils_1.merge({}, this.owner.options, { parent: this.owner });
-            var toDocument = function (d) { return new Klass_1(d, options_1); };
-            converter = typeable_1.isArray(type) ? [toDocument] : toDocument;
+            var toModel = function (d) { return new Klass_1(d, {
+                parent: _this.owner,
+                context: _this.owner.context
+            }); };
+            converter = typeable_1.isArray(type) ? [toModel] : toModel;
         }
         return typeable_1.cast(data, converter);
     };
     Field.prototype._getDefaultValue = function () {
         var data = null;
-        var defaultValue = this.recipe.defaultValue;
+        var defaultValue = this._recipe.defaultValue;
         if (typeable_1.isFunction(defaultValue)) {
             data = defaultValue.call(this);
         }
@@ -136,7 +148,7 @@ var Field = (function () {
     };
     Field.prototype._getFakeValue = function () {
         var data = null;
-        var fakeValue = this.recipe.fakeValue;
+        var fakeValue = this._recipe.fakeValue;
         if (typeable_1.isFunction(fakeValue)) {
             data = fakeValue.call(this);
         }
@@ -155,7 +167,7 @@ var Field = (function () {
             this.value = this.fakeValue;
         }
         (typeable_1.toArray(this.value) || [])
-            .filter(function (doc) { return doc instanceof documents_1.Document; })
+            .filter(function (doc) { return doc instanceof models_1.Model; })
             .map(function (doc) { return doc.fake(); });
         return this;
     };
@@ -189,8 +201,8 @@ var Field = (function () {
             type = type[0];
         return (typeable_1.isPresent(type)
             && typeable_1.isPresent(type.prototype)
-            && (type.prototype instanceof documents_1.Document
-                || type.prototype.constructor === documents_1.Document));
+            && (type.prototype instanceof models_1.Model
+                || type.prototype.constructor === models_1.Model));
     };
     Field.prototype.validate = function () {
         return __awaiter(this, void 0, void 0, function () {
@@ -198,12 +210,31 @@ var Field = (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, Promise.all((typeable_1.toArray(this.value) || [])
-                            .filter(function (doc) { return doc instanceof documents_1.Document; })
+                            .filter(function (doc) { return doc instanceof models_1.Model; })
                             .map(function (doc) { return doc.validate({ quiet: true }); }))];
                     case 1:
                         _b.sent();
                         _a = this;
-                        return [4 /*yield*/, this._validator.validate(this.value, this.recipe.validate)];
+                        return [4 /*yield*/, this._validator.validate(this.value, this._recipe.validate)];
+                    case 2:
+                        _a.errors = _b.sent();
+                        return [2 /*return*/, this];
+                }
+            });
+        });
+    };
+    Field.prototype.handle = function (error) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, Promise.all((typeable_1.toArray(this.value) || [])
+                            .filter(function (doc) { return doc instanceof models_1.Model; })
+                            .map(function (doc) { return doc.handle(error); }))];
+                    case 1:
+                        _b.sent();
+                        _a = this;
+                        return [4 /*yield*/, this._handler.handle(error, this._recipe.handle)];
                     case 2:
                         _a.errors = _b.sent();
                         return [2 /*return*/, this];
@@ -213,7 +244,7 @@ var Field = (function () {
     };
     Field.prototype.invalidate = function () {
         (typeable_1.toArray(this.value) || [])
-            .filter(function (doc) { return doc instanceof documents_1.Document; })
+            .filter(function (doc) { return doc instanceof models_1.Model; })
             .forEach(function (doc) { return doc.invalidate(); });
         this.errors = [];
         return this;

@@ -1,3 +1,3 @@
-import { Document } from './documents';
+import { Model } from './models';
 import { Field } from './fields';
-export { Document, Field };
+export { Model, Field };

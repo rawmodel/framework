@@ -1,26 +1,18 @@
 import {isFunction, isUndefined, isPresent, isArray, toArray, isValue, cast} from 'typeable';
-import {serialize, isEqual, merge} from './utils';
+import {serialize, isEqual} from './utils';
 import {Validator, ValidatorRecipe} from 'validatable';
-import {Document} from './documents';
+import {Handler, HandlerRecipe} from 'handleable';
+import {Model} from './models';
 
 /*
 * Field context definition interface.
 */
 
 export interface FieldOptions {
-  owner?: Document;
+  owner?: Model;
   validators?: {[name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>};
+  handlers?: {[name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>};
   failFast?: boolean;
-}
-
-/*
-* Field validation definition interface.
-*/
-
-export interface ValidationRecipe {
-  validator: string;
-  message: string;
-  [key: string]: any;
 }
 
 /*
@@ -33,7 +25,8 @@ export interface FieldRecipe {
   set?: (v: any) => void;
   defaultValue?: any;
   fakeValue?: any;
-  validate?: ValidationRecipe[];
+  validate?: ValidatorRecipe[];
+  handle?: HandlerRecipe[];
 }
 
 /*
@@ -55,12 +48,13 @@ export class Field {
   protected _data: any;
   protected _initialData: any;
   protected _validator: Validator;
-  readonly recipe: FieldRecipe;
-  readonly options: FieldOptions;
+  protected _handler: Handler;
+  protected _recipe: FieldRecipe;
+  protected _options: FieldOptions;
   readonly defaultValue: any;
   readonly fakeValue: any;
   readonly initialValue: any;
-  readonly owner: Document;
+  readonly owner: Model;
   readonly type: any;
   public value: any;
   public errors: FieldError[];
@@ -72,10 +66,10 @@ export class Field {
   public constructor (recipe?: FieldRecipe, options?: FieldOptions) {
     this.errors = [];
 
-    Object.defineProperty(this, 'recipe', {
+    Object.defineProperty(this, '_recipe', {
       value: Object.freeze(recipe || {})
     });
-    Object.defineProperty(this, 'options', {
+    Object.defineProperty(this, '_options', {
       value: Object.freeze(options || {})
     });
 
@@ -90,44 +84,58 @@ export class Field {
     Object.defineProperty(this, '_validator', { // validatable.js instance
       value: this._createValidator()
     });
+    Object.defineProperty(this, '_handler', { // handleable.js instance
+      value: this._createHandler()
+    });
 
     Object.defineProperty(this, 'value', {
       get: () => this._getValue(),
       set: (v) => this._setValue(v),
       enumerable: true
     });
-    Object.defineProperty(this, 'defaultValue', { 
+    Object.defineProperty(this, 'defaultValue', {
       get: () => this._getDefaultValue(),
       enumerable: true
     });
-    Object.defineProperty(this, 'fakeValue', { 
+    Object.defineProperty(this, 'fakeValue', {
       get: () => this._getFakeValue(),
       enumerable: true
     });
-    Object.defineProperty(this, 'initialValue', { 
+    Object.defineProperty(this, 'initialValue', {
       get: () => this._initialData,
       enumerable: true
     });
 
-    Object.defineProperty(this, 'type', { 
-      get: () => this.recipe.type || null,
+    Object.defineProperty(this, 'type', {
+      get: () => this._recipe.type || null,
       enumerable: true
     });
-    Object.defineProperty(this, 'owner', { 
-      get: () => this.options.owner || null,
+    Object.defineProperty(this, 'owner', {
+      get: () => this._options.owner || null,
       enumerable: true
     });
   }
 
   /*
-  * Returns a new instance of validator.
+  * Returns a new validator instance.
   */
 
   protected _createValidator () {
-    let {validators, failFast} = this.options;
+    let {validators, failFast} = this._options;
     let context = this;
 
     return new Validator({validators, failFast, context});
+  }
+
+  /*
+  * Returns a new handler instance.
+  */
+
+  protected _createHandler () {
+    let {handlers, failFast} = this._options;
+    let context = this;
+
+    return new Handler({handlers, failFast, context});
   }
 
   /*
@@ -136,12 +144,12 @@ export class Field {
 
   protected _getValue () {
     let data = this._data;
-    
-    let {get} = this.recipe;
+
+    let {get} = this._recipe;
     if (isFunction(get)) {
       data = get.call(this, data);
     }
-    
+
     return data;
   }
 
@@ -154,7 +162,7 @@ export class Field {
       data = data.call(this);
     }
 
-    let {set} = this.recipe;
+    let {set} = this._recipe;
     if (isFunction(set)) {
       data = set.call(this, data);
     }
@@ -179,9 +187,11 @@ export class Field {
 
     if (this.isNested()) {
       let Klass = isArray(type) ? type[0] : type;
-      let options = merge({}, this.owner.options, {parent: this.owner});
-      let toDocument = (d) => new Klass(d, options);
-      converter = isArray(type) ? [toDocument] : toDocument;
+      let toModel = (d) => new Klass(d, {
+        parent: this.owner,
+        context: this.owner.context
+      });
+      converter = isArray(type) ? [toModel] : toModel;
     }
 
     return cast(data, converter);
@@ -193,8 +203,8 @@ export class Field {
 
   protected _getDefaultValue () {
     let data = null;
-    
-    let {defaultValue} = this.recipe;
+
+    let {defaultValue} = this._recipe;
     if (isFunction(defaultValue)) {
       data = defaultValue.call(this);
     }
@@ -212,7 +222,7 @@ export class Field {
   protected _getFakeValue () {
     let data = null;
 
-    let {fakeValue} = this.recipe;
+    let {fakeValue} = this._recipe;
     if (isFunction(fakeValue)) {
       data = fakeValue.call(this);
     }
@@ -245,7 +255,7 @@ export class Field {
     }
 
     (toArray(this.value) || []) // related fake values
-      .filter((doc) => doc instanceof Document)
+      .filter((doc) => doc instanceof Model)
       .map((doc) => doc.fake());
 
     return this;
@@ -309,7 +319,7 @@ export class Field {
   }
 
   /*
-  * Returns `true` if the data is a Document.
+  * Returns `true` if the data is a Model.
   */
 
   public isNested (): boolean {
@@ -320,8 +330,8 @@ export class Field {
       isPresent(type)
       && isPresent(type.prototype)
       && (
-        type.prototype instanceof Document
-        || type.prototype.constructor === Document
+        type.prototype instanceof Model
+        || type.prototype.constructor === Model
       )
     );
   }
@@ -334,15 +344,37 @@ export class Field {
   */
 
   public async validate (): Promise<this> {
-    await Promise.all( // invalidate related documents
+    await Promise.all( // validate related models
       (toArray(this.value) || [])
-        .filter((doc) => doc instanceof Document)
-        .map((doc) => doc.validate({quiet: true}))  
+        .filter((doc) => doc instanceof Model)
+        .map((doc) => doc.validate({quiet: true}))
     );
 
     this.errors = await this._validator.validate(
       this.value,
-      this.recipe.validate
+      this._recipe.validate
+    );
+
+    return this;
+  }
+
+  /*
+  * Handles the field by populating the `errors` property.
+  *
+  * IMPORTANT: Array null values for nested objects are not treated as an object
+  * but as an empty item thus isValid() for [null] succeeds.
+  */
+
+  public async handle (error: any): Promise<this> {
+    await Promise.all( // handle related models
+      (toArray(this.value) || [])
+        .filter((doc) => doc instanceof Model)
+        .map((doc) => doc.handle(error))
+    );
+
+    this.errors = await this._handler.handle(
+      error,
+      this._recipe.handle
     );
 
     return this;
@@ -353,8 +385,8 @@ export class Field {
   */
 
   public invalidate (): this {
-    (toArray(this.value) || []) // invalidate related documents
-      .filter((doc) => doc instanceof Document)
+    (toArray(this.value) || []) // invalidate related models
+      .filter((doc) => doc instanceof Model)
       .forEach((doc) => doc.invalidate());
 
     this.errors = [];
@@ -387,5 +419,5 @@ export class Field {
   public isValid (): boolean {
     return !this.hasErrors();
   }
-  
+
 }

@@ -1,5 +1,6 @@
 import {isArray, isUndefined, isPresent, toBoolean} from 'typeable';
 import {ValidatorRecipe} from 'validatable';
+import {HandlerRecipe} from 'handleable';
 import {Field, FieldRecipe, FieldError} from './fields';
 import {serialize, isEqual, merge} from './utils';
 
@@ -22,39 +23,44 @@ export interface FieldErrorRef extends Error {
 }
 
 /*
-* Document options interface.
+* Model options interface.
 */
 
-export interface DocumentOptions {
-  parent?: Document;
+export interface ModelOptions {
+  parent?: Model;
+  context?: Model;
 }
 
 /*
 * The core schema object class.
 */
 
-export class Document {
-  protected _fields: {[name: string]: Field}; // document fields
+export abstract class Model {
+  protected _fields: {[name: string]: Field}; // model fields
   protected _types: {[key: string]: (v?) => any}; // custom data types
   protected _validators: {[key: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>}; // custom validators
-  protected _failFast: boolean; // stop validating on first error
-  readonly options: DocumentOptions;
-  readonly parent: Document;
-  readonly root: Document;
+  protected _handlers: {[key: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>}; // custom validators
+  protected _failFast: boolean; // stop validating/handling on first error
+  readonly root: Model;
+  public parent: Model;
+  public context: Model;
+  public static context: Model;
 
   /*
   * Class constructor.
   */
 
-  public constructor (data?, options?: DocumentOptions) {    
-    Object.defineProperty(this, 'options', {
-      value: Object.freeze(options || {})
-    });
+  public constructor (data = {}, options: ModelOptions = {}) {
     Object.defineProperty(this, 'parent', {
-      value: this.options.parent || null
+      value: options.parent || this.parent || null,
+      writable: true
+    });
+    Object.defineProperty(this, 'context', {
+      value: options.context || this.context || null,
+      writable: true
     });
     Object.defineProperty(this, 'root', {
-      get: () => this._getRootDocument()
+      get: () => this._getRootModel()
     });
 
     Object.defineProperty(this, '_fields', {
@@ -69,20 +75,22 @@ export class Document {
       value: {},
       writable: true
     });
+    Object.defineProperty(this, '_handlers', {
+      value: {},
+      writable: true
+    });
     Object.defineProperty(this, '_failFast', {
       value: false,
       writable: true
     });
-
-    this.populate(data);
   }
 
   /*
-  * Loops up on the tree and returns the first document in the tree.
+  * Loops up on the tree and returns the first model in the tree.
   */
 
-  protected _getRootDocument () {
-    let root: Document = this;
+  protected _getRootModel () {
+    let root: Model = this;
     do {
       if (root.parent) {
         root = root.parent;
@@ -107,6 +115,7 @@ export class Document {
     ), {
       owner: this,
       validators: this._validators,
+      handlers: this._handlers,
       failFast: this._failFast
     });
   }
@@ -123,12 +132,15 @@ export class Document {
   }
 
   /*
-  * Creates a new document instance. This method is especially useful when
+  * Creates a new model instance. This method is especially useful when
   * extending this class.
   */
 
-  protected _createDocument (data = {}, options: DocumentOptions = {}) {
-    return new (this.constructor as any)(data, options);
+  protected _createModel (data = {}, options: ModelOptions = {}) {
+    return new (this.constructor as any)(data, {
+      parent: options.parent,
+      context: options.context
+    });
   }
 
   /*
@@ -140,7 +152,7 @@ export class Document {
   }
 
   /*
-  * Defines a new document property.
+  * Defines a new model property.
   */
 
   public defineField (name: string, recipe?: FieldRecipe): void {
@@ -173,19 +185,39 @@ export class Document {
   }
 
   /*
+  * Defines a new custom validator.
+  */
+
+  public defineHandler (name: string, handler: (e?, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
+    this._handlers[name] = handler;
+  }
+
+  /*
+  * Defines a new model property.
+  */
+
+  public defineModel (Klass: typeof Model, name?: string): void {
+    if (!name) name = Klass.prototype.constructor.toString().split(' ')[1];
+
+    this[name] = eval(`class ${name} extends Model {}`);
+    this[name].prototype.context = this;
+    this[name].context = this;
+  }
+
+  /*
   * Returns a value at path.
   */
 
   public getField (...keys): Field {
     keys = [].concat(isArray(keys[0]) ? keys[0] : keys);
-    
+
     let lastKey = keys.pop();
     if (keys.length === 0) {
       return this._fields[lastKey];
     }
 
     let field = keys.reduce((a, c) => (a[c] || {}), this);
-    return field instanceof Document ? field.getField(lastKey) : undefined;
+    return field instanceof Model ? field.getField(lastKey) : undefined;
   }
 
   /*
@@ -219,7 +251,7 @@ export class Document {
   }
 
   /*
-  * Scrolls through the document and returns an array of fields.
+  * Scrolls through the model and returns an array of fields.
   */
 
   public flatten (prefix: string[] = []): FieldRef[] {
@@ -234,12 +266,12 @@ export class Document {
       fields.push({path, field});
 
       if (isPresent(value) && isPresent(type)) {
-        if (type.prototype instanceof Document) {
+        if (type.prototype instanceof Model) {
           fields = fields.concat(
             value.flatten(path)
           );
         }
-        else if (isArray(type) && type[0].prototype instanceof Document) {
+        else if (isArray(type) && type[0].prototype instanceof Model) {
           fields = fields.concat(
             value
               .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
@@ -262,7 +294,7 @@ export class Document {
   }
 
   /*
-  * Scrolls through document fields and executes a handler on each field.
+  * Scrolls through model fields and executes a handler on each field.
   */
 
   public scroll (handler: (field: FieldRef) => void): number {
@@ -290,7 +322,7 @@ export class Document {
   }
 
   /*
-  * Sets each document field to its default value.
+  * Sets each model field to its default value.
   */
 
   reset (): this {
@@ -346,7 +378,7 @@ export class Document {
 
   /*
   * Returns `true` when the `value` represents an object with the
-  * same field values as the original document.
+  * same field values as the original model.
   */
 
   equals (value: any): boolean {
@@ -393,7 +425,32 @@ export class Document {
     if (!quiet && this.hasErrors()) {
       throw this._createValidationError();
     }
+    return this;
+  }
 
+  /*
+  * Validates fields and throws an error.
+  */
+
+  async handle (error: any, {
+    quiet = true
+  }: {
+    quiet?: boolean
+  } = {}): Promise<this> {
+    if (!error) return this;
+
+    let fields = this._fields;
+    await Promise.all(
+      Object.keys(fields)
+        .map((n) => fields[n].handle(error))
+    );
+
+    if (!quiet && this.hasErrors()) {
+      throw this._createValidationError();
+    }
+    else if (!this.hasErrors()) {
+      throw error; // always throw unhandled errors
+    }
     return this;
   }
 
@@ -451,11 +508,14 @@ export class Document {
   }
 
   /*
-  * Returns a new Document instance which is the exact copy of the original.
+  * Returns a new Model instance which is the exact copy of the original.
   */
 
   clone (): this {
-    return this._createDocument(this, this.options);
+    return this._createModel(this, {
+      parent: this.parent,
+      context: this.context
+    });
   }
 
 }

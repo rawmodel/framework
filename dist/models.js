@@ -37,17 +37,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var typeable_1 = require("typeable");
 var fields_1 = require("./fields");
 var utils_1 = require("./utils");
-var Document = (function () {
-    function Document(data, options) {
+var Model = (function () {
+    function Model(data, options) {
+        if (data === void 0) { data = {}; }
+        if (options === void 0) { options = {}; }
         var _this = this;
-        Object.defineProperty(this, 'options', {
-            value: Object.freeze(options || {})
-        });
         Object.defineProperty(this, 'parent', {
-            value: this.options.parent || null
+            value: options.parent || this.parent || null,
+            writable: true
+        });
+        Object.defineProperty(this, 'context', {
+            value: options.context || this.context || null,
+            writable: true
         });
         Object.defineProperty(this, 'root', {
-            get: function () { return _this._getRootDocument(); }
+            get: function () { return _this._getRootModel(); }
         });
         Object.defineProperty(this, '_fields', {
             value: {},
@@ -61,13 +65,16 @@ var Document = (function () {
             value: {},
             writable: true
         });
+        Object.defineProperty(this, '_handlers', {
+            value: {},
+            writable: true
+        });
         Object.defineProperty(this, '_failFast', {
             value: false,
             writable: true
         });
-        this.populate(data);
     }
-    Document.prototype._getRootDocument = function () {
+    Model.prototype._getRootModel = function () {
         var root = this;
         do {
             if (root.parent) {
@@ -78,32 +85,36 @@ var Document = (function () {
             }
         } while (true);
     };
-    Document.prototype._createField = function (recipe) {
+    Model.prototype._createField = function (recipe) {
         if (recipe === void 0) { recipe = {}; }
         var type = recipe.type;
         return new fields_1.Field(utils_1.merge(recipe, { type: this._types[type] || type }), {
             owner: this,
             validators: this._validators,
+            handlers: this._handlers,
             failFast: this._failFast
         });
     };
-    Document.prototype._createValidationError = function (message, code) {
+    Model.prototype._createValidationError = function (message, code) {
         if (message === void 0) { message = 'Validation failed'; }
         if (code === void 0) { code = 422; }
         var error = new Error(message);
         error.code = code;
         return error;
     };
-    Document.prototype._createDocument = function (data, options) {
+    Model.prototype._createModel = function (data, options) {
         if (data === void 0) { data = {}; }
         if (options === void 0) { options = {}; }
-        return new this.constructor(data, options);
+        return new this.constructor(data, {
+            parent: options.parent,
+            context: options.context
+        });
     };
-    Document.prototype.failFast = function (fail) {
+    Model.prototype.failFast = function (fail) {
         if (fail === void 0) { fail = true; }
         this._failFast = typeable_1.toBoolean(fail);
     };
-    Document.prototype.defineField = function (name, recipe) {
+    Model.prototype.defineField = function (name, recipe) {
         var field = this._createField(recipe);
         Object.defineProperty(this, name, {
             get: function () { return field.value; },
@@ -113,13 +124,23 @@ var Document = (function () {
         });
         this._fields[name] = field;
     };
-    Document.prototype.defineType = function (name, converter) {
+    Model.prototype.defineType = function (name, converter) {
         this._types[name] = converter;
     };
-    Document.prototype.defineValidator = function (name, handler) {
+    Model.prototype.defineValidator = function (name, handler) {
         this._validators[name] = handler;
     };
-    Document.prototype.getField = function () {
+    Model.prototype.defineHandler = function (name, handler) {
+        this._handlers[name] = handler;
+    };
+    Model.prototype.defineModel = function (Klass, name) {
+        if (!name)
+            name = Klass.prototype.constructor.toString().split(' ')[1];
+        this[name] = eval("class " + name + " extends Model {}");
+        this[name].prototype.context = this;
+        this[name].context = this;
+    };
+    Model.prototype.getField = function () {
         var keys = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             keys[_i] = arguments[_i];
@@ -130,16 +151,16 @@ var Document = (function () {
             return this._fields[lastKey];
         }
         var field = keys.reduce(function (a, c) { return (a[c] || {}); }, this);
-        return field instanceof Document ? field.getField(lastKey) : undefined;
+        return field instanceof Model ? field.getField(lastKey) : undefined;
     };
-    Document.prototype.hasField = function () {
+    Model.prototype.hasField = function () {
         var keys = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             keys[_i] = arguments[_i];
         }
         return !typeable_1.isUndefined(this.getField.apply(this, keys));
     };
-    Document.prototype.populate = function (data) {
+    Model.prototype.populate = function (data) {
         var _this = this;
         if (data === void 0) { data = {}; }
         data = utils_1.serialize(data);
@@ -148,10 +169,10 @@ var Document = (function () {
             .forEach(function (name) { return _this[name] = data[name]; });
         return this;
     };
-    Document.prototype.serialize = function () {
+    Model.prototype.serialize = function () {
         return utils_1.serialize(this);
     };
-    Document.prototype.flatten = function (prefix) {
+    Model.prototype.flatten = function (prefix) {
         var _this = this;
         if (prefix === void 0) { prefix = []; }
         var fields = [];
@@ -162,10 +183,10 @@ var Document = (function () {
             var value = field.value;
             fields.push({ path: path, field: field });
             if (typeable_1.isPresent(value) && typeable_1.isPresent(type)) {
-                if (type.prototype instanceof Document) {
+                if (type.prototype instanceof Model) {
                     fields = fields.concat(value.flatten(path));
                 }
-                else if (typeable_1.isArray(type) && type[0].prototype instanceof Document) {
+                else if (typeable_1.isArray(type) && type[0].prototype instanceof Model) {
                     fields = fields.concat(value
                         .map(function (f, i) { return (f ? f.flatten(path.concat([i])) : null); })
                         .filter(function (f) { return typeable_1.isArray(f); })
@@ -175,13 +196,13 @@ var Document = (function () {
         });
         return fields;
     };
-    Document.prototype.collect = function (handler) {
+    Model.prototype.collect = function (handler) {
         return this.flatten().map(handler);
     };
-    Document.prototype.scroll = function (handler) {
+    Model.prototype.scroll = function (handler) {
         return this.flatten().map(handler).length;
     };
-    Document.prototype.filter = function (test) {
+    Model.prototype.filter = function (test) {
         var data = utils_1.serialize(this);
         this.flatten()
             .sort(function (a, b) { return b.path.length - a.path.length; })
@@ -193,50 +214,50 @@ var Document = (function () {
         });
         return data;
     };
-    Document.prototype.reset = function () {
+    Model.prototype.reset = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].reset(); });
         return this;
     };
-    Document.prototype.fake = function () {
+    Model.prototype.fake = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].fake(); });
         return this;
     };
-    Document.prototype.clear = function () {
+    Model.prototype.clear = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].clear(); });
         return this;
     };
-    Document.prototype.commit = function () {
+    Model.prototype.commit = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].commit(); });
         return this;
     };
-    Document.prototype.rollback = function () {
+    Model.prototype.rollback = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].rollback(); });
         return this;
     };
-    Document.prototype.equals = function (value) {
+    Model.prototype.equals = function (value) {
         return utils_1.isEqual(utils_1.serialize(this), utils_1.serialize(value));
     };
-    Document.prototype.isChanged = function () {
+    Model.prototype.isChanged = function () {
         var _this = this;
         return Object.keys(this._fields)
             .some(function (name) { return _this._fields[name].isChanged(); });
     };
-    Document.prototype.isNested = function () {
+    Model.prototype.isNested = function () {
         var _this = this;
         return Object.keys(this._fields)
             .some(function (name) { return _this._fields[name].isNested(); });
     };
-    Document.prototype.validate = function (_a) {
+    Model.prototype.validate = function (_a) {
         var _b = (_a === void 0 ? {} : _a).quiet, quiet = _b === void 0 ? false : _b;
         return __awaiter(this, void 0, void 0, function () {
             var fields;
@@ -256,7 +277,32 @@ var Document = (function () {
             });
         });
     };
-    Document.prototype.collectErrors = function () {
+    Model.prototype.handle = function (error, _a) {
+        var _b = (_a === void 0 ? {} : _a).quiet, quiet = _b === void 0 ? true : _b;
+        return __awaiter(this, void 0, void 0, function () {
+            var fields;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!error)
+                            return [2 /*return*/, this];
+                        fields = this._fields;
+                        return [4 /*yield*/, Promise.all(Object.keys(fields)
+                                .map(function (n) { return fields[n].handle(error); }))];
+                    case 1:
+                        _a.sent();
+                        if (!quiet && this.hasErrors()) {
+                            throw this._createValidationError();
+                        }
+                        else if (!this.hasErrors()) {
+                            throw error;
+                        }
+                        return [2 /*return*/, this];
+                }
+            });
+        });
+    };
+    Model.prototype.collectErrors = function () {
         return this.flatten()
             .map(function (_a) {
             var path = _a.path, field = _a.field;
@@ -267,7 +313,7 @@ var Document = (function () {
             return errors.length > 0;
         });
     };
-    Document.prototype.applyErrors = function (errors) {
+    Model.prototype.applyErrors = function (errors) {
         var _this = this;
         if (errors === void 0) { errors = []; }
         errors.forEach(function (error) {
@@ -278,24 +324,27 @@ var Document = (function () {
         });
         return this;
     };
-    Document.prototype.hasErrors = function () {
+    Model.prototype.hasErrors = function () {
         var _this = this;
         return Object.keys(this._fields)
             .some(function (name) { return _this._fields[name].hasErrors(); });
     };
-    Document.prototype.isValid = function () {
+    Model.prototype.isValid = function () {
         return !this.hasErrors();
     };
-    Document.prototype.invalidate = function () {
+    Model.prototype.invalidate = function () {
         var _this = this;
         Object.keys(this._fields)
             .forEach(function (name) { return _this._fields[name].invalidate(); });
         return this;
     };
-    Document.prototype.clone = function () {
-        return this._createDocument(this, this.options);
+    Model.prototype.clone = function () {
+        return this._createModel(this, {
+            parent: this.parent,
+            context: this.context
+        });
     };
-    return Document;
+    return Model;
 }());
-exports.Document = Document;
-//# sourceMappingURL=documents.js.map
+exports.Model = Model;
+//# sourceMappingURL=models.js.map
