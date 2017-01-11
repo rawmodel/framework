@@ -286,6 +286,8 @@ var Model = (function () {
                     case 0:
                         if (!error)
                             return [2 /*return*/, this];
+                        if (error.code === 422)
+                            return [2 /*return*/, this];
                         fields = this._fields;
                         return [4 /*yield*/, Promise.all(Object.keys(fields)
                                 .map(function (n) { return fields[n].handle(error); }))];

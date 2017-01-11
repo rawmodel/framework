@@ -941,10 +941,13 @@ test('method `handle` handles field-related errors', async (t) => {
     book1: {},
     books1: [{}]
   });
-  let problem = new Error();
+  let problem0 = new Error();
+  let problem1 = new Error(); problem1.code = 422;
   let errors = [{handler: 'block', message: 'foo', code: 422}];
-  t.throws(user.handle(problem, {quiet: false}));
-  await user.handle(problem);
+  t.throws(user.handle(problem0, {quiet: false}));
+  t.notThrows(user.handle(problem0));
+  t.notThrows(user.handle(problem1, {quiet: false}));
+  await user.handle(problem0);
   t.deepEqual(user.collectErrors(), [
     {path: ['name'], errors},
     {path: ['book0'], errors},

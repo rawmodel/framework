@@ -440,7 +440,8 @@ export abstract class Model {
   }: {
     quiet?: boolean
   } = {}): Promise<this> {
-    if (!error) return this;
+    if (!error) return this; // blank values are valid
+    if (error.code === 422) return this; // validation errors are ignored
 
     let fields = this._fields;
     await Promise.all(
