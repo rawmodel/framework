@@ -612,6 +612,7 @@ catch (e) {
 **Model.prototype.options**: Object
 
 > Model options.
+
 **Model.prototype.parent**: Model
 
 > Parent model instance.
