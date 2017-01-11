@@ -41,7 +41,7 @@ export declare abstract class Model {
     defineType(name: string, converter: (v?) => any): void;
     defineValidator(name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>): void;
     defineHandler(name: string, handler: (e?, r?: HandlerRecipe) => boolean | Promise<boolean>): void;
-    defineModel(Klass: typeof Model, name?: string): void;
+    defineModel(name: string, Klass: typeof Model): void;
     getField(...keys: any[]): Field;
     hasField(...keys: any[]): boolean;
     populate(data?: {}): this;

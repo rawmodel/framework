@@ -196,10 +196,13 @@ export abstract class Model {
   * Defines a new model property.
   */
 
-  public defineModel (Klass: typeof Model, name?: string): void {
+  public defineModel (name: string, Klass: typeof Model): void {
     if (!name) name = Klass.prototype.constructor.toString().split(' ')[1];
 
-    this[name] = eval(`class ${name} extends Model {}`);
+    this[name] = eval(`
+      let Model = Klass;
+      class ${name} extends Model {}
+    `);
     this[name].prototype.context = this;
     this[name].context = this;
   }

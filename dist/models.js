@@ -133,10 +133,10 @@ var Model = (function () {
     Model.prototype.defineHandler = function (name, handler) {
         this._handlers[name] = handler;
     };
-    Model.prototype.defineModel = function (Klass, name) {
+    Model.prototype.defineModel = function (name, Klass) {
         if (!name)
             name = Klass.prototype.constructor.toString().split(' ')[1];
-        this[name] = eval("class " + name + " extends Model {}");
+        this[name] = eval("\n      let Model = Klass;\n      class " + name + " extends Model {}\n    ");
         this[name].prototype.context = this;
         this[name].context = this;
     };

@@ -332,7 +332,7 @@ class User extends Model {
 }
 ```
 
-### Managing Context & GraphQL
+### Context & GraphQL
 
 Sometimes it's handy to create a `root` model and then make it accessible from `dependent models`. The root model in this case represents a `context` object. Because the dependent models have access to that context we say that these models are `context aware`.
 
@@ -353,7 +353,7 @@ class App extends Model { // application context
 
   public constructor () {
     super();
-    this.defineModel(User); // defining a context-aware model from `User` model
+    this.defineModel(null, User); // defining a context-aware model from `User` model
   }
 
   public hello () { // root
@@ -400,9 +400,9 @@ graphql(schema, '{hello}', root).then((response) => {
 | context | Model | No | - | Root model instance representing application context.
 
 ```js
-class Model extends Model {
+class User extends Model {
   constructor (data, options) {
-    super(); // initializing the Model
+    super(null, options); // initializing the Model
 
     this.defineField('name', {
       type: 'String', // field type casting
@@ -502,7 +502,7 @@ model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', me
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| name | String | Yes | Model's name | Model name (pass `null` to use Model's name).
+| name | String | No | Model's name | Model name (pass `null` to use Model's name).
 | Model | Model | Yes | - | Model class.
 
 **Model.prototype.defineType(name, converter)**: Void
