@@ -188,8 +188,7 @@ export class Field {
     if (this.isNested()) {
       let Klass = isArray(type) ? type[0] : type;
       let toModel = (d) => new Klass(d, {
-        parent: this.owner,
-        context: this.owner.context
+        parent: this.owner
       });
       converter = isArray(type) ? [toModel] : toModel;
     }

@@ -28,7 +28,6 @@ export interface FieldErrorRef extends Error {
 
 export interface ModelOptions {
   parent?: Model;
-  context?: Model;
 }
 
 /*
@@ -43,8 +42,6 @@ export abstract class Model {
   protected _failFast: boolean; // stop validating/handling on first error
   readonly root: Model;
   public parent: Model;
-  public context: Model;
-  public static context: Model;
 
   /*
   * Class constructor.
@@ -53,10 +50,6 @@ export abstract class Model {
   public constructor (data = {}, options: ModelOptions = {}) {
     Object.defineProperty(this, 'parent', {
       value: options.parent || this.parent || null,
-      writable: true
-    });
-    Object.defineProperty(this, 'context', {
-      value: options.context || this.context || null,
       writable: true
     });
     Object.defineProperty(this, 'root', {
@@ -138,8 +131,7 @@ export abstract class Model {
 
   protected _createModel (data = {}, options: ModelOptions = {}) {
     return new (this.constructor as any)(data, {
-      parent: options.parent,
-      context: options.context
+      parent: options.parent
     });
   }
 
@@ -190,21 +182,6 @@ export abstract class Model {
 
   public defineHandler (name: string, handler: (e?, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
     this._handlers[name] = handler;
-  }
-
-  /*
-  * Defines a new model property.
-  */
-
-  public defineModel (name: string, Klass: typeof Model): void {
-    if (!name) name = Klass.prototype.constructor.toString().split(' ')[1];
-
-    this[name] = eval(`
-      let Model = Klass;
-      class ${name} extends Model {}
-    `);
-    this[name].prototype.context = this;
-    this[name].context = this;
   }
 
   /*
@@ -517,8 +494,7 @@ export abstract class Model {
 
   clone (): this {
     return this._createModel(this, {
-      parent: this.parent,
-      context: this.context
+      parent: this.parent
     });
   }
 

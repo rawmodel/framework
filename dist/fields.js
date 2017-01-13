@@ -128,8 +128,7 @@ var Field = (function () {
         if (this.isNested()) {
             var Klass_1 = typeable_1.isArray(type) ? type[0] : type;
             var toModel = function (d) { return new Klass_1(d, {
-                parent: _this.owner,
-                context: _this.owner.context
+                parent: _this.owner
             }); };
             converter = typeable_1.isArray(type) ? [toModel] : toModel;
         }

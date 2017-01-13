@@ -11,7 +11,6 @@ export interface FieldErrorRef extends Error {
 }
 export interface ModelOptions {
     parent?: Model;
-    context?: Model;
 }
 export declare abstract class Model {
     protected _fields: {
@@ -29,8 +28,6 @@ export declare abstract class Model {
     protected _failFast: boolean;
     readonly root: Model;
     parent: Model;
-    context: Model;
-    static context: Model;
     constructor(data?: {}, options?: ModelOptions);
     protected _getRootModel(): Model;
     protected _createField(recipe?: FieldRecipe): Field;
@@ -41,7 +38,6 @@ export declare abstract class Model {
     defineType(name: string, converter: (v?) => any): void;
     defineValidator(name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>): void;
     defineHandler(name: string, handler: (e?, r?: HandlerRecipe) => boolean | Promise<boolean>): void;
-    defineModel(name: string, Klass: typeof Model): void;
     getField(...keys: any[]): Field;
     hasField(...keys: any[]): boolean;
     populate(data?: {}): this;

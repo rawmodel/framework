@@ -17,6 +17,10 @@
 
 This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and ready for production environments. The source code is available on [GitHub](https://github.com/xpepermint/rawmodeljs) where you can also find our [issue tracker](https://github.com/xpepermint/rawmodeljs/issues).
 
+## Related Projects
+
+* [vue-rawmodel](https://github.com/xpepermint/vue-rawmodel): RawModel.js plugin for Vue.js v2. Form validation has never been easier!
+
 ## Introduction
 
 RawModel provides a mechanism for creating strongly-typed data objects with built-in logic for unified data validation and error handling. It has a simple and intuitive API and tends to be a powerful, magic-free, minimalistic and unopinionated framework for writing application data layers where you have a full control. It could be a perfect fit when writing an [Express.js](http://expressjs.com/) action, [GraphQL](http://graphql.org/) resolver or similar and it's easily extendable.
@@ -332,46 +336,19 @@ class User extends Model {
 }
 ```
 
-### Context & GraphQL
+### GraphQL
 
-Sometimes it's handy to create a `root` model and then make it accessible from `dependent models`. The root model in this case represents a `context` object. Because the dependent models have access to that context we say that these models are `context aware`.
-
-Usually you will use this technic for your main application class as shown in the example below.
+RawModel.js can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
 
 ```js
-class User extends Model { // user model
-  public name: string;
+import {Model, ModelOptions} from 'rawmodel';
+import {graphql, buildSchema} from 'graphql';
 
-  public constructor () {
-    super();
-    this.defineField('name');
-  }
-}
-
-class App extends Model { // application context
-  public name: string;
-
-  public constructor () {
-    super();
-    this.defineModel(null, User); // defining a context-aware model from `User` model
-  }
-
-  public hello () { // root
+class App extends Model { // root resolver
+  public hello () { // `hello` field resolver
     return 'Hello World!';
   }
 }
-
-let app = new App();
-app.User.context; // accessing App instance
-let user = new app.User();
-user.context; // accessing App instance
-user.context.echo(); // -> "Hello World!"
-```
-
-This feature is especially useful when writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
-
-```js
-const {graphql, buildSchema} = require('graphql');
 
 const schema = buildSchema(`
   type Query {
@@ -390,14 +367,13 @@ graphql(schema, '{hello}', root).then((response) => {
 
 ### Model Class
 
-**Model({parent, context})**
+**Model({parent})**
 
 > Abstract class which represents a strongly-typed JavaScript object.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | parent | Model | No | - | Parent model instance.
-| context | Model | No | - | Root model instance representing application context.
 
 ```js
 class User extends Model {
@@ -495,15 +471,6 @@ model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', me
 | defaultValue | Any | No | - | Field default value.
 | fakeValue | Any | No | - | Field fake value.
 | validate | Array | No | - | List of validation recipies (check [validatable.js](https://github.com/xpepermint/validatablejs) for more).
-
-**Model.prototype.defineModel(name, Model)**: Void
-
-> Defines a a new context-aware model.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | No | Model's name | Model name (pass `null` to use Model's name).
-| Model | Model | Yes | - | Model class.
 
 **Model.prototype.defineType(name, converter)**: Void
 

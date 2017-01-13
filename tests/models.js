@@ -881,37 +881,6 @@ test('method `clone` returns an exact copy of the original', (t) => {
   t.is(user.equals(user), true);
 });
 
-test('method `defineModel` creates a new class with `context` set to the root class', (t) => {
-  class User extends Model {
-    constructor () {
-      super();
-      this.defineField('name');
-    }
-    static foo () {
-      return 'foo';
-    }
-    bar () {
-      return 'bar';
-    }
-  }
-  class Context extends Model {
-    constructor () {
-      super();
-      this.defineModel(null, User);
-    }
-  }
-  let ctx = new Context();
-  t.is(ctx.User.context, ctx);
-  let user = new ctx.User();
-  t.is(user instanceof Model, true);
-  t.is(user.context, ctx);
-  t.is(user.bar(), 'bar');
-  t.is(ctx.User.context, ctx);
-  t.is(User.name, 'User'); // class name is preserved
-  t.is(user.constructor.name, 'User'); // class name is preserved
-  t.is(User.foo(), 'foo');
-});
-
 test('method `handle` handles field-related errors', async (t) => {
   let handle = [{
     handler: 'block',

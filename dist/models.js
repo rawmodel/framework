@@ -46,10 +46,6 @@ var Model = (function () {
             value: options.parent || this.parent || null,
             writable: true
         });
-        Object.defineProperty(this, 'context', {
-            value: options.context || this.context || null,
-            writable: true
-        });
         Object.defineProperty(this, 'root', {
             get: function () { return _this._getRootModel(); }
         });
@@ -106,8 +102,7 @@ var Model = (function () {
         if (data === void 0) { data = {}; }
         if (options === void 0) { options = {}; }
         return new this.constructor(data, {
-            parent: options.parent,
-            context: options.context
+            parent: options.parent
         });
     };
     Model.prototype.failFast = function (fail) {
@@ -132,13 +127,6 @@ var Model = (function () {
     };
     Model.prototype.defineHandler = function (name, handler) {
         this._handlers[name] = handler;
-    };
-    Model.prototype.defineModel = function (name, Klass) {
-        if (!name)
-            name = Klass.prototype.constructor.toString().split(' ')[1];
-        this[name] = eval("\n      let Model = Klass;\n      class " + name + " extends Model {}\n    ");
-        this[name].prototype.context = this;
-        this[name].context = this;
     };
     Model.prototype.getField = function () {
         var keys = [];
@@ -342,8 +330,7 @@ var Model = (function () {
     };
     Model.prototype.clone = function () {
         return this._createModel(this, {
-            parent: this.parent,
-            context: this.context
+            parent: this.parent
         });
     };
     return Model;
