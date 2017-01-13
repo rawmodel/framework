@@ -55,7 +55,7 @@ class User extends Model {
   public name: string;
 
   public constructor (data = {}) {
-    super();
+    super(data);
     this.defineField('name');
     this.populate(data);
   }
@@ -85,8 +85,8 @@ import {Model} from 'rawmodel';
 class User extends Model {
   public name: string; // typescript property definition for field `name`
 
-  public constructor () {
-    super();
+  public constructor (data = {}) {
+    super(data);
     this.defineField('name'); // definition of the `name` field
   }
 }
@@ -115,13 +115,13 @@ Each model also represents a type. This way you can create complex nested struct
 > Make sure that you preserve the constructor's initial parameter structure on nested models.
 
 ```js
-import {Model, ModelOptions} from 'rawmodel';
+import {Model, ModelRecipe} from 'rawmodel';
 
 class Book extends Model {
   public title: string;
 
-  public constructor (data?: any, options?: ModelOptions) {
-    super(data, options);
+  public constructor (data = {}) {
+    super(data);
     this.defineField('title');
     this.populate(data);
   }
@@ -130,8 +130,8 @@ class Book extends Model {
 class User extends Model {
   public book: Book;
 
-  public constructor (data?: any, options?: ModelOptions) {
-    super(data, options);
+  public constructor (data = {}) {
+    super(data);
     this.defineField('book', {type: Book});
     this.populate(data);
   }
@@ -185,8 +185,8 @@ The example below explains how to setup and use these features.
 class User extends Model {
   public name: string;
 
-  public constructor (data?: any) {
-    super();
+  public constructor (data = {}) {
+    super(data);
     this.defineField('name');
     this.populate(data); // populate model with initial values
     this.commit(); // restart change tracking
@@ -232,8 +232,8 @@ RawModel provides a simple mechanism for validating fields.
 class User extends Model {
   public name: string;
 
-  public constructor () {
-    super();
+  public constructor (data = {}) {
+    super(data);
 
     this.defineField('name', {
       validate: [ // field validation setup
@@ -258,8 +258,10 @@ It already includes some useful built-in validators but it's super simple to def
 
 ```js
 class User extends Model {
-  constructor () {
-    super();
+  public name: string;
+
+  constructor (data = {}) {
+    super(data);
 
     this.defineValidator('coolness', function (v) {
       return v === 'cool';
@@ -285,8 +287,8 @@ RawModel provides a mechanism for handling field-related errors. The logic is al
 class User extends Model {
   public name: string;
 
-  public constructor () {
-    super();
+  public constructor (data = {}) {
+    super(data);
 
     this.defineField('name', {
       handle: [ // field error handling setup
@@ -317,8 +319,8 @@ RawModel already includes some useful built-in handlers but it's super simple to
 class User extends Model {
   public name: string;
 
-  public constructor () {
-    super();
+  public constructor (data = {}) {
+    super(data);
 
     this.defineHandler('coolness', function (e) {
       return e.message === 'cool';
@@ -341,7 +343,7 @@ class User extends Model {
 RawModel.js can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
 
 ```js
-import {Model, ModelOptions} from 'rawmodel';
+import {Model, ModelRecipe} from 'rawmodel';
 import {graphql, buildSchema} from 'graphql';
 
 class App extends Model { // root resolver
@@ -377,8 +379,10 @@ graphql(schema, '{hello}', root).then((response) => {
 
 ```js
 class User extends Model {
-  constructor (data, options) {
-    super(null, options); // initializing the Model
+  public name: string;
+
+  public constructor (data = {}) {
+    super(data); // initializing the Model
 
     this.defineField('name', {
       type: 'String', // field type casting
@@ -536,7 +540,7 @@ user.flatten(); // -> [{path: [...], field: ...}, ...]
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| error | Error | Yes | - | Instance of an Error object.
+| error | Any | Yes | - | Error to be handled.
 | quiet | Boolean | No | true | When set to `false`, a handled validation error is thrown. This doesn't affect the unhandled errors (they are always thrown).
 
 ```js
@@ -635,7 +639,7 @@ catch (e) {
 
 ### Field Class
 
-**Field({type, get, set, defaultValue, fakeValue, validate}, {owner, validators, failFast})**
+**Field({type, get, set, defaultValue, fakeValue, validate, validators, handle, handlers, owner, failFast})**
 
 > A model field.
 
@@ -647,8 +651,10 @@ catch (e) {
 | defaultValue | Any | No | - | Field default value.
 | fakeValue | Any | No | - | Field fake value.
 | validate | Array | No | - | List of validator recipes.
+| handle | Array | No | - | List of error handler recipes.
+| validators | Object | No | - | Custom validators.
+| handlers | Object | No | - | Custom handlers.
 | owner | Model | No | - | An instance of a Model which owns the field.
-| validators | Object | No | - | Custom validators
 | failFast | Boolean | No | false | Stops validation on the first error when set to `true`.
 
 **Field.prototype.clear()**: Field
@@ -671,6 +677,10 @@ catch (e) {
 
 > Returns `true` when the provided `value` represents an object that looks the same.
 
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| value | Any | Yes | - | A value to compare to.
+
 **Field.prototype.fake()**: Field
 
 > Sets field to a generated fake value.
@@ -678,6 +688,14 @@ catch (e) {
 **Field.prototype.fakeValue**: Any
 
 > A getter which returns a fake field value.
+
+**Field.prototype.handle(error)**: Promise(Field)
+
+> Validates the `value` and populates the `errors` property with errors.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| error | Any | Yes | - | Error to be handled.
 
 **Field.prototype.hasErrors()**: Boolean
 

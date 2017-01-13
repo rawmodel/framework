@@ -1,13 +1,13 @@
 {
   "name": "rawmodel",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Strongly-typed JavaScript object with support for validation and error handling.",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "ava": {
     "files": [
-      "./tests/*.js",
-      "./tests/**/*.js"
+      "./dist/tests/*.js",
+      "./dist/tests/**/*.js"
     ],
     "concurrency": 4,
     "failFast": true
@@ -15,7 +15,7 @@
   "scripts": {
     "clean": "rm -Rf ./dist",
     "build": "npm run clean; tsc",
-    "example": "tsc -p example/tsconfig.json && node example/dist",
+    "example": "npm run build && node dist/example",
     "lint": "tslint 'src/**/*.ts?(x)'",
     "prepublish": "npm run build",
     "test": "npm run build && ava"
@@ -68,12 +68,13 @@
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",
   "devDependencies": {
+    "@types/node": "7.0.0",
     "ava": "^0.17.0",
-    "tslint": "4.3.1",
+    "tslint": "^4.3.1",
     "typescript": "^2.1.4"
   },
   "dependencies": {
-    "handleable": "^0.19.0",
+    "handleable": "^0.20.0",
     "lodash.isequal": "^4.4.0",
     "lodash.merge": "^4.6.0",
     "typeable": "^2.0.0",

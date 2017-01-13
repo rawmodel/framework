@@ -1,16 +1,6 @@
 import { Validator, ValidatorRecipe } from 'validatable';
 import { Handler, HandlerRecipe } from 'handleable';
 import { Model } from './models';
-export interface FieldOptions {
-    owner?: Model;
-    validators?: {
-        [name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>;
-    };
-    handlers?: {
-        [name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>;
-    };
-    failFast?: boolean;
-}
 export interface FieldRecipe {
     type?: any;
     get?: (v: any) => any;
@@ -19,6 +9,14 @@ export interface FieldRecipe {
     fakeValue?: any;
     validate?: ValidatorRecipe[];
     handle?: HandlerRecipe[];
+    validators?: {
+        [name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>;
+    };
+    handlers?: {
+        [name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>;
+    };
+    owner?: Model;
+    failFast?: boolean;
 }
 export interface FieldError {
     message: string;
@@ -32,7 +30,6 @@ export declare class Field {
     protected _validator: Validator;
     protected _handler: Handler;
     protected _recipe: FieldRecipe;
-    protected _options: FieldOptions;
     readonly defaultValue: any;
     readonly fakeValue: any;
     readonly initialValue: any;
@@ -40,7 +37,7 @@ export declare class Field {
     readonly type: any;
     value: any;
     errors: FieldError[];
-    constructor(recipe?: FieldRecipe, options?: FieldOptions);
+    constructor(recipe?: FieldRecipe);
     protected _createValidator(): Validator;
     protected _createHandler(): Handler;
     protected _getValue(): any;

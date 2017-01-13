@@ -9,7 +9,7 @@ import {serialize, isEqual, merge} from './utils';
 */
 
 export interface FieldRef {
-  path: string[];
+  path: (string | number)[];
   field: Field;
 }
 
@@ -17,16 +17,16 @@ export interface FieldRef {
 * Field error type definition.
 */
 
-export interface FieldErrorRef extends Error {
-  path: string[];
+export interface FieldErrorRef {
+  path: (string | number)[];
   errors: FieldError[];
 }
 
 /*
-* Model options interface.
+* Model recipe interface.
 */
 
-export interface ModelOptions {
+export interface ModelRecipe {
   parent?: Model;
 }
 
@@ -47,9 +47,9 @@ export abstract class Model {
   * Class constructor.
   */
 
-  public constructor (data = {}, options: ModelOptions = {}) {
+  public constructor (recipe: ModelRecipe = {}) {
     Object.defineProperty(this, 'parent', {
-      value: options.parent || this.parent || null,
+      value: recipe.parent || this.parent || null,
       writable: true
     });
     Object.defineProperty(this, 'root', {
@@ -102,15 +102,15 @@ export abstract class Model {
   protected _createField (recipe: FieldRecipe = {}) {
     let {type} = recipe;
 
-    return new Field(merge(
-      recipe,
-      {type: this._types[type] || type}
-    ), {
-      owner: this,
-      validators: this._validators,
-      handlers: this._handlers,
-      failFast: this._failFast
-    });
+    return new Field(
+      merge(recipe, {
+        type: this._types[type] || type,
+        owner: this,
+        validators: this._validators,
+        handlers: this._handlers,
+        failFast: this._failFast
+      })
+    );
   }
 
   /*
@@ -129,10 +129,10 @@ export abstract class Model {
   * extending this class.
   */
 
-  protected _createModel (data = {}, options: ModelOptions = {}) {
-    return new (this.constructor as any)(data, {
-      parent: options.parent
-    });
+  protected _createModel (data = {}, recipe: ModelRecipe = {}) {
+    return new (this.constructor as any)(
+      merge(data, recipe)
+    );
   }
 
   /*
@@ -213,11 +213,9 @@ export abstract class Model {
   */
 
   public populate (data = {}): this {
-    data = serialize(data);
-
     Object.keys(data)
       .filter((n) => !!this._fields[n])
-      .forEach((name) => this[name] = data[name]);
+      .forEach((name) => this[name] = serialize(data[name]));
 
     return this;
   }

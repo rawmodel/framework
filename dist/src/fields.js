@@ -40,14 +40,11 @@ var validatable_1 = require("validatable");
 var handleable_1 = require("handleable");
 var models_1 = require("./models");
 var Field = (function () {
-    function Field(recipe, options) {
+    function Field(recipe) {
         var _this = this;
         this.errors = [];
         Object.defineProperty(this, '_recipe', {
             value: Object.freeze(recipe || {})
-        });
-        Object.defineProperty(this, '_options', {
-            value: Object.freeze(options || {})
         });
         Object.defineProperty(this, '_data', {
             value: this._getDefaultValue(),
@@ -85,17 +82,17 @@ var Field = (function () {
             enumerable: true
         });
         Object.defineProperty(this, 'owner', {
-            get: function () { return _this._options.owner || null; },
+            get: function () { return _this._recipe.owner || null; },
             enumerable: true
         });
     }
     Field.prototype._createValidator = function () {
-        var _a = this._options, validators = _a.validators, failFast = _a.failFast;
+        var _a = this._recipe, validators = _a.validators, failFast = _a.failFast;
         var context = this;
         return new validatable_1.Validator({ validators: validators, failFast: failFast, context: context });
     };
     Field.prototype._createHandler = function () {
-        var _a = this._options, handlers = _a.handlers, failFast = _a.failFast;
+        var _a = this._recipe, handlers = _a.handlers, failFast = _a.failFast;
         var context = this;
         return new handleable_1.Handler({ handlers: handlers, failFast: failFast, context: context });
     };
@@ -127,9 +124,7 @@ var Field = (function () {
         }
         if (this.isNested()) {
             var Klass_1 = typeable_1.isArray(type) ? type[0] : type;
-            var toModel = function (d) { return new Klass_1(d, {
-                parent: _this.owner
-            }); };
+            var toModel = function (d) { return new Klass_1(utils_1.merge(d, { parent: _this.owner })); };
             converter = typeable_1.isArray(type) ? [toModel] : toModel;
         }
         return typeable_1.cast(data, converter);

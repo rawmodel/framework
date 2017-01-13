@@ -2,14 +2,14 @@ import { ValidatorRecipe } from 'validatable';
 import { HandlerRecipe } from 'handleable';
 import { Field, FieldRecipe, FieldError } from './fields';
 export interface FieldRef {
-    path: string[];
+    path: (string | number)[];
     field: Field;
 }
-export interface FieldErrorRef extends Error {
-    path: string[];
+export interface FieldErrorRef {
+    path: (string | number)[];
     errors: FieldError[];
 }
-export interface ModelOptions {
+export interface ModelRecipe {
     parent?: Model;
 }
 export declare abstract class Model {
@@ -28,11 +28,11 @@ export declare abstract class Model {
     protected _failFast: boolean;
     readonly root: Model;
     parent: Model;
-    constructor(data?: {}, options?: ModelOptions);
+    constructor(recipe?: ModelRecipe);
     protected _getRootModel(): Model;
     protected _createField(recipe?: FieldRecipe): Field;
     protected _createValidationError(message?: string, code?: number): FieldError;
-    protected _createModel(data?: {}, options?: ModelOptions): any;
+    protected _createModel(data?: {}, recipe?: ModelRecipe): any;
     failFast(fail?: boolean): void;
     defineField(name: string, recipe?: FieldRecipe): void;
     defineType(name: string, converter: (v?) => any): void;

@@ -1,13 +1,14 @@
 import test from 'ava';
-import {Model, Field} from '..';
+import {Model, Field} from '../src';
 
 test('method `defineField` initializes nullified enumerable property', (t) => {
   let user = new class User extends Model {
+    name: string;
     constructor () {
       super();
       this.defineField('name');
     }
-  }
+  };
   let descriptor = Object.getOwnPropertyDescriptor(user, 'name');
   t.is(typeof descriptor.get, 'function');
   t.is(typeof descriptor.set, 'function');
@@ -18,27 +19,32 @@ test('method `defineField` initializes nullified enumerable property', (t) => {
 
 test('method `defineType` defines a custom data type', (t) => {
   let user = new class User extends Model {
+    name: string;
     constructor () {
       super();
       this.defineType('cool', (v) => `${v}-cool`);
       this.defineField('name', {type: 'cool'});
     }
-  }
+  };
   user.name = 'foo';
   t.is(user.name, 'foo-cool');
 });
 
 test('method `populate` deeply populates fields', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    title: string;
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    name: string;
+    book: Book;
+    books: Book[];
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -65,15 +71,19 @@ test('method `populate` deeply populates fields', (t) => {
 
 test('property `parent` holds an instance of a parent model', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    title: string;
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    name: string;
+    book: Book;
+    books: Book[];
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -92,21 +102,24 @@ test('property `parent` holds an instance of a parent model', (t) => {
     ]
   });
   t.is(user.parent, null);
+  t.is(user.propertyIsEnumerable('parent'), false);
   t.is(user.book.parent, user);
   t.is(user.books[1].parent, user);
 });
 
 test('property `root` return the first model in a tree of nested models', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    title: string;
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    book: Book;
+    constructor (data) {
+      super(data);
       this.defineField('book', {type: Book});
       this.populate(data);
     }
@@ -122,15 +135,15 @@ test('property `root` return the first model in a tree of nested models', (t) =>
 
 test('method `getField` returns an instance of a field at path', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -162,8 +175,8 @@ test('method `getField` returns an instance of a field at path', (t) => {
 
 test('method `hasField` returns `true` if the field exists', (t) => {
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data = {}) {
+      super();
       this.defineField('name', {type: 'String'});
       this.populate(data);
     }
@@ -175,15 +188,15 @@ test('method `hasField` returns `true` if the field exists', (t) => {
 
 test('method `serialize` converts model into a serialized data object', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -202,7 +215,7 @@ test('method `serialize` converts model into a serialized data object', (t) => {
       }
     ]
   });
-  t.deepEqual(user.serialize(), {
+  t.deepEqual(user.serialize() as any, {
     name: 'foo',
     book: {
       title: 'bar'
@@ -218,15 +231,15 @@ test('method `serialize` converts model into a serialized data object', (t) => {
 
 test('method `flatten` returns an array of fields', async (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -259,15 +272,15 @@ test('method `flatten` returns an array of fields', async (t) => {
 
 test('method `collect` returns an array of results', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.populate(data);
@@ -289,15 +302,15 @@ test('method `collect` returns an array of results', (t) => {
 
 test('method `scroll` runs the provided handler on each field', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.populate(data);
@@ -315,15 +328,15 @@ test('method `scroll` runs the provided handler on each field', (t) => {
 
 test('method `filter` converts a model into serialized object with only keys that pass the test', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {type: 'String'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {type: 'String'});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -343,7 +356,7 @@ test('method `filter` converts a model into serialized object with only keys tha
     ]
   });
   let result = user.filter(({path, field}) => field.value !== 'foo');
-  t.deepEqual(result, {
+  t.deepEqual(result as any, {
     book: {
       title: 'bar'
     },
@@ -358,15 +371,15 @@ test('method `filter` converts a model into serialized object with only keys tha
 
 test('method `reset` sets fields to their default values', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {defaultValue: 'foo'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {defaultValue: 'bar'});
       this.defineField('book', {type: Book, defaultValue: {}});
       this.defineField('books', {type: [Book], defaultValue: [null, {}]});
@@ -385,7 +398,7 @@ test('method `reset` sets fields to their default values', (t) => {
     ]
   });
   user.reset();
-  t.deepEqual(user.serialize(), {
+  t.deepEqual(user.serialize() as any, {
     name: 'bar',
     book: {
       title: 'foo'
@@ -401,15 +414,15 @@ test('method `reset` sets fields to their default values', (t) => {
 
 test('method `fake` sets fields to their fake values', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {fakeValue: 'foo'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data = {}) {
+      super();
       this.defineField('name', {fakeValue: 'bar'});
       this.defineField('book', {type: Book, defaultValue: {}});
       this.defineField('books', {type: [Book], defaultValue: [null, {}]});
@@ -418,7 +431,7 @@ test('method `fake` sets fields to their fake values', (t) => {
   }
   let user = new User();
   user.fake();
-  t.deepEqual(user.serialize(), {
+  t.deepEqual(user.serialize() as any, {
     name: 'bar',
     book: {
       title: 'foo'
@@ -434,15 +447,15 @@ test('method `fake` sets fields to their fake values', (t) => {
 
 test('method `clear` sets fields to `null`', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {defaultValue: 'foo'});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {defaultValue: 'bar'});
       this.defineField('book', {type: Book, defaultValue: {}});
       this.defineField('books', {type: [Book], defaultValue: [null, {}]});
@@ -461,7 +474,7 @@ test('method `clear` sets fields to `null`', (t) => {
     ]
   });
   user.clear();
-  t.deepEqual(user.serialize(), {
+  t.deepEqual(user.serialize() as any, {
     name: null,
     book: null,
     books: null
@@ -470,15 +483,15 @@ test('method `clear` sets fields to `null`', (t) => {
 
 test('methods `commit()` and `rollback()` manage committed states', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -519,15 +532,15 @@ test('methods `commit()` and `rollback()` manage committed states', (t) => {
 
 test('method `equals` returns `true` when the passing object looks the same', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -551,16 +564,20 @@ test('method `equals` returns `true` when the passing object looks the same', (t
 
 test('method `isChanged` returns `true` if at least one field has been changed', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    title: string;
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
       this.commit();
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    name: string;
+    book: Book;
+    books: Book[];
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -587,7 +604,7 @@ test('method `isChanged` returns `true` if at least one field has been changed',
   t.is(user0.isChanged(), false);
   user0.name = 'foo-new';
   user1.book.title = 'bar-new';
-  user2.books[0] = {title: 'baz-new'};
+  user2.books[0] = {title: 'baz-new'} as Book;
   user3.books[1].title = 'baz-new';
   t.is(user0.isChanged(), true);
   t.is(user1.isChanged(), true);
@@ -597,15 +614,15 @@ test('method `isChanged` returns `true` if at least one field has been changed',
 
 test('method `isNested` returns `true` if nested fields exist', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data = {}) {
+      super();
       this.defineField('name');
       this.defineField('books', {type: [Book]});
       this.populate(data);
@@ -617,15 +634,15 @@ test('method `isNested` returns `true` if nested fields exist', (t) => {
 
 test('method `collectErrors` returns an array of field errors', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -648,15 +665,15 @@ test('method `collectErrors` returns an array of field errors', (t) => {
 
 test('method `applyErrors` sets fields errors', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -667,6 +684,7 @@ test('method `applyErrors` sets fields errors', (t) => {
     book: {},
     books: [null, {}]
   });
+
   user.applyErrors([
     {path: ['name'], errors: [{message: 'foo'}]},
     {path: ['book', 'title'], errors: [{message: 'bar'}]},
@@ -679,15 +697,15 @@ test('method `applyErrors` sets fields errors', (t) => {
 
 test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -713,15 +731,15 @@ test('method `validate` validates fields and throws an error', async (t) => {
     message: 'foo'
   }];
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {validate});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {validate});
       this.defineField('book0', {type: Book, validate});
       this.defineField('books0', {type: [Book], validate});
@@ -737,7 +755,7 @@ test('method `validate` validates fields and throws an error', async (t) => {
   let errors = [{validator: 'presence', message: 'foo', code: 422}];
   await user.validate({quiet: true});
   t.throws(user.validate());
-  t.deepEqual(user.collectErrors(), [
+  t.deepEqual(user.collectErrors() as {}, [
     {path: ['name'], errors},
     {path: ['book0'], errors},
     {path: ['books0'], errors},
@@ -755,16 +773,16 @@ test('method `defineValidator` defines a custom field validator', async (t) => {
     message: 'foo'
   }];
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineValidator('coolness', validator);
       this.defineField('title', {validate});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineValidator('coolness', validator);
       this.defineField('name', {validate});
       this.defineField('book', {type: Book, validate});
@@ -776,7 +794,7 @@ test('method `defineValidator` defines a custom field validator', async (t) => {
   });
   let errors = [{validator: 'coolness', message: 'foo', code: 422}];
   await user.validate({quiet: true});
-  t.deepEqual(user.collectErrors(), [
+  t.deepEqual(user.collectErrors() as {}, [
     {path: ['name'], errors},
     {path: ['book'], errors},
     {path: ['book', 'title'], errors},
@@ -789,16 +807,16 @@ test('method `failFast` configures validator to stop validating field on the fir
     {validator: 'presence', message: 'foo'}
   ];
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.failFast();
       this.defineField('title', {validate});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.failFast();
       this.defineField('name', {validate});
       this.defineField('book', {type: Book});
@@ -816,15 +834,15 @@ test('method `failFast` configures validator to stop validating field on the fir
 
 test('method `invalidate` clears fields errors', async (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -848,16 +866,16 @@ test('method `invalidate` clears fields errors', async (t) => {
 
 test('method `clone` returns an exact copy of the original', (t) => {
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title');
       this.populate(data);
       this.commit();
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
@@ -889,15 +907,15 @@ test('method `handle` handles field-related errors', async (t) => {
     foo: 'foo'
   }];
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('title', {handle});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineField('name', {handle});
       this.defineField('book0', {type: Book, handle});
       this.defineField('books0', {type: [Book], handle});
@@ -911,13 +929,13 @@ test('method `handle` handles field-related errors', async (t) => {
     books1: [{}]
   });
   let problem0 = new Error();
-  let problem1 = new Error(); problem1.code = 422;
+  let problem1 = new Error() as any; problem1.code = 422;
   let errors = [{handler: 'block', message: 'foo', code: 422}];
   t.throws(user.handle(problem0, {quiet: false}));
   t.notThrows(user.handle(problem0));
   t.notThrows(user.handle(problem1, {quiet: false}));
   await user.handle(problem0);
-  t.deepEqual(user.collectErrors(), [
+  t.deepEqual(user.collectErrors() as {}, [
     {path: ['name'], errors},
     {path: ['book0'], errors},
     {path: ['books0'], errors},
@@ -936,16 +954,16 @@ test('method `defineHandler` defines a custom field handler', async (t) => {
     foo: 'foo'
   }];
   class Book extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineHandler('coolness', handler);
       this.defineField('title', {handle});
       this.populate(data);
     }
   }
   class User extends Model {
-    constructor (data, options) {
-      super(data, options);
+    constructor (data) {
+      super(data);
       this.defineHandler('coolness', handler);
       this.defineField('name', {handle});
       this.defineField('book', {type: Book});
@@ -960,7 +978,7 @@ test('method `defineHandler` defines a custom field handler', async (t) => {
   let problem = new Error('cool');
   let errors = [{handler: 'coolness', message: 'foo', code: 422}];
   await user.handle(problem);
-  t.deepEqual(user.collectErrors(), [
+  t.deepEqual(user.collectErrors() as {}, [
     {path: ['name'], errors},
     {path: ['book', 'title'], errors},
     {path: ['books', 0, 'title'], errors},

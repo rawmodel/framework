@@ -38,12 +38,11 @@ var typeable_1 = require("typeable");
 var fields_1 = require("./fields");
 var utils_1 = require("./utils");
 var Model = (function () {
-    function Model(data, options) {
-        if (data === void 0) { data = {}; }
-        if (options === void 0) { options = {}; }
+    function Model(recipe) {
+        if (recipe === void 0) { recipe = {}; }
         var _this = this;
         Object.defineProperty(this, 'parent', {
-            value: options.parent || this.parent || null,
+            value: recipe.parent || this.parent || null,
             writable: true
         });
         Object.defineProperty(this, 'root', {
@@ -84,12 +83,13 @@ var Model = (function () {
     Model.prototype._createField = function (recipe) {
         if (recipe === void 0) { recipe = {}; }
         var type = recipe.type;
-        return new fields_1.Field(utils_1.merge(recipe, { type: this._types[type] || type }), {
+        return new fields_1.Field(utils_1.merge(recipe, {
+            type: this._types[type] || type,
             owner: this,
             validators: this._validators,
             handlers: this._handlers,
             failFast: this._failFast
-        });
+        }));
     };
     Model.prototype._createValidationError = function (message, code) {
         if (message === void 0) { message = 'Validation failed'; }
@@ -98,12 +98,10 @@ var Model = (function () {
         error.code = code;
         return error;
     };
-    Model.prototype._createModel = function (data, options) {
+    Model.prototype._createModel = function (data, recipe) {
         if (data === void 0) { data = {}; }
-        if (options === void 0) { options = {}; }
-        return new this.constructor(data, {
-            parent: options.parent
-        });
+        if (recipe === void 0) { recipe = {}; }
+        return new this.constructor(utils_1.merge(data, recipe));
     };
     Model.prototype.failFast = function (fail) {
         if (fail === void 0) { fail = true; }
@@ -151,10 +149,9 @@ var Model = (function () {
     Model.prototype.populate = function (data) {
         var _this = this;
         if (data === void 0) { data = {}; }
-        data = utils_1.serialize(data);
         Object.keys(data)
             .filter(function (n) { return !!_this._fields[n]; })
-            .forEach(function (name) { return _this[name] = data[name]; });
+            .forEach(function (name) { return _this[name] = utils_1.serialize(data[name]); });
         return this;
     };
     Model.prototype.serialize = function () {

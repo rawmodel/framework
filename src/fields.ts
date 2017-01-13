@@ -1,19 +1,8 @@
 import {isFunction, isUndefined, isPresent, isArray, toArray, isValue, cast} from 'typeable';
-import {serialize, isEqual} from './utils';
+import {serialize, isEqual, merge} from './utils';
 import {Validator, ValidatorRecipe} from 'validatable';
 import {Handler, HandlerRecipe} from 'handleable';
 import {Model} from './models';
-
-/*
-* Field context definition interface.
-*/
-
-export interface FieldOptions {
-  owner?: Model;
-  validators?: {[name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>};
-  handlers?: {[name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>};
-  failFast?: boolean;
-}
 
 /*
 * Field definition interface.
@@ -27,6 +16,10 @@ export interface FieldRecipe {
   fakeValue?: any;
   validate?: ValidatorRecipe[];
   handle?: HandlerRecipe[];
+  validators?: {[name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>};
+  handlers?: {[name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>};
+  owner?: Model;
+  failFast?: boolean;
 }
 
 /*
@@ -50,7 +43,6 @@ export class Field {
   protected _validator: Validator;
   protected _handler: Handler;
   protected _recipe: FieldRecipe;
-  protected _options: FieldOptions;
   readonly defaultValue: any;
   readonly fakeValue: any;
   readonly initialValue: any;
@@ -63,14 +55,11 @@ export class Field {
   * Class constructor.
   */
 
-  public constructor (recipe?: FieldRecipe, options?: FieldOptions) {
+  public constructor (recipe?: FieldRecipe) {
     this.errors = [];
 
     Object.defineProperty(this, '_recipe', {
       value: Object.freeze(recipe || {})
-    });
-    Object.defineProperty(this, '_options', {
-      value: Object.freeze(options || {})
     });
 
     Object.defineProperty(this, '_data', { // current value
@@ -111,7 +100,7 @@ export class Field {
       enumerable: true
     });
     Object.defineProperty(this, 'owner', {
-      get: () => this._options.owner || null,
+      get: () => this._recipe.owner || null,
       enumerable: true
     });
   }
@@ -121,7 +110,7 @@ export class Field {
   */
 
   protected _createValidator () {
-    let {validators, failFast} = this._options;
+    let {validators, failFast} = this._recipe;
     let context = this;
 
     return new Validator({validators, failFast, context});
@@ -132,7 +121,7 @@ export class Field {
   */
 
   protected _createHandler () {
-    let {handlers, failFast} = this._options;
+    let {handlers, failFast} = this._recipe;
     let context = this;
 
     return new Handler({handlers, failFast, context});
@@ -187,9 +176,9 @@ export class Field {
 
     if (this.isNested()) {
       let Klass = isArray(type) ? type[0] : type;
-      let toModel = (d) => new Klass(d, {
-        parent: this.owner
-      });
+      let toModel = (d) => new Klass(
+        merge(d, {parent: this.owner})
+      );
       converter = isArray(type) ? [toModel] : toModel;
     }
 

@@ -1,4 +1,4 @@
-import {Model} from '../..';
+import {Model} from '../src';
 
 /*
 * Book model
@@ -7,8 +7,8 @@ import {Model} from '../..';
 class Book extends Model {
   public title: string;
 
-  public constructor (data?, options?) {
-    super(data, options);
+  public constructor (data = {}) {
+    super(data);
 
     this.defineField('title', {
       type: 'String',
@@ -33,8 +33,8 @@ class User extends Model {
   public name: string;
   public book: Book;
 
-  public constructor (data?, options?) {
-    super(data, options);
+  public constructor (data = {}) {
+    super(data);
 
     this.defineField('name', {
       type: 'String',
@@ -72,7 +72,7 @@ let user = new User({
 });
 
 user.validate({quiet: true}).then(() => {
-  console.log('user.name:', user.name);
-  console.log('user.book.title:', user.book.title);
-  console.log('user.isValid():', user.isValid());
+  process.stdout.write('user.name: ' + user.name + '\n');
+  process.stdout.write('user.book.title:' + user.book.title + '\n');
+  process.stdout.write('user.isValid():' + user.isValid() + '\n');
 });
