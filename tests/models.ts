@@ -704,7 +704,7 @@ test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
     }
   }
   class User extends Model {
-    constructor (data) {
+    constructor (data?) {
       super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
@@ -712,17 +712,20 @@ test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
       this.populate(data);
     }
   }
-  let user = new User({
+  let user0 = new User({
     book: {},
     books: [null, {}]
   });
-  t.is(user.hasErrors(), false);
-  t.is(user.isValid(), true);
-  user.applyErrors([
+  let user1 = new User();
+  t.is(user0.hasErrors(), false);
+  t.is(user1.hasErrors(), false);
+  t.is(user0.isValid(), true);
+  t.is(user1.isValid(), true);
+  user0.applyErrors([
     {path: ['books', 1, 'title'], errors: [{message: 'baz'}]}
   ]);
-  t.is(user.hasErrors(), true);
-  t.is(user.isValid(), false);
+  t.is(user0.hasErrors(), true);
+  t.is(user0.isValid(), false);
 });
 
 test('method `validate` validates fields and throws an error', async (t) => {

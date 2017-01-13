@@ -832,7 +832,7 @@ ava_1["default"]('method `applyErrors` sets fields errors', function (t) {
     t.deepEqual(user.getField('books', 1, 'title').errors, [{ message: 'baz' }]);
 });
 ava_1["default"]('methods `isValid` and `hasErrors` tell if errors exist', function (t) { return __awaiter(_this, void 0, void 0, function () {
-    var Book, User, user;
+    var Book, User, user0, user1;
     return __generator(this, function (_a) {
         Book = (function (_super) {
             __extends(Book, _super);
@@ -856,17 +856,20 @@ ava_1["default"]('methods `isValid` and `hasErrors` tell if errors exist', funct
             }
             return User;
         }(src_1.Model));
-        user = new User({
+        user0 = new User({
             book: {},
             books: [null, {}]
         });
-        t.is(user.hasErrors(), false);
-        t.is(user.isValid(), true);
-        user.applyErrors([
+        user1 = new User();
+        t.is(user0.hasErrors(), false);
+        t.is(user1.hasErrors(), false);
+        t.is(user0.isValid(), true);
+        t.is(user1.isValid(), true);
+        user0.applyErrors([
             { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] }
         ]);
-        t.is(user.hasErrors(), true);
-        t.is(user.isValid(), false);
+        t.is(user0.hasErrors(), true);
+        t.is(user0.isValid(), false);
         return [2 /*return*/];
     });
 }); });

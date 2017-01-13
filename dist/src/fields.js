@@ -250,11 +250,12 @@ var Field = (function () {
         else if (!this.isNested()) {
             return false;
         }
-        else {
+        else if (typeable_1.isPresent(this.value)) {
             return typeable_1.toArray(this.value)
                 .filter(function (f) { return !!f; })
                 .some(function (f) { return f.hasErrors(); });
         }
+        return false;
     };
     Field.prototype.isValid = function () {
         return !this.hasErrors();

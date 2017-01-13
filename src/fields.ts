@@ -393,11 +393,12 @@ export class Field {
     else if (!this.isNested()) {
       return false;
     }
-    else {
+    else if (isPresent(this.value)) {
       return toArray(this.value)
         .filter((f) => !!f)
         .some((f) => f.hasErrors());
     }
+    return false;
   }
 
   /*
