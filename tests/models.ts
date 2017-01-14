@@ -928,6 +928,13 @@ test('method `handle` handles field-related errors', async (t) => {
       this.populate(data);
     }
   }
+  class Country extends Model {
+    constructor (data) {
+      super(data);
+      this.defineField('code'); // this field is nested and without handler
+      this.populate(data);
+    }
+  }
   class User extends Model {
     constructor (data) {
       super(data);
@@ -936,12 +943,14 @@ test('method `handle` handles field-related errors', async (t) => {
       this.defineField('books0', {type: [Book], handle});
       this.defineField('book1', {type: Book});
       this.defineField('books1', {type: [Book]});
+      this.defineField('country', {type: [Country]});
       this.populate(data);
     }
   }
   let user = new User({
     book1: {},
-    books1: [{}]
+    books1: [{}],
+    country: {}
   });
   let problem0 = new Error();
   let problem1 = new Error() as any; problem1.code = 422;

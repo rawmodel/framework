@@ -224,7 +224,7 @@ var Field = (function () {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, Promise.all((typeable_1.toArray(this.value) || [])
                             .filter(function (doc) { return doc instanceof models_1.Model; })
-                            .map(function (doc) { return doc.handle(error); }))];
+                            .map(function (doc) { return doc.handle(error); }))["catch"](function () { })];
                     case 1:
                         _b.sent();
                         _a = this;

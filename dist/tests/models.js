@@ -1113,7 +1113,7 @@ ava_1["default"]('method `clone` returns an exact copy of the original', functio
 });
 ava_1["default"]('method `handle` handles field-related errors', function (t) { return __awaiter(_this, void 0, void 0, function () {
     var _this = this;
-    var handle, Book, User, user, problem0, problem1, errors;
+    var handle, Book, Country, User, user, problem0, problem1, errors;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -1135,6 +1135,16 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                     }
                     return Book;
                 }(src_1.Model));
+                Country = (function (_super) {
+                    __extends(Country, _super);
+                    function Country(data) {
+                        var _this = _super.call(this, data) || this;
+                        _this.defineField('code');
+                        _this.populate(data);
+                        return _this;
+                    }
+                    return Country;
+                }(src_1.Model));
                 User = (function (_super) {
                     __extends(User, _super);
                     function User(data) {
@@ -1144,6 +1154,7 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                         _this.defineField('books0', { type: [Book], handle: handle });
                         _this.defineField('book1', { type: Book });
                         _this.defineField('books1', { type: [Book] });
+                        _this.defineField('country', { type: [Country] });
                         _this.populate(data);
                         return _this;
                     }
@@ -1151,7 +1162,8 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                 }(src_1.Model));
                 user = new User({
                     book1: {},
-                    books1: [{}]
+                    books1: [{}],
+                    country: {}
                 });
                 problem0 = new Error();
                 problem1 = new Error();

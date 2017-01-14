@@ -369,13 +369,14 @@ graphql(schema, '{hello}', root).then((response) => {
 
 ### Model Class
 
-**Model({parent})**
+**Model({parent, ...data})**
 
 > Abstract class which represents a strongly-typed JavaScript object.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | parent | Model | No | - | Parent model instance.
+| data | Object | No | - | Data for populating model fields.
 
 ```js
 class User extends Model {

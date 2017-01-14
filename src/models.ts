@@ -406,7 +406,7 @@ export abstract class Model {
   }
 
   /*
-  * Validates fields and throws an error.
+  * Handles the error and throws an error if the error can not be handled.
   */
 
   async handle (error: any, {

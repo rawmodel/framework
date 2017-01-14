@@ -358,7 +358,7 @@ export class Field {
       (toArray(this.value) || [])
         .filter((doc) => doc instanceof Model)
         .map((doc) => doc.handle(error))
-    );
+    ).catch(() => {}); // do not throw even when unhandled error
 
     this.errors = await this._handler.handle(
       error,
