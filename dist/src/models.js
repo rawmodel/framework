@@ -83,7 +83,7 @@ var Model = (function () {
     Model.prototype._createField = function (recipe) {
         if (recipe === void 0) { recipe = {}; }
         var type = recipe.type;
-        return new fields_1.Field(utils_1.merge(recipe, {
+        return new fields_1.Field(utils_1.merge({}, recipe, {
             type: this._types[type] || type,
             owner: this,
             validators: this._validators,
@@ -98,10 +98,9 @@ var Model = (function () {
         error.code = code;
         return error;
     };
-    Model.prototype._createModel = function (data, recipe) {
-        if (data === void 0) { data = {}; }
+    Model.prototype._createModel = function (recipe) {
         if (recipe === void 0) { recipe = {}; }
-        return new this.constructor(utils_1.merge(data, recipe));
+        return new this.constructor(recipe);
     };
     Model.prototype.failFast = function (fail) {
         if (fail === void 0) { fail = true; }
@@ -325,10 +324,9 @@ var Model = (function () {
             .forEach(function (name) { return _this._fields[name].invalidate(); });
         return this;
     };
-    Model.prototype.clone = function () {
-        return this._createModel(this, {
-            parent: this.parent
-        });
+    Model.prototype.clone = function (data) {
+        if (data === void 0) { data = {}; }
+        return this._createModel(utils_1.merge({}, this.serialize(), { parent: this.parent }, data));
     };
     return Model;
 }());

@@ -869,7 +869,8 @@ test('method `invalidate` clears fields errors', async (t) => {
 
 test('method `clone` returns an exact copy of the original', (t) => {
   class Book extends Model {
-    constructor (data) {
+    title: string;
+    constructor (data?) {
       super(data);
       this.defineField('title');
       this.populate(data);
@@ -877,7 +878,10 @@ test('method `clone` returns an exact copy of the original', (t) => {
     }
   }
   class User extends Model {
-    constructor (data) {
+    name: string;
+    book: Book;
+    books: Book[];
+    constructor (data?) {
       super(data);
       this.defineField('name');
       this.defineField('book', {type: Book});
@@ -886,7 +890,9 @@ test('method `clone` returns an exact copy of the original', (t) => {
       this.commit();
     }
   }
+  let parent = new Book();
   let user = new User({
+    parent, // fake parent
     name: 'foo',
     book: {
       title: 'bar'
@@ -898,8 +904,14 @@ test('method `clone` returns an exact copy of the original', (t) => {
       }
     ]
   });
-  t.is(user.clone() !== user, true);
-  t.is(user.equals(user), true);
+  let clone0 = user.clone();
+  let clone1 = user.clone({book: {title: 'foo'}});
+  t.is(clone0 !== user, true);
+  t.is(clone0.equals(user), true);
+  t.is(clone0.book.parent, clone0);
+  t.is(clone0.parent, parent);
+  t.is(clone0.parent, parent);
+  t.is(clone1.book.title, 'foo');
 });
 
 test('method `handle` handles field-related errors', async (t) => {

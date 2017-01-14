@@ -28,6 +28,7 @@ export interface FieldErrorRef {
 
 export interface ModelRecipe {
   parent?: Model;
+  [key: string]: any;
 }
 
 /*
@@ -103,7 +104,7 @@ export abstract class Model {
     let {type} = recipe;
 
     return new Field(
-      merge(recipe, {
+      merge({}, recipe, {
         type: this._types[type] || type,
         owner: this,
         validators: this._validators,
@@ -129,10 +130,8 @@ export abstract class Model {
   * extending this class.
   */
 
-  protected _createModel (data = {}, recipe: ModelRecipe = {}) {
-    return new (this.constructor as any)(
-      merge(data, recipe)
-    );
+  protected _createModel (recipe: ModelRecipe = {}) {
+    return new (this.constructor as any)(recipe);
   }
 
   /*
@@ -490,10 +489,10 @@ export abstract class Model {
   * Returns a new Model instance which is the exact copy of the original.
   */
 
-  clone (): this {
-    return this._createModel(this, {
-      parent: this.parent
-    });
+  clone (data = {}): this {
+    return this._createModel(
+      merge({}, this.serialize(), {parent: this.parent}, data)
+    );
   }
 
 }

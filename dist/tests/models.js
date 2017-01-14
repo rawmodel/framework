@@ -1088,7 +1088,9 @@ ava_1["default"]('method `clone` returns an exact copy of the original', functio
         }
         return User;
     }(src_1.Model));
+    var parent = new Book();
     var user = new User({
+        parent: parent,
         name: 'foo',
         book: {
             title: 'bar'
@@ -1100,8 +1102,14 @@ ava_1["default"]('method `clone` returns an exact copy of the original', functio
             }
         ]
     });
-    t.is(user.clone() !== user, true);
-    t.is(user.equals(user), true);
+    var clone0 = user.clone();
+    var clone1 = user.clone({ book: { title: 'foo' } });
+    t.is(clone0 !== user, true);
+    t.is(clone0.equals(user), true);
+    t.is(clone0.book.parent, clone0);
+    t.is(clone0.parent, parent);
+    t.is(clone0.parent, parent);
+    t.is(clone1.book.title, 'foo');
 });
 ava_1["default"]('method `handle` handles field-related errors', function (t) { return __awaiter(_this, void 0, void 0, function () {
     var _this = this;

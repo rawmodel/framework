@@ -11,6 +11,7 @@ export interface FieldErrorRef {
 }
 export interface ModelRecipe {
     parent?: Model;
+    [key: string]: any;
 }
 export declare abstract class Model {
     protected _fields: {
@@ -32,7 +33,7 @@ export declare abstract class Model {
     protected _getRootModel(): Model;
     protected _createField(recipe?: FieldRecipe): Field;
     protected _createValidationError(message?: string, code?: number): FieldError;
-    protected _createModel(data?: {}, recipe?: ModelRecipe): any;
+    protected _createModel(recipe?: ModelRecipe): any;
     failFast(fail?: boolean): void;
     defineField(name: string, recipe?: FieldRecipe): void;
     defineType(name: string, converter: (v?) => any): void;
@@ -65,5 +66,5 @@ export declare abstract class Model {
     hasErrors(): boolean;
     isValid(): boolean;
     invalidate(): this;
-    clone(): this;
+    clone(data?: {}): this;
 }
