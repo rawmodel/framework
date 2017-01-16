@@ -365,6 +365,8 @@ graphql(schema, '{hello}', root).then((response) => {
 });
 ```
 
+See [graphql-example](https://github.com/xpepermint/graphql-example) for more.
+
 ## API
 
 ### Model Class
