@@ -96,16 +96,24 @@ export abstract class Model {
   }
 
   /*
+  * Returns the appropriate field type.
+  */
+
+  protected _getFieldType (recipe: FieldRecipe = {}) {
+    let type = isArray(recipe.type) ? recipe.type[0] : recipe.type;
+    type = this._types[type] || type;
+    return isArray(recipe.type) ? [type] : type;
+  }
+
+  /*
   * Creates a new field instance. This method is especially useful when
   * extending this class.
   */
 
   protected _createField (recipe: FieldRecipe = {}) {
-    let {type} = recipe;
-
     return new Field(
       merge({}, recipe, {
-        type: this._types[type] || type,
+        type: this._getFieldType(recipe),
         owner: this,
         validators: this._validators,
         handlers: this._handlers,

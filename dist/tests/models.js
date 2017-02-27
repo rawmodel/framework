@@ -78,13 +78,16 @@ ava_1["default"]('method `defineType` defines a custom data type', function (t) 
         function User() {
             var _this = _super.call(this) || this;
             _this.defineType('cool', function (v) { return v + "-cool"; });
-            _this.defineField('name', { type: 'cool' });
+            _this.defineField('name0', { type: 'cool' });
+            _this.defineField('name1', { type: ['cool'] });
             return _this;
         }
         return User;
     }(src_1.Model));
-    user.name = 'foo';
-    t.is(user.name, 'foo-cool');
+    user.name0 = 'foo';
+    user.name1 = ['foo'];
+    t.is(user.name0, 'foo-cool');
+    t.deepEqual(user.name1, ['foo-cool']);
 });
 ava_1["default"]('method `populate` deeply populates fields', function (t) {
     var Book = (function (_super) {

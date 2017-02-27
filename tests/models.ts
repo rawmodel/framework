@@ -31,15 +31,19 @@ test('method `defineField` supports unenumerable property', (t) => {
 
 test('method `defineType` defines a custom data type', (t) => {
   let user = new class User extends Model {
-    name: string;
+    name0: string;
+    name1: string[];
     constructor () {
       super();
       this.defineType('cool', (v) => `${v}-cool`);
-      this.defineField('name', {type: 'cool'});
+      this.defineField('name0', {type: 'cool'});
+      this.defineField('name1', {type: ['cool']});
     }
   };
-  user.name = 'foo';
-  t.is(user.name, 'foo-cool');
+  user.name0 = 'foo';
+  user.name1 = ['foo'];
+  t.is(user.name0, 'foo-cool');
+  t.deepEqual(user.name1, ['foo-cool']);
 });
 
 test('method `populate` deeply populates fields', (t) => {

@@ -80,11 +80,16 @@ var Model = (function () {
             }
         } while (true);
     };
+    Model.prototype._getFieldType = function (recipe) {
+        if (recipe === void 0) { recipe = {}; }
+        var type = typeable_1.isArray(recipe.type) ? recipe.type[0] : recipe.type;
+        type = this._types[type] || type;
+        return typeable_1.isArray(recipe.type) ? [type] : type;
+    };
     Model.prototype._createField = function (recipe) {
         if (recipe === void 0) { recipe = {}; }
-        var type = recipe.type;
         return new fields_1.Field(utils_1.merge({}, recipe, {
-            type: this._types[type] || type,
+            type: this._getFieldType(recipe),
             owner: this,
             validators: this._validators,
             handlers: this._handlers,

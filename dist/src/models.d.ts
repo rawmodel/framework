@@ -31,6 +31,7 @@ export declare abstract class Model {
     parent: Model;
     constructor(recipe?: ModelRecipe);
     protected _getRootModel(): Model;
+    protected _getFieldType(recipe?: FieldRecipe): any;
     protected _createField(recipe?: FieldRecipe): Field;
     protected _createValidationError(message?: string, code?: number): FieldError;
     protected _createModel(recipe?: ModelRecipe): any;
