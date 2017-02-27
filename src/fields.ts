@@ -20,6 +20,7 @@ export interface FieldRecipe {
   handlers?: {[name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>};
   owner?: Model;
   failFast?: boolean;
+  enumerable?: boolean;
 }
 
 /*

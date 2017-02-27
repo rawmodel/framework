@@ -107,11 +107,13 @@ var Model = (function () {
         this._failFast = typeable_1.toBoolean(fail);
     };
     Model.prototype.defineField = function (name, recipe) {
+        if (recipe === void 0) { recipe = {}; }
         var field = this._createField(recipe);
+        var _a = recipe.enumerable, enumerable = _a === void 0 ? true : _a;
         Object.defineProperty(this, name, {
             get: function () { return field.value; },
             set: function (v) { return field.value = v; },
-            enumerable: true,
+            enumerable: enumerable,
             configurable: true
         });
         this._fields[name] = field;

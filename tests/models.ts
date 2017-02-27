@@ -17,6 +17,18 @@ test('method `defineField` initializes nullified enumerable property', (t) => {
   t.is(user.name, null);
 });
 
+test('method `defineField` supports unenumerable property', (t) => {
+  let user = new class User extends Model {
+    name: string;
+    constructor () {
+      super();
+      this.defineField('name', {enumerable: false});
+    }
+  };
+  let descriptor = Object.getOwnPropertyDescriptor(user, 'name');
+  t.is(descriptor.enumerable, false);
+});
+
 test('method `defineType` defines a custom data type', (t) => {
   let user = new class User extends Model {
     name: string;

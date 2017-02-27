@@ -17,6 +17,7 @@ export interface FieldRecipe {
     };
     owner?: Model;
     failFast?: boolean;
+    enumerable?: boolean;
 }
 export interface FieldError {
     message: string;

@@ -146,13 +146,14 @@ export abstract class Model {
   * Defines a new model property.
   */
 
-  public defineField (name: string, recipe?: FieldRecipe): void {
+  public defineField (name: string, recipe: FieldRecipe = {}): void {
     let field = this._createField(recipe);
+    let { enumerable = true } = recipe;
 
     Object.defineProperty(this, name, {
       get: () => field.value,
       set: (v) => field.value = v,
-      enumerable: true,
+      enumerable,
       configurable: true
     });
 
