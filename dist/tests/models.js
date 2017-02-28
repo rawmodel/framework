@@ -59,19 +59,6 @@ ava_1["default"]('method `defineField` initializes nullified enumerable property
     t.is(descriptor.configurable, true);
     t.is(user.name, null);
 });
-ava_1["default"]('method `defineField` supports unenumerable property', function (t) {
-    var user = new (function (_super) {
-        __extends(User, _super);
-        function User() {
-            var _this = _super.call(this) || this;
-            _this.defineField('name', { enumerable: false });
-            return _this;
-        }
-        return User;
-    }(src_1.Model));
-    var descriptor = Object.getOwnPropertyDescriptor(user, 'name');
-    t.is(descriptor.enumerable, false);
-});
 ava_1["default"]('method `defineType` defines a custom data type', function (t) {
     var user = new (function (_super) {
         __extends(User, _super);
@@ -274,6 +261,7 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         function User(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('name', { type: 'String' });
+            _this.defineField('description', { serializable: false });
             _this.defineField('book', { type: Book });
             _this.defineField('books', { type: [Book] });
             _this.populate(data);
@@ -283,6 +271,7 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
     }(src_1.Model));
     var user = new User({
         name: 'foo',
+        description: 'foo',
         book: {
             title: 'bar'
         },

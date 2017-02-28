@@ -156,12 +156,11 @@ export abstract class Model {
 
   public defineField (name: string, recipe: FieldRecipe = {}): void {
     let field = this._createField(recipe);
-    let { enumerable = true } = recipe;
 
     Object.defineProperty(this, name, {
       get: () => field.value,
       set: (v) => field.value = v,
-      enumerable,
+      enumerable: true,
       configurable: true
     });
 
@@ -233,7 +232,7 @@ export abstract class Model {
   */
 
   public serialize (): {} {
-    return serialize(this);
+    return this.filter((ref) => ref.field.serializable);
   }
 
   /*

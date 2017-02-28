@@ -17,7 +17,7 @@ export interface FieldRecipe {
     };
     owner?: Model;
     failFast?: boolean;
-    enumerable?: boolean;
+    serializable?: boolean;
 }
 export interface FieldError {
     message: string;
@@ -34,6 +34,7 @@ export declare class Field {
     readonly defaultValue: any;
     readonly fakeValue: any;
     readonly initialValue: any;
+    readonly serializable: boolean;
     readonly owner: Model;
     readonly type: any;
     value: any;

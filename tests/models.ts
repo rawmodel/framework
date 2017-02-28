@@ -17,18 +17,6 @@ test('method `defineField` initializes nullified enumerable property', (t) => {
   t.is(user.name, null);
 });
 
-test('method `defineField` supports unenumerable property', (t) => {
-  let user = new class User extends Model {
-    name: string;
-    constructor () {
-      super();
-      this.defineField('name', {enumerable: false});
-    }
-  };
-  let descriptor = Object.getOwnPropertyDescriptor(user, 'name');
-  t.is(descriptor.enumerable, false);
-});
-
 test('method `defineType` defines a custom data type', (t) => {
   let user = new class User extends Model {
     name0: string;
@@ -214,6 +202,7 @@ test('method `serialize` converts model into a serialized data object', (t) => {
     constructor (data) {
       super(data);
       this.defineField('name', {type: 'String'});
+      this.defineField('description', {serializable: false});
       this.defineField('book', {type: Book});
       this.defineField('books', {type: [Book]});
       this.populate(data);
@@ -221,6 +210,7 @@ test('method `serialize` converts model into a serialized data object', (t) => {
   }
   let user = new User({
     name: 'foo',
+    description: 'foo',
     book: {
       title: 'bar'
     },

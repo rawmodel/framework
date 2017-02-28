@@ -20,7 +20,7 @@ export interface FieldRecipe {
   handlers?: {[name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>};
   owner?: Model;
   failFast?: boolean;
-  enumerable?: boolean;
+  serializable?: boolean;
 }
 
 /*
@@ -47,6 +47,7 @@ export class Field {
   readonly defaultValue: any;
   readonly fakeValue: any;
   readonly initialValue: any;
+  readonly serializable: boolean;
   readonly owner: Model;
   readonly type: any;
   public value: any;
@@ -96,6 +97,10 @@ export class Field {
       enumerable: true
     });
 
+    Object.defineProperty(this, 'serializable', {
+      get: () => isUndefined(this._recipe.serializable) ? true : !!this._recipe.serializable,
+      enumerable: true
+    });
     Object.defineProperty(this, 'type', {
       get: () => this._recipe.type || null,
       enumerable: true

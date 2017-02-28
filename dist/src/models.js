@@ -114,11 +114,10 @@ var Model = (function () {
     Model.prototype.defineField = function (name, recipe) {
         if (recipe === void 0) { recipe = {}; }
         var field = this._createField(recipe);
-        var _a = recipe.enumerable, enumerable = _a === void 0 ? true : _a;
         Object.defineProperty(this, name, {
             get: function () { return field.value; },
             set: function (v) { return field.value = v; },
-            enumerable: enumerable,
+            enumerable: true,
             configurable: true
         });
         this._fields[name] = field;
@@ -161,7 +160,7 @@ var Model = (function () {
         return this;
     };
     Model.prototype.serialize = function () {
-        return utils_1.serialize(this);
+        return this.filter(function (ref) { return ref.field.serializable; });
     };
     Model.prototype.flatten = function (prefix) {
         var _this = this;
