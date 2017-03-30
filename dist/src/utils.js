@@ -1,4 +1,5 @@
 "use strict";
+exports.__esModule = true;
 var merge = require("lodash.merge");
 exports.merge = merge;
 var isEqual = require("lodash.isequal");
