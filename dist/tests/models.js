@@ -885,9 +885,9 @@ ava_1["default"]('methods `isValid` and `hasErrors` tell if errors exist', funct
     });
 }); });
 ava_1["default"]('method `validate` validates fields and throws an error', function (t) { return __awaiter(_this, void 0, void 0, function () {
-    var validate, Book, User, user, errors;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var validate, Book, User, user, errors, _a, _b, _c;
+    return __generator(this, function (_d) {
+        switch (_d.label) {
             case 0:
                 validate = [{
                         validator: 'presence',
@@ -924,8 +924,11 @@ ava_1["default"]('method `validate` validates fields and throws an error', funct
                 errors = [{ validator: 'presence', message: 'foo', code: 422 }];
                 return [4 /*yield*/, user.validate({ quiet: true })];
             case 1:
-                _a.sent();
-                t.throws(user.validate());
+                _d.sent();
+                _b = (_a = t).is;
+                return [4 /*yield*/, user.validate()["catch"](function () { return false; })];
+            case 2:
+                _b.apply(_a, [_d.sent(), false]);
                 t.deepEqual(user.collectErrors(), [
                     { path: ['name'], errors: errors },
                     { path: ['book0'], errors: errors },

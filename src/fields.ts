@@ -164,8 +164,6 @@ export class Field {
 
     data = this._cast(data, this.type);
 
-    this.invalidate();
-
     this._data = data;
   }
 

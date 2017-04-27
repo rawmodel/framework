@@ -763,7 +763,7 @@ test('method `validate` validates fields and throws an error', async (t) => {
   });
   let errors = [{validator: 'presence', message: 'foo', code: 422}];
   await user.validate({quiet: true});
-  t.throws(user.validate());
+  t.is(await user.validate().catch(() => false), false);
   t.deepEqual(user.collectErrors() as {}, [
     {path: ['name'], errors},
     {path: ['book0'], errors},

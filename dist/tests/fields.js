@@ -119,7 +119,11 @@ ava_1["default"]('method `fake()` sets value to the fake value', function (t) {
 ava_1["default"]('method `clear()` sets value to `null`', function (t) {
     var f = new src_1.Field();
     f.value = 'foo';
+    f.errors = [
+        { validator: 'foo', message: 'bar', code: 422 }
+    ];
     f.clear();
+    t.is(f.errors.length, 1);
     t.is(f.value, null);
 });
 ava_1["default"]('methods `commit()` and `rollback()` manage committed value state', function (t) {
@@ -189,12 +193,6 @@ ava_1["default"]('method `invalidate()` clears the `errors` property', function 
     var f = new src_1.Field();
     f.errors.push({ message: 'foo' });
     f.invalidate();
-    t.deepEqual(f.errors, []);
-});
-ava_1["default"]('invalidates when the value changes', function (t) {
-    var f = new src_1.Field();
-    f.errors.push({ message: 'foo' });
-    f.value = 'foo';
     t.deepEqual(f.errors, []);
 });
 ava_1["default"]('method `hasErrors()` returns `true` when errors exist', function (t) {

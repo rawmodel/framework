@@ -81,7 +81,11 @@ test('method `fake()` sets value to the fake value', (t) => {
 test('method `clear()` sets value to `null`', (t) => {
   let f = new Field();
   f.value = 'foo';
+  f.errors = [
+    {validator: 'foo', message: 'bar', code: 422}
+  ];
   f.clear();
+  t.is(f.errors.length, 1);
   t.is(f.value, null);
 });
 
@@ -142,13 +146,6 @@ test('method `invalidate()` clears the `errors` property', (t) => {
   let f = new Field();
   f.errors.push({message: 'foo'});
   f.invalidate();
-  t.deepEqual(f.errors, []);
-});
-
-test('invalidates when the value changes', (t) => {
-  let f = new Field();
-  f.errors.push({message: 'foo'});
-  f.value = 'foo';
   t.deepEqual(f.errors, []);
 });
 

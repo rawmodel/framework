@@ -118,7 +118,6 @@ var Field = (function () {
             data = set.call(this, data);
         }
         data = this._cast(data, this.type);
-        this.invalidate();
         this._data = data;
     };
     Field.prototype._cast = function (data, type) {
