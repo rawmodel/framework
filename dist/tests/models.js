@@ -1127,9 +1127,9 @@ ava_1["default"]('method `clone` returns an exact copy of the original', functio
 });
 ava_1["default"]('method `handle` handles field-related errors', function (t) { return __awaiter(_this, void 0, void 0, function () {
     var _this = this;
-    var handle, Book, Country, User, user, problem0, problem1, errors;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var handle, Book, Country, User, user, problem0, problem1, errors, _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    return __generator(this, function (_k) {
+        switch (_k.label) {
             case 0:
                 handle = [{
                         handler: 'block',
@@ -1183,12 +1183,21 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                 problem1 = new Error();
                 problem1.code = 422;
                 errors = [{ handler: 'block', message: 'foo', code: 422 }];
-                t.throws(user.handle(problem0, { quiet: false }));
-                t.notThrows(user.handle(problem0));
-                t.notThrows(user.handle(problem1, { quiet: false }));
-                return [4 /*yield*/, user.handle(problem0)];
+                _b = (_a = t).is;
+                return [4 /*yield*/, user.handle(problem0, { quiet: false })["catch"](function () { return false; })];
             case 1:
-                _a.sent();
+                _b.apply(_a, [_k.sent(), false]);
+                _e = (_d = t).is;
+                return [4 /*yield*/, user.handle(problem0).then(function () { return true; })];
+            case 2:
+                _e.apply(_d, [_k.sent(), true]);
+                _h = (_g = t).is;
+                return [4 /*yield*/, user.handle(problem1, { quiet: false }).then(function () { return true; })];
+            case 3:
+                _h.apply(_g, [_k.sent(), true]);
+                return [4 /*yield*/, user.handle(problem0)];
+            case 4:
+                _k.sent();
                 t.deepEqual(user.collectErrors(), [
                     { path: ['name'], errors: errors },
                     { path: ['book0'], errors: errors },
