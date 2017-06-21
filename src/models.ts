@@ -37,7 +37,7 @@ export interface ModelRecipe {
 
 export abstract class Model {
   protected _fields: {[name: string]: Field}; // model fields
-  protected _types: {[key: string]: (v?) => any}; // custom data types
+  protected _types: {[key: string]: (v? : any) => any}; // custom data types
   protected _validators: {[key: string]: (v? : any, r?: ValidatorRecipe) => boolean | Promise<boolean>}; // custom validators
   protected _handlers: {[key: string]: (v? : any, r?: HandlerRecipe) => boolean | Promise<boolean>}; // custom validators
   protected _failFast: boolean; // stop validating/handling on first error
