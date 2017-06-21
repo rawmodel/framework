@@ -18,8 +18,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -178,14 +178,14 @@ ava_1["default"]('method `validate()` validates the value and populates the `err
                         coolness: function () { return this.value === 'cool'; }
                     }
                 });
-                return [4 /*yield*/, f.validate()];
+                return [4, f.validate()];
             case 1:
                 _a.sent();
                 t.deepEqual(f.errors, [
                     { validator: 'presence', message: 'foo', code: 422 },
                     { validator: 'coolness', message: 'is not cool', code: 422 }
                 ]);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });
@@ -226,14 +226,14 @@ ava_1["default"]('method `handle()` handles an error and populates the `errors` 
                     }
                 });
                 e = new Error('cool');
-                return [4 /*yield*/, f.handle(e)];
+                return [4, f.handle(e)];
             case 1:
                 _a.sent();
                 t.deepEqual(f.errors, [
                     { handler: 'block', message: 'foo', code: 422 },
                     { handler: 'coolness', message: 'cool', code: 422 }
                 ]);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });

@@ -17,6 +17,6 @@ export {isEqual};
 * Returns a duplicated data object (useful to remove data bindings).
 */
 
-export function serialize (data) {
+export function serialize (data: any) {
   return JSON.parse(JSON.stringify(data));
 }

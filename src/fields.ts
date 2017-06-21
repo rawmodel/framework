@@ -16,8 +16,8 @@ export interface FieldRecipe {
   fakeValue?: any;
   validate?: ValidatorRecipe[];
   handle?: HandlerRecipe[];
-  validators?: {[name: string]: (v? : any, r?: ValidatorRecipe) => boolean | Promise<boolean>};
-  handlers?: {[name: string]: (v? : any, r?: HandlerRecipe) => boolean | Promise<boolean>};
+  validators?: {[name: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>};
+  handlers?: {[name: string]: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>};
   owner?: Model;
   failFast?: boolean;
   serializable?: boolean;
@@ -152,7 +152,7 @@ export class Field {
   * Sets current field value.
   */
 
-  protected _setValue (data) {
+  protected _setValue (data: any) {
     if (isFunction(data)) {
       data = data.call(this);
     }
@@ -171,7 +171,7 @@ export class Field {
   * Converts a `value` into specified `type`.
   */
 
-  protected _cast (data, type) {
+  protected _cast (data: any, type: any) {
     let converter = type;
 
     if (!isValue(data)) {
@@ -293,7 +293,7 @@ export class Field {
   * Returns `true` when `data` equals to the current value.
   */
 
-  public equals (data): boolean {
+  public equals (data: any): boolean {
     let value = data instanceof Field ? data.value : data;
 
     return isEqual(

@@ -18,8 +18,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t;
-    return { next: verb(0), "throw": verb(1), "return": verb(2) };
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -348,7 +348,7 @@ ava_1["default"]('method `flatten` returns an array of fields', function (t) { r
         t.deepEqual(Object.keys(user.flatten()[0]), ['path', 'field']);
         t.deepEqual(user.flatten()[0].path, ['name']);
         t.is(user.flatten()[0].field.value, 'foo');
-        return [2 /*return*/];
+        return [2];
     });
 }); });
 ava_1["default"]('method `collect` returns an array of results', function (t) {
@@ -881,13 +881,13 @@ ava_1["default"]('methods `isValid` and `hasErrors` tell if errors exist', funct
         ]);
         t.is(user0.hasErrors(), true);
         t.is(user0.isValid(), false);
-        return [2 /*return*/];
+        return [2];
     });
 }); });
 ava_1["default"]('method `validate` validates fields and throws an error', function (t) { return __awaiter(_this, void 0, void 0, function () {
-    var validate, Book, User, user, errors, _a, _b, _c;
-    return __generator(this, function (_d) {
-        switch (_d.label) {
+    var validate, Book, User, user, errors, _a, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 validate = [{
                         validator: 'presence',
@@ -922,13 +922,13 @@ ava_1["default"]('method `validate` validates fields and throws an error', funct
                     books1: [{}]
                 });
                 errors = [{ validator: 'presence', message: 'foo', code: 422 }];
-                return [4 /*yield*/, user.validate({ quiet: true })];
+                return [4, user.validate({ quiet: true })];
             case 1:
-                _d.sent();
+                _c.sent();
                 _b = (_a = t).is;
-                return [4 /*yield*/, user.validate()["catch"](function () { return false; })];
+                return [4, user.validate()["catch"](function () { return false; })];
             case 2:
-                _b.apply(_a, [_d.sent(), false]);
+                _b.apply(_a, [_c.sent(), false]);
                 t.deepEqual(user.collectErrors(), [
                     { path: ['name'], errors: errors },
                     { path: ['book0'], errors: errors },
@@ -936,7 +936,7 @@ ava_1["default"]('method `validate` validates fields and throws an error', funct
                     { path: ['book1', 'title'], errors: errors },
                     { path: ['books1', 0, 'title'], errors: errors },
                 ]);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });
@@ -979,7 +979,7 @@ ava_1["default"]('method `defineValidator` defines a custom field validator', fu
                     book: {}
                 });
                 errors = [{ validator: 'coolness', message: 'foo', code: 422 }];
-                return [4 /*yield*/, user.validate({ quiet: true })];
+                return [4, user.validate({ quiet: true })];
             case 1:
                 _a.sent();
                 t.deepEqual(user.collectErrors(), [
@@ -987,7 +987,7 @@ ava_1["default"]('method `defineValidator` defines a custom field validator', fu
                     { path: ['book'], errors: errors },
                     { path: ['book', 'title'], errors: errors },
                 ]);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });
@@ -1027,12 +1027,12 @@ ava_1["default"]('method `failFast` configures validator to stop validating fiel
                     book: {}
                 });
                 errors = [{ validator: 'presence', message: 'foo', code: 422 }];
-                return [4 /*yield*/, user.validate({ quiet: true })];
+                return [4, user.validate({ quiet: true })];
             case 1:
                 _a.sent();
                 t.is(user.getField('name').errors.length, 1);
                 t.is(user.getField('book', 'title').errors.length, 1);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });
@@ -1074,7 +1074,7 @@ ava_1["default"]('method `invalidate` clears fields errors', function (t) { retu
         t.deepEqual(user.getField('name').errors, []);
         t.deepEqual(user.getField('book', 'title').errors, []);
         t.deepEqual(user.getField('books', 1, 'title').errors, []);
-        return [2 /*return*/];
+        return [2];
     });
 }); });
 ava_1["default"]('method `clone` returns an exact copy of the original', function (t) {
@@ -1127,15 +1127,15 @@ ava_1["default"]('method `clone` returns an exact copy of the original', functio
 });
 ava_1["default"]('method `handle` handles field-related errors', function (t) { return __awaiter(_this, void 0, void 0, function () {
     var _this = this;
-    var handle, Book, Country, User, user, problem0, problem1, errors, _a, _b, _c, _d, _e, _f, _g, _h, _j;
-    return __generator(this, function (_k) {
-        switch (_k.label) {
+    var handle, Book, Country, User, user, problem0, problem1, errors, _a, _b, _c, _d, _e, _f;
+    return __generator(this, function (_g) {
+        switch (_g.label) {
             case 0:
                 handle = [{
                         handler: 'block',
                         message: '%{foo}',
                         block: function () { return __awaiter(_this, void 0, void 0, function () { return __generator(this, function (_a) {
-                            return [2 /*return*/, true];
+                            return [2, true];
                         }); }); },
                         foo: 'foo'
                     }];
@@ -1184,20 +1184,20 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                 problem1.code = 422;
                 errors = [{ handler: 'block', message: 'foo', code: 422 }];
                 _b = (_a = t).is;
-                return [4 /*yield*/, user.handle(problem0, { quiet: false })["catch"](function () { return false; })];
+                return [4, user.handle(problem0, { quiet: false })["catch"](function () { return false; })];
             case 1:
-                _b.apply(_a, [_k.sent(), false]);
-                _e = (_d = t).is;
-                return [4 /*yield*/, user.handle(problem0).then(function () { return true; })];
+                _b.apply(_a, [_g.sent(), false]);
+                _d = (_c = t).is;
+                return [4, user.handle(problem0).then(function () { return true; })];
             case 2:
-                _e.apply(_d, [_k.sent(), true]);
-                _h = (_g = t).is;
-                return [4 /*yield*/, user.handle(problem1, { quiet: false }).then(function () { return true; })];
+                _d.apply(_c, [_g.sent(), true]);
+                _f = (_e = t).is;
+                return [4, user.handle(problem1, { quiet: false }).then(function () { return true; })];
             case 3:
-                _h.apply(_g, [_k.sent(), true]);
-                return [4 /*yield*/, user.handle(problem0)];
+                _f.apply(_e, [_g.sent(), true]);
+                return [4, user.handle(problem0)];
             case 4:
-                _k.sent();
+                _g.sent();
                 t.deepEqual(user.collectErrors(), [
                     { path: ['name'], errors: errors },
                     { path: ['book0'], errors: errors },
@@ -1205,7 +1205,7 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                     { path: ['book1', 'title'], errors: errors },
                     { path: ['books1', 0, 'title'], errors: errors },
                 ]);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });
@@ -1252,7 +1252,7 @@ ava_1["default"]('method `defineHandler` defines a custom field handler', functi
                 });
                 problem = new Error('cool');
                 errors = [{ handler: 'coolness', message: 'foo', code: 422 }];
-                return [4 /*yield*/, user.handle(problem)];
+                return [4, user.handle(problem)];
             case 1:
                 _a.sent();
                 t.deepEqual(user.collectErrors(), [
@@ -1260,7 +1260,7 @@ ava_1["default"]('method `defineHandler` defines a custom field handler', functi
                     { path: ['book', 'title'], errors: errors },
                     { path: ['books', 0, 'title'], errors: errors },
                 ]);
-                return [2 /*return*/];
+                return [2];
         }
     });
 }); });

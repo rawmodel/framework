@@ -18,7 +18,7 @@ export declare abstract class Model {
         [name: string]: Field;
     };
     protected _types: {
-        [key: string]: (v?) => any;
+        [key: string]: (v?: any) => any;
     };
     protected _validators: {
         [key: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>;
