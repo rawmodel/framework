@@ -38,8 +38,8 @@ export interface ModelRecipe {
 export abstract class Model {
   protected _fields: {[name: string]: Field}; // model fields
   protected _types: {[key: string]: (v?) => any}; // custom data types
-  protected _validators: {[key: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>}; // custom validators
-  protected _handlers: {[key: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>}; // custom validators
+  protected _validators: {[key: string]: (v? : any, r?: ValidatorRecipe) => boolean | Promise<boolean>}; // custom validators
+  protected _handlers: {[key: string]: (v? : any, r?: HandlerRecipe) => boolean | Promise<boolean>}; // custom validators
   protected _failFast: boolean; // stop validating/handling on first error
   readonly root: Model;
   public parent: Model;
@@ -171,7 +171,7 @@ export abstract class Model {
   * Defines a new custom data type.
   */
 
-  public defineType (name: string, converter: (v?) => any): void {
+  public defineType (name: string, converter: (v? : any) => any): void {
     this._types[name] = converter;
   }
 
@@ -179,7 +179,7 @@ export abstract class Model {
   * Defines a new custom validator.
   */
 
-  public defineValidator (name: string, handler: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>): void {
+  public defineValidator (name: string, handler: (v? : any, r?: ValidatorRecipe) => boolean | Promise<boolean>): void {
     this._validators[name] = handler;
   }
 
@@ -187,7 +187,7 @@ export abstract class Model {
   * Defines a new custom validator.
   */
 
-  public defineHandler (name: string, handler: (e?, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
+  public defineHandler (name: string, handler: (e? : any, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
     this._handlers[name] = handler;
   }
 

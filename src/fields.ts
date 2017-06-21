@@ -16,8 +16,8 @@ export interface FieldRecipe {
   fakeValue?: any;
   validate?: ValidatorRecipe[];
   handle?: HandlerRecipe[];
-  validators?: {[name: string]: (v?, r?: ValidatorRecipe) => boolean | Promise<boolean>};
-  handlers?: {[name: string]: (v?, r?: HandlerRecipe) => boolean | Promise<boolean>};
+  validators?: {[name: string]: (v? : any, r?: ValidatorRecipe) => boolean | Promise<boolean>};
+  handlers?: {[name: string]: (v? : any, r?: HandlerRecipe) => boolean | Promise<boolean>};
   owner?: Model;
   failFast?: boolean;
   serializable?: boolean;

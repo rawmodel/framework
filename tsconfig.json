@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es3",
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "removeComments": true,
     "sourceMap": true,
     "outDir": "dist",
