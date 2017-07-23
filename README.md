@@ -389,7 +389,7 @@ class User extends Model {
 
     this.defineField('name', {
       type: 'String', // field type casting
-      serializable: true, // when set to `false` the field is not serializable
+      serializable: true, // when set to `false` the field is not enumerable
       get (v) { return v }, // custom getter
       set (v) { return v }, // custom setter
       validate: [ // value validator recipes
@@ -473,7 +473,7 @@ model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', me
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | name | String | Yes | - | Property name.
-| serializable | Boolean | No | true | When set to `false` the field is not serializable.
+| serializable | Boolean | No | true | When set to `false` the field is not enumerable and thus not included into serialized object.
 | type | String, Model | No | - | Data type (pass a Model to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
 | get | Function | No | - | Custom getter.
 | set | Function | No | - | Custom setter.
