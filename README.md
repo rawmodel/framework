@@ -776,8 +776,8 @@ catch (e) {
 | ['Float'] | An array of float numbers.
 | 'Date' | A date.
 | ['Date'] | An array of dates.
-| Function | Custom type.
-| [Function] | Custom type.
+
+**NOTE:** Field data type should always represent a `value`. This means that you should never assign a `function` to a field. If you need to handle dynamic field values, please use [field value transformations](#field-value-transformation) instead. You can also define your own data type by using the `defineType` method.
 
 ### Built-in Validators
 
