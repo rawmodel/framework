@@ -209,7 +209,7 @@ ava_1["default"]('method `isValid()` returns `true` when no errors exist', funct
 });
 ava_1["default"]('has enumeratable properties', function (t) {
     var f = new src_1.Field();
-    t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'serializable', 'type', 'owner']);
+    t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'serializable', 'enumerable', 'type', 'owner']);
 });
 ava_1["default"]('method `handle()` handles an error and populates the `errors` property', function (t) { return __awaiter(_this, void 0, void 0, function () {
     var f, e;

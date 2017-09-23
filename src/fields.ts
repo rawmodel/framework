@@ -21,6 +21,7 @@ export interface FieldRecipe {
   owner?: Model;
   failFast?: boolean;
   serializable?: boolean;
+  enumerable?: boolean;
 }
 
 /*
@@ -48,6 +49,7 @@ export class Field {
   readonly fakeValue: any;
   readonly initialValue: any;
   readonly serializable: boolean;
+  readonly enumerable: boolean;
   readonly owner: Model;
   readonly type: any;
   public value: any;
@@ -99,6 +101,10 @@ export class Field {
 
     Object.defineProperty(this, 'serializable', {
       get: () => isUndefined(this._recipe.serializable) ? true : !!this._recipe.serializable,
+      enumerable: true
+    });
+    Object.defineProperty(this, 'enumerable', {
+      get: () => isUndefined(this._recipe.enumerable) ? true : !!this._recipe.enumerable,
       enumerable: true
     });
     Object.defineProperty(this, 'type', {

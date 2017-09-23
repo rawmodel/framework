@@ -118,7 +118,7 @@ var Model = (function () {
         Object.defineProperty(this, name, {
             get: function () { return field.value; },
             set: function (v) { return field.value = v; },
-            enumerable: typeof recipe.serializable !== "undefined" ? recipe.serializable : true,
+            enumerable: recipe.enumerable !== false,
             configurable: true
         });
         this._fields[name] = field;

@@ -389,7 +389,8 @@ class User extends Model {
 
     this.defineField('name', {
       type: 'String', // field type casting
-      serializable: true, // when set to `false` the field is not enumerable
+      serializable: true, // when set to `false` the field is not present in serialized object (returned by `.serialize()`)
+      enumerable: true, // when set to `false` the field is not enumerable (ignored by `Object.keys()`)
       get (v) { return v }, // custom getter
       set (v) { return v }, // custom setter
       validate: [ // value validator recipes
@@ -466,14 +467,15 @@ model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', me
 
 > Sets initial value of each model field to the current value of a field. This is how field change tracking is restarted.
 
-**Model.prototype.defineField(name, {type, serializable, get, set, defaultValue, fakeValue, validate})**: Void
+**Model.prototype.defineField(name, {type, serializable, enumerable, get, set, defaultValue, fakeValue, validate})**: Void
 
 > Defines a new model property.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | name | String | Yes | - | Property name.
-| serializable | Boolean | No | true | When set to `false` the field is not enumerable and thus not included into serialized object.
+| serializable | Boolean | No | true | When set to `false` the field is not present in serialized object (returned by `.serialize()`).
+| enumerable | Boolean | No | true | When set to `false` the field is not enumerable (ignored by `Object.keys()`).
 | type | String, Model | No | - | Data type (pass a Model to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
 | get | Function | No | - | Custom getter.
 | set | Function | No | - | Custom setter.

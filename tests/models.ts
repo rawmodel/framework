@@ -1014,3 +1014,24 @@ test('method `defineHandler` defines a custom field handler', async (t) => {
     {path: ['books', 0, 'title'], errors},
   ]);
 });
+
+test('property `enumerable` handles field visibility', (t) => {
+  class User0 extends Model {
+    name: string;
+    constructor (data) {
+      super(data);
+      this.defineField('name', {enumerable: true});
+    }
+  }
+  class User1 extends Model {
+    name: string;
+    constructor (data) {
+      super(data);
+      this.defineField('name', {enumerable: false});
+    }
+  }
+  let user0 = new User0({});
+  let user1 = new User1({});
+  t.deepEqual(Object.keys(user0), ['name']);
+  t.deepEqual(Object.keys(user1), []);
+});

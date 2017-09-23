@@ -160,7 +160,7 @@ export abstract class Model {
     Object.defineProperty(this, name, {
       get: () => field.value,
       set: (v) => field.value = v,
-      enumerable: typeof recipe.serializable !== "undefined" ? recipe.serializable : true,
+      enumerable: recipe.enumerable !== false,
       configurable: true
     });
 

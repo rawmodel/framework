@@ -165,7 +165,7 @@ test('method `isValid()` returns `true` when no errors exist', (t) => {
 
 test('has enumeratable properties', (t) => {
   let f = new Field();
-  t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'serializable', 'type', 'owner']);
+  t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'serializable', 'enumerable', 'type', 'owner']);
 });
 
 test('method `handle()` handles an error and populates the `errors` property', async (t) => {

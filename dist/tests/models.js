@@ -1264,4 +1264,28 @@ ava_1["default"]('method `defineHandler` defines a custom field handler', functi
         }
     });
 }); });
+ava_1["default"]('property `enumerable` handles field visibility', function (t) {
+    var User0 = (function (_super) {
+        __extends(User0, _super);
+        function User0(data) {
+            var _this = _super.call(this, data) || this;
+            _this.defineField('name', { enumerable: true });
+            return _this;
+        }
+        return User0;
+    }(src_1.Model));
+    var User1 = (function (_super) {
+        __extends(User1, _super);
+        function User1(data) {
+            var _this = _super.call(this, data) || this;
+            _this.defineField('name', { enumerable: false });
+            return _this;
+        }
+        return User1;
+    }(src_1.Model));
+    var user0 = new User0({});
+    var user1 = new User1({});
+    t.deepEqual(Object.keys(user0), ['name']);
+    t.deepEqual(Object.keys(user1), []);
+});
 //# sourceMappingURL=models.js.map

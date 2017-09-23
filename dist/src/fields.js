@@ -82,6 +82,10 @@ var Field = (function () {
             get: function () { return typeable_1.isUndefined(_this._recipe.serializable) ? true : !!_this._recipe.serializable; },
             enumerable: true
         });
+        Object.defineProperty(this, 'enumerable', {
+            get: function () { return typeable_1.isUndefined(_this._recipe.enumerable) ? true : !!_this._recipe.enumerable; },
+            enumerable: true
+        });
         Object.defineProperty(this, 'type', {
             get: function () { return _this._recipe.type || null; },
             enumerable: true
