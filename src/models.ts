@@ -1,4 +1,4 @@
-import {isArray, isUndefined, isPresent, toBoolean, isObject} from 'typeable';
+import {isArray, isUndefined, isPresent, toBoolean} from 'typeable';
 import {ValidatorRecipe} from 'validatable';
 import {HandlerRecipe} from 'handleable';
 import {Field, FieldRecipe, FieldError} from './fields';
@@ -220,11 +220,7 @@ export abstract class Model {
   */
 
   public populate (data = {}): this {
-    if (!isObject(data)) {
-      data = {};
-    }
-
-    Object.keys(data)
+    Object.keys(data || {})
       .filter((n) => !!this._fields[n])
       .forEach((name) => this[name] = serialize(data[name]));
 
