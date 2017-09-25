@@ -155,6 +155,9 @@ var Model = (function () {
     Model.prototype.populate = function (data) {
         var _this = this;
         if (data === void 0) { data = {}; }
+        if (!typeable_1.isObject(data)) {
+            data = {};
+        }
         Object.keys(data)
             .filter(function (n) { return !!_this._fields[n]; })
             .forEach(function (name) { return _this[name] = utils_1.serialize(data[name]); });

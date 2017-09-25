@@ -67,6 +67,9 @@ test('method `populate` deeply populates fields', (t) => {
       }
     ]
   });
+  user.populate(null); // should not break
+  user.populate(false); // should not break
+  user.populate(""); // should not break
   t.is(user.name, '100');
   t.is(user.book.title, '200');
   t.is(user.books[0], null);

@@ -117,6 +117,9 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
             }
         ]
     });
+    user.populate(null);
+    user.populate(false);
+    user.populate("");
     t.is(user.name, '100');
     t.is(user.book.title, '200');
     t.is(user.books[0], null);
