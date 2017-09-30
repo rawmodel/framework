@@ -68,10 +68,9 @@ let model = new User({
 model.name; // => 'John Smith'
 ```
 
-Examples are also available inside the `./example` folder. You should also check the links below:
+Examples are available inside the `./example` folder. You should also check the links below:
 
-* [graphql-example](https://github.com/xpepermint/graphql-example): A GraphQL application example (intuitive rootValue resolvers using rawmodel.js)
-* [vue-example](https://github.com/xpepermint/vue-example): Vue.js example application (server-side rendering, router, vuex store, forms validation with rawmodel.js)
+* [RawModel & ExpressJS](https://gist.github.com/xpepermint/887a76bb3b1730709a760053a5ffff97): Using RawModel in ExpressJS actions to validate input data and handling data-related errors.
 
 ## Usage
 
@@ -249,7 +248,7 @@ class User extends Model {
 }
 
 let user = new User();
-user.validate().then((err) => {
+user.validate().catch((err) => {
   user.collectErrors(); // -> [{path: ['name'], errors: [{validator: 'presence', message: 'is must be present', code: 422}]}]
 });
 ```
@@ -364,8 +363,6 @@ graphql(schema, '{hello}', root).then((response) => {
   console.log(response);
 });
 ```
-
-See [graphql-example](https://github.com/xpepermint/graphql-example) for more.
 
 ## API
 
