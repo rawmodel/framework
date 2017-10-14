@@ -55,7 +55,7 @@ test('method `populate` deeply populates fields', (t) => {
       this.populate(data);
     }
   }
-  let user = new User({
+  let user0 = new User({
     name: 100,
     book: {
       title: 200
@@ -67,15 +67,17 @@ test('method `populate` deeply populates fields', (t) => {
       }
     ]
   });
-  user.populate(null); // should not break
-  user.populate(false); // should not break
-  user.populate(""); // should not break
-  user.populate(true); // should not break
-  user.populate(100); // should not break
-  t.is(user.name, '100');
-  t.is(user.book.title, '200');
-  t.is(user.books[0], null);
-  t.is(user.books[1].title, '300');
+  let user1 = new User(null);
+  user0.populate(null); // should not break
+  user0.populate(false); // should not break
+  user0.populate(""); // should not break
+  user0.populate(true); // should not break
+  user0.populate(100); // should not break
+  t.is(user0.name, '100');
+  t.is(user0.book.title, '200');
+  t.is(user0.books[0], null);
+  t.is(user0.books[1].title, '300');
+  t.is(user1.name, null);
 });
 
 test('property `parent` holds an instance of a parent model', (t) => {

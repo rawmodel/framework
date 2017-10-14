@@ -40,8 +40,10 @@ var fields_1 = require("./fields");
 var utils_1 = require("./utils");
 var Model = (function () {
     function Model(recipe) {
-        if (recipe === void 0) { recipe = {}; }
         var _this = this;
+        if (!recipe) {
+            recipe = {};
+        }
         Object.defineProperty(this, 'parent', {
             value: recipe.parent || this.parent || null,
             writable: true

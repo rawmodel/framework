@@ -43,6 +43,9 @@ var models_1 = require("./models");
 var Field = (function () {
     function Field(recipe) {
         var _this = this;
+        if (!recipe) {
+            recipe = {};
+        }
         this.errors = [];
         Object.defineProperty(this, '_recipe', {
             value: Object.freeze(recipe || {})

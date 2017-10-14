@@ -60,6 +60,10 @@ export class Field {
   */
 
   public constructor (recipe?: FieldRecipe) {
+    if (!recipe) {
+      recipe = {};
+    }
+
     this.errors = [];
 
     Object.defineProperty(this, '_recipe', {

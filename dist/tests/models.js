@@ -105,7 +105,7 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
         }
         return User;
     }(src_1.Model));
-    var user = new User({
+    var user0 = new User({
         name: 100,
         book: {
             title: 200
@@ -117,15 +117,17 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
             }
         ]
     });
-    user.populate(null);
-    user.populate(false);
-    user.populate("");
-    user.populate(true);
-    user.populate(100);
-    t.is(user.name, '100');
-    t.is(user.book.title, '200');
-    t.is(user.books[0], null);
-    t.is(user.books[1].title, '300');
+    var user1 = new User(null);
+    user0.populate(null);
+    user0.populate(false);
+    user0.populate("");
+    user0.populate(true);
+    user0.populate(100);
+    t.is(user0.name, '100');
+    t.is(user0.book.title, '200');
+    t.is(user0.books[0], null);
+    t.is(user0.books[1].title, '300');
+    t.is(user1.name, null);
 });
 ava_1["default"]('property `parent` holds an instance of a parent model', function (t) {
     var Book = (function (_super) {

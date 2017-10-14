@@ -48,7 +48,11 @@ export abstract class Model {
   * Class constructor.
   */
 
-  public constructor (recipe: ModelRecipe = {}) {
+  public constructor (recipe?: ModelRecipe) {
+    if (!recipe) {
+      recipe = {};
+    }
+
     Object.defineProperty(this, 'parent', {
       value: recipe.parent || this.parent || null,
       writable: true
