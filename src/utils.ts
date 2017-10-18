@@ -1,5 +1,5 @@
-import * as merge from 'lodash.merge';
-import * as isEqual from 'lodash.isequal';
+import merge = require('lodash.merge');
+import isEqual = require('lodash.isequal');
 
 /*
 * Deeply combines multiple values.
