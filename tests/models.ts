@@ -45,21 +45,24 @@ test('method `populate` deeply populates fields', (t) => {
   }
   class User extends Model {
     name: string;
-    book: Book;
+    book0: Book;
+    book1: Book;
     books: Book[];
     constructor (data) {
       super(data);
       this.defineField('name', {type: 'String'});
-      this.defineField('book', {type: Book});
+      this.defineField('book0', {type: Book});
+      this.defineField('book1', {type: Book});
       this.defineField('books', {type: [Book]});
       this.populate(data);
     }
   }
   let user0 = new User({
     name: 100,
-    book: {
+    book0: {
       title: 200
     },
+    book1: undefined,
     books: [
       undefined,
       {
@@ -74,7 +77,8 @@ test('method `populate` deeply populates fields', (t) => {
   user0.populate(true); // should not break
   user0.populate(100); // should not break
   t.is(user0.name, '100');
-  t.is(user0.book.title, '200');
+  t.is(user0.book0.title, '200');
+  t.is(user0.book1, null);
   t.is(user0.books[0], null);
   t.is(user0.books[1].title, '300');
   t.is(user1.name, null);

@@ -98,7 +98,8 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
         function User(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('name', { type: 'String' });
-            _this.defineField('book', { type: Book });
+            _this.defineField('book0', { type: Book });
+            _this.defineField('book1', { type: Book });
             _this.defineField('books', { type: [Book] });
             _this.populate(data);
             return _this;
@@ -107,9 +108,10 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
     }(src_1.Model));
     var user0 = new User({
         name: 100,
-        book: {
+        book0: {
             title: 200
         },
+        book1: undefined,
         books: [
             undefined,
             {
@@ -124,7 +126,8 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
     user0.populate(true);
     user0.populate(100);
     t.is(user0.name, '100');
-    t.is(user0.book.title, '200');
+    t.is(user0.book0.title, '200');
+    t.is(user0.book1, null);
     t.is(user0.books[0], null);
     t.is(user0.books[1].title, '300');
     t.is(user1.name, null);

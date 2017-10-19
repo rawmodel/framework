@@ -18,5 +18,9 @@ export {isEqual};
 */
 
 export function serialize (data: any) {
-  return JSON.parse(JSON.stringify(data));
+  if (typeof data === 'undefined') {
+    return data;
+  } else {
+    return JSON.parse(JSON.stringify(data));
+  }
 }
