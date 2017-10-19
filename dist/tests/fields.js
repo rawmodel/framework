@@ -172,7 +172,8 @@ ava_1["default"]('method `validate()` validates the value and populates the `err
                 f = new src_1.Field({
                     validate: [
                         { validator: 'presence', message: 'foo' },
-                        { validator: 'coolness', message: 'is not cool' }
+                        { validator: 'coolness', message: 'is not cool' },
+                        { validator: 'coolness', code: 999 },
                     ],
                     validators: {
                         coolness: function () { return this.value === 'cool'; }
@@ -183,7 +184,8 @@ ava_1["default"]('method `validate()` validates the value and populates the `err
                 _a.sent();
                 t.deepEqual(f.errors, [
                     { validator: 'presence', message: 'foo', code: 422 },
-                    { validator: 'coolness', message: 'is not cool', code: 422 }
+                    { validator: 'coolness', message: 'is not cool', code: 422 },
+                    { validator: 'coolness', message: undefined, code: 999 }
                 ]);
                 return [2];
         }
@@ -219,7 +221,8 @@ ava_1["default"]('method `handle()` handles an error and populates the `errors` 
                 f = new src_1.Field({
                     handle: [
                         { handler: 'block', block: function () { return true; }, message: 'foo' },
-                        { handler: 'coolness', message: 'cool' }
+                        { handler: 'coolness', message: 'cool' },
+                        { handler: 'coolness', code: 999 }
                     ],
                     handlers: {
                         coolness: function (error) { return error.message === 'cool'; }
@@ -231,7 +234,8 @@ ava_1["default"]('method `handle()` handles an error and populates the `errors` 
                 _a.sent();
                 t.deepEqual(f.errors, [
                     { handler: 'block', message: 'foo', code: 422 },
-                    { handler: 'coolness', message: 'cool', code: 422 }
+                    { handler: 'coolness', message: 'cool', code: 422 },
+                    { handler: 'coolness', message: undefined, code: 999 },
                 ]);
                 return [2];
         }

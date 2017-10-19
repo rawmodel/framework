@@ -29,8 +29,7 @@ export interface FieldRecipe {
 */
 
 export interface FieldError {
-  message: string;
-  name?: string;
+  message?: string;
   code?: number;
   [key: string]: any;
 }

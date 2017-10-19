@@ -129,7 +129,8 @@ test('method `validate()` validates the value and populates the `errors` propert
   let f = new Field({
     validate: [
       {validator: 'presence', message: 'foo'},
-      {validator: 'coolness', message: 'is not cool'}
+      {validator: 'coolness', message: 'is not cool'}, // custom with message
+      {validator: 'coolness', code: 999}, // custom with code
     ],
     validators: {
       coolness () { return this.value === 'cool'; } // custom validators
@@ -138,7 +139,8 @@ test('method `validate()` validates the value and populates the `errors` propert
   await f.validate();
   t.deepEqual(f.errors, [
     {validator: 'presence', message: 'foo', code: 422},
-    {validator: 'coolness', message: 'is not cool', code: 422}
+    {validator: 'coolness', message: 'is not cool', code: 422},
+    {validator: 'coolness', message: undefined, code: 999}
   ]);
 });
 
@@ -172,7 +174,8 @@ test('method `handle()` handles an error and populates the `errors` property', a
   let f = new Field({
     handle: [
       {handler: 'block', block () { return true; }, message: 'foo'},
-      {handler: 'coolness', message: 'cool'} // custom
+      {handler: 'coolness', message: 'cool'}, // custom with message
+      {handler: 'coolness', code: 999} // custom with code
     ],
     handlers: {
       coolness (error) { return error.message === 'cool'; } // custom validators
@@ -182,6 +185,7 @@ test('method `handle()` handles an error and populates the `errors` property', a
   await f.handle(e);
   t.deepEqual(f.errors, [
     {handler: 'block', message: 'foo', code: 422},
-    {handler: 'coolness', message: 'cool', code: 422}
+    {handler: 'coolness', message: 'cool', code: 422},
+    {handler: 'coolness', message: undefined, code: 999},
   ]);
 });

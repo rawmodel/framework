@@ -237,10 +237,11 @@ class User extends Model {
     this.defineField('name', {
       validate: [ // field validation setup
         { // validator recipe
-          validator: 'presence', // validator name
-          message: '%{it} must be present', // error message
-          condition () { return true }, // optional condition which switches the validation on/off
-          it: 'it' // optional custom variable for the `message`
+          validator: 'presence', // [required] validator name
+          message: '%{it} must be present', // [optional] error message
+          code: 422, // [optional] error code
+          condition () { return true }, // [optional] condition which switches the validation on/off
+          it: 'it' // [optional] custom variable for the `message`
         }
       ]
     });
@@ -292,11 +293,12 @@ class User extends Model {
     this.defineField('name', {
       handle: [ // field error handling setup
         { // handler recipe
-          handler: 'block', // handler name
-          message: '%{is} unknown', // error message
-          block (error) { return true }, // block handler-specific option
-          condition () { return true }, // optional condition which switches the handling on/off
-          is: 'is' // optional custom variable for the `message`
+          handler: 'block', // [required] handler name
+          message: '%{is} unknown', // [optional] error message
+          code: 422, // [optional] error code
+          block (error) { return true }, // [optional] handler-specific function
+          condition () { return true }, // [optional] condition which switches the handling on/off
+          is: 'is' // [optional] custom variable for the `message`
         }
       ]
     });
@@ -385,30 +387,32 @@ class User extends Model {
     super(data); // initializing the Model
 
     this.defineField('name', {
-      type: 'String', // field type casting
-      serializable: true, // when set to `false` the field is not present in serialized object (returned by `.serialize()`)
-      enumerable: true, // when set to `false` the field is not enumerable (ignored by `Object.keys()`)
-      get (v) { return v }, // custom getter
-      set (v) { return v }, // custom setter
-      validate: [ // value validator recipes
+      type: 'String', // [optional] field type casting
+      serializable: true, // [optional] when set to `false` the field is not present in serialized object (returned by `.serialize()`)
+      enumerable: true, // [optional] when set to `false` the field is not enumerable (ignored by `Object.keys()`)
+      get (v) { return v }, // [optional] custom getter
+      set (v) { return v }, // [optional] custom setter
+      validate: [ // [optional] value validator recipes
         { // validator recipe (check validatable.js for more)
-          validator: 'presence', // validator name
-          condition () { return true }, // optional condition which switches the validation on/off
-          message: '%{it} must be present', // error message
-          it: 'it' // custom variable for the `message`
+          validator: 'presence', // [required] validator name
+          condition () { return true }, // [optional] condition which switches the validation on/off
+          message: '%{it} must be present', // [optional] error message
+          code: 422, // [optional] error code
+          it: 'it' // [optional] custom variable for the `message`
         }
       ],
-      handle: [ // error handling recipies
+      handle: [ // [optional] error handling recipies
         { // handler recipe
-          handler: 'block', // handler name
-          condition () { return true }, // optional condition which switches the handling on/off
-          message: '%{is} unknown', // error message
-          block (error) { return true }, // block handler-specific option
-          is: 'is' // optional custom variable for the `message`
+          handler: 'block', // [optional] handler name
+          condition () { return true }, // [optional] condition which switches the handling on/off
+          message: '%{is} unknown', // [optional] error message
+          code: 422, // [optional] error code
+          block (error) { return true }, // [optional] handler-specific function
+          is: 'is' // [optional] custom variable for the `message`
         }
       ],
-      defaultValue: 'Noname', // field default value (value or function)
-      fakeValue: 'Noname', // field fake value (value or function)
+      defaultValue: 'Noname', // [optional] field default value (value or function)
+      fakeValue: 'Noname', // [optional] field fake value (value or function)
     });
 
     this.populate(data);
@@ -427,9 +431,9 @@ model.applyErrors([
     path: ['books', 1, 'title'], // field path
     errors: [
       {
-        validator: 'presence',
+        validator: 'presence', // or handler: ''
         message: 'is required',
-        code: 422
+        code: 422,
       }
     ]
   }
@@ -826,10 +830,6 @@ let recipe = {
   async block (value, recipe) { return true }
 };
 ```
-
-**BSONObjectID**
-
-> Validates that the specified field is a valid hex-encoded representation of a [MongoDB ObjectID](http://docs.mongodb.org/manual/reference/object-id/).
 
 **numberSize**
 
