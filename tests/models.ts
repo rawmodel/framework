@@ -742,10 +742,10 @@ test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
 });
 
 test('method `validate` validates fields and throws an error', async (t) => {
-  let validate = [{
-    validator: 'presence',
-    message: 'foo'
-  }];
+  let validate = [
+    { validator: 'presence', message: 'foo' },
+    { validator: 'presence', code: 999 },
+  ];
   class Book extends Model {
     constructor (data) {
       super(data);
@@ -768,7 +768,10 @@ test('method `validate` validates fields and throws an error', async (t) => {
     book1: {},
     books1: [{}]
   });
-  let errors = [{validator: 'presence', message: 'foo', code: 422}];
+  let errors = [
+    {validator: 'presence', message: 'foo', code: 422},
+    {validator: 'presence', message: undefined, code: 999},
+  ];
   await user.validate({quiet: true});
   t.is(await user.validate().catch(() => false), false);
   t.deepEqual(user.collectErrors() as {}, [

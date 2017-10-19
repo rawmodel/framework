@@ -896,10 +896,10 @@ ava_1["default"]('method `validate` validates fields and throws an error', funct
     return __generator(this, function (_c) {
         switch (_c.label) {
             case 0:
-                validate = [{
-                        validator: 'presence',
-                        message: 'foo'
-                    }];
+                validate = [
+                    { validator: 'presence', message: 'foo' },
+                    { validator: 'presence', code: 999 },
+                ];
                 Book = (function (_super) {
                     __extends(Book, _super);
                     function Book(data) {
@@ -928,7 +928,10 @@ ava_1["default"]('method `validate` validates fields and throws an error', funct
                     book1: {},
                     books1: [{}]
                 });
-                errors = [{ validator: 'presence', message: 'foo', code: 422 }];
+                errors = [
+                    { validator: 'presence', message: 'foo', code: 422 },
+                    { validator: 'presence', message: undefined, code: 999 },
+                ];
                 return [4, user.validate({ quiet: true })];
             case 1:
                 _c.sent();
