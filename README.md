@@ -74,6 +74,8 @@ Examples are available inside the `./example` folder. You should also check the 
 
 ## Usage
 
+Below we explain some of the most important features that this package provides. You should check the API section to see a complete list of features.
+
 ### Defining Fields
 
 Model fields are defined using the `defineField` method. The code below is an example of a basic model class with a property `name` of type `Any`.
@@ -207,7 +209,7 @@ Note that the logic above applies also the the `Field` class.
 
 ### Serialization & Filtering
 
-Model class provides useful methods for object serialization and filtering.
+Model provides useful methods for object serialization and filtering (check the API for more methods).
 
 ```js
 let user = new User({
@@ -221,7 +223,33 @@ user.scroll(function (field) { // argument is an instance of a field
 });
 ```
 
-The code above is only a quick example of what's possible. Please check the API section for all available methods.
+Fields are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude fields for different occasions by using serialization strategies.
+
+```js
+class User extends Model {
+  public id: string;
+  public name: string;
+
+  public constructor (data = {}) {
+    super(data);
+    this.defineField('id', {
+      serializable: ['output'], // list serialization strategy names
+    });
+    this.defineField('name', {
+      serializable: ['input', 'output'], // list serialization strategy names
+    });
+    this.populate(data);
+  }
+}
+
+let user = new User({
+  'id': 100,
+  'name': 'John Smith',
+});
+user.serialize(); // -> {"id": 100, "name": "John Smith"}
+user.serialize('input'); // -> {"name": "John Smith"}
+user.serialize('output'); // -> {"id": 100, "name": "John Smith"}
+```
 
 ### Validation
 
@@ -388,7 +416,7 @@ class User extends Model {
 
     this.defineField('name', {
       type: 'String', // [optional] field type casting
-      serializable: true, // [optional] when set to `false` the field is not present in serialized object (returned by `.serialize()`)
+      serializable: ['input', 'output'], // [optional] serialization strategies
       enumerable: true, // [optional] when set to `false` the field is not enumerable (ignored by `Object.keys()`)
       get (v) { return v }, // [optional] custom getter
       set (v) { return v }, // [optional] custom setter
@@ -475,7 +503,7 @@ model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', me
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | name | String | Yes | - | Property name.
-| serializable | Boolean | No | true | When set to `false` the field is not present in serialized object (returned by `.serialize()`).
+| serializable | String[] | No | undefined | Serialization strategies (returned by `.serialize()`).
 | enumerable | Boolean | No | true | When set to `false` the field is not enumerable (ignored by `Object.keys()`).
 | type | String, Model | No | - | Data type (pass a Model to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
 | get | Function | No | - | Custom getter.
@@ -624,9 +652,13 @@ catch (e) {
 |--------|------|----------|---------|------------
 | handler | Function | Yes | - | A handler method which is executed for each field.
 
-**Model.prototype.serialize()**: Object
+**Model.prototype.serialize(strategy)**: Object
 
 > Converts a model into serialized data object.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| strategy | String | No | - | When the strategy name is provided, the output will include only the fields where the `serializable` option includes this strategy name. If the parameter is not provided then all fields are included in the result.
 
 **Model.prototype.validate({quiet})**: Promise(Model)
 

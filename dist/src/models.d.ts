@@ -43,11 +43,15 @@ export declare abstract class Model {
     getField(...keys: any[]): Field;
     hasField(...keys: any[]): boolean;
     populate(data?: {}): this;
-    serialize(): {};
+    serialize(strategy?: string): {
+        [key: string]: any;
+    };
     flatten(prefix?: string[]): FieldRef[];
     collect(handler: (field: FieldRef) => any): any[];
     scroll(handler: (field: FieldRef) => void): number;
-    filter(test: (field: FieldRef) => boolean): {};
+    filter(test: (field: FieldRef) => boolean): {
+        [key: string]: any;
+    };
     reset(): this;
     fake(): this;
     clear(): this;

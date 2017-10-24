@@ -82,7 +82,7 @@ var Field = (function () {
             enumerable: true
         });
         Object.defineProperty(this, 'serializable', {
-            get: function () { return typeable_1.isUndefined(_this._recipe.serializable) ? true : !!_this._recipe.serializable; },
+            get: function () { return !typeable_1.isArray(_this._recipe.serializable) ? [] : _this._recipe.serializable; },
             enumerable: true
         });
         Object.defineProperty(this, 'enumerable', {

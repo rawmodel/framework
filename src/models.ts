@@ -1,4 +1,4 @@
-import {isArray, isUndefined, isPresent, toBoolean} from 'typeable';
+import {isArray, isUndefined, isPresent, isString, toBoolean} from 'typeable';
 import {ValidatorRecipe} from 'validatable';
 import {HandlerRecipe} from 'handleable';
 import {Field, FieldRecipe, FieldError} from './fields';
@@ -235,8 +235,17 @@ export abstract class Model {
   * Converts this class into serialized data object.
   */
 
-  public serialize (): {} {
-    return this.filter((ref) => ref.field.serializable);
+  public serialize (strategy?: string): {[key: string]: any} {
+    return this.filter((ref) => {
+      if (isString(strategy)) {
+        return (
+          isArray(ref.field.serializable)
+          && ref.field.serializable.indexOf(strategy) !== -1
+        );
+      } else {
+        return true;
+      }
+    });
   }
 
   /*
@@ -295,7 +304,7 @@ export abstract class Model {
   * pass the provided `test`.
   */
 
-  public filter (test: (field: FieldRef) => boolean): {} {
+  public filter (test: (field: FieldRef) => boolean): {[key: string]: any} {
     let data = serialize(this);
 
     this.flatten()

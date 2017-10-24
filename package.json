@@ -1,6 +1,6 @@
 {
   "name": "rawmodel",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "description": "Strongly-typed JavaScript object with support for validation and error handling.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -63,7 +63,10 @@
     "tracking",
     "change",
     "field",
-    "fields"
+    "fields",
+    "serialize",
+    "serialization",
+    "serializable"
   ],
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",

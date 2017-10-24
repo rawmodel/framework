@@ -162,8 +162,16 @@ var Model = (function () {
             .forEach(function (name) { return _this[name] = utils_1.serialize(data[name]); });
         return this;
     };
-    Model.prototype.serialize = function () {
-        return this.filter(function (ref) { return ref.field.serializable; });
+    Model.prototype.serialize = function (strategy) {
+        return this.filter(function (ref) {
+            if (typeable_1.isString(strategy)) {
+                return (typeable_1.isArray(ref.field.serializable)
+                    && ref.field.serializable.indexOf(strategy) !== -1);
+            }
+            else {
+                return true;
+            }
+        });
     };
     Model.prototype.flatten = function (prefix) {
         var _this = this;

@@ -122,7 +122,7 @@ ava_1["default"]('method `populate` deeply populates fields', function (t) {
     var user1 = new User(null);
     user0.populate(null);
     user0.populate(false);
-    user0.populate("");
+    user0.populate('');
     user0.populate(true);
     user0.populate(100);
     t.is(user0.name, '100');
@@ -267,6 +267,7 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
+            _this.defineField('description', { serializable: ['output'] });
             _this.populate(data);
             return _this;
         }
@@ -276,9 +277,10 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         __extends(User, _super);
         function User(data) {
             var _this = _super.call(this, data) || this;
-            _this.defineField('name', { type: 'String' });
-            _this.defineField('description', { serializable: false });
-            _this.defineField('book', { type: Book });
+            _this.defineField('id', { serializable: [] });
+            _this.defineField('name', { type: 'String', serializable: null });
+            _this.defineField('description', { serializable: ['input', 'output'] });
+            _this.defineField('book', { type: Book, serializable: ['output'] });
             _this.defineField('books', { type: [Book] });
             _this.populate(data);
             return _this;
@@ -286,8 +288,9 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         return User;
     }(src_1.Model));
     var user = new User({
+        id: 'id',
         name: 'foo',
-        description: 'foo',
+        description: 'des',
         book: {
             title: 'bar'
         },
@@ -299,16 +302,29 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         ]
     });
     t.deepEqual(user.serialize(), {
+        id: 'id',
         name: 'foo',
+        description: 'des',
         book: {
-            title: 'bar'
+            title: 'bar',
+            description: null
         },
         books: [
             null,
             {
-                title: 'baz'
-            }
+                title: 'baz',
+                description: null
+            },
         ]
+    });
+    t.deepEqual(user.serialize('input'), {
+        description: 'des'
+    });
+    t.deepEqual(user.serialize('output'), {
+        description: 'des',
+        book: {
+            description: null
+        }
     });
 });
 ava_1["default"]('method `flatten` returns an array of fields', function (t) { return __awaiter(_this, void 0, void 0, function () {

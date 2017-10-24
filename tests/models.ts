@@ -73,7 +73,7 @@ test('method `populate` deeply populates fields', (t) => {
   let user1 = new User(null);
   user0.populate(null); // should not break
   user0.populate(false); // should not break
-  user0.populate(""); // should not break
+  user0.populate(''); // should not break
   user0.populate(true); // should not break
   user0.populate(100); // should not break
   t.is(user0.name, '100');
@@ -206,22 +206,25 @@ test('method `serialize` converts model into a serialized data object', (t) => {
     constructor (data) {
       super(data);
       this.defineField('title', {type: 'String'});
+      this.defineField('description', {serializable: ['output']}); // only for these strategies
       this.populate(data);
     }
   }
   class User extends Model {
     constructor (data) {
       super(data);
-      this.defineField('name', {type: 'String'});
-      this.defineField('description', {serializable: false});
-      this.defineField('book', {type: Book});
+      this.defineField('id', {serializable: []}); // never
+      this.defineField('name', {type: 'String', serializable: null});
+      this.defineField('description', {serializable: ['input', 'output']}); // only for these strategies
+      this.defineField('book', {type: Book, serializable: ['output']});
       this.defineField('books', {type: [Book]});
       this.populate(data);
     }
   }
   let user = new User({
+    id: 'id',
     name: 'foo',
-    description: 'foo',
+    description: 'des',
     book: {
       title: 'bar'
     },
@@ -232,17 +235,31 @@ test('method `serialize` converts model into a serialized data object', (t) => {
       }
     ]
   });
-  t.deepEqual(user.serialize() as any, {
+
+  t.deepEqual(user.serialize(), {
+    id: 'id',
     name: 'foo',
+    description: 'des',
     book: {
-      title: 'bar'
+      title: 'bar',
+      description: null,
     },
     books: [
       null,
       {
-        title: 'baz'
-      }
-    ]
+        title: 'baz',
+        description: null,
+      },
+    ],
+  });
+  t.deepEqual(user.serialize('input'), {
+    description: 'des',
+  });
+  t.deepEqual(user.serialize('output'), {
+    description: 'des',
+    book: {
+      description: null,
+    },
   });
 });
 
