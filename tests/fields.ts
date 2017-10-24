@@ -69,7 +69,7 @@ test('method `fake()` sets value to the fake value', (t) => {
   let f2 = new Field({fakeValue () { return Math.random(); }});
   f0.value = 'foo';
   f0.fake();
-  t.is(f0.value, null);
+  t.is(f0.value, 'foo');
   f1.value = 'bar';
   f1.fake();
   t.is(f1.value, 'foo');

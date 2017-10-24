@@ -189,9 +189,9 @@ var Model = (function () {
                 }
                 else if (typeable_1.isArray(type) && type[0].prototype instanceof Model) {
                     fields = fields.concat(value
-                        .map(function (f, i) { return (f ? f.flatten(path.concat([i])) : null); })
+                        .map(function (f, i) { return (f && f instanceof Model ? f.flatten(path.concat([i])) : null); })
                         .filter(function (f) { return typeable_1.isArray(f); })
-                        .reduce(function (a, b) { return a.concat(b); }));
+                        .reduce(function (a, b) { return a.concat(b); }, []));
                 }
             }
         });

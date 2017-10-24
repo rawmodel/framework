@@ -108,7 +108,7 @@ ava_1["default"]('method `fake()` sets value to the fake value', function (t) {
     var f2 = new src_1.Field({ fakeValue: function () { return Math.random(); } });
     f0.value = 'foo';
     f0.fake();
-    t.is(f0.value, null);
+    t.is(f0.value, 'foo');
     f1.value = 'bar';
     f1.fake();
     t.is(f1.value, 'foo');

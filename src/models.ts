@@ -272,9 +272,9 @@ export abstract class Model {
         else if (isArray(type) && type[0].prototype instanceof Model) {
           fields = fields.concat(
             value
-              .map((f, i) => (f ? f.flatten(path.concat([i])) : null))
+              .map((f, i) => (f && f instanceof Model ? f.flatten(path.concat([i])) : null))
               .filter((f) => isArray(f))
-              .reduce((a, b) => a.concat(b))
+              .reduce((a, b) => a.concat(b), [])
           );
         }
       }

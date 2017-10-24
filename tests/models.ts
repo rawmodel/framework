@@ -432,7 +432,7 @@ test('method `reset` sets fields to their default values', (t) => {
     ]
   });
   user.reset();
-  t.deepEqual(user.serialize() as any, {
+  t.deepEqual(user.serialize(), {
     name: 'bar',
     book: {
       title: 'foo'
@@ -465,7 +465,7 @@ test('method `fake` sets fields to their fake values', (t) => {
   }
   let user = new User();
   user.fake();
-  t.deepEqual(user.serialize() as any, {
+  t.deepEqual(user.serialize(), {
     name: 'bar',
     book: {
       title: 'foo'
@@ -508,7 +508,7 @@ test('method `clear` sets fields to `null`', (t) => {
     ]
   });
   user.clear();
-  t.deepEqual(user.serialize() as any, {
+  t.deepEqual(user.serialize(), {
     name: null,
     book: null,
     books: null

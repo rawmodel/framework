@@ -51,7 +51,6 @@ var Field = (function () {
             value: Object.freeze(recipe || {})
         });
         Object.defineProperty(this, '_data', {
-            value: this._getDefaultValue(),
             writable: true
         });
         Object.defineProperty(this, '_initialData', {
@@ -97,6 +96,7 @@ var Field = (function () {
             get: function () { return _this._recipe.owner || null; },
             enumerable: true
         });
+        this.value = this._getDefaultValue();
     }
     Field.prototype._createValidator = function () {
         var _a = this._recipe, validators = _a.validators, failFast = _a.failFast;
@@ -167,7 +167,6 @@ var Field = (function () {
         return this;
     };
     Field.prototype.fake = function () {
-        this.reset();
         if (this.fakeValue) {
             this.value = this.fakeValue;
         }

@@ -70,7 +70,6 @@ export class Field {
     });
 
     Object.defineProperty(this, '_data', { // current value
-      value: this._getDefaultValue(),
       writable: true
     });
     Object.defineProperty(this, '_initialData', { // last commited value
@@ -118,6 +117,8 @@ export class Field {
       get: () => this._recipe.owner || null,
       enumerable: true
     });
+
+    this.value = this._getDefaultValue();
   }
 
   /*
@@ -249,7 +250,6 @@ export class Field {
   */
 
   public fake (): this {
-    this.reset();
 
     if (this.fakeValue) {
       this.value = this.fakeValue;

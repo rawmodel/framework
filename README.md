@@ -544,7 +544,7 @@ model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', me
 
 **Model.prototype.fake()**: Model
 
-> Sets each model field to its fake value if a fake value generator is registered, otherwise the default value is used.
+> Sets each model field to its fake value if the fake value generator is defined.
 
 **Model.prototype.filter(handler)**: Object
 
