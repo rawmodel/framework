@@ -110,10 +110,14 @@ test('method `equals()` returns `true` when the provided `data` equals to the cu
 });
 
 test('method `isChanged()` returns `true` if the value have been changed', (t) => {
-  let f = new Field();
-  t.is(f.isChanged(), false);
-  f.value = 'foo';
-  t.is(f.isChanged(), true);
+  let f0 = new Field();
+  let f1 = new Field({type: 'String', defaultValue: 'foo'});
+  let f2 = new Field({type: ['String'], defaultValue: ['foo']});
+  t.is(f0.isChanged(), false);
+  f0.value = 'foo';
+  t.is(f0.isChanged(), true);
+  t.is(f1.isChanged(), false);
+  t.is(f2.isChanged(), false);
 });
 
 test('method `isNested()` returns `true` if the field type is un instance of a Model', (t) => {
@@ -167,7 +171,17 @@ test('method `isValid()` returns `true` when no errors exist', (t) => {
 
 test('has enumeratable properties', (t) => {
   let f = new Field();
-  t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'serializable', 'enumerable', 'type', 'owner']);
+  t.deepEqual(Object.keys(f), [
+    'errors',
+    'serializable',
+    'enumerable',
+    'type',
+    'owner',
+    'value',
+    'defaultValue',
+    'fakeValue',
+    'initialValue',
+  ]);
 });
 
 test('method `handle()` handles an error and populates the `errors` property', async (t) => {

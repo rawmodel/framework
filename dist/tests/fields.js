@@ -145,10 +145,14 @@ ava_1["default"]('method `equals()` returns `true` when the provided `data` equa
     t.is(f0.equals(f1.value), true);
 });
 ava_1["default"]('method `isChanged()` returns `true` if the value have been changed', function (t) {
-    var f = new src_1.Field();
-    t.is(f.isChanged(), false);
-    f.value = 'foo';
-    t.is(f.isChanged(), true);
+    var f0 = new src_1.Field();
+    var f1 = new src_1.Field({ type: 'String', defaultValue: 'foo' });
+    var f2 = new src_1.Field({ type: ['String'], defaultValue: ['foo'] });
+    t.is(f0.isChanged(), false);
+    f0.value = 'foo';
+    t.is(f0.isChanged(), true);
+    t.is(f1.isChanged(), false);
+    t.is(f2.isChanged(), false);
 });
 ava_1["default"]('method `isNested()` returns `true` if the field type is un instance of a Model', function (t) {
     var f0 = new src_1.Field();
@@ -211,7 +215,17 @@ ava_1["default"]('method `isValid()` returns `true` when no errors exist', funct
 });
 ava_1["default"]('has enumeratable properties', function (t) {
     var f = new src_1.Field();
-    t.deepEqual(Object.keys(f), ['errors', 'value', 'defaultValue', 'fakeValue', 'initialValue', 'serializable', 'enumerable', 'type', 'owner']);
+    t.deepEqual(Object.keys(f), [
+        'errors',
+        'serializable',
+        'enumerable',
+        'type',
+        'owner',
+        'value',
+        'defaultValue',
+        'fakeValue',
+        'initialValue',
+    ]);
 });
 ava_1["default"]('method `handle()` handles an error and populates the `errors` property', function (t) { return __awaiter(_this, void 0, void 0, function () {
     var f, e;

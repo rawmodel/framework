@@ -47,10 +47,27 @@ var Field = (function () {
             recipe = {};
         }
         this.errors = [];
+        Object.defineProperty(this, 'serializable', {
+            get: function () { return !typeable_1.isArray(_this._recipe.serializable) ? [] : _this._recipe.serializable; },
+            enumerable: true
+        });
+        Object.defineProperty(this, 'enumerable', {
+            get: function () { return typeable_1.isUndefined(_this._recipe.enumerable) ? true : !!_this._recipe.enumerable; },
+            enumerable: true
+        });
+        Object.defineProperty(this, 'type', {
+            get: function () { return _this._recipe.type || null; },
+            enumerable: true
+        });
+        Object.defineProperty(this, 'owner', {
+            get: function () { return _this._recipe.owner || null; },
+            enumerable: true
+        });
         Object.defineProperty(this, '_recipe', {
             value: Object.freeze(recipe || {})
         });
         Object.defineProperty(this, '_data', {
+            value: this._getDefaultValue(),
             writable: true
         });
         Object.defineProperty(this, '_initialData', {
@@ -80,23 +97,6 @@ var Field = (function () {
             get: function () { return _this._initialData; },
             enumerable: true
         });
-        Object.defineProperty(this, 'serializable', {
-            get: function () { return !typeable_1.isArray(_this._recipe.serializable) ? [] : _this._recipe.serializable; },
-            enumerable: true
-        });
-        Object.defineProperty(this, 'enumerable', {
-            get: function () { return typeable_1.isUndefined(_this._recipe.enumerable) ? true : !!_this._recipe.enumerable; },
-            enumerable: true
-        });
-        Object.defineProperty(this, 'type', {
-            get: function () { return _this._recipe.type || null; },
-            enumerable: true
-        });
-        Object.defineProperty(this, 'owner', {
-            get: function () { return _this._recipe.owner || null; },
-            enumerable: true
-        });
-        this.value = this._getDefaultValue();
     }
     Field.prototype._createValidator = function () {
         var _a = this._recipe, validators = _a.validators, failFast = _a.failFast;
@@ -149,6 +149,7 @@ var Field = (function () {
         else if (!typeable_1.isUndefined(defaultValue)) {
             data = defaultValue;
         }
+        data = this._cast(data, this.type);
         return data;
     };
     Field.prototype._getFakeValue = function () {

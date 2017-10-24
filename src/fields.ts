@@ -65,11 +65,29 @@ export class Field {
 
     this.errors = [];
 
+    Object.defineProperty(this, 'serializable', {
+      get: () => !isArray(this._recipe.serializable) ? [] : this._recipe.serializable,
+      enumerable: true
+    });
+    Object.defineProperty(this, 'enumerable', {
+      get: () => isUndefined(this._recipe.enumerable) ? true : !!this._recipe.enumerable,
+      enumerable: true
+    });
+    Object.defineProperty(this, 'type', {
+      get: () => this._recipe.type || null,
+      enumerable: true
+    });
+    Object.defineProperty(this, 'owner', {
+      get: () => this._recipe.owner || null,
+      enumerable: true
+    });
+
     Object.defineProperty(this, '_recipe', {
       value: Object.freeze(recipe || {})
     });
 
     Object.defineProperty(this, '_data', { // current value
+      value: this._getDefaultValue(),
       writable: true
     });
     Object.defineProperty(this, '_initialData', { // last commited value
@@ -100,25 +118,6 @@ export class Field {
       get: () => this._initialData,
       enumerable: true
     });
-
-    Object.defineProperty(this, 'serializable', {
-      get: () => !isArray(this._recipe.serializable) ? [] : this._recipe.serializable,
-      enumerable: true
-    });
-    Object.defineProperty(this, 'enumerable', {
-      get: () => isUndefined(this._recipe.enumerable) ? true : !!this._recipe.enumerable,
-      enumerable: true
-    });
-    Object.defineProperty(this, 'type', {
-      get: () => this._recipe.type || null,
-      enumerable: true
-    });
-    Object.defineProperty(this, 'owner', {
-      get: () => this._recipe.owner || null,
-      enumerable: true
-    });
-
-    this.value = this._getDefaultValue();
   }
 
   /*
@@ -213,6 +212,8 @@ export class Field {
     else if (!isUndefined(defaultValue)) {
       data = defaultValue;
     }
+
+    data = this._cast(data, this.type);
 
     return data;
   }
