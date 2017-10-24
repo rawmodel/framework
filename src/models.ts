@@ -2,7 +2,7 @@ import {isArray, isUndefined, isPresent, isString, toBoolean} from 'typeable';
 import {ValidatorRecipe} from 'validatable';
 import {HandlerRecipe} from 'handleable';
 import {Field, FieldRecipe, FieldError} from './fields';
-import {serialize, isEqual, merge} from './utils';
+import {normalize, isEqual, merge} from './utils';
 
 /*
 * Flattened field reference type definition.
@@ -226,7 +226,7 @@ export abstract class Model {
   public populate (data = {}): this {
     Object.keys(data || {})
       .filter((n) => !!this._fields[n])
-      .forEach((name) => this[name] = serialize(data[name]));
+      .forEach((name) => this[name] = normalize(data[name]));
 
     return this;
   }
@@ -236,16 +236,31 @@ export abstract class Model {
   */
 
   public serialize (strategy?: string): {[key: string]: any} {
-    return this.filter((ref) => {
-      if (isString(strategy)) {
-        return (
-          isArray(ref.field.serializable)
-          && ref.field.serializable.indexOf(strategy) !== -1
-        );
+    const data = {};
+
+    function toObject(value) {
+      if (value instanceof Model) {
+        return value.serialize(strategy);
+      } else if (isArray(value)) {
+        return value.map((v) => toObject(v));
       } else {
-        return true;
+        return value;
+      }
+    }
+
+    Object.keys(this._fields).forEach((name) => {
+      let field = this._fields[name];
+      if (
+        isString(strategy)
+        && isArray(field.serializable)
+        && field.serializable.indexOf(strategy) !== -1
+        || !isString(strategy)
+      ) {
+        data[name] = toObject(field.value);
       }
     });
+
+    return data;
   }
 
   /*
@@ -305,7 +320,7 @@ export abstract class Model {
   */
 
   public filter (test: (field: FieldRef) => boolean): {[key: string]: any} {
-    let data = serialize(this);
+    let data = this.serialize();
 
     this.flatten()
       .sort((a, b) => b.path.length - a.path.length)
@@ -323,7 +338,7 @@ export abstract class Model {
   * Sets each model field to its default value.
   */
 
-  reset (): this {
+  public reset (): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].reset());
 
@@ -334,7 +349,7 @@ export abstract class Model {
   * Resets fields then sets fields to their fake values.
   */
 
-  fake (): this {
+  public fake (): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].fake());
 
@@ -345,7 +360,7 @@ export abstract class Model {
   * Sets all fileds to `null`.
   */
 
-  clear (): this {
+  public clear (): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].clear());
 
@@ -356,7 +371,7 @@ export abstract class Model {
   * Resets information about changed fields by setting initial value of each field.
   */
 
-  commit (): this {
+  public commit (): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].commit());
 
@@ -367,7 +382,7 @@ export abstract class Model {
   * Sets each field to its initial value (value before last commit).
   */
 
-  rollback (): this {
+  public rollback (): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].rollback());
 
@@ -379,10 +394,10 @@ export abstract class Model {
   * same field values as the original model.
   */
 
-  equals (value: any): boolean {
+  public equals (value: any): boolean {
     return isEqual(
-      serialize(this),
-      serialize(value)
+      normalize(this),
+      normalize(value)
     );
   }
 
@@ -390,7 +405,7 @@ export abstract class Model {
   * Returns `true` if at least one field has been changed.
   */
 
-  isChanged (): boolean {
+  public isChanged (): boolean {
     return Object.keys(this._fields)
       .some((name) => this._fields[name].isChanged());
   }
@@ -399,7 +414,7 @@ export abstract class Model {
   * Returns `true` if nested fields exist.
   */
 
-  isNested (): boolean {
+  public isNested (): boolean {
     return Object.keys(this._fields)
       .some((name) => this._fields[name].isNested());
   }
@@ -408,7 +423,7 @@ export abstract class Model {
   * Validates fields and throws an error.
   */
 
-  async validate ({
+  public async validate ({
     quiet = false
   }: {
     quiet?: boolean
@@ -430,7 +445,7 @@ export abstract class Model {
   * Handles the error and throws an error if the error can not be handled.
   */
 
-  async handle (error: any, {
+  public async handle (error: any, {
     quiet = true
   }: {
     quiet?: boolean
@@ -457,7 +472,7 @@ export abstract class Model {
   * Returns a list of all fields with errors.
   */
 
-  collectErrors (): FieldErrorRef[] {
+  public collectErrors (): FieldErrorRef[] {
     return this.flatten()
       .map(({path, field}) => ({path, errors: field.errors} as FieldErrorRef))
       .filter(({path, errors}) => errors.length > 0);
@@ -467,7 +482,7 @@ export abstract class Model {
   * Sets fields errors.
   */
 
-  applyErrors (errors: FieldErrorRef[] = []): this {
+  public applyErrors (errors: FieldErrorRef[] = []): this {
     errors.forEach((error) => {
       let field = this.getField(...error.path);
       if (field) {
@@ -482,7 +497,7 @@ export abstract class Model {
   * Returns `true` when errors exist (inverse of `isValid`).
   */
 
-  hasErrors (): boolean {
+  public hasErrors (): boolean {
     return Object.keys(this._fields)
       .some((name) => this._fields[name].hasErrors());
   }
@@ -491,7 +506,7 @@ export abstract class Model {
   * Returns `true` when no errors exist (inverse of `hasErrors`).
   */
 
-  isValid (): boolean {
+  public isValid (): boolean {
     return !this.hasErrors();
   }
 
@@ -499,7 +514,7 @@ export abstract class Model {
   * Removes fields errors.
   */
 
-  invalidate (): this {
+  public invalidate (): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].invalidate());
 
@@ -510,7 +525,7 @@ export abstract class Model {
   * Returns a new Model instance which is the exact copy of the original.
   */
 
-  clone (data = {}): this {
+  public clone (data = {}): this {
     return this._createModel(
       merge({}, this.serialize(), {parent: this.parent}, data)
     );

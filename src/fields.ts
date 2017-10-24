@@ -1,5 +1,5 @@
 import {isFunction, isUndefined, isPresent, isArray, toArray, isValue, cast} from 'typeable';
-import {serialize, isEqual, merge} from './utils';
+import {normalize, isEqual, merge} from './utils';
 import {Validator, ValidatorRecipe} from 'validatable';
 import {Handler, HandlerRecipe} from 'handleable';
 import {Model} from './models';
@@ -284,7 +284,7 @@ export class Field {
         .forEach((v) => v.commit());
     }
 
-    this._initialData = serialize(this.value);
+    this._initialData = normalize(this.value);
 
     return this;
   }
@@ -307,8 +307,8 @@ export class Field {
     let value = data instanceof Field ? data.value : data;
 
     return isEqual(
-      serialize(this.value),
-      serialize(value)
+      normalize(this.value),
+      normalize(value)
     );
   }
 

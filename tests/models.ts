@@ -1,4 +1,5 @@
 import test from 'ava';
+import {ObjectId} from 'mongodb';
 import {Model, Field} from '../src';
 
 test('method `defineField` initializes nullified enumerable property', (t) => {
@@ -213,7 +214,7 @@ test('method `serialize` converts model into a serialized data object', (t) => {
   class User extends Model {
     constructor (data) {
       super(data);
-      this.defineField('id', {serializable: []}); // never
+      this.defineField('id', {type: (v) => new Object(v), serializable: []}); // never
       this.defineField('name', {type: 'String', serializable: null});
       this.defineField('description', {serializable: ['input', 'output']}); // only for these strategies
       this.defineField('book', {type: Book, serializable: ['output']});
@@ -222,7 +223,7 @@ test('method `serialize` converts model into a serialized data object', (t) => {
     }
   }
   let user = new User({
-    id: 'id',
+    id: new Object('59efbadde01a49055b39711f'),
     name: 'foo',
     description: 'des',
     book: {
@@ -235,9 +236,8 @@ test('method `serialize` converts model into a serialized data object', (t) => {
       }
     ]
   });
-
   t.deepEqual(user.serialize(), {
-    id: 'id',
+    id: new Object('59efbadde01a49055b39711f'),
     name: 'foo',
     description: 'des',
     book: {

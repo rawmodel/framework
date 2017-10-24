@@ -159,19 +159,33 @@ var Model = (function () {
         if (data === void 0) { data = {}; }
         Object.keys(data || {})
             .filter(function (n) { return !!_this._fields[n]; })
-            .forEach(function (name) { return _this[name] = utils_1.serialize(data[name]); });
+            .forEach(function (name) { return _this[name] = utils_1.normalize(data[name]); });
         return this;
     };
     Model.prototype.serialize = function (strategy) {
-        return this.filter(function (ref) {
-            if (typeable_1.isString(strategy)) {
-                return (typeable_1.isArray(ref.field.serializable)
-                    && ref.field.serializable.indexOf(strategy) !== -1);
+        var _this = this;
+        var data = {};
+        function toObject(value) {
+            if (value instanceof Model) {
+                return value.serialize(strategy);
+            }
+            else if (typeable_1.isArray(value)) {
+                return value.map(function (v) { return toObject(v); });
             }
             else {
-                return true;
+                return value;
+            }
+        }
+        Object.keys(this._fields).forEach(function (name) {
+            var field = _this._fields[name];
+            if (typeable_1.isString(strategy)
+                && typeable_1.isArray(field.serializable)
+                && field.serializable.indexOf(strategy) !== -1
+                || !typeable_1.isString(strategy)) {
+                data[name] = toObject(field.value);
             }
         });
+        return data;
     };
     Model.prototype.flatten = function (prefix) {
         var _this = this;
@@ -204,7 +218,7 @@ var Model = (function () {
         return this.flatten().map(handler).length;
     };
     Model.prototype.filter = function (test) {
-        var data = utils_1.serialize(this);
+        var data = this.serialize();
         this.flatten()
             .sort(function (a, b) { return b.path.length - a.path.length; })
             .filter(function (field) { return !test(field); })
@@ -246,7 +260,7 @@ var Model = (function () {
         return this;
     };
     Model.prototype.equals = function (value) {
-        return utils_1.isEqual(utils_1.serialize(this), utils_1.serialize(value));
+        return utils_1.isEqual(utils_1.normalize(this), utils_1.normalize(value));
     };
     Model.prototype.isChanged = function () {
         var _this = this;

@@ -4,13 +4,13 @@ var merge = require("lodash.merge");
 exports.merge = merge;
 var isEqual = require("lodash.isequal");
 exports.isEqual = isEqual;
-function serialize(data) {
+function normalize(data) {
     if (typeof data === 'undefined') {
-        return data;
+        return undefined;
     }
     else {
         return JSON.parse(JSON.stringify(data));
     }
 }
-exports.serialize = serialize;
+exports.normalize = normalize;
 //# sourceMappingURL=utils.js.map

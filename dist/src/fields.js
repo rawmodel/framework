@@ -186,7 +186,7 @@ var Field = (function () {
                 .filter(function (v) { return v && v.commit; })
                 .forEach(function (v) { return v.commit(); });
         }
-        this._initialData = utils_1.serialize(this.value);
+        this._initialData = utils_1.normalize(this.value);
         return this;
     };
     Field.prototype.rollback = function () {
@@ -195,7 +195,7 @@ var Field = (function () {
     };
     Field.prototype.equals = function (data) {
         var value = data instanceof Field ? data.value : data;
-        return utils_1.isEqual(utils_1.serialize(this.value), utils_1.serialize(value));
+        return utils_1.isEqual(utils_1.normalize(this.value), utils_1.normalize(value));
     };
     Field.prototype.isChanged = function () {
         return !this.equals(this.initialValue);

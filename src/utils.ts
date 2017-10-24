@@ -14,13 +14,14 @@ export {merge};
 export {isEqual};
 
 /*
-* Returns a duplicated data object (useful to remove data bindings).
+* Converts the provided data to primitive data type.
 */
 
-export function serialize (data: any) {
+export function normalize (data: any) {
   if (typeof data === 'undefined') {
-    return data;
+    return undefined;
   } else {
     return JSON.parse(JSON.stringify(data));
   }
 }
+

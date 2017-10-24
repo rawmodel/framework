@@ -277,7 +277,7 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         __extends(User, _super);
         function User(data) {
             var _this = _super.call(this, data) || this;
-            _this.defineField('id', { serializable: [] });
+            _this.defineField('id', { type: function (v) { return new Object(v); }, serializable: [] });
             _this.defineField('name', { type: 'String', serializable: null });
             _this.defineField('description', { serializable: ['input', 'output'] });
             _this.defineField('book', { type: Book, serializable: ['output'] });
@@ -288,7 +288,7 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         return User;
     }(src_1.Model));
     var user = new User({
-        id: 'id',
+        id: new Object('59efbadde01a49055b39711f'),
         name: 'foo',
         description: 'des',
         book: {
@@ -302,7 +302,7 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
         ]
     });
     t.deepEqual(user.serialize(), {
-        id: 'id',
+        id: new Object('59efbadde01a49055b39711f'),
         name: 'foo',
         description: 'des',
         book: {
