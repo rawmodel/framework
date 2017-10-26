@@ -1,6 +1,6 @@
 {
   "name": "rawmodel",
-  "version": "1.24.1",
+  "version": "1.25.0",
   "description": "Strongly-typed JavaScript object with support for validation and error handling.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -80,7 +80,7 @@
     "@types/lodash.isequal": "^4.5.2",
     "@types/lodash.merge": "^4.6.3",
     "@types/node": "^8.0.44",
-    "handleable": "^0.23.0",
+    "handleable": "^0.24.0",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.0",
     "typeable": "^2.3.1",
