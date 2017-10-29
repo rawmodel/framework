@@ -82,55 +82,86 @@ ava_1["default"]('method `defineType` defines a custom data type', function (t) 
     t.is(user.name0, 'foo-cool');
     t.deepEqual(user.name1, ['foo-cool']);
 });
-ava_1["default"]('method `populate` deeply populates fields', function (t) {
+ava_1["default"]('method `populate` deeply assignes data', function (t) {
     var Book = (function (_super) {
         __extends(Book, _super);
-        function Book(data) {
-            var _this = _super.call(this, data) || this;
+        function Book() {
+            var _this = _super.call(this) || this;
+            _this.defineField('id', { type: 'Integer', populatable: ['output'] });
             _this.defineField('title', { type: 'String' });
-            _this.populate(data);
+            _this.defineField('description', { type: 'String', populatable: ['input'] });
             return _this;
         }
         return Book;
     }(src_1.Model));
     var User = (function (_super) {
         __extends(User, _super);
-        function User(data) {
-            var _this = _super.call(this, data) || this;
+        function User() {
+            var _this = _super.call(this) || this;
+            _this.defineField('id', { type: 'Integer', populatable: ['output'] });
             _this.defineField('name', { type: 'String' });
-            _this.defineField('book0', { type: Book });
+            _this.defineField('email', { type: 'String', populatable: ['input'] });
+            _this.defineField('book0', { type: Book, populatable: ['output'] });
             _this.defineField('book1', { type: Book });
-            _this.defineField('books', { type: [Book] });
-            _this.populate(data);
+            _this.defineField('books', { type: [Book], populatable: ['input'] });
             return _this;
         }
         return User;
     }(src_1.Model));
-    var user0 = new User({
+    var data = {
+        id: '100',
         name: 100,
+        email: 'foo@bar.com',
         book0: {
-            title: 200
+            id: '200',
+            title: 200,
+            description: 'fake'
         },
         book1: undefined,
         books: [
             undefined,
             {
-                title: 300
-            }
+                id: '300',
+                title: 300,
+                description: 'fake'
+            },
         ]
-    });
-    var user1 = new User(null);
+    };
+    var user0 = new User();
+    var user1 = new User();
+    var user2 = new User();
     user0.populate(null);
     user0.populate(false);
     user0.populate('');
     user0.populate(true);
     user0.populate(100);
+    user0.populate(data);
+    user1.populate(data, 'input');
+    user2.populate(data, 'output');
+    t.is(user0.id, 100);
     t.is(user0.name, '100');
+    t.is(user0.book0.id, 200);
     t.is(user0.book0.title, '200');
     t.is(user0.book1, null);
     t.is(user0.books[0], null);
     t.is(user0.books[1].title, '300');
+    t.is(user1.id, null);
     t.is(user1.name, null);
+    t.is(user1.email, 'foo@bar.com');
+    t.is(user1.book0, null);
+    t.is(user1.book1, null);
+    t.is(user1.books[0], null);
+    t.is(user1.books[1].id, null);
+    t.is(user1.books[1].title, null);
+    t.is(user1.books[1].description, 'fake');
+    t.is(user2.id, 100);
+    t.is(user2.name, null);
+    t.is(user2.email, null);
+    t.is(user2.book0.id, 200);
+    t.is(user2.book0.title, null);
+    t.is(user2.book0.description, null);
+    t.is(user2.book1, null);
+    t.is(user2.books, null);
 });
 ava_1["default"]('property `parent` holds an instance of a parent model', function (t) {
     var Book = (function (_super) {

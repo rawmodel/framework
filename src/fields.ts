@@ -20,6 +20,7 @@ export interface FieldRecipe {
   handlers?: {[name: string]: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>};
   owner?: Model;
   failFast?: boolean;
+  populatable?: string[];
   serializable?: string[];
   enumerable?: boolean;
 }
@@ -47,6 +48,7 @@ export class Field {
   readonly defaultValue: any;
   readonly fakeValue: any;
   readonly initialValue: any;
+  readonly populatable: string[];
   readonly serializable: string[];
   readonly enumerable: boolean;
   readonly owner: Model;
@@ -65,6 +67,10 @@ export class Field {
 
     this.errors = [];
 
+    Object.defineProperty(this, 'populatable', {
+      get: () => !isArray(this._recipe.populatable) ? [] : this._recipe.populatable,
+      enumerable: true
+    });
     Object.defineProperty(this, 'serializable', {
       get: () => !isArray(this._recipe.serializable) ? [] : this._recipe.serializable,
       enumerable: true
@@ -171,31 +177,9 @@ export class Field {
       data = set.call(this, data);
     }
 
-    data = this._cast(data, this.type);
+    data = this.cast(data);
 
     this._data = data;
-  }
-
-  /*
-  * Converts a `value` into specified `type`.
-  */
-
-  protected _cast (data: any, type: any) {
-    let converter = type;
-
-    if (!isValue(data)) {
-      return null;
-    }
-
-    if (this.isNested()) {
-      let Klass = isArray(type) ? type[0] : type;
-      let toModel = (d) => new Klass(
-        merge({}, d, {parent: this.owner})
-      );
-      converter = isArray(type) ? [toModel] : toModel;
-    }
-
-    return cast(data, converter);
   }
 
   /*
@@ -213,7 +197,7 @@ export class Field {
       data = defaultValue;
     }
 
-    data = this._cast(data, this.type);
+    data = this.cast(data);
 
     return data;
   }
@@ -234,6 +218,26 @@ export class Field {
     }
 
     return data;
+  }
+
+  /*
+  * Converts a `value` into field's type.
+  */
+
+  public cast (data: any) {
+    let converter = this.type;
+
+    if (!isValue(data)) {
+      return null;
+    }
+
+    if (this.isNested()) {
+      let Klass = isArray(this.type) ? this.type[0] : this.type;
+      let toModel = (d) => new Klass({parent: this.owner}).populate(merge({}, d));
+      converter = isArray(this.type) ? [toModel] : toModel;
+    }
+
+    return cast(data, converter);
   }
 
   /*

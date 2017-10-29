@@ -48,13 +48,13 @@ This package uses promises thus you need to use [Promise polyfill](https://githu
 The code below shows a basic usage example.
 
 ```js
-import {Model} from 'rawmodel';
+import { Model } from 'rawmodel';
 
 // defining a basic model
 class User extends Model {
   public name: string;
 
-  public constructor (data = {}) {
+  public constructor(data = {}) {
     super(data);
     this.defineField('name');
     this.populate(data);
@@ -78,16 +78,16 @@ Below we explain some of the most important features that this package provides.
 
 ### Defining Fields
 
-Model fields are defined using the `defineField` method. The code below is an example of a basic model class with a property `name` of type `Any`.
+Model fields are defined using the `defineField` method. The code below is an example of a basic model class with a `name` field of type `Any`.
 
 ```js
-import {Model} from 'rawmodel';
+import { Model } from 'rawmodel';
 
 class User extends Model {
   public name: string; // typescript property definition for field `name`
 
-  public constructor (data = {}) {
-    super(data);
+  public constructor() {
+    super();
     this.defineField('name'); // definition of the `name` field
   }
 }
@@ -103,109 +103,115 @@ Each field has a built-in system for type casting thus we can force a value to b
 
 ```js
 this.defineField('name', {
-  type: 'String' // automatically cast values to `String`
+  type: 'String', // automatically cast values to `String`
 });
 ```
 
-Please see the API section for a list of all supported types.
+Common types are supported by default. A `Model` also represents a type. You can define your own types using the `defineType` method. Please see the API section for a list of all supported types and further details.
 
 ### Nested Models
 
-Each model also represents a type. This way you can create complex nested structures by nesting models as shown in the example below.
-
-> Make sure that you preserve the constructor's initial parameter structure on nested models.
+As mentioned above, a model also represents a type object. This way you can create complex nested structures by nesting models as shown in the example below.
 
 ```js
-import {Model, ModelRecipe} from 'rawmodel';
+import { Model } from 'rawmodel';
 
 class Book extends Model {
   public title: string;
 
-  public constructor (data = {}) {
-    super(data);
+  public constructor() {
+    super();
     this.defineField('title');
-    this.populate(data);
   }
 }
 
 class User extends Model {
   public book: Book;
 
-  public constructor (data = {}) {
-    super(data);
-    this.defineField('book', {type: Book});
-    this.populate(data);
+  public constructor() {
+    super();
+    this.defineField('book', {
+      type: Book,
+    });
   }
 }
 ```
 
 ### Field Default Value
 
-We can set a `defaultValue` options for each field which will populate a field when it is created.
+We can set a `defaultValue` for each field which will automatically populate a field on creation.
 
-The `defaultValue` can also be a method which returns a value. Note that this function shares the context of a field instance thus you have access to all the features of the `Field` class.
+The `defaultValue` can also be a method which returns a dynamic value. Note that this function shares the context of a field instance, thus you have access to all the features of the `Field` class.
 
 ```js
 this.defineField('name', {
-  defaultValue () { return this.value }
+  defaultValue () { return this.value },
 });
 ```
 
 ### Field Fake Value
 
-We can set a `fakeValue` options for each field which will populate a field when calling the `fake()` method.
+Similar to default values, we can set a `fakeValue` for each field, to populate a field with fake data when calling the `fake()` method.
 
-The `fakeValue` can also be a method which returns a value. Note that this function shares the context of a field instance thus you have access to all the features of the `Field` class.
+The `fakeValue` can also be a method which returns a dynamic value. Note that this function shares the context of a field instance, thus you have access to all the features of the `Field` class.
 
 ```js
 this.defineField('name', {
-  fakeValue () { return this.value }
+  fakeValue () { return this.value },
 });
 ```
 
 ### Field Value Transformation
 
-A field can have a custom getter and a custom setter.
+A field can have a custom `getter` and a custom `setter`.
 
-These methods all share the context of a field instance thus you have access to all the features of the `Field` class.
+These methods all share the context of a field instance, thus you have access to all the features of the `Field` class.
 
 ```js
 this.defineField('name', {
   get (value) { return value },
-  set (value) { return value }
+  set (value) { return value },
 });
 ```
 
-### Commits & Rollbacks
+### Value Assignments
 
-RawModel tracks changes for all fields and provides a mechanism for committing values and rollbacks.
+Model fields are like properties of a Javascript Object. We can easily assign a value to a field through its setter method (e.g. `model.name = 'value';`). Instead of assigning fields one by one, we can use the `populate()` method as shown below.
 
-The example below explains how to setup and use these features.
+```js
+this.populate({
+  'name': 'John Smith',
+  'age': 35,
+});
+```
+
+We can allow only selected fields to be populated by using population strategies (e.g. when populating received form data).
 
 ```js
 class User extends Model {
+  public id: string;
   public name: string;
 
   public constructor (data = {}) {
     super(data);
-    this.defineField('name');
-    this.populate(data); // populate model with initial values
-    this.commit(); // restart change tracking
+    this.defineField('id', {
+      populatable: ['internal'], // list population strategy names
+    });
+    this.defineField('name', {
+      populatable: ['input', 'internal'], // list population strategy names
+    });
   }
 }
 
-let user = new User({
-  name: 'John Smith' // initial value
-});
-user.name = 'Mandy Taylor'; // changing field's value
-user.isChanged(); // -> true
-user.commit(); // set `initialValue` of each field to the value of  `value`
-user.isChanged(); // -> false
-user.name = 'Tina Fey'; // changing field's value
-user.rollback(); // -> reset `value` of each field to its `initialValue` (last committed value)
+let data = {
+  id: 100,
+  name: 'John Smith'
+};
+let user = new User();
+user.populate(data); // -> { "id": 100, "name": "John Smith" }
+user.populate(data, 'internal'); // -> { "id": 100, "name": "John Smith" }
+user.serialize(data, 'input'); // -> { id: null, "name": "John Smith" }
 ```
-
-Note that the logic above applies also the the `Field` class.
 
 ### Serialization & Filtering
 
@@ -213,13 +219,13 @@ Model provides useful methods for object serialization and filtering (check the 
 
 ```js
 let user = new User({
-  name: 'John Smith' // initial value
+  name: 'John Smith', // initial value
 });
 
 user.scroll(function (field) { // argument is an instance of a field
   // do something useful
 }).then((count) => { // number of processed fields
-  user.serialize(); // -> {"name": "John Smith"}
+  user.serialize(); // -> { "name": "John Smith" }
 });
 ```
 
@@ -246,9 +252,34 @@ let user = new User({
   'id': 100,
   'name': 'John Smith',
 });
-user.serialize(); // -> {"id": 100, "name": "John Smith"}
-user.serialize('input'); // -> {"name": "John Smith"}
-user.serialize('output'); // -> {"id": 100, "name": "John Smith"}
+user.serialize(); // -> { "id": 100, "name": "John Smith" }
+user.serialize('input'); // -> { "name": "John Smith" }
+user.serialize('output'); // -> { "id": 100, "name": "John Smith" }
+```
+
+### Commits & Rollbacks
+
+RawModel tracks changes for all fields and provides a mechanism for committing values and rollbacks.
+
+The example below explains how to setup and use these features.
+
+```js
+class User extends Model {
+  public name: string;
+
+  public constructor () {
+    super();
+    this.defineField('name');
+  }
+}
+
+let user = new User();
+user.name = 'Mandy Taylor'; // changing field's value
+user.isChanged(); // -> true
+user.commit(); // set `initialValue` of each field to the value of  `value`
+user.isChanged(); // -> false
+user.name = 'Tina Fey'; // changing field's value
+user.rollback(); // -> reset `value` of each field to its `initialValue` (last committed value)
 ```
 
 ### Validation
@@ -270,8 +301,8 @@ class User extends Model {
           code: 422, // [optional] error code
           condition () { return true }, // [optional] condition which switches the validation on/off
           it: 'it' // [optional] custom variable for the `message`
-        }
-      ]
+        },
+      ],
     });
   }
 }
@@ -299,9 +330,9 @@ class User extends Model {
       validate: [
         {
           validator: 'coolness',
-          message: 'must be cool'
-        }
-      ]
+          message: 'must be cool',
+        },
+      ],
     });
   }
 }
@@ -326,9 +357,9 @@ class User extends Model {
           code: 422, // [optional] error code
           block (error) { return true }, // [optional] handler-specific function
           condition () { return true }, // [optional] condition which switches the handling on/off
-          is: 'is' // [optional] custom variable for the `message`
-        }
-      ]
+          is: 'is', // [optional] custom variable for the `message`
+        },
+      ],
     });
   }
 }
@@ -336,7 +367,7 @@ class User extends Model {
 let error = new Error();
 let user = new User();
 user.handle(error).then(() => {
-  user.collectErrors(); // -> [{path: ['name'], errors: [{handler: 'block', message: 'is unknown', code: 422}]}]
+  user.collectErrors(); // -> [{ path: ['name'], errors: [{ handler: 'block', message: 'is unknown', code: 422 }] }]
 });
 ```
 
@@ -348,8 +379,8 @@ RawModel already includes some useful built-in handlers but it's super simple to
 class User extends Model {
   public name: string;
 
-  public constructor (data = {}) {
-    super(data);
+  public constructor () {
+    super();
 
     this.defineHandler('coolness', function (e) {
       return e.message === 'cool';
@@ -359,9 +390,9 @@ class User extends Model {
       handle: [ // field error handling setup
         { // handler recipe
           handler: 'coolness', // handler name
-          message: 'cool' // error message
-        }
-      ]
+          message: 'cool', // error message
+        },
+      ],
     });
   }
 }
@@ -372,11 +403,11 @@ class User extends Model {
 RawModel.js can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
 
 ```js
-import {Model, ModelRecipe} from 'rawmodel';
-import {graphql, buildSchema} from 'graphql';
+import { Model } from 'rawmodel';
+import { graphql, buildSchema } from 'graphql';
 
 class App extends Model { // root resolver
-  public hello () { // `hello` field resolver
+  public hello() { // `hello` field resolver
     return 'Hello World!';
   }
 }
@@ -387,9 +418,9 @@ const schema = buildSchema(`
   }
 `);
 
-var root = new App(); // root resolver
+const root = new App(); // root resolver
 
-graphql(schema, '{hello}', root).then((response) => {
+graphql(schema, '{ hello }', root).then((response) => {
   console.log(response);
 });
 ```
@@ -398,24 +429,20 @@ graphql(schema, '{hello}', root).then((response) => {
 
 ### Model Class
 
-**Model({parent, ...data})**
+**Model()**
 
 > Abstract class which represents a strongly-typed JavaScript object.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| parent | Model | No | - | Parent model instance.
-| data | Object | No | - | Data for populating model fields.
 
 ```js
 class User extends Model {
   public name: string;
 
-  public constructor (data = {}) {
-    super(data); // initializing the Model
+  public constructor () {
+    super(); // initializing the Model
 
     this.defineField('name', {
       type: 'String', // [optional] field type casting
+      populatable: ['input', 'internal'], // [optional] population strategies
       serializable: ['input', 'output'], // [optional] serialization strategies
       enumerable: true, // [optional] when set to `false` the field is not enumerable (ignored by `Object.keys()`)
       get (v) { return v }, // [optional] custom getter
@@ -442,9 +469,6 @@ class User extends Model {
       defaultValue: 'Noname', // [optional] field default value (value or function)
       fakeValue: 'Noname', // [optional] field fake value (value or function)
     });
-
-    this.populate(data);
-    this.commit();
   }
 }
 ```
@@ -462,9 +486,9 @@ model.applyErrors([
         validator: 'presence', // or handler: ''
         message: 'is required',
         code: 422,
-      }
-    ]
-  }
+      },
+    ],
+  },
 ]);
 ```
 
@@ -489,21 +513,22 @@ model.applyErrors([
 > Returns a list of errors for all the fields ({path, errors}[]).
 
 ```js
-model.collectErrors(); // => {path: ['name'], errors: [{validator: 'absence', message: 'must be blank', code: 422}]}
+model.collectErrors(); // => { path: ['name'], errors: [{ validator: 'absence', message: 'must be blank', code: 422 }] }
 ```
 
 **Model.prototype.commit()**: Model
 
 > Sets initial value of each model field to the current value of a field. This is how field change tracking is restarted.
 
-**Model.prototype.defineField(name, {type, serializable, enumerable, get, set, defaultValue, fakeValue, validate})**: Void
+**Model.prototype.defineField(name, { type, populatable, serializable, enumerable, get, set, defaultValue, fakeValue, validate })**: Void
 
 > Defines a new model property.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | name | String | Yes | - | Property name.
-| serializable | String[] | No | undefined | Serialization strategies (returned by `.serialize()`).
+| populatable | String[] | No | undefined | Population strategies (used by `.populate()`).
+| serializable | String[] | No | undefined | Serialization strategies (used by `.serialize()`).
 | enumerable | Boolean | No | true | When set to `false` the field is not enumerable (ignored by `Object.keys()`).
 | type | String, Model | No | - | Data type (pass a Model to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
 | get | Function | No | - | Custom getter.
@@ -570,7 +595,7 @@ user.flatten(); // -> [{path: [...], field: ...}, ...]
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a field (e.g. `['book', 0, 'title']`).
 
-**Model.prototype.handle(error, {quiet}): Promise(Model)**
+**Model.prototype.handle(error, { quiet }): Promise(Model)**
 
 > Tries to handle the `error` against each field handlers and populates model with possible errors.
 
@@ -624,13 +649,14 @@ catch (e) {
 
 > Parent model instance.
 
-**Model.prototype.populate(data)**: Model
+**Model.prototype.populate(data, strategy)**: Model
 
 > Applies data to a model.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | data | Object | Yes | - | Data object.
+| strategy | String | No | - | When the strategy name is provided, only the fields where the `populatable` option includes this strategy name are populated. If the parameter is not provided then all fields are included in the process.
 
 **Model.prototype.reset()**: Model
 
@@ -660,7 +686,7 @@ catch (e) {
 |--------|------|----------|---------|------------
 | strategy | String | No | - | When the strategy name is provided, the output will include only the fields where the `serializable` option includes this strategy name. If the parameter is not provided then all fields are included in the result.
 
-**Model.prototype.validate({quiet})**: Promise(Model)
+**Model.prototype.validate({ quiet })**: Promise(Model)
 
 > Validates model fields, populates model with possible errors and throws a validation error if not all fields are valid unless the `quiet` is set to `true`.
 
@@ -679,7 +705,7 @@ catch (e) {
 
 ### Field Class
 
-**Field({type, get, set, defaultValue, fakeValue, validate, validators, handle, handlers, owner, failFast})**
+**Field({ type, get, set, defaultValue, fakeValue, validate, validators, handle, handlers, owner, failFast })**
 
 > A model field.
 
@@ -696,6 +722,10 @@ catch (e) {
 | handlers | Object | No | - | Custom handlers.
 | owner | Model | No | - | An instance of a Model which owns the field.
 | failFast | Boolean | No | false | Stops validation on the first error when set to `true`.
+
+**Field.prototype.cast(value)**: Any
+
+> Returns transformed value based on field's type.
 
 **Field.prototype.clear()**: Field
 
@@ -859,7 +889,7 @@ catch (e) {
 let recipe = {
   validator: 'block',
   message: 'must be present',
-  async block (value, recipe) { return true }
+  async block (value, recipe) { return true },
 };
 ```
 
@@ -988,7 +1018,7 @@ let recipe = {
 let recipe = {
   handler: 'block',
   message: 'is unknown error',
-  async block (error, recipe) { return true }
+  async block (error, recipe) { return true },
 };
 ```
 
@@ -1004,7 +1034,7 @@ let recipe = {
 let recipe = {
   handler: 'mongoUniqueness',
   message: 'is unknown error',
-  indexName: 'uniqueEmail' // make sure that this index name exists in your MongoDB collection
+  indexName: 'uniqueEmail', // make sure that this index name exists in your MongoDB collection
 };
 ```
 

@@ -154,12 +154,33 @@ var Model = (function () {
         }
         return !typeable_1.isUndefined(this.getField.apply(this, keys));
     };
-    Model.prototype.populate = function (data) {
+    Model.prototype.populate = function (data, strategy) {
         var _this = this;
         if (data === void 0) { data = {}; }
+        function toValue(value) {
+            if (value instanceof Model) {
+                var data_1 = utils_1.normalize(value);
+                return value.reset().populate(data_1, strategy);
+            }
+            else if (typeable_1.isArray(value)) {
+                return value.map(function (v) { return toValue(v); });
+            }
+            else {
+                return value;
+            }
+        }
         Object.keys(data || {})
-            .filter(function (n) { return !!_this._fields[n]; })
-            .forEach(function (name) { return _this[name] = utils_1.normalize(data[name]); });
+            .filter(function (n) { return (!!_this._fields[n]); })
+            .forEach(function (name) {
+            var field = _this._fields[name];
+            var value = field.cast(data[name]);
+            if (typeable_1.isString(strategy)
+                && typeable_1.isArray(field.populatable)
+                && field.populatable.indexOf(strategy) !== -1
+                || !typeable_1.isString(strategy)) {
+                _this[name] = toValue(value);
+            }
+        });
         return this;
     };
     Model.prototype.serialize = function (strategy) {

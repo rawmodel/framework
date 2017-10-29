@@ -220,13 +220,38 @@ export abstract class Model {
   }
 
   /*
-  * Deeply applies data to the fields.
+  * Deeply assignes data to model fields.
   */
 
-  public populate (data = {}): this {
+  public populate (data = {}, strategy?: string): this {
+
+    function toValue(value) {
+      if (value instanceof Model) {
+        let data = normalize(value);
+        return value.reset().populate(data, strategy);
+      } else if (isArray(value)) {
+        return value.map((v) => toValue(v));
+      } else {
+        return value;
+      }
+    }
+
     Object.keys(data || {})
-      .filter((n) => !!this._fields[n])
-      .forEach((name) => this[name] = normalize(data[name]));
+      .filter((n) => (
+        !!this._fields[n]
+      ))
+      .forEach((name) => {
+        let field = this._fields[name];
+        let value = field.cast(data[name]);
+        if (
+          isString(strategy)
+          && isArray(field.populatable)
+          && field.populatable.indexOf(strategy) !== -1
+          || !isString(strategy)
+        ) {
+          this[name] = toValue(value);
+        }
+      });
 
     return this;
   }

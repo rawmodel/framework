@@ -173,6 +173,7 @@ test('has enumeratable properties', (t) => {
   let f = new Field();
   t.deepEqual(Object.keys(f), [
     'errors',
+    'populatable',
     'serializable',
     'enumerable',
     'type',

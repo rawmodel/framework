@@ -47,6 +47,10 @@ var Field = (function () {
             recipe = {};
         }
         this.errors = [];
+        Object.defineProperty(this, 'populatable', {
+            get: function () { return !typeable_1.isArray(_this._recipe.populatable) ? [] : _this._recipe.populatable; },
+            enumerable: true
+        });
         Object.defineProperty(this, 'serializable', {
             get: function () { return !typeable_1.isArray(_this._recipe.serializable) ? [] : _this._recipe.serializable; },
             enumerable: true
@@ -124,21 +128,8 @@ var Field = (function () {
         if (typeable_1.isFunction(set)) {
             data = set.call(this, data);
         }
-        data = this._cast(data, this.type);
+        data = this.cast(data);
         this._data = data;
-    };
-    Field.prototype._cast = function (data, type) {
-        var _this = this;
-        var converter = type;
-        if (!typeable_1.isValue(data)) {
-            return null;
-        }
-        if (this.isNested()) {
-            var Klass_1 = typeable_1.isArray(type) ? type[0] : type;
-            var toModel = function (d) { return new Klass_1(utils_1.merge({}, d, { parent: _this.owner })); };
-            converter = typeable_1.isArray(type) ? [toModel] : toModel;
-        }
-        return typeable_1.cast(data, converter);
     };
     Field.prototype._getDefaultValue = function () {
         var data = null;
@@ -149,7 +140,7 @@ var Field = (function () {
         else if (!typeable_1.isUndefined(defaultValue)) {
             data = defaultValue;
         }
-        data = this._cast(data, this.type);
+        data = this.cast(data);
         return data;
     };
     Field.prototype._getFakeValue = function () {
@@ -162,6 +153,19 @@ var Field = (function () {
             data = fakeValue;
         }
         return data;
+    };
+    Field.prototype.cast = function (data) {
+        var _this = this;
+        var converter = this.type;
+        if (!typeable_1.isValue(data)) {
+            return null;
+        }
+        if (this.isNested()) {
+            var Klass_1 = typeable_1.isArray(this.type) ? this.type[0] : this.type;
+            var toModel = function (d) { return new Klass_1({ parent: _this.owner }).populate(utils_1.merge({}, d)); };
+            converter = typeable_1.isArray(this.type) ? [toModel] : toModel;
+        }
+        return typeable_1.cast(data, converter);
     };
     Field.prototype.reset = function () {
         this.value = this._getDefaultValue();

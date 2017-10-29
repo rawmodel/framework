@@ -42,7 +42,7 @@ export declare abstract class Model {
     defineHandler(name: string, handler: (e?: any, r?: HandlerRecipe) => boolean | Promise<boolean>): void;
     getField(...keys: any[]): Field;
     hasField(...keys: any[]): boolean;
-    populate(data?: {}): this;
+    populate(data?: {}, strategy?: string): this;
     serialize(strategy?: string): {
         [key: string]: any;
     };

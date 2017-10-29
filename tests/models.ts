@@ -35,54 +35,89 @@ test('method `defineType` defines a custom data type', (t) => {
   t.deepEqual(user.name1, ['foo-cool']);
 });
 
-test('method `populate` deeply populates fields', (t) => {
+test('method `populate` deeply assignes data', (t) => {
   class Book extends Model {
+    id: number;
     title: string;
-    constructor (data) {
-      super(data);
+    description: string;
+    constructor () {
+      super();
+      this.defineField('id', {type: 'Integer', populatable: ['output'] });
       this.defineField('title', {type: 'String'});
-      this.populate(data);
+      this.defineField('description', {type: 'String', populatable: ['input'] });
     }
   }
   class User extends Model {
+    id: number;
     name: string;
+    email: string;
     book0: Book;
     book1: Book;
     books: Book[];
-    constructor (data) {
-      super(data);
+    constructor () {
+      super();
+      this.defineField('id', {type: 'Integer', populatable: ['output'] });
       this.defineField('name', {type: 'String'});
-      this.defineField('book0', {type: Book});
+      this.defineField('email', {type: 'String', populatable: ['input'] });
+      this.defineField('book0', {type: Book, populatable: ['output']});
       this.defineField('book1', {type: Book});
-      this.defineField('books', {type: [Book]});
-      this.populate(data);
+      this.defineField('books', {type: [Book], populatable: ['input']});
     }
   }
-  let user0 = new User({
+  let data = {
+    id: '100',
     name: 100,
+    email: 'foo@bar.com',
     book0: {
-      title: 200
+      id: '200',
+      title: 200,
+      description: 'fake',
     },
     book1: undefined,
     books: [
       undefined,
       {
-        title: 300
-      }
-    ]
-  });
-  let user1 = new User(null);
+        id: '300',
+        title: 300,
+        description: 'fake',
+      },
+    ],
+  };
+  let user0 = new User();
+  let user1 = new User();
+  let user2 = new User();
   user0.populate(null); // should not break
   user0.populate(false); // should not break
   user0.populate(''); // should not break
   user0.populate(true); // should not break
   user0.populate(100); // should not break
+  user0.populate(data);
+  user1.populate(data, 'input');
+  user2.populate(data, 'output');
+  t.is(user0.id, 100);
   t.is(user0.name, '100');
+  t.is(user0.book0.id, 200);
   t.is(user0.book0.title, '200');
   t.is(user0.book1, null);
   t.is(user0.books[0], null);
   t.is(user0.books[1].title, '300');
+  t.is(user1.id, null);
   t.is(user1.name, null);
+  t.is(user1.email, 'foo@bar.com');
+  t.is(user1.book0, null);
+  t.is(user1.book1, null);
+  t.is(user1.books[0], null);
+  t.is(user1.books[1].id, null);
+  t.is(user1.books[1].title, null);
+  t.is(user1.books[1].description, 'fake');
+  t.is(user2.id, 100);
+  t.is(user2.name, null);
+  t.is(user2.email, null);
+  t.is(user2.book0.id, 200);
+  t.is(user2.book0.title, null);
+  t.is(user2.book0.description, null);
+  t.is(user2.book1, null);
+  t.is(user2.books, null);
 });
 
 test('property `parent` holds an instance of a parent model', (t) => {

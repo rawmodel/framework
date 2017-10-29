@@ -217,6 +217,7 @@ ava_1["default"]('has enumeratable properties', function (t) {
     var f = new src_1.Field();
     t.deepEqual(Object.keys(f), [
         'errors',
+        'populatable',
         'serializable',
         'enumerable',
         'type',

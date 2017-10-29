@@ -17,6 +17,7 @@ export interface FieldRecipe {
     };
     owner?: Model;
     failFast?: boolean;
+    populatable?: string[];
     serializable?: string[];
     enumerable?: boolean;
 }
@@ -34,6 +35,7 @@ export declare class Field {
     readonly defaultValue: any;
     readonly fakeValue: any;
     readonly initialValue: any;
+    readonly populatable: string[];
     readonly serializable: string[];
     readonly enumerable: boolean;
     readonly owner: Model;
@@ -45,9 +47,9 @@ export declare class Field {
     protected _createHandler(): Handler;
     protected _getValue(): any;
     protected _setValue(data: any): void;
-    protected _cast(data: any, type: any): any;
     protected _getDefaultValue(): any;
     protected _getFakeValue(): any;
+    cast(data: any): any;
     reset(): this;
     fake(): this;
     clear(): this;
