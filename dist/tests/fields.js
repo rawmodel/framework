@@ -189,7 +189,7 @@ ava_1["default"]('method `validate()` validates the value and populates the `err
                 t.deepEqual(f.errors, [
                     { validator: 'presence', message: 'foo', code: 422 },
                     { validator: 'coolness', message: 'is not cool', code: 422 },
-                    { validator: 'coolness', message: undefined, code: 999 }
+                    { validator: 'coolness', message: undefined, code: 999 },
                 ]);
                 return [2];
         }
@@ -237,7 +237,7 @@ ava_1["default"]('method `handle()` handles an error and populates the `errors` 
                     handle: [
                         { handler: 'block', block: function () { return true; }, message: 'foo' },
                         { handler: 'coolness', message: 'cool' },
-                        { handler: 'coolness', code: 999 }
+                        { handler: 'coolness', code: 999 },
                     ],
                     handlers: {
                         coolness: function (error) { return error.message === 'cool'; }

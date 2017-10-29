@@ -378,7 +378,8 @@ var Model = (function () {
     };
     Model.prototype.clone = function (data) {
         if (data === void 0) { data = {}; }
-        return this._createModel(utils_1.merge({}, this.serialize(), { parent: this.parent }, data));
+        return this._createModel({ parent: this.parent })
+            .populate(utils_1.merge({}, this.serialize(), data));
     };
     return Model;
 }());

@@ -1,54 +1,49 @@
-import {isArray, isUndefined, isPresent, isString, toBoolean} from 'typeable';
-import {ValidatorRecipe} from 'validatable';
-import {HandlerRecipe} from 'handleable';
-import {Field, FieldRecipe, FieldError} from './fields';
-import {normalize, isEqual, merge} from './utils';
+import { isArray, isUndefined, isPresent, isString, toBoolean } from 'typeable';
+import { ValidatorRecipe } from 'validatable';
+import { HandlerRecipe } from 'handleable';
+import { Field, FieldRecipe, FieldError } from './fields';
+import { normalize, isEqual, merge } from './utils';
 
-/*
-* Flattened field reference type definition.
-*/
-
+/**
+ * Flattened field reference type definition.
+ */
 export interface FieldRef {
   path: (string | number)[];
   field: Field;
 }
 
-/*
-* Field error type definition.
-*/
-
+/**
+ * Field error type definition.
+ */
 export interface FieldErrorRef {
   path: (string | number)[];
   errors: FieldError[];
 }
 
-/*
-* Model recipe interface.
-*/
-
+/**
+ * Model recipe interface.
+ */
 export interface ModelRecipe {
   parent?: Model;
   [key: string]: any;
 }
 
-/*
-* The core schema object class.
-*/
-
+/**
+ * The core schema object class.
+ */
 export abstract class Model {
-  protected _fields: {[name: string]: Field}; // model fields
-  protected _types: {[key: string]: (v?: any) => any}; // custom data types
-  protected _validators: {[key: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>}; // custom validators
-  protected _handlers: {[key: string]: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>}; // custom validators
+  protected _fields: { [name: string]: Field }; // model fields
+  protected _types: { [key: string]: (v?: any) => any }; // custom data types
+  protected _validators: { [key: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean> }; // custom validators
+  protected _handlers: { [key: string]: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean> }; // custom validators
   protected _failFast: boolean; // stop validating/handling on first error
   readonly root: Model;
   public parent: Model;
 
-  /*
-  * Class constructor.
-  */
-
-  public constructor (recipe?: ModelRecipe) {
+  /**
+   * Class constructor.
+   */
+  public constructor(recipe?: ModelRecipe) {
     if (!recipe) {
       recipe = {};
     }
@@ -83,11 +78,10 @@ export abstract class Model {
     });
   }
 
-  /*
-  * Loops up on the tree and returns the first model in the tree.
-  */
-
-  protected _getRootModel () {
+  /**
+   * Loops up on the tree and returns the first model in the tree.
+   */
+  protected _getRootModel() {
     let root: Model = this;
     do {
       if (root.parent) {
@@ -99,22 +93,20 @@ export abstract class Model {
     } while (true);
   }
 
-  /*
-  * Returns the appropriate field type.
-  */
-
-  protected _getFieldType (recipe: FieldRecipe = {}) {
+  /**
+   * Returns the appropriate field type.
+   */
+  protected _getFieldType(recipe: FieldRecipe = {}) {
     let type = isArray(recipe.type) ? recipe.type[0] : recipe.type;
     type = this._types[type] || type;
     return isArray(recipe.type) ? [type] : type;
   }
 
-  /*
-  * Creates a new field instance. This method is especially useful when
-  * extending this class.
-  */
-
-  protected _createField (recipe: FieldRecipe = {}) {
+  /**
+   * Creates a new field instance. This method is especially useful when
+   * extending this class.
+   */
+  protected _createField(recipe: FieldRecipe = {}) {
     return new Field(
       merge({}, recipe, {
         type: this._getFieldType(recipe),
@@ -126,40 +118,36 @@ export abstract class Model {
     );
   }
 
-  /*
-  * Creates a new validation error instance.
-  */
-
-  protected _createValidationError (message = 'Validation failed', code = 422): FieldError {
-    let error: FieldError = new Error(message);
+  /**
+   * Creates a new validation error instance.
+   */
+  protected _createValidationError(message = 'Validation failed', code = 422): FieldError {
+    const error: FieldError = new Error(message);
     error.code = code;
 
     return error;
   }
 
-  /*
-  * Creates a new model instance. This method is especially useful when
-  * extending this class.
-  */
-
-  protected _createModel (recipe: ModelRecipe = {}) {
+  /**
+   * Creates a new model instance. This method is especially useful when
+   * extending this class.
+   */
+  protected _createModel(recipe: ModelRecipe = {}) {
     return new (this.constructor as any)(recipe);
   }
 
-  /*
-  * Configures validator to stop validating field on the first error.
-  */
-
-  public failFast (fail: boolean = true): void {
+  /**
+   * Configures validator to stop validating field on the first error.
+   */
+  public failFast(fail: boolean = true): void {
     this._failFast = toBoolean(fail);
   }
 
-  /*
-  * Defines a new model property.
-  */
-
-  public defineField (name: string, recipe: FieldRecipe = {}): void {
-    let field = this._createField(recipe);
+  /**
+   * Defines a new model property.
+   */
+  public defineField(name: string, recipe: FieldRecipe = {}): void {
+    const field = this._createField(recipe);
 
     Object.defineProperty(this, name, {
       get: () => field.value,
@@ -171,63 +159,57 @@ export abstract class Model {
     this._fields[name] = field;
   }
 
-  /*
-  * Defines a new custom data type.
-  */
-
-  public defineType (name: string, converter: (v?: any) => any): void {
+  /**
+   * Defines a new custom data type.
+   */
+  public defineType(name: string, converter: (v?: any) => any): void {
     this._types[name] = converter;
   }
 
-  /*
-  * Defines a new custom validator.
-  */
-
-  public defineValidator (name: string, handler: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>): void {
+  /**
+   * Defines a new custom validator.
+   */
+  public defineValidator(name: string, handler: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>): void {
     this._validators[name] = handler;
   }
 
-  /*
-  * Defines a new custom validator.
-  */
-
-  public defineHandler (name: string, handler: (e?: any, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
+  /**
+   * Defines a new custom validator.
+   */
+  public defineHandler(name: string, handler: (e?: any, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
     this._handlers[name] = handler;
   }
 
-  /*
-  * Returns a value at path.
-  */
-
-  public getField (...keys: any[]): Field {
+  /**
+   * Returns a value at path.
+   */
+  public getField(...keys: any[]): Field {
     keys = [].concat(isArray(keys[0]) ? keys[0] : keys);
 
-    let lastKey = keys.pop();
+    const lastKey = keys.pop();
     if (keys.length === 0) {
       return this._fields[lastKey];
     }
 
-    let field = keys.reduce((a, c) => (a[c] || {}), this);
+    const field = keys.reduce((a, c) => (a[c] || {}), this);
     return field instanceof Model ? field.getField(lastKey) : undefined;
   }
 
-  /*
-  * Returns `true` if the field exists.
-  */
-
-  public hasField (...keys: any[]): boolean {
+  /**
+   * Returns `true` if the field exists.
+   */
+  public hasField(...keys: any[]): boolean {
     return !isUndefined(this.getField(...keys));
   }
 
-  /*
-  * Deeply assignes data to model fields.
-  */
-
-  public populate (data = {}, strategy?: string): this {
+  /**
+   * Deeply assignes data to model fields.
+   */
+  public populate(data = {}, strategy?: string): this {
 
     function toValue(value) {
       if (value instanceof Model) {
-        let data = normalize(value);
+        const data = normalize(value);
         return value.reset().populate(data, strategy);
       } else if (isArray(value)) {
         return value.map((v) => toValue(v));
@@ -241,8 +223,8 @@ export abstract class Model {
         !!this._fields[n]
       ))
       .forEach((name) => {
-        let field = this._fields[name];
-        let value = field.cast(data[name]);
+        const field = this._fields[name];
+        const value = field.cast(data[name]);
         if (
           isString(strategy)
           && isArray(field.populatable)
@@ -256,11 +238,10 @@ export abstract class Model {
     return this;
   }
 
-  /*
-  * Converts this class into serialized data object.
-  */
-
-  public serialize (strategy?: string): {[key: string]: any} {
+  /**
+   * Converts this class into serialized data object.
+   */
+  public serialize(strategy?: string): { [key: string]: any } {
     const data = {};
 
     function toObject(value) {
@@ -274,7 +255,7 @@ export abstract class Model {
     }
 
     Object.keys(this._fields).forEach((name) => {
-      let field = this._fields[name];
+      const field = this._fields[name];
       if (
         isString(strategy)
         && isArray(field.serializable)
@@ -288,18 +269,17 @@ export abstract class Model {
     return data;
   }
 
-  /*
-  * Scrolls through the model and returns an array of fields.
-  */
-
-  public flatten (prefix: string[] = []): FieldRef[] {
+  /**
+   * Scrolls through the model and returns an array of fields.
+   */
+  public flatten(prefix: string[] = []): FieldRef[] {
     let fields = [];
 
     Object.keys(this._fields).forEach((name) => {
-      let field = this._fields[name];
-      let type = field.type;
-      let path = (prefix || []).concat(name);
-      let value = field.value;
+      const field = this._fields[name];
+      const type = field.type;
+      const path = (prefix || []).concat(name);
+      const value = field.value;
 
       fields.push({path, field});
 
@@ -323,137 +303,125 @@ export abstract class Model {
     return fields;
   }
 
-  /*
-  * Scrolls through object fields and collects results.
-  */
-
-  public collect (handler: (field: FieldRef) => any): any[] {
+  /**
+   * Scrolls through object fields and collects results.
+   */
+  public collect(handler: (field: FieldRef) => any): any[] {
     return this.flatten().map(handler);
   }
 
-  /*
-  * Scrolls through model fields and executes a handler on each field.
-  */
-
-  public scroll (handler: (field: FieldRef) => void): number {
+  /**
+   * Scrolls through model fields and executes a handler on each field.
+   */
+  public scroll(handler: (field: FieldRef) => void): number {
     return this.flatten().map(handler).length;
   }
 
-  /*
-  * Converts this class into serialized data object with only the keys that
-  * pass the provided `test`.
-  */
-
-  public filter (test: (field: FieldRef) => boolean): {[key: string]: any} {
-    let data = this.serialize();
+  /**
+   * Converts this class into serialized data object with only the keys that
+   * pass the provided `test`.
+   */
+  public filter(test: (field: FieldRef) => boolean): {[key: string]: any} {
+    const data = this.serialize();
 
     this.flatten()
       .sort((a, b) => b.path.length - a.path.length)
       .filter((field) => !test(field))
       .forEach((field) => {
-        let names = field.path.concat();
-        let lastName = names.pop();
+        const names = field.path.concat();
+        const lastName = names.pop();
         delete names.reduce((o, k) => o[k], data)[lastName];
       });
 
     return data;
   }
 
-  /*
-  * Sets each model field to its default value.
-  */
-
-  public reset (): this {
+  /**
+   * Sets each model field to its default value.
+   */
+  public reset(): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].reset());
 
     return this;
   }
 
-  /*
-  * Resets fields then sets fields to their fake values.
-  */
-
-  public fake (): this {
+  /**
+   * Resets fields then sets fields to their fake values.
+   */
+  public fake(): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].fake());
 
     return this;
   }
 
-  /*
-  * Sets all fileds to `null`.
-  */
-
-  public clear (): this {
+  /**
+   * Sets all fileds to `null`.
+   */
+  public clear(): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].clear());
 
     return this;
   }
 
-  /*
-  * Resets information about changed fields by setting initial value of each field.
-  */
-
-  public commit (): this {
+  /**
+   * Resets information about changed fields by setting initial value of each field.
+   */
+  public commit(): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].commit());
 
     return this;
   }
 
-  /*
-  * Sets each field to its initial value (value before last commit).
-  */
-
-  public rollback (): this {
+  /**
+   * Sets each field to its initial value (value before last commit).
+   */
+  public rollback(): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].rollback());
 
     return this;
   }
 
-  /*
-  * Returns `true` when the `value` represents an object with the
-  * same field values as the original model.
-  */
-
-  public equals (value: any): boolean {
+  /**
+   * Returns `true` when the `value` represents an object with the
+   * same field values as the original model.
+   */
+  public equals(value: any): boolean {
     return isEqual(
       normalize(this),
       normalize(value)
     );
   }
 
-  /*
-  * Returns `true` if at least one field has been changed.
-  */
-
-  public isChanged (): boolean {
+  /**
+   * Returns `true` if at least one field has been changed.
+   */
+  public isChanged(): boolean {
     return Object.keys(this._fields)
       .some((name) => this._fields[name].isChanged());
   }
 
-  /*
-  * Returns `true` if nested fields exist.
-  */
-
-  public isNested (): boolean {
+  /**
+   * Returns `true` if nested fields exist.
+   */
+  public isNested(): boolean {
     return Object.keys(this._fields)
       .some((name) => this._fields[name].isNested());
   }
 
-  /*
-  * Validates fields and throws an error.
-  */
-
-  public async validate ({
+  /**
+   * Validates fields and throws an error.
+   */
+  public async validate({
     quiet = false
   }: {
     quiet?: boolean
   } = {}): Promise<this> {
-    let fields = this._fields;
+    const fields = this._fields;
 
     await Promise.all(
       Object.keys(fields)
@@ -466,11 +434,10 @@ export abstract class Model {
     return this;
   }
 
-  /*
-  * Handles the error and throws an error if the error can not be handled.
-  */
-
-  public async handle (error: any, {
+  /**
+   * Handles the error and throws an error if the error can not be handled.
+   */
+  public async handle(error: any, {
     quiet = true
   }: {
     quiet?: boolean
@@ -478,7 +445,7 @@ export abstract class Model {
     if (!error) return this; // blank values are valid
     if (error.code === 422) return this; // validation errors are ignored
 
-    let fields = this._fields;
+    const fields = this._fields;
     await Promise.all(
       Object.keys(fields)
         .map((n) => fields[n].handle(error))
@@ -493,23 +460,21 @@ export abstract class Model {
     return this;
   }
 
-  /*
-  * Returns a list of all fields with errors.
-  */
-
-  public collectErrors (): FieldErrorRef[] {
+  /**
+   * Returns a list of all fields with errors.
+   */
+  public collectErrors(): FieldErrorRef[] {
     return this.flatten()
       .map(({path, field}) => ({path, errors: field.errors} as FieldErrorRef))
       .filter(({path, errors}) => errors.length > 0);
   }
 
-  /*
-  * Sets fields errors.
-  */
-
-  public applyErrors (errors: FieldErrorRef[] = []): this {
+  /**
+   * Sets fields errors.
+   */
+  public applyErrors(errors: FieldErrorRef[] = []): this {
     errors.forEach((error) => {
-      let field = this.getField(...error.path);
+      const field = this.getField(...error.path);
       if (field) {
         field.errors = error.errors;
       }
@@ -518,42 +483,36 @@ export abstract class Model {
     return this;
   }
 
-  /*
-  * Returns `true` when errors exist (inverse of `isValid`).
-  */
-
-  public hasErrors (): boolean {
+  /**
+   * Returns `true` when errors exist (inverse of `isValid`).
+   */
+  public hasErrors(): boolean {
     return Object.keys(this._fields)
       .some((name) => this._fields[name].hasErrors());
   }
 
-  /*
-  * Returns `true` when no errors exist (inverse of `hasErrors`).
-  */
-
-  public isValid (): boolean {
+  /**
+   * Returns `true` when no errors exist (inverse of `hasErrors`).
+   */
+  public isValid(): boolean {
     return !this.hasErrors();
   }
 
-  /*
-  * Removes fields errors.
-  */
-
-  public invalidate (): this {
+  /**
+   * Removes fields errors.
+   */
+  public invalidate(): this {
     Object.keys(this._fields)
       .forEach((name) => this._fields[name].invalidate());
 
     return this;
   }
 
-  /*
-  * Returns a new Model instance which is the exact copy of the original.
-  */
-
-  public clone (data = {}): this {
-    return this._createModel(
-      merge({}, this.serialize(), {parent: this.parent}, data)
-    );
+  /**
+   * Returns a new Model instance which is the exact copy of the original.
+   */
+  public clone(data = {}): this {
+    return this._createModel({ parent: this.parent })
+      .populate(merge({}, this.serialize(), data));
   }
-
 }

@@ -1,13 +1,12 @@
-import {isFunction, isUndefined, isPresent, isArray, toArray, isValue, cast} from 'typeable';
-import {normalize, isEqual, merge} from './utils';
-import {Validator, ValidatorRecipe} from 'validatable';
-import {Handler, HandlerRecipe} from 'handleable';
-import {Model} from './models';
+import { isFunction, isUndefined, isPresent, isArray, toArray, isValue, cast } from 'typeable';
+import { normalize, isEqual, merge } from './utils';
+import { Validator, ValidatorRecipe } from 'validatable';
+import { Handler, HandlerRecipe } from 'handleable';
+import { Model } from './models';
 
-/*
-* Field definition interface.
-*/
-
+/**
+ * Field definition interface.
+ */
 export interface FieldRecipe {
   type?: any;
   get?: (v: any) => any;
@@ -25,20 +24,18 @@ export interface FieldRecipe {
   enumerable?: boolean;
 }
 
-/*
-* Field error interface.
-*/
-
+/**
+ * Field error interface.
+ */
 export interface FieldError {
   message?: string;
   code?: number;
   [key: string]: any;
 }
 
-/*
-* Field class.
-*/
-
+/**
+ * Field class.
+ */
 export class Field {
   protected _data: any;
   protected _initialData: any;
@@ -56,11 +53,10 @@ export class Field {
   public value: any;
   public errors: FieldError[];
 
-  /*
-  * Class constructor.
-  */
-
-  public constructor (recipe?: FieldRecipe) {
+  /**
+   * Class constructor.
+   */
+  public constructor(recipe?: FieldRecipe) {
     if (!recipe) {
       recipe = {};
     }
@@ -126,36 +122,33 @@ export class Field {
     });
   }
 
-  /*
-  * Returns a new validator instance.
-  */
+  /**
+   * Returns a new validator instance.
+   */
+  protected _createValidator() {
+    const { validators, failFast } = this._recipe;
+    const context = this;
 
-  protected _createValidator () {
-    let {validators, failFast} = this._recipe;
-    let context = this;
-
-    return new Validator({validators, failFast, context});
+    return new Validator({ validators, failFast, context });
   }
 
-  /*
-  * Returns a new handler instance.
-  */
+  /**
+   * Returns a new handler instance.
+   */
+  protected _createHandler() {
+    const { handlers, failFast } = this._recipe;
+    const context = this;
 
-  protected _createHandler () {
-    let {handlers, failFast} = this._recipe;
-    let context = this;
-
-    return new Handler({handlers, failFast, context});
+    return new Handler({ handlers, failFast, context });
   }
 
-  /*
-  * Returns current field value.
-  */
-
-  protected _getValue () {
+  /**
+   * Returns current field value.
+   */
+  protected _getValue() {
     let data = this._data;
 
-    let {get} = this._recipe;
+    const { get } = this._recipe;
     if (isFunction(get)) {
       data = get.call(this, data);
     }
@@ -163,16 +156,15 @@ export class Field {
     return data;
   }
 
-  /*
-  * Sets current field value.
-  */
-
-  protected _setValue (data: any) {
+  /**
+   * Sets current field value.
+   */
+  protected _setValue(data: any) {
     if (isFunction(data)) {
       data = data.call(this);
     }
 
-    let {set} = this._recipe;
+    const { set } = this._recipe;
     if (isFunction(set)) {
       data = set.call(this, data);
     }
@@ -182,14 +174,13 @@ export class Field {
     this._data = data;
   }
 
-  /*
-  * Returns the default value of a field.
-  */
-
-  protected _getDefaultValue () {
+  /**
+   * Returns the default value of a field.
+   */
+  protected _getDefaultValue() {
     let data = null;
 
-    let {defaultValue} = this._recipe;
+    const { defaultValue } = this._recipe;
     if (isFunction(defaultValue)) {
       data = defaultValue.call(this);
     }
@@ -202,14 +193,13 @@ export class Field {
     return data;
   }
 
-  /*
-  * Returns the fake value of a field.
-  */
-
-  protected _getFakeValue () {
+  /**
+   * Returns the fake value of a field.
+   */
+  protected _getFakeValue() {
     let data = null;
 
-    let {fakeValue} = this._recipe;
+    const { fakeValue } = this._recipe;
     if (isFunction(fakeValue)) {
       data = fakeValue.call(this);
     }
@@ -220,11 +210,10 @@ export class Field {
     return data;
   }
 
-  /*
-  * Converts a `value` into field's type.
-  */
-
-  public cast (data: any) {
+  /**
+   * Converts a `value` into field's type.
+   */
+  public cast(data: any) {
     let converter = this.type;
 
     if (!isValue(data)) {
@@ -232,29 +221,27 @@ export class Field {
     }
 
     if (this.isNested()) {
-      let Klass = isArray(this.type) ? this.type[0] : this.type;
-      let toModel = (d) => new Klass({parent: this.owner}).populate(merge({}, d));
+      const Klass = isArray(this.type) ? this.type[0] : this.type;
+      const toModel = (d) => new Klass({ parent: this.owner }).populate(merge({}, d));
       converter = isArray(this.type) ? [toModel] : toModel;
     }
 
     return cast(data, converter);
   }
 
-  /*
-  * Sets data to the default value.
-  */
-
-  public reset (): this {
+  /**
+   * Sets data to the default value.
+   */
+  public reset(): this {
     this.value = this._getDefaultValue();
 
     return this;
   }
 
-  /*
-  * Resets the value then sets data to the fake value.
-  */
-
-  public fake (): this {
+  /**
+   * Resets the value then sets data to the fake value.
+   */
+  public fake(): this {
 
     if (this.fakeValue) {
       this.value = this.fakeValue;
@@ -267,21 +254,19 @@ export class Field {
     return this;
   }
 
-  /*
-  * Sets data to `null`.
-  */
-
-  public clear (): this {
+  /**
+   * Sets data to `null`.
+   */
+  public clear(): this {
     this.value = null;
 
     return this;
   }
 
-  /*
-  * Set's the initial value to the current value.
-  */
-
-  public commit (): this {
+  /**
+   * Set's the initial value to the current value.
+   */
+  public commit(): this {
     if (isValue(this.value)) {
       toArray(this.value)
         .filter((v) => v && v.commit)
@@ -293,22 +278,20 @@ export class Field {
     return this;
   }
 
-  /*
-  * Sets value to the initial value.
-  */
-
-  public rollback (): this {
+  /**
+   * Sets value to the initial value.
+   */
+  public rollback(): this {
     this.value = this.initialValue;
 
     return this;
   }
 
-  /*
-  * Returns `true` when `data` equals to the current value.
-  */
-
-  public equals (data: any): boolean {
-    let value = data instanceof Field ? data.value : data;
+  /**
+   * Returns `true` when `data` equals to the current value.
+   */
+  public equals(data: any): boolean {
+    const value = data instanceof Field ? data.value : data;
 
     return isEqual(
       normalize(this.value),
@@ -316,19 +299,17 @@ export class Field {
     );
   }
 
-  /*
-  * Returns `true` if the value has been changed.
-  */
-
-  public isChanged (): boolean {
+  /**
+   * Returns `true` if the value has been changed.
+   */
+  public isChanged(): boolean {
     return !this.equals(this.initialValue);
   }
 
-  /*
-  * Returns `true` if the data is a Model.
-  */
-
-  public isNested (): boolean {
+  /**
+   * Returns `true` if the data is a Model.
+   */
+  public isNested(): boolean {
     let type = this.type;
     if (isArray(type)) type = type[0];
 
@@ -342,14 +323,13 @@ export class Field {
     );
   }
 
-  /*
-  * Validates the field by populating the `errors` property.
-  *
-  * IMPORTANT: Array null values for nested objects are not treated as an object
-  * but as an empty item thus isValid() for [null] succeeds.
-  */
-
-  public async validate (): Promise<this> {
+  /**
+   * Validates the field by populating the `errors` property.
+   *
+   * IMPORTANT: Array null values for nested objects are not treated as an object
+   * but as an empty item thus isValid() for [null] succeeds.
+   */
+  public async validate(): Promise<this> {
     await Promise.all( // validate related models
       (toArray(this.value) || [])
         .filter((doc) => doc instanceof Model)
@@ -364,14 +344,13 @@ export class Field {
     return this;
   }
 
-  /*
-  * Handles the field by populating the `errors` property.
-  *
-  * IMPORTANT: Array null values for nested objects are not treated as an object
-  * but as an empty item thus isValid() for [null] succeeds.
-  */
-
-  public async handle (error: any): Promise<this> {
+  /**
+   * Handles the field by populating the `errors` property.
+   *
+   * IMPORTANT: Array null values for nested objects are not treated as an object
+   * but as an empty item thus isValid() for [null] succeeds.
+   */
+  public async handle(error: any): Promise<this> {
     await Promise.all( // handle related models
       (toArray(this.value) || [])
         .filter((doc) => doc instanceof Model)
@@ -386,11 +365,10 @@ export class Field {
     return this;
   }
 
-  /*
-  * Clears errors.
-  */
-
-  public invalidate (): this {
+  /**
+   * Clears errors.
+   */
+  public invalidate(): this {
     (toArray(this.value) || []) // invalidate related models
       .filter((doc) => doc instanceof Model)
       .forEach((doc) => doc.invalidate());
@@ -400,11 +378,10 @@ export class Field {
     return this;
   }
 
-  /*
-  * Returns `true` when errors exist (inverse of `isValid`).
-  */
-
-  public hasErrors (): boolean {
+  /**
+   * Returns `true` when errors exist (inverse of `isValid`).
+   */
+  public hasErrors(): boolean {
     if (this.errors.length > 0) {
       return true;
     }
@@ -419,12 +396,10 @@ export class Field {
     return false;
   }
 
-  /*
-  * Returns `true` when the value is valid (inverse of `hasErrors`).
-  */
-
-  public isValid (): boolean {
+  /**
+   * Returns `true` when the value is valid (inverse of `hasErrors`).
+   */
+  public isValid(): boolean {
     return !this.hasErrors();
   }
-
 }

@@ -527,7 +527,7 @@ ava_1["default"]('method `filter` converts a model into serialized object with o
             null,
             {
                 title: 'bar'
-            }
+            },
         ]
     });
 });
@@ -562,7 +562,7 @@ ava_1["default"]('method `reset` sets fields to their default values', function 
         books: [
             {
                 title: 'fake'
-            }
+            },
         ]
     });
     user.reset();
@@ -575,7 +575,7 @@ ava_1["default"]('method `reset` sets fields to their default values', function 
             null,
             {
                 title: 'foo'
-            }
+            },
         ]
     });
 });
@@ -705,7 +705,7 @@ ava_1["default"]('methods `commit()` and `rollback()` manage committed states', 
         books: [
             {
                 title: 'baz-new'
-            }
+            },
         ]
     });
     user.rollback();
@@ -784,7 +784,7 @@ ava_1["default"]('method `isChanged` returns `true` if at least one field has be
             null,
             {
                 title: 'baz'
-            }
+            },
         ]
     };
     var user0 = new User(data);
@@ -860,7 +860,7 @@ ava_1["default"]('method `collectErrors` returns an array of field errors', func
     t.deepEqual(user.collectErrors(), [
         { path: ['name'], errors: [{ message: 'foo' }] },
         { path: ['book', 'title'], errors: [{ message: 'bar' }] },
-        { path: ['books', 0, 'title'], errors: [{ message: 'baz' }] }
+        { path: ['books', 0, 'title'], errors: [{ message: 'baz' }] },
     ]);
 });
 ava_1["default"]('method `applyErrors` sets fields errors', function (t) {
@@ -893,7 +893,7 @@ ava_1["default"]('method `applyErrors` sets fields errors', function (t) {
     user.applyErrors([
         { path: ['name'], errors: [{ message: 'foo' }] },
         { path: ['book', 'title'], errors: [{ message: 'bar' }] },
-        { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] }
+        { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] },
     ]);
     t.deepEqual(user.getField('name').errors, [{ message: 'foo' }]);
     t.deepEqual(user.getField('book', 'title').errors, [{ message: 'bar' }]);
@@ -934,7 +934,7 @@ ava_1["default"]('methods `isValid` and `hasErrors` tell if errors exist', funct
         t.is(user0.isValid(), true);
         t.is(user1.isValid(), true);
         user0.applyErrors([
-            { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] }
+            { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] },
         ]);
         t.is(user0.hasErrors(), true);
         t.is(user0.isValid(), false);
@@ -1058,7 +1058,7 @@ ava_1["default"]('method `failFast` configures validator to stop validating fiel
             case 0:
                 validate = [
                     { validator: 'presence', message: 'foo' },
-                    { validator: 'presence', message: 'foo' }
+                    { validator: 'presence', message: 'foo' },
                 ];
                 Book = (function (_super) {
                     __extends(Book, _super);
@@ -1128,7 +1128,7 @@ ava_1["default"]('method `invalidate` clears fields errors', function (t) { retu
         user.applyErrors([
             { path: ['name'], errors: [{ message: 'foo' }] },
             { path: ['book', 'title'], errors: [{ message: 'bar' }] },
-            { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] }
+            { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] },
         ]);
         user.invalidate();
         t.deepEqual(user.getField('name').errors, []);
