@@ -63,7 +63,7 @@ class User extends Model {
 
 // usage example
 let model = new User({
-  name: 'John Smith'
+  'name': 'John Smith'
 });
 model.name; // => 'John Smith'
 ```
@@ -86,8 +86,8 @@ import { Model } from 'rawmodel';
 class User extends Model {
   public name: string; // typescript property definition for field `name`
 
-  public constructor() {
-    super();
+  public constructor(data = {}) {
+    super(data);
     this.defineField('name'); // definition of the `name` field
   }
 }
@@ -119,8 +119,8 @@ import { Model } from 'rawmodel';
 class Book extends Model {
   public title: string;
 
-  public constructor() {
-    super();
+  public constructor(data = {}) {
+    super(data);
     this.defineField('title');
   }
 }
@@ -128,8 +128,8 @@ class Book extends Model {
 class User extends Model {
   public book: Book;
 
-  public constructor() {
-    super();
+  public constructor(data = {}) {
+    super(data);
     this.defineField('book', {
       type: Book,
     });
@@ -192,7 +192,7 @@ class User extends Model {
   public id: string;
   public name: string;
 
-  public constructor (data = {}) {
+  public constructor(data = {}) {
     super(data);
     this.defineField('id', {
       populatable: ['internal'], // list population strategy names
@@ -204,8 +204,8 @@ class User extends Model {
 }
 
 let data = {
-  id: 100,
-  name: 'John Smith'
+  'id': 100,
+  'name': 'John Smith'
 };
 let user = new User();
 user.populate(data); // -> { "id": 100, "name": "John Smith" }
@@ -219,7 +219,7 @@ Model provides useful methods for object serialization and filtering (check the 
 
 ```js
 let user = new User({
-  name: 'John Smith', // initial value
+  'name': 'John Smith', // initial value
 });
 
 user.scroll(function (field) { // argument is an instance of a field
@@ -236,7 +236,7 @@ class User extends Model {
   public id: string;
   public name: string;
 
-  public constructor (data = {}) {
+  public constructor(data = {}) {
     super(data);
     this.defineField('id', {
       serializable: ['output'], // list serialization strategy names
@@ -267,8 +267,8 @@ The example below explains how to setup and use these features.
 class User extends Model {
   public name: string;
 
-  public constructor () {
-    super();
+  public constructor(data = {}) {
+    super(data);
     this.defineField('name');
   }
 }
@@ -290,7 +290,7 @@ RawModel provides a simple mechanism for validating fields.
 class User extends Model {
   public name: string;
 
-  public constructor (data = {}) {
+  public constructor(data = {}) {
     super(data);
 
     this.defineField('name', {
@@ -300,7 +300,7 @@ class User extends Model {
           message: '%{it} must be present', // [optional] error message
           code: 422, // [optional] error code
           condition () { return true }, // [optional] condition which switches the validation on/off
-          it: 'it' // [optional] custom variable for the `message`
+          it: 'it', // [optional] custom variable for the `message`
         },
       ],
     });
@@ -319,7 +319,7 @@ It already includes some useful built-in validators but it's super simple to def
 class User extends Model {
   public name: string;
 
-  constructor (data = {}) {
+  constructor(data = {}) {
     super(data);
 
     this.defineValidator('coolness', function (v) {
@@ -346,7 +346,7 @@ RawModel provides a mechanism for handling field-related errors. The logic is al
 class User extends Model {
   public name: string;
 
-  public constructor (data = {}) {
+  public constructor(data = {}) {
     super(data);
 
     this.defineField('name', {
@@ -379,8 +379,8 @@ RawModel already includes some useful built-in handlers but it's super simple to
 class User extends Model {
   public name: string;
 
-  public constructor () {
-    super();
+  public constructor(data = {}) {
+    super(data);
 
     this.defineHandler('coolness', function (e) {
       return e.message === 'cool';
@@ -429,16 +429,21 @@ graphql(schema, '{ hello }', root).then((response) => {
 
 ### Model Class
 
-**Model()**
+**Model({ parent, ...data })**
 
 > Abstract class which represents a strongly-typed JavaScript object.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| parent | Model | Only when used as a submodel | - | Parent model instance.
+| data | Object | No | - | Data for populating model fields.
 
 ```js
 class User extends Model {
   public name: string;
 
-  public constructor () {
-    super(); // initializing the Model
+  public constructor({ parent, ...data } = {}) {
+    super({ parent }); // initializing the Model
 
     this.defineField('name', {
       type: 'String', // [optional] field type casting
@@ -469,6 +474,9 @@ class User extends Model {
       defaultValue: 'Noname', // [optional] field default value (value or function)
       fakeValue: 'Noname', // [optional] field fake value (value or function)
     });
+
+    this.populate(data); // [optional] a good practice to enable data population from model constructor
+    this.commit(); // [optional] a good practice to commit default data
   }
 }
 ```

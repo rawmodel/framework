@@ -222,7 +222,7 @@ export class Field {
 
     if (this.isNested()) {
       const Klass = isArray(this.type) ? this.type[0] : this.type;
-      const toModel = (d) => new Klass({ parent: this.owner }).populate(merge({}, d));
+      const toModel = (d) => new Klass(merge({ parent: this.owner }, d)).populate(d);
       converter = isArray(this.type) ? [toModel] : toModel;
     }
 

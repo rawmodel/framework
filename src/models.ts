@@ -21,7 +21,7 @@ export interface FieldErrorRef {
 }
 
 /**
- * Model recipe interface.
+ * Model recipe interface (can be used also for pasing data).
  */
 export interface ModelRecipe {
   parent?: Model;

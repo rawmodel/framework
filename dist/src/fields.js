@@ -162,7 +162,7 @@ var Field = (function () {
         }
         if (this.isNested()) {
             var Klass_1 = typeable_1.isArray(this.type) ? this.type[0] : this.type;
-            var toModel = function (d) { return new Klass_1({ parent: _this.owner }).populate(utils_1.merge({}, d)); };
+            var toModel = function (d) { return new Klass_1(utils_1.merge({ parent: _this.owner }, d)).populate(d); };
             converter = typeable_1.isArray(this.type) ? [toModel] : toModel;
         }
         return typeable_1.cast(data, converter);

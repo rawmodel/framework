@@ -85,8 +85,9 @@ ava_1["default"]('method `defineType` defines a custom data type', function (t) 
 ava_1["default"]('method `populate` deeply assignes data', function (t) {
     var Book = (function (_super) {
         __extends(Book, _super);
-        function Book() {
-            var _this = _super.call(this) || this;
+        function Book(data) {
+            if (data === void 0) { data = {}; }
+            var _this = _super.call(this, data) || this;
             _this.defineField('id', { type: 'Integer', populatable: ['output'] });
             _this.defineField('title', { type: 'String' });
             _this.defineField('description', { type: 'String', populatable: ['input'] });
@@ -96,14 +97,16 @@ ava_1["default"]('method `populate` deeply assignes data', function (t) {
     }(src_1.Model));
     var User = (function (_super) {
         __extends(User, _super);
-        function User() {
-            var _this = _super.call(this) || this;
+        function User(data) {
+            if (data === void 0) { data = {}; }
+            var _this = _super.call(this, data) || this;
             _this.defineField('id', { type: 'Integer', populatable: ['output'] });
             _this.defineField('name', { type: 'String' });
             _this.defineField('email', { type: 'String', populatable: ['input'] });
             _this.defineField('book0', { type: Book, populatable: ['output'] });
             _this.defineField('book1', { type: Book });
             _this.defineField('books', { type: [Book], populatable: ['input'] });
+            _this.populate(data);
             return _this;
         }
         return User;
@@ -169,7 +172,6 @@ ava_1["default"]('property `parent` holds an instance of a parent model', functi
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -208,7 +210,6 @@ ava_1["default"]('property `root` return the first model in a tree of nested mod
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -237,7 +238,6 @@ ava_1["default"]('method `getField` returns an instance of a field at path', fun
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -281,9 +281,8 @@ ava_1["default"]('method `hasField` returns `true` if the field exists', functio
         __extends(User, _super);
         function User(data) {
             if (data === void 0) { data = {}; }
-            var _this = _super.call(this) || this;
+            var _this = _super.call(this, data) || this;
             _this.defineField('name', { type: 'String' });
-            _this.populate(data);
             return _this;
         }
         return User;
@@ -299,7 +298,6 @@ ava_1["default"]('method `serialize` converts model into a serialized data objec
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
             _this.defineField('description', { serializable: ['output'] });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -366,7 +364,6 @@ ava_1["default"]('method `flatten` returns an array of fields', function (t) { r
             function Book(data) {
                 var _this = _super.call(this, data) || this;
                 _this.defineField('title', { type: 'String' });
-                _this.populate(data);
                 return _this;
             }
             return Book;
@@ -414,7 +411,6 @@ ava_1["default"]('method `collect` returns an array of results', function (t) {
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -452,7 +448,6 @@ ava_1["default"]('method `scroll` runs the provided handler on each field', func
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -486,7 +481,6 @@ ava_1["default"]('method `filter` converts a model into serialized object with o
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { type: 'String' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -537,7 +531,6 @@ ava_1["default"]('method `reset` sets fields to their default values', function 
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { defaultValue: 'foo' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -585,7 +578,6 @@ ava_1["default"]('method `fake` sets fields to their fake values', function (t) 
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { fakeValue: 'foo' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -624,7 +616,6 @@ ava_1["default"]('method `clear` sets fields to `null`', function (t) {
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title', { defaultValue: 'foo' });
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -665,7 +656,6 @@ ava_1["default"]('methods `commit()` and `rollback()` manage committed states', 
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -719,7 +709,6 @@ ava_1["default"]('method `equals` returns `true` when the passing object looks t
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -756,8 +745,6 @@ ava_1["default"]('method `isChanged` returns `true` if at least one field has be
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
-            _this.commit();
             return _this;
         }
         return Book;
@@ -807,7 +794,6 @@ ava_1["default"]('method `isNested` returns `true` if nested fields exist', func
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -833,7 +819,6 @@ ava_1["default"]('method `collectErrors` returns an array of field errors', func
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -869,7 +854,6 @@ ava_1["default"]('method `applyErrors` sets fields errors', function (t) {
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             return _this;
         }
         return Book;
@@ -907,7 +891,6 @@ ava_1["default"]('methods `isValid` and `hasErrors` tell if errors exist', funct
             function Book(data) {
                 var _this = _super.call(this, data) || this;
                 _this.defineField('title');
-                _this.populate(data);
                 return _this;
             }
             return Book;
@@ -955,7 +938,6 @@ ava_1["default"]('method `validate` validates fields and throws an error', funct
                     function Book(data) {
                         var _this = _super.call(this, data) || this;
                         _this.defineField('title', { validate: validate });
-                        _this.populate(data);
                         return _this;
                     }
                     return Book;
@@ -1018,7 +1000,6 @@ ava_1["default"]('method `defineValidator` defines a custom field validator', fu
                         var _this = _super.call(this, data) || this;
                         _this.defineValidator('coolness', validator);
                         _this.defineField('title', { validate: validate });
-                        _this.populate(data);
                         return _this;
                     }
                     return Book;
@@ -1066,7 +1047,6 @@ ava_1["default"]('method `failFast` configures validator to stop validating fiel
                         var _this = _super.call(this, data) || this;
                         _this.failFast();
                         _this.defineField('title', { validate: validate });
-                        _this.populate(data);
                         return _this;
                     }
                     return Book;
@@ -1104,7 +1084,6 @@ ava_1["default"]('method `invalidate` clears fields errors', function (t) { retu
             function Book(data) {
                 var _this = _super.call(this, data) || this;
                 _this.defineField('title');
-                _this.populate(data);
                 return _this;
             }
             return Book;
@@ -1143,7 +1122,6 @@ ava_1["default"]('method `clone` returns an exact copy of the original', functio
         function Book(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('title');
-            _this.populate(data);
             _this.commit();
             return _this;
         }
@@ -1204,7 +1182,6 @@ ava_1["default"]('method `handle` handles field-related errors', function (t) { 
                     function Book(data) {
                         var _this = _super.call(this, data) || this;
                         _this.defineField('title', { handle: handle });
-                        _this.populate(data);
                         return _this;
                     }
                     return Book;
@@ -1288,7 +1265,6 @@ ava_1["default"]('method `defineHandler` defines a custom field handler', functi
                         var _this = _super.call(this, data) || this;
                         _this.defineHandler('coolness', handler);
                         _this.defineField('title', { handle: handle });
-                        _this.populate(data);
                         return _this;
                     }
                     return Book;
