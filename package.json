@@ -1,6 +1,6 @@
 {
   "name": "rawmodel",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "Strongly-typed JavaScript object with support for validation and error handling.",
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -71,19 +71,19 @@
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",
   "devDependencies": {
-    "ava": "^0.22.0",
-    "mongodb": "2.2.33",
-    "tslint": "^5.7.0",
-    "typescript": "^2.5.3"
+    "ava": "^0.24.0",
+    "mongodb": "^2.2.33",
+    "tslint": "^5.8.0",
+    "typescript": "^2.6.2"
   },
   "dependencies": {
     "@types/lodash.isequal": "^4.5.2",
     "@types/lodash.merge": "^4.6.3",
-    "@types/node": "^8.0.44",
-    "handleable": "^0.24.0",
+    "@types/node": "^8.0.54",
+    "handleable": "^0.25.0",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.0",
-    "typeable": "^2.3.1",
-    "validatable": "^0.30.0"
+    "typeable": "^2.4.0",
+    "validatable": "^0.31.0"
   }
 }

@@ -297,14 +297,14 @@ var Model = (function () {
         var _b = (_a === void 0 ? {} : _a).quiet, quiet = _b === void 0 ? false : _b;
         return __awaiter(this, void 0, void 0, function () {
             var fields;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         fields = this._fields;
                         return [4, Promise.all(Object.keys(fields)
                                 .map(function (n) { return fields[n].validate(); }))];
                     case 1:
-                        _a.sent();
+                        _c.sent();
                         if (!quiet && this.hasErrors()) {
                             throw this._createValidationError();
                         }
@@ -317,8 +317,8 @@ var Model = (function () {
         var _b = (_a === void 0 ? {} : _a).quiet, quiet = _b === void 0 ? true : _b;
         return __awaiter(this, void 0, void 0, function () {
             var fields;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
                         if (!error)
                             return [2, this];
@@ -328,7 +328,7 @@ var Model = (function () {
                         return [4, Promise.all(Object.keys(fields)
                                 .map(function (n) { return fields[n].handle(error); }))];
                     case 1:
-                        _a.sent();
+                        _c.sent();
                         if (!quiet && this.hasErrors()) {
                             throw this._createValidationError();
                         }
