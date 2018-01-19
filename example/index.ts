@@ -1,4 +1,4 @@
-import {Model} from '../src';
+import { Model } from '../src';
 
 /*
 * Book model
@@ -64,7 +64,7 @@ class User extends Model {
 * Usage
 */
 
-let user = new User({
+const user = new User({
   name: 'John Smith',
   book: {
     title: 'True Detective'

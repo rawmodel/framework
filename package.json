@@ -72,8 +72,8 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "^0.24.0",
-    "mongodb": "^2.2.33",
-    "tslint": "^5.8.0",
+    "mongodb": "3.0.1",
+    "tslint": "^5.9.1",
     "typescript": "^2.6.2"
   },
   "dependencies": {
@@ -84,6 +84,6 @@
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.0",
     "typeable": "^2.4.0",
-    "validatable": "^0.31.0"
+    "validatable": "^0.32.0"
   }
 }
