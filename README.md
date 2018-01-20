@@ -948,6 +948,10 @@ const recipe = {
 | allowUtf8LocalPart | Boolean | No | false | When set to false, the validator will not allow any non-English UTF8 character in email address' local part.
 | requireTld | Boolean | No | true | When set to false, email addresses without having TLD in their domain will also be matched.
 
+**stringETHAddress**
+
+> Checks if the string represents an ethereum address.
+
 **stringExclusion**
 
 > Checks if the string does not contain the seed.
