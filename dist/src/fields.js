@@ -71,11 +71,11 @@ var Field = (function () {
             value: Object.freeze(recipe || {})
         });
         Object.defineProperty(this, '_data', {
-            value: this._getDefaultValue(),
+            value: this.cast(this._getDefaultValue()),
             writable: true
         });
         Object.defineProperty(this, '_initialData', {
-            value: this._getDefaultValue(),
+            value: this.cast(this._getDefaultValue()),
             writable: true
         });
         Object.defineProperty(this, '_validator', {
@@ -128,8 +128,7 @@ var Field = (function () {
         if (typeable_1.isFunction(set)) {
             data = set.call(this, data);
         }
-        data = this.cast(data);
-        this._data = data;
+        this._data = this.cast(data);
     };
     Field.prototype._getDefaultValue = function () {
         var data = null;
@@ -140,7 +139,6 @@ var Field = (function () {
         else if (!typeable_1.isUndefined(defaultValue)) {
             data = defaultValue;
         }
-        data = this.cast(data);
         return data;
     };
     Field.prototype._getFakeValue = function () {

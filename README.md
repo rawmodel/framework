@@ -62,7 +62,7 @@ class User extends Model {
 }
 
 // usage example
-let model = new User({
+const model = new User({
   'name': 'John Smith'
 });
 model.name; // => 'John Smith'
@@ -92,18 +92,18 @@ class User extends Model {
   }
 }
 
-let user = new User();
+const user = new User();
 user.name = 'John Smith';
 user.name; // -> "John Smith"
 ```
 
 ### Type Casting
 
-Each field has a built-in system for type casting thus we can force a value to be automatically converted to a specific type.
+Each field has a built-in system for type casting, thus we can force a value to be automatically converted to a specific type when setting a value.
 
 ```js
 this.defineField('name', {
-  type: 'String', // automatically cast values to `String`
+  type: 'String', // automatically cast value to `String`
 });
 ```
 
@@ -141,7 +141,7 @@ class User extends Model {
 
 We can set a `defaultValue` for each field which will automatically populate a field on creation.
 
-The `defaultValue` can also be a method which returns a dynamic value. Note that this function shares the context of a field instance, thus you have access to all the features of the `Field` class.
+The `defaultValue` can also be a method which returns a dynamic value. This function shares the context of a field instance thus you have access to all the features of the `Field` class.
 
 ```js
 this.defineField('name', {
@@ -153,7 +153,7 @@ this.defineField('name', {
 
 Similar to default values, we can set a `fakeValue` for each field, to populate a field with fake data when calling the `fake()` method.
 
-The `fakeValue` can also be a method which returns a dynamic value. Note that this function shares the context of a field instance, thus you have access to all the features of the `Field` class.
+The `fakeValue` can also be a method which returns a dynamic value. This function shares the context of a field instance, thus you have access to all the features of the `Field` class.
 
 ```js
 this.defineField('name', {
@@ -161,11 +161,10 @@ this.defineField('name', {
 });
 ```
 
+
 ### Field Value Transformation
 
-A field can have a custom `getter` and a custom `setter`.
-
-These methods all share the context of a field instance, thus you have access to all the features of the `Field` class.
+A field can have a custom `getter` and a custom `setter`. These methods all share the context of a field instance, thus you have access to all the features of the `Field` class.
 
 ```js
 this.defineField('name', {
@@ -176,7 +175,7 @@ this.defineField('name', {
 
 ### Value Assignments
 
-Model fields are like properties of a Javascript Object. We can easily assign a value to a field through its setter method (e.g. `model.name = 'value';`). Instead of assigning fields one by one, we can use the `populate()` method as shown below.
+Model's fields are like properties of a Javascript Object. We can easily assign a value to a field through its setter method (e.g. `model.name = 'value';`). Instead of assigning fields one by one, we can use the `populate()` method as shown below.
 
 ```js
 this.populate({
@@ -203,11 +202,11 @@ class User extends Model {
   }
 }
 
-let data = {
+const data = {
   'id': 100,
   'name': 'John Smith'
 };
-let user = new User();
+const user = new User();
 user.populate(data); // -> { "id": 100, "name": "John Smith" }
 user.populate(data, 'internal'); // -> { "id": 100, "name": "John Smith" }
 user.serialize(data, 'input'); // -> { id: null, "name": "John Smith" }
@@ -218,7 +217,7 @@ user.serialize(data, 'input'); // -> { id: null, "name": "John Smith" }
 Model provides useful methods for object serialization and filtering (check the API for more methods).
 
 ```js
-let user = new User({
+const user = new User({
   'name': 'John Smith', // initial value
 });
 
@@ -248,7 +247,7 @@ class User extends Model {
   }
 }
 
-let user = new User({
+const user = new User({
   'id': 100,
   'name': 'John Smith',
 });
@@ -273,7 +272,7 @@ class User extends Model {
   }
 }
 
-let user = new User();
+const user = new User();
 user.name = 'Mandy Taylor'; // changing field's value
 user.isChanged(); // -> true
 user.commit(); // set `initialValue` of each field to the value of  `value`
@@ -307,7 +306,7 @@ class User extends Model {
   }
 }
 
-let user = new User();
+const user = new User();
 user.validate().catch((err) => {
   user.collectErrors(); // -> [{path: ['name'], errors: [{validator: 'presence', message: 'is must be present', code: 422}]}]
 });
@@ -364,8 +363,8 @@ class User extends Model {
   }
 }
 
-let error = new Error();
-let user = new User();
+const error = new Error();
+lconstet user = new User();
 user.handle(error).then(() => {
   user.collectErrors(); // -> [{ path: ['name'], errors: [{ handler: 'block', message: 'is unknown', code: 422 }] }]
 });
@@ -894,7 +893,7 @@ catch (e) {
 | block | Function,Promise | Yes | - | Synchronous or asynchronous function (e.g. `async () => true`)
 
 ```js
-let recipe = {
+const recipe = {
   validator: 'block',
   message: 'must be present',
   async block (value, recipe) { return true },
@@ -1023,7 +1022,7 @@ let recipe = {
 | block | Function,Promise | Yes | Synchronous or asynchronous function (e.g. `async () => true`).
 
 ```js
-let recipe = {
+const recipe = {
   handler: 'block',
   message: 'is unknown error',
   async block (error, recipe) { return true },
@@ -1039,7 +1038,7 @@ let recipe = {
 | indexName | String | Yes | - | MongoDB collection's unique index name.
 
 ```js
-let recipe = {
+const recipe = {
   handler: 'mongoUniqueness',
   message: 'is unknown error',
   indexName: 'uniqueEmail', // make sure that this index name exists in your MongoDB collection

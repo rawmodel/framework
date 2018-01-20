@@ -89,11 +89,11 @@ export class Field {
     });
 
     Object.defineProperty(this, '_data', { // current value
-      value: this._getDefaultValue(),
+      value: this.cast(this._getDefaultValue()),
       writable: true
     });
     Object.defineProperty(this, '_initialData', { // last commited value
-      value: this._getDefaultValue(),
+      value: this.cast(this._getDefaultValue()),
       writable: true
     });
     Object.defineProperty(this, '_validator', { // validatable.js instance
@@ -153,7 +153,7 @@ export class Field {
       data = get.call(this, data);
     }
 
-    return data;
+    return data; // do not cast value to preserve type instances
   }
 
   /**
@@ -169,9 +169,7 @@ export class Field {
       data = set.call(this, data);
     }
 
-    data = this.cast(data);
-
-    this._data = data;
+    this._data = this.cast(data); // cast only when setting value to preserve data instance
   }
 
   /**
@@ -187,8 +185,6 @@ export class Field {
     else if (!isUndefined(defaultValue)) {
       data = defaultValue;
     }
-
-    data = this.cast(data);
 
     return data;
   }
