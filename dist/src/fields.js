@@ -97,6 +97,10 @@ var Field = (function () {
             get: function () { return _this._getFakeValue(); },
             enumerable: true
         });
+        Object.defineProperty(this, 'nullValue', {
+            get: function () { return _this._getNullValue(); },
+            enumerable: true
+        });
         Object.defineProperty(this, 'initialValue', {
             get: function () { return _this._initialData; },
             enumerable: true
@@ -152,11 +156,22 @@ var Field = (function () {
         }
         return data;
     };
+    Field.prototype._getNullValue = function () {
+        var data = null;
+        var nullValue = this._recipe.nullValue;
+        if (typeable_1.isFunction(nullValue)) {
+            data = nullValue.call(this);
+        }
+        else if (!typeable_1.isUndefined(nullValue)) {
+            data = nullValue;
+        }
+        return data;
+    };
     Field.prototype.cast = function (data) {
         var _this = this;
         var converter = this.type;
         if (!typeable_1.isValue(data)) {
-            return null;
+            return this._getNullValue();
         }
         if (this.isNested()) {
             var Klass_1 = typeable_1.isArray(this.type) ? this.type[0] : this.type;

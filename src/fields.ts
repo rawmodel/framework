@@ -13,6 +13,7 @@ export interface FieldRecipe {
   set?: (v: any) => void;
   defaultValue?: any;
   fakeValue?: any;
+  nullValue?: any;
   validate?: ValidatorRecipe[];
   handle?: HandlerRecipe[];
   validators?: {[name: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>};
@@ -44,6 +45,7 @@ export class Field {
   protected _recipe: FieldRecipe;
   readonly defaultValue: any;
   readonly fakeValue: any;
+  readonly nullValue: any;
   readonly initialValue: any;
   readonly populatable: string[];
   readonly serializable: string[];
@@ -114,6 +116,10 @@ export class Field {
     });
     Object.defineProperty(this, 'fakeValue', {
       get: () => this._getFakeValue(),
+      enumerable: true
+    });
+    Object.defineProperty(this, 'nullValue', {
+      get: () => this._getNullValue(),
       enumerable: true
     });
     Object.defineProperty(this, 'initialValue', {
@@ -207,13 +213,30 @@ export class Field {
   }
 
   /**
-   * Converts a `value` into field's type.
+   * Returns the null value of a field.
+   */
+  protected _getNullValue() {
+    let data = null;
+
+    const { nullValue } = this._recipe;
+    if (isFunction(nullValue)) {
+      data = nullValue.call(this);
+    }
+    else if (!isUndefined(nullValue)) {
+      data = nullValue;
+    }
+
+    return data;
+  }
+
+  /**
+   * Converts a `data` into field's type.
    */
   public cast(data: any) {
     let converter = this.type;
 
     if (!isValue(data)) {
-      return null;
+      return this._getNullValue();
     }
 
     if (this.isNested()) {

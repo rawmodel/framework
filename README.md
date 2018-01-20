@@ -161,6 +161,17 @@ this.defineField('name', {
 });
 ```
 
+### Field Null Value
+
+By default all defined fields are set to `null`. Similar to default and fake value we can set a `nullValue` option for each field, to automatically replace `null` values.
+
+The `nullValue` can also be a method which returns a dynamic value. Note that this function shares the context of a field instance, thus you have access to all the features of the `Field` class.
+
+```js
+this.defineField('name', {
+  nullValue () { return '' }, // replace `null` value
+});
+```
 
 ### Field Value Transformation
 

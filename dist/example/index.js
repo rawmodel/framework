@@ -22,7 +22,7 @@ var Book = (function (_super) {
                 {
                     validator: 'presence',
                     message: 'must be present'
-                }
+                },
             ]
         });
         _this.populate(data);
@@ -42,7 +42,7 @@ var User = (function (_super) {
                 {
                     validator: 'presence',
                     message: 'must be present'
-                }
+                },
             ]
         });
         _this.defineField('book', {
@@ -54,6 +54,10 @@ var User = (function (_super) {
                 }
             ]
         });
+        _this.defineField('books', {
+            type: [Book],
+            nullValue: []
+        });
         _this.populate(data);
         _this.commit();
         return _this;
@@ -64,11 +68,11 @@ var user = new User({
     name: 'John Smith',
     book: {
         title: 'True Detective'
-    }
+    },
+    books: null
 });
 user.validate({ quiet: true }).then(function () {
-    process.stdout.write('user.name: ' + user.name + '\n');
-    process.stdout.write('user.book.title:' + user.book.title + '\n');
-    process.stdout.write('user.isValid():' + user.isValid() + '\n');
+    var data = user.serialize();
+    process.stdout.write(JSON.stringify(data, null, 2) + '\n');
 });
 //# sourceMappingURL=index.js.map

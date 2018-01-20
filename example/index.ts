@@ -15,9 +15,9 @@ class Book extends Model {
       validate: [
         {
           validator: 'presence',
-          message: 'must be present'
-        }
-      ]
+          message: 'must be present',
+        },
+      ],
     });
 
     this.populate(data);
@@ -32,6 +32,7 @@ class Book extends Model {
 class User extends Model {
   public name: string;
   public book: Book;
+  public books: [Book];
 
   public constructor (data = {}) {
     super(data);
@@ -41,18 +42,22 @@ class User extends Model {
       validate: [
         {
           validator: 'presence',
-          message: 'must be present'
-        }
-      ]
+          message: 'must be present',
+        },
+      ],
     });
     this.defineField('book', {
       type: Book,
       validate: [
         {
           validator: 'presence',
-          message: 'must be present'
+          message: 'must be present',
         }
-      ]
+      ],
+    });
+    this.defineField('books', {
+      type: [Book],
+      nullValue: [],
     });
 
     this.populate(data);
@@ -67,12 +72,12 @@ class User extends Model {
 const user = new User({
   name: 'John Smith',
   book: {
-    title: 'True Detective'
-  }
+    title: 'True Detective',
+  },
+  books: null,
 });
 
 user.validate({quiet: true}).then(() => {
-  process.stdout.write('user.name: ' + user.name + '\n');
-  process.stdout.write('user.book.title:' + user.book.title + '\n');
-  process.stdout.write('user.isValid():' + user.isValid() + '\n');
+  const data = user.serialize();
+  process.stdout.write(JSON.stringify(data, null, 2) + '\n');
 });

@@ -51,6 +51,17 @@ test('can have a fake value', (t) => {
   t.is(f2.fakeValue !== f2.fakeValue, true); // dynamic values
 });
 
+test('can have a null value', (t) => {
+  const f0 = new Field({ nullValue: 'foo' });
+  const f1 = new Field({ nullValue () { return this.constructor.name; } });
+  const f2 = new Field({ nullValue () { return Math.random(); } });
+  t.is(f0.value, 'foo'); // `null` is replaced
+  t.is(f1.value, 'Field'); // `null` is replaced
+  t.is(f0.nullValue, 'foo');
+  t.is(f1.nullValue, 'Field');
+  t.is(f2.nullValue !== f2.nullValue, true); // dynamic values
+});
+
 test('method `reset()` sets value to the default value', (t) => {
   const f0 = new Field();
   const f1 = new Field({ defaultValue: 'foo' });
@@ -79,14 +90,18 @@ test('method `fake()` sets value to the fake value', (t) => {
 });
 
 test('method `clear()` sets value to `null`', (t) => {
-  const f = new Field();
-  f.value = 'foo';
-  f.errors = [
-    {validator: 'foo', message: 'bar', code: 422}
+  const f0 = new Field();
+  const f1 = new Field({ nullValue: 'null' });
+  f0.value = 'foo';
+  f0.errors = [
+    { validator: 'foo', message: 'bar', code: 422 }
   ];
-  f.clear();
-  t.is(f.errors.length, 1);
-  t.is(f.value, null);
+  f0.clear();
+  f1.value = 'foo';
+  f1.clear();
+  t.is(f0.errors.length, 1);
+  t.is(f0.value, null);
+  t.is(f1.value, 'null');
 });
 
 test('methods `commit()` and `rollback()` manage committed value state', (t) => {
@@ -181,6 +196,7 @@ test('has enumeratable properties', (t) => {
     'value',
     'defaultValue',
     'fakeValue',
+    'nullValue',
     'initialValue',
   ]);
 });

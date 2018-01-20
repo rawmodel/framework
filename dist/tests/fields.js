@@ -91,6 +91,16 @@ ava_1["default"]('can have a fake value', function (t) {
     t.is(f1.fakeValue, 'Field');
     t.is(f2.fakeValue !== f2.fakeValue, true);
 });
+ava_1["default"]('can have a null value', function (t) {
+    var f0 = new src_1.Field({ nullValue: 'foo' });
+    var f1 = new src_1.Field({ nullValue: function () { return this.constructor.name; } });
+    var f2 = new src_1.Field({ nullValue: function () { return Math.random(); } });
+    t.is(f0.value, 'foo');
+    t.is(f1.value, 'Field');
+    t.is(f0.nullValue, 'foo');
+    t.is(f1.nullValue, 'Field');
+    t.is(f2.nullValue !== f2.nullValue, true);
+});
 ava_1["default"]('method `reset()` sets value to the default value', function (t) {
     var f0 = new src_1.Field();
     var f1 = new src_1.Field({ defaultValue: 'foo' });
@@ -117,14 +127,18 @@ ava_1["default"]('method `fake()` sets value to the fake value', function (t) {
     t.is(f2.value !== f1.value, true);
 });
 ava_1["default"]('method `clear()` sets value to `null`', function (t) {
-    var f = new src_1.Field();
-    f.value = 'foo';
-    f.errors = [
+    var f0 = new src_1.Field();
+    var f1 = new src_1.Field({ nullValue: 'null' });
+    f0.value = 'foo';
+    f0.errors = [
         { validator: 'foo', message: 'bar', code: 422 }
     ];
-    f.clear();
-    t.is(f.errors.length, 1);
-    t.is(f.value, null);
+    f0.clear();
+    f1.value = 'foo';
+    f1.clear();
+    t.is(f0.errors.length, 1);
+    t.is(f0.value, null);
+    t.is(f1.value, 'null');
 });
 ava_1["default"]('methods `commit()` and `rollback()` manage committed value state', function (t) {
     var f = new src_1.Field();
@@ -225,6 +239,7 @@ ava_1["default"]('has enumeratable properties', function (t) {
         'value',
         'defaultValue',
         'fakeValue',
+        'nullValue',
         'initialValue',
     ]);
 });

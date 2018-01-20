@@ -515,6 +515,7 @@ test('method `clear` sets fields to `null`', (t) => {
     constructor(data) {
       super(data);
       this.defineField('name', { defaultValue: 'bar' });
+      this.defineField('description', { nullValue: 'null' });
       this.defineField('book', { type: Book, defaultValue: {} });
       this.defineField('books', { type: [Book], defaultValue: [null, {}] });
       this.populate(data);
@@ -522,18 +523,20 @@ test('method `clear` sets fields to `null`', (t) => {
   }
   const user = new User({
     name: 'fake',
+    description: 'fake',
     book: {
-      title: 'fake'
+      title: 'fake',
     },
     books: [
       {
-        title: 'fake'
+        title: 'fake',
       }
     ]
   });
   user.clear();
   t.deepEqual(user.serialize(), {
     name: null,
+    description: 'null',
     book: null,
     books: null
   });

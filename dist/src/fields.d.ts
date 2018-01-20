@@ -7,6 +7,7 @@ export interface FieldRecipe {
     set?: (v: any) => void;
     defaultValue?: any;
     fakeValue?: any;
+    nullValue?: any;
     validate?: ValidatorRecipe[];
     handle?: HandlerRecipe[];
     validators?: {
@@ -34,6 +35,7 @@ export declare class Field {
     protected _recipe: FieldRecipe;
     readonly defaultValue: any;
     readonly fakeValue: any;
+    readonly nullValue: any;
     readonly initialValue: any;
     readonly populatable: string[];
     readonly serializable: string[];
@@ -49,6 +51,7 @@ export declare class Field {
     protected _setValue(data: any): void;
     protected _getDefaultValue(): any;
     protected _getFakeValue(): any;
+    protected _getNullValue(): any;
     cast(data: any): any;
     reset(): this;
     fake(): this;

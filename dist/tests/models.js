@@ -625,6 +625,7 @@ ava_1["default"]('method `clear` sets fields to `null`', function (t) {
         function User(data) {
             var _this = _super.call(this, data) || this;
             _this.defineField('name', { defaultValue: 'bar' });
+            _this.defineField('description', { nullValue: 'null' });
             _this.defineField('book', { type: Book, defaultValue: {} });
             _this.defineField('books', { type: [Book], defaultValue: [null, {}] });
             _this.populate(data);
@@ -634,6 +635,7 @@ ava_1["default"]('method `clear` sets fields to `null`', function (t) {
     }(src_1.Model));
     var user = new User({
         name: 'fake',
+        description: 'fake',
         book: {
             title: 'fake'
         },
@@ -646,6 +648,7 @@ ava_1["default"]('method `clear` sets fields to `null`', function (t) {
     user.clear();
     t.deepEqual(user.serialize(), {
         name: null,
+        description: 'null',
         book: null,
         books: null
     });
