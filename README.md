@@ -15,7 +15,7 @@
 
 > Strongly-typed JavaScript object with support for validation and error handling.
 
-This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It"s actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/xpepermint/rawmodeljs) where you can also find our [issue tracker](https://github.com/xpepermint/rawmodeljs/issues).
+This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/xpepermint/rawmodeljs) where you can also find our [issue tracker](https://github.com/xpepermint/rawmodeljs/issues).
 
 ## Related Projects
 
