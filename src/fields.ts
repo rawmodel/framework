@@ -262,7 +262,7 @@ export class Field {
    */
   public fake(): this {
 
-    if (this.fakeValue) {
+    if (this._recipe.fakeValue) {
       this.value = this.fakeValue;
     }
 

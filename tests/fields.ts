@@ -46,20 +46,24 @@ test('can have a fake value', (t) => {
   const f0 = new Field({ fakeValue: 'foo' });
   const f1 = new Field({ fakeValue () { return this.constructor.name; } });
   const f2 = new Field({ fakeValue () { return Math.random(); } });
+  const f3 = new Field({ type: 'Integer', fakeValue () { return 0; } });
   t.is(f0.fakeValue, 'foo');
   t.is(f1.fakeValue, 'Field');
   t.is(f2.fakeValue !== f2.fakeValue, true); // dynamic values
+  t.is(f3.fakeValue, 0);
 });
 
 test('can have a null value', (t) => {
   const f0 = new Field({ nullValue: 'foo' });
   const f1 = new Field({ nullValue () { return this.constructor.name; } });
   const f2 = new Field({ nullValue () { return Math.random(); } });
+  const f3 = new Field({ nullValue () { return 0; } });
   t.is(f0.value, 'foo'); // `null` is replaced
   t.is(f1.value, 'Field'); // `null` is replaced
   t.is(f0.nullValue, 'foo');
   t.is(f1.nullValue, 'Field');
   t.is(f2.nullValue !== f2.nullValue, true); // dynamic values
+  t.is(f3.nullValue, 0);
 });
 
 test('method `reset()` sets value to the default value', (t) => {
@@ -78,6 +82,7 @@ test('method `fake()` sets value to the fake value', (t) => {
   const f0 = new Field();
   const f1 = new Field({ fakeValue: 'foo' });
   const f2 = new Field({ fakeValue () { return Math.random(); } });
+  const f3 = new Field({ fakeValue () { return 0; } });
   f0.value = 'foo';
   f0.fake();
   t.is(f0.value, 'foo');
@@ -87,6 +92,9 @@ test('method `fake()` sets value to the fake value', (t) => {
   f2.value = 'foo';
   f2.fake();
   t.is(f2.value !== f1.value, true); // dynamic values
+  f3.value = 1;
+  f3.fake();
+  t.is(f3.value, 0);
 });
 
 test('method `clear()` sets value to `null`', (t) => {
