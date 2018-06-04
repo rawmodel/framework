@@ -1,5 +1,4 @@
-![Build Status](https://travis-ci.org/xpepermint/rawmodeljs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/rawmodel.svg)](https://badge.fury.io/js/rawmodel)&nbsp;[![Dependency Status](https://gemnasium.com/xpepermint/rawmodeljs.svg)](https://gemnasium.com/xpepermint/rawmodeljs)
-
+![Build Status](https://travis-ci.org/xpepermint/rawmodeljs.svg?branch=master)&nbsp;[![NPM Version](https://badge.fury.io/js/rawmodel.svg)](https://badge.fury.io/js/rawmodel)&nbsp;[![Dependencies Status](https://david-dm.org/xpepermint/rawmodeljs.svg)](https://david-dm.org/xpepermint/rawmodeljs)
 ```
 ┌────────────────────────────────────────────────────┐
 │    ____                __  __           _      _   │
