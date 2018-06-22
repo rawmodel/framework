@@ -14,7 +14,7 @@
 
 > Strongly-typed JavaScript object with support for validation and error handling.
 
-This is a light weight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/xpepermint/rawmodeljs) where you can also find our [issue tracker](https://github.com/xpepermint/rawmodeljs/issues).
+This is a lightweight open source package for the **server** and **browser** (using module bundler) written with  [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/xpepermint/rawmodeljs) where you can also find our [issue tracker](https://github.com/xpepermint/rawmodeljs/issues).
 
 ## Related Projects
 
@@ -162,7 +162,7 @@ this.defineField('name', {
 
 ### Field Null Value
 
-By default all defined fields are set to `null`. Similar to default and fake value we can set a `nullValue` option for each field, to automatically replace `null` values.
+By default, all defined fields are set to `null`. Similar to default and fake value we can set a `nullValue` option for each field, to automatically replace `null` values.
 
 The `nullValue` can also be a method which returns a dynamic value. Note that this function shares the context of a field instance, thus you have access to all the features of the `Field` class.
 
@@ -349,7 +349,7 @@ class User extends Model {
 
 ### Error Handling
 
-RawModel provides a mechanism for handling field-related errors. The logic is aligned with validation thus validation and error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in unified format.
+RawModel provides a mechanism for handling field-related errors. The logic is aligned with validation thus validation and error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in a unified format.
 
 ```js
 class User extends Model {
@@ -614,7 +614,7 @@ user.flatten(); // -> [{path: [...], field: ...}, ...]
 
 **Model.prototype.handle(error, { quiet }): Promise(Model)**
 
-> Tries to handle the `error` against each field handlers and populates model with possible errors.
+> Tries to handle the `error` against each field handlers and populates the model with possible errors.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -705,7 +705,7 @@ catch (e) {
 
 **Model.prototype.validate({ quiet })**: Promise(Model)
 
-> Validates model fields, populates model with possible errors and throws a validation error if not all fields are valid unless the `quiet` is set to `true`.
+> Validates model fields, populates the model with possible errors and throws a validation error if not all fields are valid unless the `quiet` is set to `true`.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -746,7 +746,7 @@ catch (e) {
 
 **Field.prototype.clear()**: Field
 
-> Sets field and related sub fields to `null`.
+> Sets field and related subfields to `null`.
 
 **Field.prototype.commit()**: Field
 
@@ -794,7 +794,7 @@ catch (e) {
 
 **Field.prototype.isChanged()**: Boolean
 
-> Returns `true` if the field or at least one sub field have been changed.
+> Returns `true` if the field or at least one subfield have been changed.
 
 **Field.prototype.isNested()**: Boolean
 
@@ -802,7 +802,7 @@ catch (e) {
 
 **Field.prototype.isValid()**: Boolean
 
-> Returns `true` if the field and all sub fields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
+> Returns `true` if the field and all subfields are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
 
 **Field.prototype.invalidate()**: Field
 
@@ -975,7 +975,7 @@ const recipe = {
 
 **stringHexadecimal**
 
-> Validates that the specified field is a hexadecimal number.
+> Validates that a specified field is a hexadecimal number.
 
 **stringInclusion**
 
