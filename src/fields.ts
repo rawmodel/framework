@@ -239,6 +239,13 @@ export class Field {
       return this._getNullValue();
     }
 
+    if (
+      (isArray(this.type) && isArray(data) && data[0] instanceof Model) ||
+      (data instanceof Model)
+    ) {
+      return data;
+    }
+
     if (this.isNested()) {
       const Klass = isArray(this.type) ? this.type[0] : this.type;
       const toModel = (d) => new Klass(merge({ parent: this.owner }, d)).populate(d);
