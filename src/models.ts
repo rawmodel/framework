@@ -203,23 +203,21 @@ export abstract class Model {
   }
 
   /**
-   * Returns field value instance.
-   */
-  public toValue(value, strategy?: string) {
-    if (value instanceof Model) {
-      const data = normalize(value);
-      return value.reset().populate(data, strategy);
-    } else if (isArray(value)) {
-      return value.map((v) => this.toValue(v, strategy));
-    } else {
-      return value;
-    }
-  }
-
-  /**
    * Deeply assignes data to model fields.
    */
   public populate(data = {}, strategy?: string): this {
+
+    function toValue(value) {
+      if (value instanceof Model) {
+        const data = normalize(value);
+        return value.reset().populate(data, strategy);
+      } else if (isArray(value)) {
+        return value.map((v) => toValue(v));
+      } else {
+        return value;
+      }
+    }
+
     Object.keys(data || {})
       .filter((n) => (
         !!this._fields[n]
@@ -233,7 +231,7 @@ export abstract class Model {
           && field.populatable.indexOf(strategy) !== -1
           || !isString(strategy)
         ) {
-          this[name] = this.toValue(value, strategy);
+          this[name] = toValue(value);
         }
       });
 
