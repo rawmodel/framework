@@ -3,5 +3,5 @@ import * as objectschema from '../src';
 
 test('exposed content', (t) => {
   t.is(!!objectschema.Model, true);
-  t.is(!!objectschema.Field, true);
+  t.is(!!objectschema.Prop, true);
 });

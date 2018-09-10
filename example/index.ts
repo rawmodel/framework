@@ -10,7 +10,7 @@ class Book extends Model {
   public constructor (data = {}) {
     super(data);
 
-    this.defineField('title', {
+    this.defineProp('title', {
       type: 'String',
       validate: [
         {
@@ -37,7 +37,7 @@ class User extends Model {
   public constructor (data = {}) {
     super(data);
 
-    this.defineField('name', {
+    this.defineProp('name', {
       type: 'String',
       validate: [
         {
@@ -46,7 +46,7 @@ class User extends Model {
         },
       ],
     });
-    this.defineField('book', {
+    this.defineProp('book', {
       type: Book,
       validate: [
         {
@@ -55,7 +55,7 @@ class User extends Model {
         }
       ],
     });
-    this.defineField('books', {
+    this.defineProp('books', {
       type: [Book],
       nullValue: [],
     });

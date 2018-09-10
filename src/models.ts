@@ -1,23 +1,23 @@
 import { isArray, isUndefined, isPresent, isString, toBoolean } from 'typeable';
 import { ValidatorRecipe } from 'validatable';
 import { HandlerRecipe } from 'handleable';
-import { Field, FieldRecipe, FieldError } from './fields';
+import { Prop, PropRecipe, PropError } from './props';
 import { normalize, isEqual, merge } from './utils';
 
 /**
- * Flattened field reference type definition.
+ * Flattened prop reference type definition.
  */
-export interface FieldRef {
+export interface PropRef {
   path: (string | number)[];
-  field: Field;
+  prop: Prop;
 }
 
 /**
- * Field error type definition.
+ * Prop error type definition.
  */
-export interface FieldErrorRef {
+export interface PropErrorRef {
   path: (string | number)[];
-  errors: FieldError[];
+  errors: PropError[];
 }
 
 /**
@@ -32,7 +32,7 @@ export interface ModelRecipe {
  * The core schema object class.
  */
 export abstract class Model {
-  protected _fields: { [name: string]: Field }; // model fields
+  protected _props: { [name: string]: Prop }; // model props
   protected _types: { [key: string]: (v?: any) => any }; // custom data types
   protected _validators: { [key: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean> }; // custom validators
   protected _handlers: { [key: string]: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean> }; // custom validators
@@ -56,7 +56,7 @@ export abstract class Model {
       get: () => this._getRootModel()
     });
 
-    Object.defineProperty(this, '_fields', {
+    Object.defineProperty(this, '_props', {
       value: {},
       writable: true
     });
@@ -94,22 +94,22 @@ export abstract class Model {
   }
 
   /**
-   * Returns the appropriate field type.
+   * Returns the appropriate prop type.
    */
-  protected _getFieldType(recipe: FieldRecipe = {}) {
+  protected _getPropType(recipe: PropRecipe = {}) {
     let type = isArray(recipe.type) ? recipe.type[0] : recipe.type;
     type = this._types[type] || type;
     return isArray(recipe.type) ? [type] : type;
   }
 
   /**
-   * Creates a new field instance. This method is especially useful when
+   * Creates a new prop instance. This method is especially useful when
    * extending this class.
    */
-  protected _createField(recipe: FieldRecipe = {}) {
-    return new Field(
+  protected _createProp(recipe: PropRecipe = {}) {
+    return new Prop(
       merge({}, recipe, {
-        type: this._getFieldType(recipe),
+        type: this._getPropType(recipe),
         owner: this,
         validators: this._validators,
         handlers: this._handlers,
@@ -121,8 +121,8 @@ export abstract class Model {
   /**
    * Creates a new validation error instance.
    */
-  protected _createValidationError(message = 'Validation failed', code = 422): FieldError {
-    const error: FieldError = new Error(message);
+  protected _createValidationError(message = 'Validation failed', code = 422): PropError {
+    const error: PropError = new Error(message);
     error.code = code;
 
     return error;
@@ -137,7 +137,7 @@ export abstract class Model {
   }
 
   /**
-   * Configures validator to stop validating field on the first error.
+   * Configures validator to stop validating prop on the first error.
    */
   public failFast(fail: boolean = true): void {
     this._failFast = toBoolean(fail);
@@ -146,17 +146,17 @@ export abstract class Model {
   /**
    * Defines a new model property.
    */
-  public defineField(name: string, recipe: FieldRecipe = {}): void {
-    const field = this._createField(recipe);
+  public defineProp(name: string, recipe: PropRecipe = {}): void {
+    const prop = this._createProp(recipe);
 
     Object.defineProperty(this, name, {
-      get: () => field.value,
-      set: (v) => field.value = v,
+      get: () => prop.value,
+      set: (v) => prop.value = v,
       enumerable: recipe.enumerable !== false,
       configurable: true
     });
 
-    this._fields[name] = field;
+    this._props[name] = prop;
   }
 
   /**
@@ -183,27 +183,27 @@ export abstract class Model {
   /**
    * Returns a value at path.
    */
-  public getField(...keys: any[]): Field {
+  public getProp(...keys: any[]): Prop {
     keys = [].concat(isArray(keys[0]) ? keys[0] : keys);
 
     const lastKey = keys.pop();
     if (keys.length === 0) {
-      return this._fields[lastKey];
+      return this._props[lastKey];
     }
 
-    const field = keys.reduce((a, c) => (a[c] || {}), this);
-    return field instanceof Model ? field.getField(lastKey) : undefined;
+    const prop = keys.reduce((a, c) => (a[c] || {}), this);
+    return prop instanceof Model ? prop.getProp(lastKey) : undefined;
   }
 
   /**
-   * Returns `true` if the field exists.
+   * Returns `true` if the prop exists.
    */
-  public hasField(...keys: any[]): boolean {
-    return !isUndefined(this.getField(...keys));
+  public hasProp(...keys: any[]): boolean {
+    return !isUndefined(this.getProp(...keys));
   }
 
   /**
-   * Returns field value instance.
+   * Returns prop value instance.
    */
   public toValue(value, strategy?: string) {
     if (value instanceof Model) {
@@ -217,20 +217,20 @@ export abstract class Model {
   }
 
   /**
-   * Deeply assignes data to model fields.
+   * Deeply assignes data to model props.
    */
   public populate(data = {}, strategy?: string): this {
     Object.keys(data || {})
       .filter((n) => (
-        !!this._fields[n]
+        !!this._props[n]
       ))
       .forEach((name) => {
-        const field = this._fields[name];
-        const value = field.cast(data[name]);
+        const prop = this._props[name];
+        const value = prop.cast(data[name]);
         if (
           isString(strategy)
-          && isArray(field.populatable)
-          && field.populatable.indexOf(strategy) !== -1
+          && isArray(prop.populatable)
+          && prop.populatable.indexOf(strategy) !== -1
           || !isString(strategy)
         ) {
           this[name] = this.toValue(value, strategy);
@@ -256,15 +256,15 @@ export abstract class Model {
       }
     }
 
-    Object.keys(this._fields).forEach((name) => {
-      const field = this._fields[name];
+    Object.keys(this._props).forEach((name) => {
+      const prop = this._props[name];
       if (
         isString(strategy)
-        && isArray(field.serializable)
-        && field.serializable.indexOf(strategy) !== -1
+        && isArray(prop.serializable)
+        && prop.serializable.indexOf(strategy) !== -1
         || !isString(strategy)
       ) {
-        data[name] = toObject(field.value);
+        data[name] = toObject(prop.value);
       }
     });
 
@@ -272,27 +272,27 @@ export abstract class Model {
   }
 
   /**
-   * Scrolls through the model and returns an array of fields.
+   * Scrolls through the model and returns an array of props.
    */
-  public flatten(prefix: string[] = []): FieldRef[] {
-    let fields = [];
+  public flatten(prefix: string[] = []): PropRef[] {
+    let props = [];
 
-    Object.keys(this._fields).forEach((name) => {
-      const field = this._fields[name];
-      const type = field.type;
+    Object.keys(this._props).forEach((name) => {
+      const prop = this._props[name];
+      const type = prop.type;
       const path = (prefix || []).concat(name);
-      const value = field.value;
+      const value = prop.value;
 
-      fields.push({path, field});
+      props.push({path, prop});
 
       if (isPresent(value) && isPresent(type)) {
         if (type.prototype instanceof Model) {
-          fields = fields.concat(
+          props = props.concat(
             value.flatten(path)
           );
         }
         else if (isArray(type) && type[0].prototype instanceof Model) {
-          fields = fields.concat(
+          props = props.concat(
             value
               .map((f, i) => (f && f instanceof Model ? f.flatten(path.concat([i])) : null))
               .filter((f) => isArray(f))
@@ -302,20 +302,20 @@ export abstract class Model {
       }
     });
 
-    return fields;
+    return props;
   }
 
   /**
-   * Scrolls through object fields and collects results.
+   * Scrolls through object props and collects results.
    */
-  public collect(handler: (field: FieldRef) => any): any[] {
+  public collect(handler: (prop: PropRef) => any): any[] {
     return this.flatten().map(handler);
   }
 
   /**
-   * Scrolls through model fields and executes a handler on each field.
+   * Scrolls through model props and executes a handler on each prop.
    */
-  public scroll(handler: (field: FieldRef) => void): number {
+  public scroll(handler: (prop: PropRef) => void): number {
     return this.flatten().map(handler).length;
   }
 
@@ -323,14 +323,14 @@ export abstract class Model {
    * Converts this class into serialized data object with only the keys that
    * pass the provided `test`.
    */
-  public filter(test: (field: FieldRef) => boolean): {[key: string]: any} {
+  public filter(test: (prop: PropRef) => boolean): {[key: string]: any} {
     const data = this.serialize();
 
     this.flatten()
       .sort((a, b) => b.path.length - a.path.length)
-      .filter((field) => !test(field))
-      .forEach((field) => {
-        const names = field.path.concat();
+      .filter((prop) => !test(prop))
+      .forEach((prop) => {
+        const names = prop.path.concat();
         const lastName = names.pop();
         delete names.reduce((o, k) => o[k], data)[lastName];
       });
@@ -339,21 +339,21 @@ export abstract class Model {
   }
 
   /**
-   * Sets each model field to its default value.
+   * Sets each model prop to its default value.
    */
   public reset(): this {
-    Object.keys(this._fields)
-      .forEach((name) => this._fields[name].reset());
+    Object.keys(this._props)
+      .forEach((name) => this._props[name].reset());
 
     return this;
   }
 
   /**
-   * Resets fields then sets fields to their fake values.
+   * Resets props then sets props to their fake values.
    */
   public fake(): this {
-    Object.keys(this._fields)
-      .forEach((name) => this._fields[name].fake());
+    Object.keys(this._props)
+      .forEach((name) => this._props[name].fake());
 
     return this;
   }
@@ -362,35 +362,35 @@ export abstract class Model {
    * Sets all fileds to `null`.
    */
   public clear(): this {
-    Object.keys(this._fields)
-      .forEach((name) => this._fields[name].clear());
+    Object.keys(this._props)
+      .forEach((name) => this._props[name].clear());
 
     return this;
   }
 
   /**
-   * Resets information about changed fields by setting initial value of each field.
+   * Resets information about changed props by setting initial value of each prop.
    */
   public commit(): this {
-    Object.keys(this._fields)
-      .forEach((name) => this._fields[name].commit());
+    Object.keys(this._props)
+      .forEach((name) => this._props[name].commit());
 
     return this;
   }
 
   /**
-   * Sets each field to its initial value (value before last commit).
+   * Sets each prop to its initial value (value before last commit).
    */
   public rollback(): this {
-    Object.keys(this._fields)
-      .forEach((name) => this._fields[name].rollback());
+    Object.keys(this._props)
+      .forEach((name) => this._props[name].rollback());
 
     return this;
   }
 
   /**
    * Returns `true` when the `value` represents an object with the
-   * same field values as the original model.
+   * same prop values as the original model.
    */
   public equals(value: any): boolean {
     return isEqual(
@@ -400,34 +400,34 @@ export abstract class Model {
   }
 
   /**
-   * Returns `true` if at least one field has been changed.
+   * Returns `true` if at least one prop has been changed.
    */
   public isChanged(): boolean {
-    return Object.keys(this._fields)
-      .some((name) => this._fields[name].isChanged());
+    return Object.keys(this._props)
+      .some((name) => this._props[name].isChanged());
   }
 
   /**
-   * Returns `true` if nested fields exist.
+   * Returns `true` if nested props exist.
    */
   public isNested(): boolean {
-    return Object.keys(this._fields)
-      .some((name) => this._fields[name].isNested());
+    return Object.keys(this._props)
+      .some((name) => this._props[name].isNested());
   }
 
   /**
-   * Validates fields and throws an error.
+   * Validates props and throws an error.
    */
   public async validate({
     quiet = false
   }: {
     quiet?: boolean
   } = {}): Promise<this> {
-    const fields = this._fields;
+    const props = this._props;
 
     await Promise.all(
-      Object.keys(fields)
-        .map((n) => fields[n].validate())
+      Object.keys(props)
+        .map((n) => props[n].validate())
     );
 
     if (!quiet && this.hasErrors()) {
@@ -447,10 +447,10 @@ export abstract class Model {
     if (!error) return this; // blank values are valid
     if (error.code === 422) return this; // validation errors are ignored
 
-    const fields = this._fields;
+    const props = this._props;
     await Promise.all(
-      Object.keys(fields)
-        .map((n) => fields[n].handle(error))
+      Object.keys(props)
+        .map((n) => props[n].handle(error))
     );
 
     if (!quiet && this.hasErrors()) {
@@ -463,22 +463,22 @@ export abstract class Model {
   }
 
   /**
-   * Returns a list of all fields with errors.
+   * Returns a list of all props with errors.
    */
-  public collectErrors(): FieldErrorRef[] {
+  public collectErrors(): PropErrorRef[] {
     return this.flatten()
-      .map(({path, field}) => ({path, errors: field.errors} as FieldErrorRef))
+      .map(({path, prop}) => ({path, errors: prop.errors} as PropErrorRef))
       .filter(({path, errors}) => errors.length > 0);
   }
 
   /**
-   * Sets fields errors.
+   * Sets props errors.
    */
-  public applyErrors(errors: FieldErrorRef[] = []): this {
+  public applyErrors(errors: PropErrorRef[] = []): this {
     errors.forEach((error) => {
-      const field = this.getField(...error.path);
-      if (field) {
-        field.errors = error.errors;
+      const prop = this.getProp(...error.path);
+      if (prop) {
+        prop.errors = error.errors;
       }
     });
 
@@ -489,8 +489,8 @@ export abstract class Model {
    * Returns `true` when errors exist (inverse of `isValid`).
    */
   public hasErrors(): boolean {
-    return Object.keys(this._fields)
-      .some((name) => this._fields[name].hasErrors());
+    return Object.keys(this._props)
+      .some((name) => this._props[name].hasErrors());
   }
 
   /**
@@ -501,11 +501,11 @@ export abstract class Model {
   }
 
   /**
-   * Removes fields errors.
+   * Removes props errors.
    */
   public invalidate(): this {
-    Object.keys(this._fields)
-      .forEach((name) => this._fields[name].invalidate());
+    Object.keys(this._props)
+      .forEach((name) => this._props[name].invalidate());
 
     return this;
   }

@@ -24,15 +24,15 @@ export class Post extends Model {
   constructor(data?: any) {
     super(data);
     this.defineObjectIdType();
-    this.defineIdFields();
-    this.defineDeletedAtField();
-    this.defineCourseIdField();
-    this.defineUserIdField();
-    this.definePostIdField();
-    this.defineMessageField();
-    this.defineCreatedAtField();
-    this.defineAuthorField();
-    this.defineAnswersField();
+    this.defineIdProps();
+    this.defineDeletedAtProp();
+    this.defineCourseIdProp();
+    this.defineUserIdProp();
+    this.definePostIdProp();
+    this.defineMessageProp();
+    this.defineCreatedAtProp();
+    this.defineAuthorProp();
+    this.defineAnswersProp();
     this.populate(data);
   }
 
@@ -46,13 +46,13 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `_id` and `id` fields.
+   * Defines the `_id` and `id` props.
    */
-  protected defineIdFields() {
-    this.defineField('_id', {
+  protected defineIdProps() {
+    this.defineProp('_id', {
       type: 'ObjectId',
     });
-    this.defineField('id', {
+    this.defineProp('id', {
       type        : 'ObjectId',
       serializable: ['out-admin', 'out-profile'],
       get         : () => this._id,
@@ -61,20 +61,20 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `_deletedAt` field.
+   * Defines the `_deletedAt` prop.
    */
-  protected defineDeletedAtField() {
-    this.defineField('_deletedAt', {
+  protected defineDeletedAtProp() {
+    this.defineProp('_deletedAt', {
       type        : 'Date',
       serializable: ['in-db'],
     });
   }
 
   /**
-   * Defines the `courseId` field.
+   * Defines the `courseId` prop.
    */
-  protected defineCourseIdField() {
-    this.defineField('courseId', {
+  protected defineCourseIdProp() {
+    this.defineProp('courseId', {
       type        : 'ObjectId',
       serializable: ['in-db', 'out-admin', 'out-profile'],
       validate    : [
@@ -88,10 +88,10 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `userId` field.
+   * Defines the `userId` prop.
    */
-  protected defineUserIdField() {
-    this.defineField('userId', {
+  protected defineUserIdProp() {
+    this.defineProp('userId', {
       type        : 'ObjectId',
       serializable: ['in-db', 'out-admin', 'out-profile'],
       validate    : [
@@ -105,10 +105,10 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `postId` field.
+   * Defines the `postId` prop.
    */
-  protected definePostIdField() {
-    this.defineField('postId', {
+  protected definePostIdProp() {
+    this.defineProp('postId', {
       type        : 'ObjectId',
       populatable : ['in-admin'],
       serializable: ['in-db', 'out-admin', 'out-profile'],
@@ -123,10 +123,10 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `message` field.
+   * Defines the `message` prop.
    */
-  protected defineMessageField() {
-    this.defineField('message', {
+  protected defineMessageProp() {
+    this.defineProp('message', {
       type        : 'String',
       populatable : ['in-admin', 'in-profile'],
       serializable: ['in-db', 'out-admin', 'out-profile'],
@@ -140,10 +140,10 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `createdAt` field.
+   * Defines the `createdAt` prop.
    */
-  protected defineCreatedAtField() {
-    this.defineField('createdAt', {
+  protected defineCreatedAtProp() {
+    this.defineProp('createdAt', {
       type        : 'Date',
       serializable: ['in-db', 'out-admin', 'out-profile'],
       defaultValue: () => new Date(),
@@ -151,20 +151,20 @@ export class Post extends Model {
   }
 
   /**
-   * Defines the `author` field.
+   * Defines the `author` prop.
    */
-  protected defineAuthorField() {
-    this.defineField('author', {
+  protected defineAuthorProp() {
+    this.defineProp('author', {
       type        : Author,
       serializable: ['out-admin', 'out-profile'],
     });
   }
 
   /**
-   * Defines the `answers` field.
+   * Defines the `answers` prop.
    */
-  protected defineAnswersField() {
-    this.defineField('answers', {
+  protected defineAnswersProp() {
+    this.defineProp('answers', {
       type        : [Post],
       serializable: ['out-admin', 'out-profile'],
       defaultValue: []
@@ -187,37 +187,37 @@ export class Author extends Model {
    */
   constructor(data?: any) {
     super(data);
-    this.defineFirstNameFields();
-    this.defineLastNameField();
-    this.defineRoleField();
+    this.defineFirstNameProps();
+    this.defineLastNameProp();
+    this.defineRoleProp();
     this.populate(data);
   }
 
   /**
-   * Defines the `firstName` field.
+   * Defines the `firstName` prop.
    */
-  protected defineFirstNameFields() {
-    this.defineField('firstName', {
+  protected defineFirstNameProps() {
+    this.defineProp('firstName', {
       type        : 'String',
       serializable: ['out-admin', 'out-profile'],
     });
   }
 
   /**
-   * Defines the `lastName` field.
+   * Defines the `lastName` prop.
    */
-  protected defineLastNameField() {
-    this.defineField('lastName', {
+  protected defineLastNameProp() {
+    this.defineProp('lastName', {
       type        : 'String',
       serializable: ['out-admin', 'out-profile'],
     });
   }
 
   /**
-   * Defines the `role` field.
+   * Defines the `role` prop.
    */
-  protected defineRoleField() {
-    this.defineField('role', {
+  protected defineRoleProp() {
+    this.defineProp('role', {
       type        : 'Integer',
       serializable: ['out-admin', 'out-profile'],
       defaultValue: false,

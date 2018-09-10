@@ -1,13 +1,13 @@
 import test from 'ava';
 import { ObjectId } from 'mongodb';
-import { Model, Field } from '../src';
+import { Model, Prop } from '../src';
 
-test('method `defineField` initializes nullified enumerable property', (t) => {
+test('method `defineProp` initializes nullified enumerable property', (t) => {
   const user = new class User extends Model {
     name: string;
     constructor() {
       super();
-      this.defineField('name');
+      this.defineProp('name');
     }
   };
   const descriptor = Object.getOwnPropertyDescriptor(user, 'name');
@@ -25,8 +25,8 @@ test('method `defineType` defines a custom data type', (t) => {
     constructor() {
       super();
       this.defineType('cool', (v) => `${v}-cool`);
-      this.defineField('name0', { type: 'cool' });
-      this.defineField('name1', { type: ['cool'] });
+      this.defineProp('name0', { type: 'cool' });
+      this.defineProp('name1', { type: ['cool'] });
     }
   };
   user.name0 = 'foo';
@@ -42,9 +42,9 @@ test('method `populate` deeply assignes data', (t) => {
     description: string;
     constructor(data = {}) {
       super(data);
-      this.defineField('id', { type: 'Integer', populatable: ['output'] });
-      this.defineField('title', { type: 'String'});
-      this.defineField('description', { type: 'String', populatable: ['input'] });
+      this.defineProp('id', { type: 'Integer', populatable: ['output'] });
+      this.defineProp('title', { type: 'String'});
+      this.defineProp('description', { type: 'String', populatable: ['input'] });
     }
   }
   class User extends Model {
@@ -56,12 +56,12 @@ test('method `populate` deeply assignes data', (t) => {
     books: Book[];
     constructor(data = {}) {
       super(data);
-      this.defineField('id', { type: 'Integer', populatable: ['output'] });
-      this.defineField('name', { type: 'String'});
-      this.defineField('email', { type: 'String', populatable: ['input'] });
-      this.defineField('book0', { type: Book, populatable: ['output'] });
-      this.defineField('book1', { type: Book});
-      this.defineField('books', { type: [Book], populatable: ['input'] });
+      this.defineProp('id', { type: 'Integer', populatable: ['output'] });
+      this.defineProp('name', { type: 'String'});
+      this.defineProp('email', { type: 'String', populatable: ['input'] });
+      this.defineProp('book0', { type: Book, populatable: ['output'] });
+      this.defineProp('book1', { type: Book});
+      this.defineProp('books', { type: [Book], populatable: ['input'] });
       this.populate(data);
     }
   }
@@ -126,7 +126,7 @@ test('property `parent` holds an instance of a parent model', (t) => {
     title: string;
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
+      this.defineProp('title', { type: 'String' });
     }
   }
   class User extends Model {
@@ -135,9 +135,9 @@ test('property `parent` holds an instance of a parent model', (t) => {
     books: Book[];
     constructor(data) {
       super(data);
-      this.defineField('name', { type: 'String' });
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name', { type: 'String' });
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -163,14 +163,14 @@ test('property `root` return the first model in a tree of nested models', (t) =>
     title: string;
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     book: Book;
     constructor(data) {
       super(data);
-      this.defineField('book', { type: Book });
+      this.defineProp('book', { type: Book });
       this.populate(data);
     }
   }
@@ -183,19 +183,19 @@ test('property `root` return the first model in a tree of nested models', (t) =>
   t.is(user.book.root, user);
 });
 
-test('method `getField` returns an instance of a field at path', (t) => {
+test('method `getProp` returns an instance of a prop at path', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
+      this.defineProp('title', { type: 'String' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { type: 'String' });
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name', { type: 'String' });
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -211,45 +211,45 @@ test('method `getField` returns an instance of a field at path', (t) => {
       }
     ]
   });
-  t.is(user.getField(['name']).value, 'foo');
-  t.is(user.getField('name').value, 'foo');
-  t.is(user.getField(['book', 'title']).value, 'bar');
-  t.is(user.getField('book', 'title').value, 'bar');
-  t.is(user.getField(['books', 1, 'title']).value, 'baz');
-  t.is(user.getField('books', 1, 'title').value, 'baz');
-  t.is(user.getField(['fake']), undefined);
-  t.is(user.getField(['fake', 10, 'title']), undefined);
-  t.is(user.getField(), undefined);
+  t.is(user.getProp(['name']).value, 'foo');
+  t.is(user.getProp('name').value, 'foo');
+  t.is(user.getProp(['book', 'title']).value, 'bar');
+  t.is(user.getProp('book', 'title').value, 'bar');
+  t.is(user.getProp(['books', 1, 'title']).value, 'baz');
+  t.is(user.getProp('books', 1, 'title').value, 'baz');
+  t.is(user.getProp(['fake']), undefined);
+  t.is(user.getProp(['fake', 10, 'title']), undefined);
+  t.is(user.getProp(), undefined);
 });
 
-test('method `hasField` returns `true` if the field exists', (t) => {
+test('method `hasProp` returns `true` if the prop exists', (t) => {
   class User extends Model {
     constructor(data = {}) {
       super(data);
-      this.defineField('name', { type: 'String' });
+      this.defineProp('name', { type: 'String' });
     }
   }
   const user = new User();
-  t.is(user.hasField(['name']), true);
-  t.is(user.hasField(['book', 'title']), false);
+  t.is(user.hasProp(['name']), true);
+  t.is(user.hasProp(['book', 'title']), false);
 });
 
 test('method `serialize` converts model into a serialized data object', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
-      this.defineField('description', { serializable: ['output'] }); // only for these strategies
+      this.defineProp('title', { type: 'String' });
+      this.defineProp('description', { serializable: ['output'] }); // only for these strategies
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('id', { type: (v) => new Object(v), serializable: [] }); // never
-      this.defineField('name', { type: 'String', serializable: null });
-      this.defineField('description', { serializable: ['input', 'output'] }); // only for these strategies
-      this.defineField('book', { type: Book, serializable: ['output'] });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('id', { type: (v) => new Object(v), serializable: [] }); // never
+      this.defineProp('name', { type: 'String', serializable: null });
+      this.defineProp('description', { serializable: ['input', 'output'] }); // only for these strategies
+      this.defineProp('book', { type: Book, serializable: ['output'] });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -294,19 +294,19 @@ test('method `serialize` converts model into a serialized data object', (t) => {
   });
 });
 
-test('method `flatten` returns an array of fields', async (t) => {
+test('method `flatten` returns an array of props', async (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
+      this.defineProp('title', { type: 'String' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { type: 'String' });
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name', { type: 'String' });
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -329,23 +329,23 @@ test('method `flatten` returns an array of fields', async (t) => {
     ['books'],
     ['books', 1, 'title']
   ]);
-  t.deepEqual(Object.keys(user.flatten()[0]), ['path', 'field']);
+  t.deepEqual(Object.keys(user.flatten()[0]), ['path', 'prop']);
   t.deepEqual(user.flatten()[0].path, ['name']);
-  t.is(user.flatten()[0].field.value, 'foo');
+  t.is(user.flatten()[0].prop.value, 'foo');
 });
 
 test('method `collect` returns an array of results', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
+      this.defineProp('title', { type: 'String' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { type: 'String' });
-      this.defineField('book', { type: Book });
+      this.defineProp('name', { type: 'String' });
+      this.defineProp('book', { type: Book });
       this.populate(data);
     }
   }
@@ -363,18 +363,18 @@ test('method `collect` returns an array of results', (t) => {
   ]);
 });
 
-test('method `scroll` runs the provided handler on each field', (t) => {
+test('method `scroll` runs the provided handler on each prop', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
+      this.defineProp('title', { type: 'String' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { type: 'String' });
-      this.defineField('book', { type: Book });
+      this.defineProp('name', { type: 'String' });
+      this.defineProp('book', { type: Book });
       this.populate(data);
     }
   }
@@ -392,15 +392,15 @@ test('method `filter` converts a model into serialized object with only keys tha
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { type: 'String' });
+      this.defineProp('title', { type: 'String' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { type: 'String' });
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name', { type: 'String' });
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -416,7 +416,7 @@ test('method `filter` converts a model into serialized object with only keys tha
       }
     ]
   });
-  const result = user.filter(({ path, field }) => field.value !== 'foo');
+  const result = user.filter(({ path, prop }) => prop.value !== 'foo');
   t.deepEqual(result as any, {
     book: {
       title: 'bar',
@@ -430,19 +430,19 @@ test('method `filter` converts a model into serialized object with only keys tha
   });
 });
 
-test('method `reset` sets fields to their default values', (t) => {
+test('method `reset` sets props to their default values', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { defaultValue: 'foo' });
+      this.defineProp('title', { defaultValue: 'foo' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { defaultValue: 'bar' });
-      this.defineField('book', { type: Book, defaultValue: {} });
-      this.defineField('books', { type: [Book], defaultValue: [null, {}] });
+      this.defineProp('name', { defaultValue: 'bar' });
+      this.defineProp('book', { type: Book, defaultValue: {} });
+      this.defineProp('books', { type: [Book], defaultValue: [null, {}] });
       this.populate(data);
     }
   }
@@ -472,19 +472,19 @@ test('method `reset` sets fields to their default values', (t) => {
   });
 });
 
-test('method `fake` sets fields to their fake values', (t) => {
+test('method `fake` sets props to their fake values', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { fakeValue: 'foo' });
+      this.defineProp('title', { fakeValue: 'foo' });
     }
   }
   class User extends Model {
     constructor(data = {}) {
       super();
-      this.defineField('name', { fakeValue: 'bar' });
-      this.defineField('book', { type: Book, defaultValue: {} });
-      this.defineField('books', { type: [Book], defaultValue: [null, {}] });
+      this.defineProp('name', { fakeValue: 'bar' });
+      this.defineProp('book', { type: Book, defaultValue: {} });
+      this.defineProp('books', { type: [Book], defaultValue: [null, {}] });
       this.populate(data);
     }
   }
@@ -504,20 +504,20 @@ test('method `fake` sets fields to their fake values', (t) => {
   });
 });
 
-test('method `clear` sets fields to `null`', (t) => {
+test('method `clear` sets props to `null`', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { defaultValue: 'foo' });
+      this.defineProp('title', { defaultValue: 'foo' });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { defaultValue: 'bar' });
-      this.defineField('description', { nullValue: 'null' });
-      this.defineField('book', { type: Book, defaultValue: {} });
-      this.defineField('books', { type: [Book], defaultValue: [null, {}] });
+      this.defineProp('name', { defaultValue: 'bar' });
+      this.defineProp('description', { nullValue: 'null' });
+      this.defineProp('book', { type: Book, defaultValue: {} });
+      this.defineProp('books', { type: [Book], defaultValue: [null, {}] });
       this.populate(data);
     }
   }
@@ -546,15 +546,15 @@ test('methods `commit()` and `rollback()` manage committed states', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -570,9 +570,9 @@ test('methods `commit()` and `rollback()` manage committed states', (t) => {
     ]
   });
   user.commit();
-  t.is(user.getField('name').initialValue, 'foo');
-  t.is(user.getField('book', 'title').initialValue, 'bar');
-  t.is(user.getField('books', 0, 'title').initialValue, 'baz');
+  t.is(user.getProp('name').initialValue, 'foo');
+  t.is(user.getProp('book', 'title').initialValue, 'bar');
+  t.is(user.getProp('books', 0, 'title').initialValue, 'baz');
   user.populate({
     name: 'foo-new',
     book: {
@@ -585,24 +585,24 @@ test('methods `commit()` and `rollback()` manage committed states', (t) => {
     ],
   });
   user.rollback();
-  t.is(user.getField('name').value, 'foo');
-  t.is(user.getField('book', 'title').value, 'bar');
-  t.is(user.getField('books', 0, 'title').value, 'baz');
+  t.is(user.getProp('name').value, 'foo');
+  t.is(user.getProp('book', 'title').value, 'bar');
+  t.is(user.getProp('books', 0, 'title').value, 'baz');
 });
 
 test('method `equals` returns `true` when the passing object looks the same', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -621,12 +621,12 @@ test('method `equals` returns `true` when the passing object looks the same', (t
   t.is(new User(data).equals(new User(data)), true);
 });
 
-test('method `isChanged` returns `true` if at least one field has been changed', (t) => {
+test('method `isChanged` returns `true` if at least one prop has been changed', (t) => {
   class Book extends Model {
     title: string;
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
@@ -635,9 +635,9 @@ test('method `isChanged` returns `true` if at least one field has been changed',
     books: Book[];
     constructor(data) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
       this.commit();
     }
@@ -669,18 +669,18 @@ test('method `isChanged` returns `true` if at least one field has been changed',
   t.is(user3.isChanged(), true);
 });
 
-test('method `isNested` returns `true` if nested fields exist', (t) => {
+test('method `isNested` returns `true` if nested props exist', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data = {}) {
       super();
-      this.defineField('name');
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -688,19 +688,19 @@ test('method `isNested` returns `true` if nested fields exist', (t) => {
   t.is(user.isNested(), true);
 });
 
-test('method `collectErrors` returns an array of field errors', (t) => {
+test('method `collectErrors` returns an array of prop errors', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -708,9 +708,9 @@ test('method `collectErrors` returns an array of field errors', (t) => {
     book: {},
     books: [{}]
   });
-  user.getField('name').errors = [{ message: 'foo' }];
-  user.getField('book', 'title').errors = [{ message: 'bar' }];
-  user.getField('books', 0, 'title').errors = [{ message: 'baz' }];
+  user.getProp('name').errors = [{ message: 'foo' }];
+  user.getProp('book', 'title').errors = [{ message: 'bar' }];
+  user.getProp('books', 0, 'title').errors = [{ message: 'baz' }];
   t.deepEqual(user.collectErrors(), [
     { path: ['name'], errors: [{ message: 'foo' }] },
     { path: ['book', 'title'], errors: [{ message: 'bar' }] },
@@ -718,19 +718,19 @@ test('method `collectErrors` returns an array of field errors', (t) => {
   ]);
 });
 
-test('method `applyErrors` sets fields errors', (t) => {
+test('method `applyErrors` sets props errors', (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -744,24 +744,24 @@ test('method `applyErrors` sets fields errors', (t) => {
     { path: ['book', 'title'], errors: [{ message: 'bar' }] },
     { path: ['books', 1, 'title'], errors: [{ message: 'baz' }] },
   ]);
-  t.deepEqual(user.getField('name').errors, [{ message: 'foo' }]);
-  t.deepEqual(user.getField('book', 'title').errors, [{ message: 'bar' }]);
-  t.deepEqual(user.getField('books', 1, 'title').errors, [{ message: 'baz' }]);
+  t.deepEqual(user.getProp('name').errors, [{ message: 'foo' }]);
+  t.deepEqual(user.getProp('book', 'title').errors, [{ message: 'bar' }]);
+  t.deepEqual(user.getProp('books', 1, 'title').errors, [{ message: 'baz' }]);
 });
 
 test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data?) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -781,7 +781,7 @@ test('methods `isValid` and `hasErrors` tell if errors exist', async (t) => {
   t.is(user0.isValid(), false);
 });
 
-test('method `validate` validates fields and throws an error', async (t) => {
+test('method `validate` validates props and throws an error', async (t) => {
   const validate = [
     { validator: 'presence', message: 'foo' },
     { validator: 'presence', code: 999 },
@@ -789,17 +789,17 @@ test('method `validate` validates fields and throws an error', async (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { validate });
+      this.defineProp('title', { validate });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { validate });
-      this.defineField('book0', { type: Book, validate });
-      this.defineField('books0', { type: [Book], validate });
-      this.defineField('book1', { type: Book, validate });
-      this.defineField('books1', { type: [Book], validate });
+      this.defineProp('name', { validate });
+      this.defineProp('book0', { type: Book, validate });
+      this.defineProp('books0', { type: [Book], validate });
+      this.defineProp('book1', { type: Book, validate });
+      this.defineProp('books1', { type: [Book], validate });
       this.populate(data);
     }
   }
@@ -822,7 +822,7 @@ test('method `validate` validates fields and throws an error', async (t) => {
   ]);
 });
 
-test('method `defineValidator` defines a custom field validator', async (t) => {
+test('method `defineValidator` defines a custom prop validator', async (t) => {
   const validator = function (v) {
     return this.value === 'cool' && v === 'cool';
   };
@@ -834,15 +834,15 @@ test('method `defineValidator` defines a custom field validator', async (t) => {
     constructor(data) {
       super(data);
       this.defineValidator('coolness', validator);
-      this.defineField('title', { validate });
+      this.defineProp('title', { validate });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
       this.defineValidator('coolness', validator);
-      this.defineField('name', { validate });
-      this.defineField('book', { type: Book, validate });
+      this.defineProp('name', { validate });
+      this.defineProp('book', { type: Book, validate });
       this.populate(data);
     }
   }
@@ -858,7 +858,7 @@ test('method `defineValidator` defines a custom field validator', async (t) => {
   ]);
 });
 
-test('method `failFast` configures validator to stop validating field on the first error', async (t) => {
+test('method `failFast` configures validator to stop validating prop on the first error', async (t) => {
   const validate = [
     { validator: 'presence', message: 'foo' },
     { validator: 'presence', message: 'foo' },
@@ -867,15 +867,15 @@ test('method `failFast` configures validator to stop validating field on the fir
     constructor(data) {
       super(data);
       this.failFast();
-      this.defineField('title', { validate });
+      this.defineProp('title', { validate });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
       this.failFast();
-      this.defineField('name', { validate });
-      this.defineField('book', { type: Book });
+      this.defineProp('name', { validate });
+      this.defineProp('book', { type: Book });
       this.populate(data);
     }
   }
@@ -884,23 +884,23 @@ test('method `failFast` configures validator to stop validating field on the fir
   });
   const errors = [{ validator: 'presence', message: 'foo', code: 422 }];
   await user.validate({ quiet: true });
-  t.is(user.getField('name').errors.length, 1);
-  t.is(user.getField('book', 'title').errors.length, 1);
+  t.is(user.getProp('name').errors.length, 1);
+  t.is(user.getProp('book', 'title').errors.length, 1);
 });
 
-test('method `invalidate` clears fields errors', async (t) => {
+test('method `invalidate` clears props errors', async (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -914,9 +914,9 @@ test('method `invalidate` clears fields errors', async (t) => {
     { path: ['books', 1, 'title'], errors: [{ message: 'baz'}] },
   ]);
   user.invalidate();
-  t.deepEqual(user.getField('name').errors, []);
-  t.deepEqual(user.getField('book', 'title').errors, []);
-  t.deepEqual(user.getField('books', 1, 'title').errors, []);
+  t.deepEqual(user.getProp('name').errors, []);
+  t.deepEqual(user.getProp('book', 'title').errors, []);
+  t.deepEqual(user.getProp('books', 1, 'title').errors, []);
 });
 
 test('method `clone` returns an exact copy of the original', (t) => {
@@ -924,7 +924,7 @@ test('method `clone` returns an exact copy of the original', (t) => {
     title: string;
     constructor(data?) {
       super(data);
-      this.defineField('title');
+      this.defineProp('title');
       this.commit();
     }
   }
@@ -934,9 +934,9 @@ test('method `clone` returns an exact copy of the original', (t) => {
     books: Book[];
     constructor(data?) {
       super(data);
-      this.defineField('name');
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name');
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
       this.commit();
     }
@@ -965,7 +965,7 @@ test('method `clone` returns an exact copy of the original', (t) => {
   t.is(clone1.book.title, 'foo');
 });
 
-test('method `handle` handles field-related errors', async (t) => {
+test('method `handle` handles prop-related errors', async (t) => {
   const handle = [{
     handler: 'block',
     message: '%{foo}',
@@ -975,25 +975,25 @@ test('method `handle` handles field-related errors', async (t) => {
   class Book extends Model {
     constructor(data) {
       super(data);
-      this.defineField('title', { handle });
+      this.defineProp('title', { handle });
     }
   }
   class Country extends Model {
     constructor(data) {
       super(data);
-      this.defineField('code'); // this field is nested and without handler
+      this.defineProp('code'); // this prop is nested and without handler
       this.populate(data);
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
-      this.defineField('name', { handle });
-      this.defineField('book0', { type: Book, handle });
-      this.defineField('books0', { type: [Book], handle });
-      this.defineField('book1', { type: Book });
-      this.defineField('books1', { type: [Book] });
-      this.defineField('country', { type: [Country] });
+      this.defineProp('name', { handle });
+      this.defineProp('book0', { type: Book, handle });
+      this.defineProp('books0', { type: [Book], handle });
+      this.defineProp('book1', { type: Book });
+      this.defineProp('books1', { type: [Book] });
+      this.defineProp('country', { type: [Country] });
       this.populate(data);
     }
   }
@@ -1018,7 +1018,7 @@ test('method `handle` handles field-related errors', async (t) => {
   ]);
 });
 
-test('method `defineHandler` defines a custom field handler', async (t) => {
+test('method `defineHandler` defines a custom prop handler', async (t) => {
   const handler = function (e) {
     return e.message === 'cool';
   };
@@ -1031,16 +1031,16 @@ test('method `defineHandler` defines a custom field handler', async (t) => {
     constructor(data) {
       super(data);
       this.defineHandler('coolness', handler);
-      this.defineField('title', { handle });
+      this.defineProp('title', { handle });
     }
   }
   class User extends Model {
     constructor(data) {
       super(data);
       this.defineHandler('coolness', handler);
-      this.defineField('name', { handle });
-      this.defineField('book', { type: Book });
-      this.defineField('books', { type: [Book] });
+      this.defineProp('name', { handle });
+      this.defineProp('book', { type: Book });
+      this.defineProp('books', { type: [Book] });
       this.populate(data);
     }
   }
@@ -1058,19 +1058,19 @@ test('method `defineHandler` defines a custom field handler', async (t) => {
   ]);
 });
 
-test('property `enumerable` handles field visibility', (t) => {
+test('property `enumerable` handles prop visibility', (t) => {
   class User0 extends Model {
     name: string;
     constructor(data) {
       super(data);
-      this.defineField('name', { enumerable: true });
+      this.defineProp('name', { enumerable: true });
     }
   }
   class User1 extends Model {
     name: string;
     constructor(data) {
       super(data);
-      this.defineField('name', { enumerable: false });
+      this.defineProp('name', { enumerable: false });
     }
   }
   const user0 = new User0({});

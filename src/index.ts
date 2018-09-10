@@ -1,3 +1,3 @@
 export * from './models';
-export * from './fields';
+export * from './props';
 export * from './utils';

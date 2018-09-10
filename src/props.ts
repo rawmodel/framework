@@ -5,9 +5,9 @@ import { Handler, HandlerRecipe } from 'handleable';
 import { Model } from './models';
 
 /**
- * Field definition interface.
+ * Prop definition interface.
  */
-export interface FieldRecipe {
+export interface PropRecipe {
   type?: any;
   get?: (v: any) => any;
   set?: (v: any) => void;
@@ -26,23 +26,23 @@ export interface FieldRecipe {
 }
 
 /**
- * Field error interface.
+ * Prop error interface.
  */
-export interface FieldError {
+export interface PropError {
   message?: string;
   code?: number;
   [key: string]: any;
 }
 
 /**
- * Field class.
+ * Prop class.
  */
-export class Field {
+export class Prop {
   protected _data: any;
   protected _initialData: any;
   protected _validator: Validator;
   protected _handler: Handler;
-  protected _recipe: FieldRecipe;
+  protected _recipe: PropRecipe;
   readonly defaultValue: any;
   readonly fakeValue: any;
   readonly nullValue: any;
@@ -53,12 +53,12 @@ export class Field {
   readonly owner: Model;
   readonly type: any;
   public value: any;
-  public errors: FieldError[];
+  public errors: PropError[];
 
   /**
    * Class constructor.
    */
-  public constructor(recipe?: FieldRecipe) {
+  public constructor(recipe?: PropRecipe) {
     if (!recipe) {
       recipe = {};
     }
@@ -149,7 +149,7 @@ export class Field {
   }
 
   /**
-   * Returns current field value.
+   * Returns current prop value.
    */
   protected _getValue() {
     let data = this._data;
@@ -163,7 +163,7 @@ export class Field {
   }
 
   /**
-   * Sets current field value.
+   * Sets current prop value.
    */
   protected _setValue(data: any) {
     if (isFunction(data)) {
@@ -179,7 +179,7 @@ export class Field {
   }
 
   /**
-   * Returns the default value of a field.
+   * Returns the default value of a prop.
    */
   protected _getDefaultValue() {
     let data = null;
@@ -196,7 +196,7 @@ export class Field {
   }
 
   /**
-   * Returns the fake value of a field.
+   * Returns the fake value of a prop.
    */
   protected _getFakeValue() {
     let data = null;
@@ -213,7 +213,7 @@ export class Field {
   }
 
   /**
-   * Returns the null value of a field.
+   * Returns the null value of a prop.
    */
   protected _getNullValue() {
     let data = null;
@@ -230,7 +230,7 @@ export class Field {
   }
 
   /**
-   * Converts a `data` into field's type.
+   * Converts a `data` into prop's type.
    */
   public cast(data: any) {
     let converter = this.type;
@@ -317,7 +317,7 @@ export class Field {
    * Returns `true` when `data` equals to the current value.
    */
   public equals(data: any): boolean {
-    const value = data instanceof Field ? data.value : data;
+    const value = data instanceof Prop ? data.value : data;
 
     return isEqual(
       normalize(this.value),
@@ -350,7 +350,7 @@ export class Field {
   }
 
   /**
-   * Validates the field by populating the `errors` property.
+   * Validates the prop by populating the `errors` property.
    *
    * IMPORTANT: Array null values for nested objects are not treated as an object
    * but as an empty item thus isValid() for [null] succeeds.
@@ -371,7 +371,7 @@ export class Field {
   }
 
   /**
-   * Handles the field by populating the `errors` property.
+   * Handles the prop by populating the `errors` property.
    *
    * IMPORTANT: Array null values for nested objects are not treated as an object
    * but as an empty item thus isValid() for [null] succeeds.
