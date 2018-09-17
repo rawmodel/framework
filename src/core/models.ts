@@ -1,5 +1,7 @@
-import { Prop, PropConfig, PropRef, PropError, isDeepEqual, isArray, isUndefined,
-  toArray, normalize } from '.';
+import { Prop, PropConfig, PropRef, PropError } from './props';
+import { normalize, isDeepEqual, isArray, isUndefined, toArray } from './utils';
+import { Validator } from './validator';
+import { Handler } from './handler';
 
 /**
  * Model configuration interface.
@@ -7,7 +9,7 @@ import { Prop, PropConfig, PropRef, PropError, isDeepEqual, isArray, isUndefined
 export interface ModelConfig {
   ctx?: any | (() => any);
   failFast?: boolean | (() => boolean);
-  parent?: Model;  
+  parent?: Model;
 }
 
 /**
@@ -16,7 +18,7 @@ export interface ModelConfig {
 export class Model {
   readonly $config: ModelConfig;
   readonly $props: {[key: string]: Prop};
-  readonly $recipes: {[key: string]: PropConfig} = {};
+  static readonly $props: {[key: string]: PropConfig} = {};
 
   /**
    * Class constructor.
@@ -58,9 +60,11 @@ export class Model {
 
     this.$props[key] = new Prop({
       model: this,
+      validator: () => new Validator(config as any), // lazy load
+      handler: () => new Handler(config as any), // lazy load
       ...config,
     });
-  
+
     Object.defineProperty(this, key, {
       get: () => this.$props[key].getValue(),
       set: (value) => this.$props[key].setValue(value),
@@ -85,8 +89,7 @@ export class Model {
       const parent = root.getParent();
       if (parent) {
         root = parent;
-      }
-      else {
+      } else {
         return root;
       }
     } while (true);
@@ -164,8 +167,7 @@ export class Model {
                 .filter((f) => isArray(f))
                 .reduce((a, b) => a.concat(b), [])
             );
-          }
-          else {
+          } else {
             props = props.concat(
               prop.getValue().flatten(path)
             );
@@ -213,7 +215,7 @@ export class Model {
    * Sets each model prop to its default value.
    */
   public reset(): this {
-    
+
     Object.keys(this.$props)
       .forEach((key) => this.$props[key].reset());
 
@@ -235,7 +237,7 @@ export class Model {
    */
   public empty(): this {
     Object.keys(this.$props)
-      .forEach((name) => this.$props[name].empty());
+      .forEach((key) => this.$props[key].empty());
 
     return this;
   }
@@ -245,7 +247,7 @@ export class Model {
    */
   public commit(): this {
     Object.keys(this.$props)
-      .forEach((name) => this.$props[name].commit());
+      .forEach((key) => this.$props[key].commit());
 
     return this;
   }
@@ -255,7 +257,7 @@ export class Model {
    */
   public rollback(): this {
     Object.keys(this.$props)
-      .forEach((name) => this.$props[name].rollback());
+      .forEach((key) => this.$props[key].rollback());
 
     return this;
   }
@@ -275,18 +277,16 @@ export class Model {
    * Returns `true` if at least one prop has been changed.
    */
   public isChanged(): boolean {
-    // return Object.keys(this.$props)
-    //   .some((name) => this.$props[name].isChanged());
-    return false;
+    return Object.keys(this.$props)
+      .some((key) => this.$props[key].isChanged());
   }
 
   /**
    * Returns `true` when no errors exist.
    */
   public isValid(): boolean {
-    // return !Object.keys(this.$props)
-    //   .some((name) => !this.$props[name].isValid());
-    return false;
+    return !Object.keys(this.$props)
+      .some((key) => !this.$props[key].isValid());
   }
 
   /**
@@ -300,7 +300,7 @@ export class Model {
 
     await Promise.all(
       Object.keys(this.$props)
-        .map((n) => this.$props[n].validate())
+        .map((key) => this.$props[key].validate())
     );
 
     if (!quiet && !this.isValid()) {
@@ -312,31 +312,37 @@ export class Model {
     return this;
   }
 
-  // /**
-  //  * Handles the error and throws an error if the error can not be handled.
-  //  */
-  // public async handle(error: any, {
-  //   quiet = true
-  // }: {
-  //   quiet?: boolean
-  // } = {}): Promise<this> {
-  //   if (!error) return this; // blank values are valid
-  //   if (error.code === 422) return this; // validation errors are ignored
+  /**
+   * Handles the error and throws an error if the error can not be handled.
+   */
+  public async handle(error: any, {
+    quiet = true
+  }: {
+    quiet?: boolean
+  } = {}): Promise<this> {
 
-  //   const props = this._props;
-  //   await Promise.all(
-  //     Object.keys(props)
-  //       .map((n) => props[n].handle(error))
-  //   );
+    if (!error) {
+      return this; // blank values are valid
+    }
+    if (error.code === 422) {
+      return this; // validation errors are ignored
+    }
 
-  //   if (!quiet && this.hasErrors()) {
-  //     throw this._createValidationError();
-  //   }
-  //   else if (!this.hasErrors()) {
-  //     throw error; // always throw unhandled errors
-  //   }
-  //   return this;
-  // }
+    await Promise.all(
+      Object.keys(this.$props)
+        .map((n) => this.$props[n].handle(error))
+    );
+
+    if (!quiet && !this.isValid()) {
+      const error = new Error('Validation failed');
+      error['code'] = 422;
+      throw error;
+    } else if (!quiet && this.isValid()) {
+      throw error; // always throw unhandled errors
+    }
+
+    return this;
+  }
 
   /**
    * Sets props errors.
@@ -361,21 +367,26 @@ export class Model {
       .filter(({ errors }) => errors.length > 0);
   }
 
-  // /**
-  //  * Removes props errors.
-  //  */
-  // public invalidate(): this {
-  //   Object.keys(this._props)
-  //     .forEach((name) => this._props[name].invalidate());
+  /**
+   * Removes props errors.
+   */
+  public invalidate(): this {
+    Object.keys(this.$props)
+      .forEach((key) => this.$props[key].invalidate());
 
-  //   return this;
-  // }
+    return this;
+  }
 
-  // /**
-  //  * Returns a new Model instance which is the exact copy of the original.
-  //  */
-  // public clone(data = {}): this {
-  //   return this._createModel({ parent: this.parent })
-  //     .populate(merge({}, this.serialize(), data));
-  // }
+  /**
+   * Returns a new Model instance which is the exact copy of the original.
+   */
+  public clone(data = {}): this {
+    return new (this.constructor as any)({
+      ...this.serialize(),
+      ...data,
+    }, {
+      ...this.$config,
+    });
+  }
+
 }

@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, Prop, prop } from '../src';
+import { Model, Prop, prop } from '../..';
 
 const spec = new Spec();
 
@@ -89,6 +89,25 @@ spec.test('decorator `prop` supports default value', (ctx) => {
   }
   const user = new User();
   ctx.is(user.name, 'foo');
+});
+
+spec.test('decorator `prop` supports property enumerable style', (ctx) => {
+  class User0 extends Model {
+    @prop({
+      enumerable: true,
+    })
+    name: string;
+  }
+  class User1 extends Model {
+    @prop({
+      enumerable: false,
+    })
+    name: string;
+  }
+  const user0 = new User0({});
+  const user1 = new User1({});
+  ctx.deepEqual(Object.keys(user0), ['name']);
+  ctx.deepEqual(Object.keys(user1), []);
 });
 
 spec.test('method `getParent` returns an instance of the parent model', (ctx) => {
@@ -782,11 +801,11 @@ spec.test('method `isChanged` returns `true` if at least one prop has been chang
   user0.name = 'foo-new';
   ctx.true(user0.isChanged());
   user1.book.title = 'bar-new';
-  ctx.false(user1.isChanged());
-  user2.books[0] = { title: 'baz-new' } as Book;
-  ctx.false(user2.isChanged());
+  ctx.true(user1.isChanged());
+  user2.books[0] = { title: 'baz-new' } as Book; // model instances in array
+  ctx.true(user2.isChanged());
   user3.books[1].title = 'baz-new';
-  ctx.false(user3.isChanged());
+  ctx.true(user3.isChanged());
 });
 
 spec.test('method `applyErrors` sets properties errors', (ctx) => {
@@ -881,303 +900,196 @@ spec.test('method `isValid` tell if model has no errors', async (ctx) => {
   ctx.false(user0.isValid());
 });
 
-// test('method `validate` validates props and throws an error', async (ctx) => {
-//   const validate = [
-//     { validator: 'presence', message: 'foo' },
-//     { validator: 'presence', code: 999 },
-//   ];
-//   class Book extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('title', { validate });
-//     }
-//   }
-//   class User extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('name', { validate });
-//       this.defineProp('book0', { type: Book, validate });
-//       this.defineProp('books0', { type: [Book], validate });
-//       this.defineProp('book1', { type: Book, validate });
-//       this.defineProp('books1', { type: [Book], validate });
-//       this.populate(data);
-//     }
-//   }
-//   const user = new User({
-//     book1: {},
-//     books1: [{}]
-//   });
-//   const errors = [
-//     { validator: 'presence', message: 'foo', code: 422 },
-//     { validator: 'presence', message: undefined, code: 999 },
-//   ];
-//   await user.validate({quiet: true});
-//   ctx.is(await user.validate().catch(() => false), false);
-//   ctx.deepEqual(user.collectErrors() as {}, [
-//     { path: ['name'], errors },
-//     { path: ['book0'], errors },
-//     { path: ['books0'], errors },
-//     { path: ['book1', 'title'], errors },
-//     { path: ['books1', 0, 'title'], errors },
-//   ]);
-// });
+spec.test('method `validate` validates properties and throws an error', async (ctx) => {
+  const validate = [
+    { handler: (v) => !!v, code: 100 },
+    { handler: (v) => !!v, code: 200 },
+  ];
+  class Book extends Model {
+    @prop({
+      validate,
+    })
+    title: string;
+  }
+  class User extends Model {
+    @prop({
+      validate,
+    })
+    name: string;
+    @prop({
+      validate,
+      cast: { handler: Book },
+    })
+    book0: Book;
+    @prop({
+      validate,
+      cast: { handler: Book, array: true },
+    })
+    books0: Book[];
+    @prop({
+      validate,
+      cast: { handler: Book },
+    })
+    book1: Book;
+    @prop({
+      validate,
+      cast: { handler: Book, array: true },
+    })
+    books1: Book[];
+  }
+  const user = new User({
+    book1: {},
+    books1: [{}]
+  });
+  const errors = [100, 200];
+  await user.validate({quiet: true});
+  ctx.is(await user.validate().catch(() => false), false);
+  ctx.deepEqual(user.collectErrors(), [
+    { path: ['name'], errors },
+    { path: ['book0'], errors },
+    { path: ['books0'], errors },
+    { path: ['book1', 'title'], errors },
+    { path: ['books1', 0, 'title'], errors },
+  ]);
+});
 
-// test('method `defineValidator` defines a custom prop validator', async (ctx) => {
-//   const validator = function (v) {
-//     return this.value === 'cool' && v === 'cool';
-//   };
-//   const validate = [{
-//     validator: 'coolness',
-//     message: 'foo'
-//   }];
-//   class Book extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineValidator('coolness', validator);
-//       this.defineProp('title', { validate });
-//     }
-//   }
-//   class User extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineValidator('coolness', validator);
-//       this.defineProp('name', { validate });
-//       this.defineProp('book', { type: Book, validate });
-//       this.populate(data);
-//     }
-//   }
-//   const user = new User({
-//     book: {}
-//   });
-//   const errors = [{ validator: 'coolness', message: 'foo', code: 422 }];
-//   await user.validate({quiet: true});
-//   ctx.deepEqual(user.collectErrors() as {}, [
-//     {path: ['name'], errors},
-//     {path: ['book'], errors},
-//     {path: ['book', 'title'], errors},
-//   ]);
-// });
+spec.test('method `handle` handles property errors', async (ctx) => {
+  const handle = [{
+    handler: (e) => e.message === 'foo',
+    code: 100,
+  }];
+  class Book extends Model {
+    @prop({
+      handle
+    })
+    title: string;
+  }
+  class Country extends Model {
+    @prop()
+    code: string;
+  }
+  class User extends Model {
+    @prop({
+      handle
+    })
+    name: string;
+    @prop({
+      handle,
+      cast: { handler: Book },
+    })
+    book0: Book;
+    @prop({
+      handle,
+      cast: { handler: Book, array: true },
+    })
+    books0: Book[];
+    @prop({
+      cast: { handler: Book },
+    })
+    book1: Book;
+    @prop({
+      cast: { handler: Book, array: true },
+    })
+    books1: Book[];
+    @prop({
+      cast: { handler: Country },
+    })
+    country: Country;
+  }
+  const user = new User({
+    book1: {},
+    books1: [{}],
+    country: {},
+  });
+  const problem0 = new Error();
+  const problem1 = new Error('foo');
+  const errors = [100];
+  await user.handle(problem0);
+  ctx.true(user.isValid());
+  await user.handle(problem1);
+  ctx.false(user.isValid());
+  ctx.throws(() => user.handle(problem0, { quiet: false }));
+  ctx.throws(() => user.handle(problem1, { quiet: false }));
+  ctx.deepEqual(user.collectErrors(), [
+    { path: ['name'], errors },
+    { path: ['book0'], errors },
+    { path: ['books0'], errors },
+    { path: ['book1', 'title'], errors },
+    { path: ['books1', 0, 'title'], errors },
+  ]);
+});
 
-// test('method `failFast` configures validator to stop validating prop on the first error', async (ctx) => {
-//   const validate = [
-//     { validator: 'presence', message: 'foo' },
-//     { validator: 'presence', message: 'foo' },
-//   ];
-//   class Book extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.failFast();
-//       this.defineProp('title', { validate });
-//     }
-//   }
-//   class User extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.failFast();
-//       this.defineProp('name', { validate });
-//       this.defineProp('book', { type: Book });
-//       this.populate(data);
-//     }
-//   }
-//   const user = new User({
-//     book: {}
-//   });
-//   const errors = [{ validator: 'presence', message: 'foo', code: 422 }];
-//   await user.validate({ quiet: true });
-//   ctx.is(user.getProp('name').errors.length, 1);
-//   ctx.is(user.getProp('book', 'title').errors.length, 1);
-// });
+spec.test('method `invalidate` clears property errors', async (ctx) => {
+  class Book extends Model {
+    @prop()
+    title: string;
+  }
+  class User extends Model {
+    @prop()
+    name: string;
+    @prop({
+      cast: { handler: Book },
+    })
+    book: Book;
+    @prop({
+      cast: { handler: Book, array: true },
+    })
+    books: Book[];
+  }
+  const user = new User({
+    book: {},
+    books: [null, {}]
+  });
+  user.applyErrors([
+    { path: ['name'], errors: [100] },
+    { path: ['book', 'title'], errors: [200] },
+    { path: ['books', 1, 'title'], errors: [300] },
+  ]);
+  user.invalidate();
+  ctx.deepEqual(user.getProp('name').getErrorCodes(), []);
+  ctx.deepEqual(user.getProp('book', 'title').getErrorCodes(), []);
+  ctx.deepEqual(user.getProp('books', 1, 'title').getErrorCodes(), []);
+});
 
-// test('method `invalidate` clears props errors', async (ctx) => {
-//   class Book extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('title');
-//     }
-//   }
-//   class User extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('name');
-//       this.defineProp('book', { type: Book });
-//       this.defineProp('books', { type: [Book] });
-//       this.populate(data);
-//     }
-//   }
-//   const user = new User({
-//     book: {},
-//     books: [null, {}]
-//   });
-//   user.applyErrors([
-//     { path: ['name'], errors: [{ message: 'foo'}] },
-//     { path: ['book', 'title'], errors: [{ message: 'bar'}] },
-//     { path: ['books', 1, 'title'], errors: [{ message: 'baz'}] },
-//   ]);
-//   user.invalidate();
-//   ctx.deepEqual(user.getProp('name').errors, []);
-//   ctx.deepEqual(user.getProp('book', 'title').errors, []);
-//   ctx.deepEqual(user.getProp('books', 1, 'title').errors, []);
-// });
-
-// test('method `clone` returns an exact copy of the original', (ctx) => {
-//   class Book extends Model {
-//     title: string;
-//     constructor(data?) {
-//       super(data);
-//       this.defineProp('title');
-//       this.commit();
-//     }
-//   }
-//   class User extends Model {
-//     name: string;
-//     book: Book;
-//     books: Book[];
-//     constructor(data?) {
-//       super(data);
-//       this.defineProp('name');
-//       this.defineProp('book', { type: Book });
-//       this.defineProp('books', { type: [Book] });
-//       this.populate(data);
-//       this.commit();
-//     }
-//   }
-//   const parent = new Book();
-//   const user = new User({
-//     parent, // fake parent
-//     name: 'foo',
-//     book: {
-//       title: 'bar'
-//     },
-//     books: [
-//       null,
-//       {
-//         title: 'baz'
-//       }
-//     ]
-//   });
-//   const clone0 = user.clone();
-//   const clone1 = user.clone({book: { title: 'foo' }});
-//   ctx.is(clone0 !== user, true);
-//   ctx.is(clone0.equals(user), true);
-//   ctx.is(clone0.book.parent, clone0);
-//   ctx.is(clone0.parent, parent);
-//   ctx.is(clone0.parent, parent);
-//   ctx.is(clone1.book.title, 'foo');
-// });
-
-// test('method `handle` handles prop-related errors', async (ctx) => {
-//   const handle = [{
-//     handler: 'block',
-//     message: '%{foo}',
-//     block: async () => true,
-//     foo: 'foo'
-//   }];
-//   class Book extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('title', { handle });
-//     }
-//   }
-//   class Country extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('code'); // this prop is nested and without handler
-//       this.populate(data);
-//     }
-//   }
-//   class User extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('name', { handle });
-//       this.defineProp('book0', { type: Book, handle });
-//       this.defineProp('books0', { type: [Book], handle });
-//       this.defineProp('book1', { type: Book });
-//       this.defineProp('books1', { type: [Book] });
-//       this.defineProp('country', { type: [Country] });
-//       this.populate(data);
-//     }
-//   }
-//   const user = new User({
-//     book1: {},
-//     books1: [{}],
-//     country: {}
-//   });
-//   const problem0 = new Error();
-//   const problem1 = new Error() as any; problem1.code = 422;
-//   const errors = [{ handler: 'block', message: 'foo', code: 422 }];
-//   ctx.is(await user.handle(problem0, { quiet: false }).catch(() => false), false);
-//   ctx.is(await user.handle(problem0).then(() => true), true);
-//   ctx.is(await user.handle(problem1, { quiet: false }).then(() => true), true);
-//   await user.handle(problem0);
-//   ctx.deepEqual(user.collectErrors() as {}, [
-//     { path: ['name'], errors },
-//     { path: ['book0'], errors },
-//     { path: ['books0'], errors },
-//     { path: ['book1', 'title'], errors },
-//     { path: ['books1', 0, 'title'], errors },
-//   ]);
-// });
-
-// test('method `defineHandler` defines a custom prop handler', async (ctx) => {
-//   const handler = function (e) {
-//     return e.message === 'cool';
-//   };
-//   const handle = [{
-//     handler: 'coolness',
-//     message: '%{foo}',
-//     foo: 'foo'
-//   }];
-//   class Book extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineHandler('coolness', handler);
-//       this.defineProp('title', { handle });
-//     }
-//   }
-//   class User extends Model {
-//     constructor(data) {
-//       super(data);
-//       this.defineHandler('coolness', handler);
-//       this.defineProp('name', { handle });
-//       this.defineProp('book', { type: Book });
-//       this.defineProp('books', { type: [Book] });
-//       this.populate(data);
-//     }
-//   }
-//   const user = new User({
-//     book: {},
-//     books: [{}]
-//   });
-//   const problem = new Error('cool');
-//   const errors = [{ handler: 'coolness', message: 'foo', code: 422 }];
-//   await user.handle(problem);
-//   ctx.deepEqual(user.collectErrors() as {}, [
-//     { path: ['name'], errors },
-//     { path: ['book', 'title'], errors },
-//     { path: ['books', 0, 'title'], errors },
-//   ]);
-// });
-
-// test('property `enumerable` handles prop visibility', (ctx) => {
-//   class User0 extends Model {
-//     name: string;
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('name', { enumerable: true });
-//     }
-//   }
-//   class User1 extends Model {
-//     name: string;
-//     constructor(data) {
-//       super(data);
-//       this.defineProp('name', { enumerable: false });
-//     }
-//   }
-//   const user0 = new User0({});
-//   const user1 = new User1({});
-//   ctx.deepEqual(Object.keys(user0), ['name']);
-//   ctx.deepEqual(Object.keys(user1), []);
-// });
-
+spec.test('method `clone` returns an exact copy of the original', (ctx) => {
+  class Book extends Model {
+    @prop()
+    title: string;
+  }
+  class User extends Model {
+    @prop()
+    name: string;
+    @prop({
+      cast: { handler: Book },
+    })
+    book: Book;
+    @prop({
+      cast: { handler: Book, array: true },
+    })
+    books: Book[];
+  }
+  const parent = new Book();
+  const user = new User({
+    parent, // fake parent
+    name: 'foo',
+    book: {
+      title: 'bar'
+    },
+    books: [
+      null,
+      {
+        title: 'baz'
+      }
+    ]
+  });
+  const clone0 = user.clone();
+  const clone1 = user.clone({book: { title: 'foo' }});
+  ctx.true(clone0 !== user);
+  ctx.true(clone0.isEqual(user));
+  ctx.is(clone0.book.getParent(), clone0);
+  ctx.is(clone0.getParent(), null);
+  ctx.is(clone0.getRoot(), clone0);
+  ctx.is(clone1.book.title, 'foo');
+});
 
 export default spec;

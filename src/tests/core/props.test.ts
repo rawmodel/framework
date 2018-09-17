@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, Prop, Handler, Validator } from '../src';
+import { Model, Prop, prop, Handler, Validator } from '../..';
 
 const spec = new Spec();
 
@@ -133,13 +133,21 @@ spec.test('methods `isEmpty` returns true if the property value is empty', (ctx)
 });
 
 spec.test('methods `isChanged` returns true if the property value has been changed', (ctx) => {
-  const prop = new Prop();
-  ctx.false(prop.isChanged());
-  prop.setValue(null);
-  ctx.false(prop.isChanged());
-  prop.setValue('foo');
-  prop.commit();
-  ctx.false(prop.isChanged());
+  class User extends Model {
+    @prop()
+    name: string;
+  }
+  const user = new User();
+  const prop0 = new Prop();
+  ctx.false(prop0.isChanged());
+  prop0.setValue(null);
+  ctx.false(prop0.isChanged());
+  prop0.setValue('foo');
+  prop0.commit();
+  ctx.false(prop0.isChanged());
+  prop0.setValue(user);
+  user.name = 'foo';
+  ctx.true(prop0.isChanged());
 });
 
 spec.test('methods `isEqual` returns true if the property value equals to the provided one', (ctx) => {
@@ -153,8 +161,21 @@ spec.test('methods `isEqual` returns true if the property value equals to the pr
 });
 
 spec.test('methods `isValid` returns true if the property has no errors', (ctx) => {
-  const prop = new Prop();
-  ctx.true(prop.isValid());
+  class User extends Model {
+    @prop()
+    name: string;
+  }
+  const user = new User();
+  const prop0 = new Prop();
+  ctx.true(prop0.isValid());
+  prop0.setErrorCodes(100);
+  ctx.false(prop0.isValid());
+  prop0.setErrorCodes();
+  prop0.setValue(user);
+  ctx.true(prop0.isValid());
+  prop0.$config.cast = { handler: User }; // nested model type
+  user.getProp('name').setErrorCodes(200); // nested model error
+  ctx.false(prop0.isValid());
 });
 
 spec.test('methods `reset` resets property to default value', (ctx) => {

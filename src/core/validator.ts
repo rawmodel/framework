@@ -1,3 +1,5 @@
+import { realize, isArray } from './utils';
+
 /**
  * Validation recipe interface.
  */
@@ -38,8 +40,8 @@ export class Validator {
   async validate(value: any, recipes: ValidatorRecipe[] = []): Promise<number[]> {
     const codes = [];
 
-    for (let recipe of recipes) {
-      
+    for (const recipe of recipes) {
+
       const condition = recipe.condition;
       if (condition) {
         const result = await condition.call(this.$config.ctx, value, recipe);
@@ -48,21 +50,16 @@ export class Validator {
         }
       }
 
-      const context = typeof this.$config.ctx === 'function'
-        ? this.$config.ctx()
-        : this.$config.ctx;
+      const context = realize(this.$config.ctx);
       const isValid = await Promise.all(
-        (Array.isArray(value) ? value : [value])
+        (isArray(value) ? value : [value])
           .map((v) => recipe.handler.call(context, v, recipe))
       ).then((r) => r.indexOf(false) === -1);
 
       if (!isValid) {
         codes.push(recipe.code);
 
-        const failFast = typeof this.$config.failFast === 'function'
-          ? this.$config.failFast()
-          : this.$config.failFast;
-        if (failFast) {
+        if (realize(this.$config.failFast)) {
           break;
         }
       }

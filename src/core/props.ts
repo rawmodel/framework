@@ -1,5 +1,9 @@
-import { Model, cast, CastConfig, CastHandler, Validator, ValidatorRecipe, Handler,
-  HandlerRecipe, normalize, isDeepEqual, isUndefined, isPresent, toArray } from '.';
+import { Model } from './models';
+import { CastConfig, CastHandler, cast } from './parsing';
+import { Validator, ValidatorRecipe } from './validator';
+import { Handler, HandlerRecipe } from './handler';
+import { normalize, realize, isDeepEqual, isClassOf, isUndefined, isPresent, toArray } from '..';
+import { isFunction, isInstanceOf } from './utils';
 
 /**
  * Property error interface.
@@ -20,13 +24,13 @@ export interface PropRef {
 /**
  * Model property class configuration object.
  */
-export interface PropConfig<T = any> {
-  set?: (v: any) => T;
-  get?: (v: any) => T;
+export interface PropConfig {
+  set?: (v: any) => any;
+  get?: (v: any) => any;
   cast?: CastConfig;
-  defaultValue?: T | (() => T);
-  fakeValue?: T | (() => T);
-  emptyValue?: T | (() => T);
+  defaultValue?: any | (() => any);
+  fakeValue?: any | (() => any);
+  emptyValue?: any | (() => any);
   validator?: Validator | (() => Validator);
   validate?: ValidatorRecipe[];
   handler?: Handler | (() => Handler);
@@ -51,7 +55,7 @@ export function prop(config?: PropConfig) {
 
     Object.defineProperty(target.constructor, '$props', {
       value: other,
-      enumerable: true,
+      enumerable: false,
       configurable: true,
     });
 
@@ -61,17 +65,17 @@ export function prop(config?: PropConfig) {
 /**
  * Model property class.
  */
-export class Prop<T = any> {
-  protected rawValue: T | (() => T);
-  protected initialValue: T | (() => T);
+export class Prop {
+  protected rawValue: any | (() => any);
+  protected initialValue: any | (() => any);
   protected errorCodes: number[] = [];
-  readonly $config: PropConfig<T>;
+  readonly $config: PropConfig;
 
   /**
    * Class constructor.
    * @param config Model prop configuration.
    */
-  public constructor(config?: PropConfig<T>) {
+  public constructor(config?: PropConfig) {
 
     Object.defineProperty(this, '$config', {
       value: { ...config },
@@ -85,13 +89,13 @@ export class Prop<T = any> {
   /**
    * Sets the current value.
    */
-  public setValue(data: T | (() => T), strategy?: string) {
+  public setValue(data: any | (() => any), strategy?: string) {
     if (!this.isPopulatable(strategy)) {
       return;
     }
 
     let value = isUndefined(data) ? null : data;
-    
+
     if (this.$config.cast) {
       value = this.cast(value, strategy);
     }
@@ -105,34 +109,29 @@ export class Prop<T = any> {
   /**
    * Calculates the current value.
    */
-  public getValue(): T {
-    let value = typeof this.rawValue === 'function'
-      ? this.rawValue.call(this)
-      : this.rawValue;
+  public getValue(): any {
+    let value = realize(this.rawValue, this);
 
     if (this.$config.get) {
       value = this.$config.get.call(this, value);
     }
 
     if (this.isEmpty()) {
-      value = typeof this.$config.emptyValue === 'function'
-        ? this.$config.emptyValue.call(this)
-        : this.$config.emptyValue;
+      value = realize(this.$config.emptyValue, this);
     }
 
     return isUndefined(value) ? null : value;
   }
 
   /**
-   * Sets the current value.
+   * Sets local error codes.
    */
   public setErrorCodes(...codes: number[]) {
-    this.errorCodes = this.errorCodes.concat(codes)
-      .reduce((a, b) => a.indexOf(b) === -1 ? a.concat([b]) : a, []);
+    this.errorCodes = codes;
   }
 
   /**
-   * Sets the current value.
+   * Gets local error codes.
    */
   public getErrorCodes() {
     return this.errorCodes;
@@ -157,14 +156,7 @@ export class Prop<T = any> {
    */
   public isModel(): boolean {
     const { handler } = this.$config.cast || {} as any;
-    return (
-      isPresent(handler)
-      && isPresent(handler.prototype)
-      && (
-        handler.prototype instanceof Model
-        || handler.prototype.constructor === Model
-      )
-    );
+    return isClassOf(handler, Model);
   }
 
   /**
@@ -201,93 +193,105 @@ export class Prop<T = any> {
    * Returns true if the property value is an empty value.
    */
   public isEmpty() {
-    const value = typeof this.rawValue === 'function'
-      ? this.rawValue.call(this)
-      : this.rawValue;
-
-    return !isPresent(value);
+    return !isPresent(
+      realize(this.rawValue, this)
+    );
   }
 
   /**
    * Returns `true` if the value has been changed.
    */
   public isChanged(): boolean {
-    return this.initialValue !== this.rawValue;
-  }
 
-  /**
-   * Returns `true` when `data` isEqual to the current value.
-   */
-  public isEqual(data: any): boolean {
-    if (typeof data === 'function') {
-      return this.rawValue === data;
+    let initialValue = realize(this.initialValue);
+    let rawValue = realize(this.rawValue);
+    if (this.isModel()) {
+      initialValue = isInstanceOf(initialValue, Model) ? initialValue.serialize() : initialValue;
+      rawValue = isInstanceOf(rawValue, Model) ? rawValue.serialize() : rawValue;
     }
-    return isDeepEqual(
-      normalize(this.getValue()),
-      normalize(data instanceof Prop ? data.getValue() : data)
+
+    return !isDeepEqual(
+      normalize(initialValue),
+      normalize(rawValue)
     );
   }
 
   /**
-   * Returns `true` when the value is valid.
+   * Returns `true` when `data` deeply equals the current value.
+   */
+  public isEqual(data: any): boolean {
+
+    let value = realize(data);
+    if (isInstanceOf(value, Prop) || isInstanceOf(value, Model)) {
+      value = value.serialize();
+    }
+
+    return isDeepEqual(
+      normalize(this.getValue()),
+      normalize(value)
+    );
+  }
+
+  /**
+   * Returns `true` when the value and possible nested models have no errors.
    */
   public isValid(): boolean {
-    if (this.getErrorCodes().length !== 0) {
+    if (this.getErrorCodes().length > 0) {
       return false;
     }
-    if (this.isModel()) {}
-
-
-    // ISVALID, getERRORS NE GLEDA DEEPLKY!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if (this.isModel()) {
+      return !(toArray(this.rawValue) || []) // nested models
+        .filter((m) => isInstanceOf(m, Model))
+        .some((m) => !m.isValid());
+    }
+    return true;
   }
 
   /**
    * Converts the provided value to the property type.
    */
   protected cast(value: any, strategy?: string): any {
-    let { handler, array } = this.$config.cast || {} as any;
+    const config = { ...this.$config.cast };
 
     if (this.isModel()) {
-      const Klass = (handler as typeof Model);
-      handler = (data: any) => {
-        if (data instanceof Klass) {
+      const Klass = (config.handler as typeof Model);
+      config.handler = (data: any) => {
+        if (isInstanceOf(data, Klass)) {
           return data; // keep instances
         } else {
-          const instance = new Klass(null, this.$config.model.$config);
-          instance.$config.parent = this.$config.model;
-          return instance.populate(data, strategy).commit();
+          return new Klass(null, {
+            parent: this.$config.model,
+            ...this.$config.model.$config
+          }).populate(data, strategy).commit();
         }
       };
     }
 
-    return cast(value, handler as CastHandler, array);
+    return cast(value, config.handler as CastHandler, config.array);
   }
 
   /**
-   * Serializes the provided property value.
+   * Returns JSON serialized property value.
    */
   public serialize(strategy?: string): any {
     if (!this.isSerializable(strategy)) {
       return null;
     }
 
-    const value = this.getValue() as any;
+    const value = this.getValue();
     if (!value) {
       return null;
-    }
-
-    if (this.isModel()) {
+    } else if (this.isModel()) {
       if (this.isArray()) {
         return value.map((m) => m ? m.serialize() : null);
-      }
-      else {
+      } else {
         return value.serialize();
       }
     } else {
       return normalize(value);
     }
   }
-  
+
   /**
    * Sets property value to the default value.
    */
@@ -298,13 +302,14 @@ export class Prop<T = any> {
   }
 
   /**
-   * Sets property value to the fake value.
+   * Deeply sets property value to the fake value.
    */
   public fake(): this {
+
     this.setValue(this.$config.fakeValue);
 
     (toArray(this.rawValue) || []) // related fake values
-      .filter((doc) => doc instanceof Model)
+      .filter((doc) => isInstanceOf(doc, Model))
       .map((doc) => doc.fake());
 
     return this;
@@ -320,31 +325,59 @@ export class Prop<T = any> {
   }
 
   /**
-   * Saves the property value to initial value.
+   * Saves the local property value to initial value.
    */
   public commit(): this {
-    this.initialValue = this.rawValue;
+
+    if (this.isModel()) {
+      (toArray(this.rawValue) || [])
+        .filter((doc) => isInstanceOf(doc, Model))
+        .forEach((doc) => doc.commit());
+    }
+
+    const value = this.rawValue; // same process as serialization
+    if (!value) {
+      this.initialValue = null;
+    } else if (this.isModel()) {
+      if (this.isArray()) {
+        this.initialValue = value.map((m) => m ? m.serialize() : null);
+      } else {
+        this.initialValue = value.serialize();
+      }
+    } else {
+      this.initialValue = normalize(value);
+    }
 
     return this;
   }
 
   /**
-   * Sets property value to the initial value.
+   * Sets local property value to the initial value.
    */
   public rollback(): this {
-    this.rawValue = this.initialValue; // normalize and keep functions
+    let value = this.initialValue;
+
+    if (this.$config.cast) {
+      value = this.cast(value);
+    }
+
+    this.rawValue = value;
 
     return this;
   }
 
   /**
-   * Validates the property and saves the error on the class itself.
+   * Validates the property and sets errors codes.
    */
   public async validate(): Promise<this> {
 
-    const validator = typeof this.$config.validator === 'function'
-      ? this.$config.validator.call(this)
-      : this.$config.validator;
+    await Promise.all( // validate related models
+      (toArray(this.rawValue) || [])
+        .filter((doc) => isInstanceOf(doc, Model))
+        .map((doc) => doc.validate({ quiet: true }))
+    );
+
+    const validator = realize(this.$config.validator, this) as Validator;
     this.errorCodes = await validator.validate(
       this.getValue(),
       this.$config.validate
@@ -354,13 +387,17 @@ export class Prop<T = any> {
   }
 
   /**
-   * Handles property error and saves the error on the class itself .
+   * Handles property error and sets error codes.
    */
   public async handle(error: any): Promise<this> {
 
-    const handler = typeof this.$config.handler === 'function'
-      ? this.$config.handler.call(this)
-      : this.$config.handler;
+    await Promise.all( // handle related models
+      (toArray(this.rawValue) || [])
+        .filter((doc) => isInstanceOf(doc, Model))
+        .map((doc) => doc.handle(error))
+    ).catch(() => {}); // do not throw even when unhandled error
+
+    const handler = realize(this.$config.handler, this) as Handler;
     this.errorCodes = await handler.handle(
       error,
       this.$config.handle
@@ -373,6 +410,10 @@ export class Prop<T = any> {
    * Clears errors.
    */
   public invalidate(): this {
+    (toArray(this.rawValue) || []) // invalidate related models
+      .filter((doc) => isInstanceOf(doc, Model))
+      .forEach((doc) => doc.invalidate());
+
     this.errorCodes = [];
 
     return this;

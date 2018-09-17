@@ -7,10 +7,21 @@ export function normalize(data: any) {
   }
   try {
     return JSON.parse(JSON.stringify(data));
-  }
-  catch (e) {
+  } catch (e) {
     return null;
   }
+}
+
+/**
+ * Executes the value if the value is a function otherwise the value is returned.
+ * @param value Function or a value.
+ * @param context Value function context.
+ * @param args Value function arguments.
+ */
+export function realize(value: any, context?: any, args?: any[]) {
+  return isFunction(value)
+    ? value.call(context, ...args)
+    : value;
 }
 
 /**
@@ -22,23 +33,60 @@ export function isDeepEqual(a, b) {
   if (a === b) {
     return true;
   }
-  if (a == null || typeof a != "object" || b == null || typeof b != "object") {
+  if (a == null || typeof a != 'object' || b == null || typeof b != 'object') {
     return false;
   }
-  var propsInA = 0;
-  var propsInB = 0;
-  
-  for (var prop in a) {
+  let propsInA = 0;
+  let propsInB = 0;
+
+  for (const prop in a) {
     propsInA += 1;
   }
-  
-  for (let prop in b) {
+
+  for (const prop in b) {
     propsInB += 1;
     if (!(prop in a) || !isDeepEqual(a[prop], b[prop])) {
       return false;
     }
   }
   return propsInA == propsInB;
+}
+
+/**
+ * Returns `true` if the provided value represents an instance of a class.
+ * @param v Arbitrary value.
+ * @param k Class object.
+ */
+export function isInstanceOf(v?: any, k?: any) {
+  try {
+    return (
+      isPresent(v)
+      && isPresent(k)
+      && v instanceof k
+    );
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Returns `true` if the provided value represents an subclass of a class.
+ * @param v Arbitrary value.
+ * @param k Class object.
+ */
+export function isClassOf(v?: any, k?: any) {
+  try {
+    return (
+      isPresent(v)
+      && isPresent(k)
+      && (
+        v.prototype instanceof k
+        || v.prototype.constructor === k
+      )
+    );
+  } catch (e) {
+    return false;
+  }
 }
 
 /**
@@ -184,11 +232,9 @@ export function isFunction(v?: any) {
 export function toString(v?: any) {
   if (isString(v)) {
     return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
+  } else if (isUndefined(v) || isNull(v)) {
     return null;
-  }
-  else {
+  } else {
     return toString(v.toString());
   }
 }
@@ -200,11 +246,9 @@ export function toString(v?: any) {
 export function toBoolean(v?: any) {
   if (isBoolean(v)) {
     return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
+  } else if (isUndefined(v) || isNull(v)) {
     return null;
-  }
-  else {
+  } else {
     return (
       parseFloat(v) > 0
       || isInfinite(v)
@@ -223,22 +267,17 @@ export function toBoolean(v?: any) {
 export function toInteger(v?: any) {
   if (isInteger(v)) {
     return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
+  } else if (isUndefined(v) || isNull(v)) {
     return null;
-  }
-  else if (isFloat(v)) {
+  } else if (isFloat(v)) {
     return parseInt(v);
-  }
-  else {
-    var pv = parseInt(v);
+  } else {
+    const pv = parseInt(v);
     if (isInteger(pv)) {
       return pv;
-    }
-    else if (toBoolean(v)) {
+    } else if (toBoolean(v)) {
       return 1;
-    }
-    else {
+    } else {
       return 0;
     }
   }
@@ -251,19 +290,15 @@ export function toInteger(v?: any) {
 export function toFloat(v?: any) {
   if (isFloat(v)) {
     return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
+  } else if (isUndefined(v) || isNull(v)) {
     return null;
-  }
-  else {
-    var pv = parseFloat(v);
+  } else {
+    const pv = parseFloat(v);
     if (isFloat(pv)) {
       return pv;
-    }
-    else if (toBoolean(v)) {
+    } else if (toBoolean(v)) {
       return 1;
-    }
-    else {
+    } else {
       return 0;
     }
   }
@@ -282,9 +317,9 @@ export function toNumber(v?: any) {
  * @param v Arbitrary value.
  */
 export function toDate(v?: any): Date {
-  var date = isDate(v) ? v : new Date(v);
-  var time = date.getTime();
-  var isValid = (
+  const date = isDate(v) ? v : new Date(v);
+  const time = date.getTime();
+  const isValid = (
     isPresent(v)
     && isInteger(time)
   );
@@ -299,14 +334,11 @@ export function toDate(v?: any): Date {
 export function toArray(v?: any): Array<any> {
   if (isArray(v)) {
     return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
+  } else if (isUndefined(v) || isNull(v)) {
     return null;
-  }
-  else if (!isValue(v)) {
+  } else if (!isValue(v)) {
     return [];
-  }
-  else {
+  } else {
     return [v];
   }
 }

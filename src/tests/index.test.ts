@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import * as rawmodel from '../src';
+import * as rawmodel from '..';
 
 const spec = new Spec();
 

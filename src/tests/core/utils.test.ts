@@ -1,16 +1,77 @@
 import { Spec } from '@hayspec/spec';
-import { normalize, isDeepEqual, isUndefined, isNull, isInfinite, isValue, isString,
-  isBoolean, isNumber, isInteger, isFloat, toNumber, isDate, isObject, isArray,
-  isPresent, isFunction, toString, toBoolean, toInteger, toFloat, toDate, toArray } from '../src';
+import { normalize, realize, isDeepEqual, isInstanceOf, isClassOf, isUndefined,
+  isNull, isInfinite, isValue, isString, isBoolean, isNumber, isInteger, isFloat,
+  toNumber, isDate, isObject, isArray, isPresent, isFunction, toString,
+  toBoolean, toInteger, toFloat, toDate, toArray } from '../..';
 
 const spec = new Spec();
 
 spec.test('normalize', (ctx) => {
-  // ctx.true(deepEqual('foo', 'foo'));
+  class User {
+    public foo: string = 'Foo';
+    public bar: string = 'Bar';
+  }
+  const user = new User();
+  ctx.false(normalize(user) instanceof User);
+  ctx.is(normalize(null), null);
+  ctx.is(normalize(undefined), null); // nullify
+  ctx.is(normalize(false), false);
+  ctx.deepEqual(normalize(user), {
+    foo: 'Foo',
+    bar: 'Bar',
+  });
+});
+
+spec.test('realize', (ctx) => {
+  ctx.is(realize('foo'), 'foo');
+  ctx.is(realize(100), 100);
+  ctx.is(realize(() => 'bar'), 'bar');
+  ctx.is(realize(function() { return `${this.foo}bar`; }, { foo: 'foo' }), 'foobar');
+  ctx.is(realize(function(a, b) { return `${a}${b}baz`; }, null, ['foo', 'bar']), 'foobarbaz');
 });
 
 spec.test('isDeepEqual', (ctx) => {
-  // ctx.true(isDeepEqual('foo', 'foo'));
+  ctx.true(isDeepEqual('foo', 'foo'));
+  ctx.true(isDeepEqual('', ''));
+  ctx.false(isDeepEqual('', 'foo'));
+  ctx.true(isDeepEqual(null, null));
+  ctx.true(isDeepEqual(undefined, undefined));
+  ctx.false(isDeepEqual(null, undefined));
+  ctx.true(isDeepEqual(false, false));
+  ctx.true(isDeepEqual(true, true));
+  ctx.false(isDeepEqual(false, true));
+  ctx.true(isDeepEqual({ a: 1, b: 2 }, { a: 1, b: 2 }));
+  ctx.true(isDeepEqual({ a: 1, b: 2 }, { b: 2, a: 1 }));
+  ctx.true(isDeepEqual({ a: 1, b: { c: [1, 2] }}, { a: 1, b: { c: [1, 2] }}));
+  ctx.false(isDeepEqual({ a: 1, b: { c: [1, 2] }}, { a: 1, b: { c: [2, 1] }}));
+});
+
+spec.test('isInstanceOf', (ctx) => {
+  class Fake {}
+  class Base {}
+  class User extends Base {}
+  ctx.true(isInstanceOf(new Base(), Base));
+  ctx.true(isInstanceOf(new User(), Base));
+  ctx.false(isInstanceOf(new Fake(), Base));
+  ctx.false(isInstanceOf(new Base(), 'foo'));
+  ctx.false(isInstanceOf(null, Base));
+  ctx.false(isInstanceOf(undefined, Base));
+  ctx.false(isInstanceOf('foo', Base));
+  ctx.false(isInstanceOf(false, Base));
+});
+
+spec.test('isClassOf', (ctx) => {
+  class Fake {}
+  class Base {}
+  class User extends Base {}
+  ctx.true(isClassOf(Base, Base));
+  ctx.true(isClassOf(User, Base));
+  ctx.false(isClassOf(Fake, Base));
+  ctx.false(isClassOf(Base, 'foo'));
+  ctx.false(isClassOf(null, Base));
+  ctx.false(isClassOf(undefined, Base));
+  ctx.false(isClassOf('foo', Base));
+  ctx.false(isClassOf(false, Base));
 });
 
 spec.test('isUndefined', (ctx) => {
@@ -155,7 +216,7 @@ spec.test('toString', (ctx) => {
   ctx.is(toString(Infinity), 'Infinity');
   ctx.is(toString(true), 'true');
   ctx.is(toString(100.1), '100.1');
-  ctx.is(toString([1,2]), '1,2');
+  ctx.is(toString([1, 2]), '1,2');
 });
 
 spec.test('toBoolean', (ctx) => {
@@ -232,7 +293,7 @@ spec.test('toNumber', (ctx) => {
 });
 
 spec.test('toDate', (ctx) => {
-  let d = new Date();
+  const d = new Date();
   ctx.is(toDate(d), d);
   ctx.deepEqual(toDate(100000), new Date(100000));
   ctx.deepEqual(toDate('2016-01-02'), new Date('2016-01-02'));

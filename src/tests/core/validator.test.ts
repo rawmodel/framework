@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Validator } from '../src';
+import { Validator } from '../..';
 
 const spec = new Spec();
 
@@ -44,7 +44,7 @@ spec.test('methods `validate` passes context to each handler', async (ctx) => {
     ctx: { foo: 'foo' },
   });
   const recipes = [
-    { code: 100, handler(v) { return v === this.foo} },
+    { code: 100, handler(v) { return v === this.foo; } },
   ];
   const codes = await validator.validate('foo', recipes);
   ctx.deepEqual(codes, []);
@@ -55,7 +55,7 @@ spec.test('methods `validate` passes context to each condition', async (ctx) => 
     ctx: { foo: 'foo' },
   });
   const recipes = [
-    { code: 100, handler: (v) => false, condition(v) { return v === this.foo } },
+    { code: 100, handler: (v) => false, condition(v) { return v === this.foo; } },
   ];
   const codes = await validator.validate('foo', recipes);
   ctx.deepEqual(codes, [100]);

@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Handler } from '../src';
+import { Handler } from '../..';
 
 const spec = new Spec();
 
@@ -45,7 +45,7 @@ spec.test('methods `handle` passes context to each handler', async (ctx) => {
     ctx: { foo: 'foo' },
   });
   const recipes = [
-    { code: 100, handler(v) { return v === this.foo} },
+    { code: 100, handler(v) { return v === this.foo; } },
   ];
   const codes = await handler.handle('foo', recipes);
   ctx.deepEqual(codes, [100]);
@@ -56,7 +56,7 @@ spec.test('methods `handle` passes context to each condition', async (ctx) => {
     ctx: { foo: 'foo' },
   });
   const recipes = [
-    { code: 100, handler: (v) => true, condition(v) { return v === this.foo } },
+    { code: 100, handler: (v) => true, condition(v) { return v === this.foo; } },
   ];
   const codes = await handler.handle('foo', recipes);
   ctx.deepEqual(codes, [100]);
