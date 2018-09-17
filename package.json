@@ -6,9 +6,9 @@
   "types": "./dist/src/index.d.ts",
   "scripts": {
     "clean": "rm -Rf ./dist",
-    "build": "npm run clean; tsc",
+    "transpile": "npm run clean; tsc",
     "lint": "tslint 'src/**/*.ts?(x)'",
-    "prepare": "npm run build",
+    "prepare": "npm run transpile",
     "test": "hayspec test --require ts-node/register --match ./src/tests/**/*.test.ts"
   },
   "repository": {
