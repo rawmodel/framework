@@ -1,183 +1,95 @@
-import { isArray, isUndefined, isPresent, isString, toBoolean } from 'typeable';
-import { ValidatorRecipe } from 'validatable';
-import { HandlerRecipe } from 'handleable';
-import { Prop, PropRecipe, PropError } from './props';
-import { normalize, isEqual, merge } from './utils';
+import { Prop, PropConfig, PropRef, PropError, isDeepEqual, isArray, isUndefined,
+  toArray, normalize } from '.';
 
 /**
- * Flattened prop reference type definition.
+ * Model configuration interface.
  */
-export interface PropRef {
-  path: (string | number)[];
-  prop: Prop;
+export interface ModelConfig {
+  ctx?: any | (() => any);
+  failFast?: boolean | (() => boolean);
+  parent?: Model;  
 }
 
 /**
- * Prop error type definition.
+ * Strongly typed javascript object.
  */
-export interface PropErrorRef {
-  path: (string | number)[];
-  errors: PropError[];
-}
-
-/**
- * Model recipe interface (can be used also for pasing data).
- */
-export interface ModelRecipe {
-  parent?: Model;
-  [key: string]: any;
-}
-
-/**
- * The core schema object class.
- */
-export abstract class Model {
-  protected _props: { [name: string]: Prop }; // model props
-  protected _types: { [key: string]: (v?: any) => any }; // custom data types
-  protected _validators: { [key: string]: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean> }; // custom validators
-  protected _handlers: { [key: string]: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean> }; // custom validators
-  protected _failFast: boolean; // stop validating/handling on first error
-  readonly root: Model;
-  public parent: Model;
+export class Model {
+  readonly $config: ModelConfig;
+  readonly $props: {[key: string]: Prop};
+  readonly $recipes: {[key: string]: PropConfig} = {};
 
   /**
    * Class constructor.
+   * @param data Model initial data.
+   * @param config Model configuration.
    */
-  public constructor(recipe?: ModelRecipe) {
-    if (!recipe) {
-      recipe = {};
+  public constructor(data?: any, config?: ModelConfig) {
+
+    Object.defineProperty(this, '$config', {
+      value: { ...config },
+      enumerable: false,
+    });
+    Object.defineProperty(this, '$props', {
+      value: {},
+      enumerable: false,
+    });
+
+    this.defineProps();
+    this.populate(data);
+    this.commit();
+  }
+
+  /**
+   * Defines all registered class properties. Registered properties are stored
+   * on the static variable using the @prop decorator.
+   */
+  protected defineProps() {
+    const recipes = this.constructor['$props'];
+
+    for (const key in recipes) {
+      this.defineProp(key, recipes[key]);
     }
+  }
 
-    Object.defineProperty(this, 'parent', {
-      value: recipe.parent || this.parent || null,
-      writable: true
-    });
-    Object.defineProperty(this, 'root', {
-      get: () => this._getRootModel()
-    });
+  /**
+   * Defines a new class property.
+   */
+  protected defineProp(key: string, config: PropConfig) {
 
-    Object.defineProperty(this, '_props', {
-      value: {},
-      writable: true
+    this.$props[key] = new Prop({
+      model: this,
+      ...config,
     });
-    Object.defineProperty(this, '_types', {
-      value: {},
-      writable: true
-    });
-    Object.defineProperty(this, '_validators', {
-      value: {},
-      writable: true
-    });
-    Object.defineProperty(this, '_handlers', {
-      value: {},
-      writable: true
-    });
-    Object.defineProperty(this, '_failFast', {
-      value: false,
-      writable: true
+  
+    Object.defineProperty(this, key, {
+      get: () => this.$props[key].getValue(),
+      set: (value) => this.$props[key].setValue(value),
+      enumerable: config.enumerable !== false,
+      configurable: false,
     });
   }
 
   /**
-   * Loops up on the tree and returns the first model in the tree.
+   * Returns parent model instance.
    */
-  protected _getRootModel() {
+  public getParent() {
+    return this.$config.parent || null;
+  }
+
+  /**
+   * Returns the root model instance.
+   */
+  public getRoot() {
     let root: Model = this;
     do {
-      if (root.parent) {
-        root = root.parent;
+      const parent = root.getParent();
+      if (parent) {
+        root = parent;
       }
       else {
         return root;
       }
     } while (true);
-  }
-
-  /**
-   * Returns the appropriate prop type.
-   */
-  protected _getPropType(recipe: PropRecipe = {}) {
-    let type = isArray(recipe.type) ? recipe.type[0] : recipe.type;
-    type = this._types[type] || type;
-    return isArray(recipe.type) ? [type] : type;
-  }
-
-  /**
-   * Creates a new prop instance. This method is especially useful when
-   * extending this class.
-   */
-  protected _createProp(recipe: PropRecipe = {}) {
-    return new Prop(
-      merge({}, recipe, {
-        type: this._getPropType(recipe),
-        owner: this,
-        validators: this._validators,
-        handlers: this._handlers,
-        failFast: this._failFast
-      })
-    );
-  }
-
-  /**
-   * Creates a new validation error instance.
-   */
-  protected _createValidationError(message = 'Validation failed', code = 422): PropError {
-    const error: PropError = new Error(message);
-    error.code = code;
-
-    return error;
-  }
-
-  /**
-   * Creates a new model instance. This method is especially useful when
-   * extending this class.
-   */
-  protected _createModel(recipe: ModelRecipe = {}) {
-    return new (this.constructor as any)(recipe);
-  }
-
-  /**
-   * Configures validator to stop validating prop on the first error.
-   */
-  public failFast(fail: boolean = true): void {
-    this._failFast = toBoolean(fail);
-  }
-
-  /**
-   * Defines a new model property.
-   */
-  public defineProp(name: string, recipe: PropRecipe = {}): void {
-    const prop = this._createProp(recipe);
-
-    Object.defineProperty(this, name, {
-      get: () => prop.value,
-      set: (v) => prop.value = v,
-      enumerable: recipe.enumerable !== false,
-      configurable: true
-    });
-
-    this._props[name] = prop;
-  }
-
-  /**
-   * Defines a new custom data type.
-   */
-  public defineType(name: string, converter: (v?: any) => any): void {
-    this._types[name] = converter;
-  }
-
-  /**
-   * Defines a new custom validator.
-   */
-  public defineValidator(name: string, handler: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>): void {
-    this._validators[name] = handler;
-  }
-
-  /**
-   * Defines a new custom validator.
-   */
-  public defineHandler(name: string, handler: (e?: any, r?: HandlerRecipe) => boolean | Promise<boolean>): void {
-    this._handlers[name] = handler;
   }
 
   /**
@@ -188,7 +100,7 @@ export abstract class Model {
 
     const lastKey = keys.pop();
     if (keys.length === 0) {
-      return this._props[lastKey];
+      return this.$props[lastKey];
     }
 
     const prop = keys.reduce((a, c) => (a[c] || {}), this);
@@ -203,39 +115,13 @@ export abstract class Model {
   }
 
   /**
-   * Returns prop value instance.
-   */
-  public toValue(value, strategy?: string) {
-    if (value instanceof Model) {
-      const data = normalize(value);
-      return value.reset().populate(data, strategy);
-    } else if (isArray(value)) {
-      return value.map((v) => this.toValue(v, strategy));
-    } else {
-      return value;
-    }
-  }
-
-  /**
    * Deeply assignes data to model props.
    */
-  public populate(data = {}, strategy?: string): this {
+  public populate(data: any, strategy?: string): this {
+
     Object.keys(data || {})
-      .filter((n) => (
-        !!this._props[n]
-      ))
-      .forEach((name) => {
-        const prop = this._props[name];
-        const value = prop.cast(data[name]);
-        if (
-          isString(strategy)
-          && isArray(prop.populatable)
-          && prop.populatable.indexOf(strategy) !== -1
-          || !isString(strategy)
-        ) {
-          this[name] = this.toValue(value, strategy);
-        }
-      });
+      .filter((key) => !!this.$props[key])
+      .forEach((key) => this.$props[key].setValue(normalize(data[key]), strategy));
 
     return this;
   }
@@ -246,61 +132,46 @@ export abstract class Model {
   public serialize(strategy?: string): { [key: string]: any } {
     const data = {};
 
-    function toObject(value) {
-      if (value instanceof Model) {
-        return value.serialize(strategy);
-      } else if (isArray(value)) {
-        return value.map((v) => toObject(v));
-      } else {
-        return value;
-      }
-    }
-
-    Object.keys(this._props).forEach((name) => {
-      const prop = this._props[name];
-      if (
-        isString(strategy)
-        && isArray(prop.serializable)
-        && prop.serializable.indexOf(strategy) !== -1
-        || !isString(strategy)
-      ) {
-        data[name] = toObject(prop.value);
-      }
-    });
+    Object.keys(this.$props)
+      .forEach((key) => {
+        const value = this.$props[key].serialize(strategy);
+        if (!isUndefined(value)) {
+          data[key] = value;
+        }
+      });
 
     return data;
   }
 
   /**
-   * Scrolls through the model and returns an array of props.
+   * Scrolls through the model and returns an array of property instances.
    */
   public flatten(prefix: string[] = []): PropRef[] {
     let props = [];
 
-    Object.keys(this._props).forEach((name) => {
-      const prop = this._props[name];
-      const type = prop.type;
-      const path = (prefix || []).concat(name);
-      const value = prop.value;
+    Object.keys(this.$props)
+      .forEach((key) => {
+        const prop = this.$props[key];
+        const path = (prefix || []).concat(key);
 
-      props.push({path, prop});
+        props.push({ path, prop });
 
-      if (isPresent(value) && isPresent(type)) {
-        if (type.prototype instanceof Model) {
-          props = props.concat(
-            value.flatten(path)
-          );
+        if (!prop.isEmpty() && prop.isModel()) {
+          if (prop.isArray()) {
+            props = props.concat(
+              prop.getValue()
+                .map((f, i) => (f && f instanceof Model ? f.flatten(path.concat([i])) : null))
+                .filter((f) => isArray(f))
+                .reduce((a, b) => a.concat(b), [])
+            );
+          }
+          else {
+            props = props.concat(
+              prop.getValue().flatten(path)
+            );
+          }
         }
-        else if (isArray(type) && type[0].prototype instanceof Model) {
-          props = props.concat(
-            value
-              .map((f, i) => (f && f instanceof Model ? f.flatten(path.concat([i])) : null))
-              .filter((f) => isArray(f))
-              .reduce((a, b) => a.concat(b), [])
-          );
-        }
-      }
-    });
+      });
 
     return props;
   }
@@ -342,18 +213,19 @@ export abstract class Model {
    * Sets each model prop to its default value.
    */
   public reset(): this {
-    Object.keys(this._props)
-      .forEach((name) => this._props[name].reset());
+    
+    Object.keys(this.$props)
+      .forEach((key) => this.$props[key].reset());
 
     return this;
   }
 
   /**
-   * Resets props then sets props to their fake values.
+   * Resets properties then sets properties to their fake values.
    */
   public fake(): this {
-    Object.keys(this._props)
-      .forEach((name) => this._props[name].fake());
+    Object.keys(this.$props)
+      .forEach((key) => this.$props[key].fake());
 
     return this;
   }
@@ -361,9 +233,9 @@ export abstract class Model {
   /**
    * Sets all fileds to `null`.
    */
-  public clear(): this {
-    Object.keys(this._props)
-      .forEach((name) => this._props[name].clear());
+  public empty(): this {
+    Object.keys(this.$props)
+      .forEach((name) => this.$props[name].empty());
 
     return this;
   }
@@ -372,8 +244,8 @@ export abstract class Model {
    * Resets information about changed props by setting initial value of each prop.
    */
   public commit(): this {
-    Object.keys(this._props)
-      .forEach((name) => this._props[name].commit());
+    Object.keys(this.$props)
+      .forEach((name) => this.$props[name].commit());
 
     return this;
   }
@@ -382,20 +254,20 @@ export abstract class Model {
    * Sets each prop to its initial value (value before last commit).
    */
   public rollback(): this {
-    Object.keys(this._props)
-      .forEach((name) => this._props[name].rollback());
+    Object.keys(this.$props)
+      .forEach((name) => this.$props[name].rollback());
 
     return this;
   }
 
   /**
-   * Returns `true` when the `value` represents an object with the
-   * same prop values as the original model.
+   * Returns `true` when the `value` represents an object with the same prop
+   * values as the original model.
    */
-  public equals(value: any): boolean {
-    return isEqual(
-      normalize(this),
-      normalize(value)
+  public isEqual(value: any): boolean {
+    return isDeepEqual(
+      this.serialize(),
+      value instanceof Model ? value.serialize() : normalize(value)
     );
   }
 
@@ -403,16 +275,18 @@ export abstract class Model {
    * Returns `true` if at least one prop has been changed.
    */
   public isChanged(): boolean {
-    return Object.keys(this._props)
-      .some((name) => this._props[name].isChanged());
+    // return Object.keys(this.$props)
+    //   .some((name) => this.$props[name].isChanged());
+    return false;
   }
 
   /**
-   * Returns `true` if nested props exist.
+   * Returns `true` when no errors exist.
    */
-  public isNested(): boolean {
-    return Object.keys(this._props)
-      .some((name) => this._props[name].isNested());
+  public isValid(): boolean {
+    // return !Object.keys(this.$props)
+    //   .some((name) => !this.$props[name].isValid());
+    return false;
   }
 
   /**
@@ -423,62 +297,55 @@ export abstract class Model {
   }: {
     quiet?: boolean
   } = {}): Promise<this> {
-    const props = this._props;
 
     await Promise.all(
-      Object.keys(props)
-        .map((n) => props[n].validate())
+      Object.keys(this.$props)
+        .map((n) => this.$props[n].validate())
     );
 
-    if (!quiet && this.hasErrors()) {
-      throw this._createValidationError();
+    if (!quiet && !this.isValid()) {
+      const error = new Error('Validation failed');
+      error['code'] = 422;
+      throw error;
     }
+
     return this;
   }
 
-  /**
-   * Handles the error and throws an error if the error can not be handled.
-   */
-  public async handle(error: any, {
-    quiet = true
-  }: {
-    quiet?: boolean
-  } = {}): Promise<this> {
-    if (!error) return this; // blank values are valid
-    if (error.code === 422) return this; // validation errors are ignored
+  // /**
+  //  * Handles the error and throws an error if the error can not be handled.
+  //  */
+  // public async handle(error: any, {
+  //   quiet = true
+  // }: {
+  //   quiet?: boolean
+  // } = {}): Promise<this> {
+  //   if (!error) return this; // blank values are valid
+  //   if (error.code === 422) return this; // validation errors are ignored
 
-    const props = this._props;
-    await Promise.all(
-      Object.keys(props)
-        .map((n) => props[n].handle(error))
-    );
+  //   const props = this._props;
+  //   await Promise.all(
+  //     Object.keys(props)
+  //       .map((n) => props[n].handle(error))
+  //   );
 
-    if (!quiet && this.hasErrors()) {
-      throw this._createValidationError();
-    }
-    else if (!this.hasErrors()) {
-      throw error; // always throw unhandled errors
-    }
-    return this;
-  }
-
-  /**
-   * Returns a list of all props with errors.
-   */
-  public collectErrors(): PropErrorRef[] {
-    return this.flatten()
-      .map(({path, prop}) => ({path, errors: prop.errors} as PropErrorRef))
-      .filter(({path, errors}) => errors.length > 0);
-  }
+  //   if (!quiet && this.hasErrors()) {
+  //     throw this._createValidationError();
+  //   }
+  //   else if (!this.hasErrors()) {
+  //     throw error; // always throw unhandled errors
+  //   }
+  //   return this;
+  // }
 
   /**
    * Sets props errors.
    */
-  public applyErrors(errors: PropErrorRef[] = []): this {
-    errors.forEach((error) => {
+  public applyErrors(errors: PropError[] = []): this {
+    toArray(errors).forEach((error) => {
       const prop = this.getProp(...error.path);
       if (prop) {
-        prop.errors = error.errors;
+        prop.setErrorCodes(...error.errors);
       }
     });
 
@@ -486,35 +353,29 @@ export abstract class Model {
   }
 
   /**
-   * Returns `true` when errors exist (inverse of `isValid`).
+   * Returns a list of all props with errors.
    */
-  public hasErrors(): boolean {
-    return Object.keys(this._props)
-      .some((name) => this._props[name].hasErrors());
+  public collectErrors(): PropError[] {
+    return this.flatten()
+      .map(({ path, prop }) => ({ path, errors: prop.getErrorCodes() }))
+      .filter(({ errors }) => errors.length > 0);
   }
 
-  /**
-   * Returns `true` when no errors exist (inverse of `hasErrors`).
-   */
-  public isValid(): boolean {
-    return !this.hasErrors();
-  }
+  // /**
+  //  * Removes props errors.
+  //  */
+  // public invalidate(): this {
+  //   Object.keys(this._props)
+  //     .forEach((name) => this._props[name].invalidate());
 
-  /**
-   * Removes props errors.
-   */
-  public invalidate(): this {
-    Object.keys(this._props)
-      .forEach((name) => this._props[name].invalidate());
+  //   return this;
+  // }
 
-    return this;
-  }
-
-  /**
-   * Returns a new Model instance which is the exact copy of the original.
-   */
-  public clone(data = {}): this {
-    return this._createModel({ parent: this.parent })
-      .populate(merge({}, this.serialize(), data));
-  }
+  // /**
+  //  * Returns a new Model instance which is the exact copy of the original.
+  //  */
+  // public clone(data = {}): this {
+  //   return this._createModel({ parent: this.parent })
+  //     .populate(merge({}, this.serialize(), data));
+  // }
 }
