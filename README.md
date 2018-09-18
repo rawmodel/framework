@@ -44,7 +44,7 @@ model.name; // => 'John Smith'
 
 Below we explain some of the most important features that this framework provides. Please check the API section to see a complete list of features.
 
-### Defining Fields
+### Defining Props
 
 Model properties are defined using the `prop` ES6 decorator. The code below is an example of a basic model class with a `name` property.
 
@@ -103,11 +103,11 @@ class User extends Model {
 }
 ```
 
-### Field Default Value
+### Prop Default Value
 
 We can set a `defaultValue` for each property which will automatically populate a property on creation.
 
-The `defaultValue` can also be a method which returns a dynamic value. This function shares the context of a property instance thus you have access to all the features of the `Field` class.
+The `defaultValue` can also be a method which returns a dynamic value. This function shares the context of a property instance thus you have access to all the features of the `Prop` class.
 
 ```ts
 @prop({
@@ -116,11 +116,11 @@ The `defaultValue` can also be a method which returns a dynamic value. This func
 now: string;
 ```
 
-### Field Fake Value
+### Prop Fake Value
 
 Similar to default values, we can set a `fakeValue` for each property, to populate a property with fakes data when calling the `fake()` method.
 
-The `fakeValue` can also be a method which returns a dynamic value. This function shares the context of a property instance, thus you have access to all the features of the `Field` class.
+The `fakeValue` can also be a method which returns a dynamic value. This function shares the context of a property instance, thus you have access to all the features of the `Prop` class.
 
 ```ts
 @prop({
@@ -129,11 +129,11 @@ The `fakeValue` can also be a method which returns a dynamic value. This functio
 today: string;
 ```
 
-### Field Empty Value
+### Prop Empty Value
 
 By default, all defined properties are set to `null`. Similar to default and fake value we can set an `emptyValue` option for each property, to automatically replace `null` values.
 
-The `emptyValue` can also be a method which returns a dynamic value. Note that this function shares the context of a property instance, thus you have access to all the features of the `Field` class.
+The `emptyValue` can also be a method which returns a dynamic value. Note that this function shares the context of a property instance, thus you have access to all the features of the `Prop` class.
 
 ```ts
 @prop({
@@ -142,9 +142,9 @@ The `emptyValue` can also be a method which returns a dynamic value. Note that t
 name: string;
 ```
 
-### Field Value Transformation
+### Prop Value Transformation
 
-A property can have a custom `getter` and a custom `setter`. These methods all share the context of a property instance, thus you have access to all the features of the `Field` class.
+A property can have a custom `getter` and a custom `setter`. These methods all share the context of a property instance, thus you have access to all the features of the `Prop` class.
 
 ```ts
 @prop({
@@ -205,7 +205,7 @@ user.scroll(function(property) { // argument is an instance of a property
 });
 ```
 
-Fields are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude properties for different occasions by using serialization strategies.
+Props are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude properties for different occasions by using serialization strategies.
 
 ```ts
 class User extends Model {
@@ -331,57 +331,58 @@ graphql(schema, '{ hello }', root).then((response) => {
 
 ### Model Class
 
-**Model(data, )**
+**Model(data, config)**
 
 > Abstract class which represents a strongly-typed JavaScript object.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | data | Object | No | - | Data for populating model properties.
-| parent | Model | Only when used as a submodel | - | Parent model instance.
+| config.ctx | Any | No | - | Model context
+| config.failFast | Boolean | No | false | When `true` the validation and error handling stops when the first error is found.
+| config.parent | Model | Only when used as a submodel | - | Parent model instance.
 
 ```ts
 class User extends Model {
-  public name: string;
-
-  public constructor({ parent, ...data } = {}) {
-    super({ parent }); // initializing the Model
-
-    this.defineField('name', {
-      type: 'String', // [optional] property type casting
-      populatable: ['input', 'internal'], // [optional] population strategies
-      serializable: ['input', 'output'], // [optional] serialization strategies
-      enumerable: true, // [optional] when set to `false` the property is not enumerable (ignored by `Object.keys()`)
-      get (v) { return v }, // [optional] custom getter
-      set (v) { return v }, // [optional] custom setter
-      validate: [ // [optional] value validator recipes
-        { // validator recipe (check validatable.js for more)
-          validator: 'presence', // [required] validator name
-          condition () { return true }, // [optional] condition which switches the validation on/off
-          message: '%{it} must be present', // [optional] error message
-          code: 422, // [optional] error code
-          it: 'it' // [optional] custom variable for the `message`
-        }
-      ],
-      handle: [ // [optional] error handling recipies
-        { // handler recipe
-          handler: 'block', // [optional] handler name
-          condition () { return true }, // [optional] condition which switches the handling on/off
-          message: '%{is} unknown', // [optional] error message
-          code: 422, // [optional] error code
-          block (error) { return true }, // [optional] handler-specific function
-          is: 'is' // [optional] custom variable for the `message`
-        }
-      ],
-      defaultValue: 'Noname', // [optional] property default value (value or function)
-      fakeValue: 'Noname', // [optional] property fake value (value or function)
-    });
-
-    this.populate(data); // [optional] a good practice to enable data population from model constructor
-    this.commit(); // [optional] a good practice to commit default data
-  }
+  @prop({
+    set(v) { return v; }, // [optional] custom setter
+    get(v) { return v; }, // [optional] custom getter
+    cast: { // [optional] property type casting
+      handler(v) { return `${v}`; }, // [optional] type handler function
+      array: false, // [optional] force to array type
+    },
+    defaultValue: 'Noname', // [optional] property default value (value or function)
+    fakeValue: 'Noname', // [optional] property fake value (value or function)
+    emptyValue: '', // [optional] property empty value (value or function)
+    validate: [ // [optional] value validator recipes
+      { // validator recipe (check validatable.js for more)
+        handler(v) { return !!v; }, // [required] validator function (supports async)
+        condition(v) { return true; }, // [optional] condition which switches the validation on/off
+        code: 422, // [optional] error code
+      },
+    ],
+    handle: [ // [optional] error handling recipies
+      { // handler recipe
+        handler(e) { return e.message === 'foo'; }, // [required] error handler function (supports async)
+        condition(e) { return true; }, // [optional] condition which switches the handling on/off
+        code: 422, // [optional] error code
+      },
+    ],
+    populatable: ['input', 'internal'], // [optional] population strategies
+    serializable: ['input', 'output'], // [optional] serialization strategies
+    enumerable: true, // [optional] when set to `false` the property is not enumerable (ignored by `Object.keys()`)
+  })
+  name: string; // [required] typescript property definition
 }
 ```
+
+**Model.prototype.$config**: Object
+
+> Model configuration data.
+
+**Model.prototype.$props**: Object
+
+> Model property instances.
 
 **Model.prototype.applyErrors(errors)**: Model
 
@@ -391,24 +392,18 @@ class User extends Model {
 model.applyErrors([
   {
     path: ['books', 1, 'title'], // property path
-    errors: [
-      {
-        validator: 'presence', // or handler: ''
-        message: 'is required',
-        code: 422,
-      },
-    ],
+    errors: [422, 500], // error codes
   },
 ]);
 ```
 
-**Model.prototype.clear()**: Model
-
-> Sets all model properties to `null`.
-
-**Model.prototype.clone()**: Model
+**Model.prototype.clone(data)**: Model
 
 > Returns a new Model instance which is the exact copy of the original.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| data | Object | No | - | Data to override initial data.
 
 **Model.prototype.collect(handler)**: Array
 
@@ -430,52 +425,9 @@ model.collectErrors(); // => { path: ['name'], errors: [{ validator: 'absence', 
 
 > Sets initial value of each model property to the current value of a property. This is how property change tracking is restarted.
 
-**Model.prototype.defineField(name, { type, populatable, serializable, enumerable, get, set, defaultValue, fakeValue, validate })**: Void
+**Model.prototype.empty()**: Model
 
-> Defines a new model property.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | Yes | - | Property name.
-| populatable | String[] | No | undefined | Population strategies (used by `.populate()`).
-| serializable | String[] | No | undefined | Serialization strategies (used by `.serialize()`).
-| enumerable | Boolean | No | true | When set to `false` the property is not enumerable (ignored by `Object.keys()`).
-| type | String, Model | No | - | Data type (pass a Model to create a nested structure; check [typeable.js](https://github.com/xpepermint/validatablejs) for more).
-| get | Function | No | - | Custom getter.
-| set | Function | No | - | Custom setter.
-| defaultValue | Any | No | - | Field default value.
-| fakeValue | Any | No | - | Field fake value.
-| validate | Array | No | - | List of validation recipies (check [validatable.js](https://github.com/xpepermint/validatablejs) for more).
-
-**Model.prototype.defineType(name, converter)**: Void
-
-> Defines a custom data type.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | Yes | - | Type name.
-| converter | Function | Yes | - | Type converter.
-
-**Model.prototype.defineValidator(name, handler)**: Void
-
-> Defines a custom validator.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| name | String | Yes | - | Validator name.
-| handler | Function, Promise | Yes | - | Validator handler.
-
-**Model.prototype.equals(value)**: Boolean
-
-> Returns `true` when the provided `value` represents an object with the same properties as the model itself.
-
-**Model.prototype.failFast(fail)**: Void
-
-> Configures validator to stop property validation on the first error.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| fail | Boolean | No | false | Stops property validation on the first error when set to `true`.
+> Sets all model properties to `null`.
 
 **Model.prototype.fake()**: Model
 
@@ -494,16 +446,24 @@ model.collectErrors(); // => { path: ['name'], errors: [{ validator: 'absence', 
 > Converts the model into an array of properties.
 
 ```ts
-user.flatten(); // -> [{path: [...], property: ...}, ...]
+user.flatten(); // -> [{ path: [...], property: ... }, ...]
 ```
 
-**Model.prototype.getField(...keys)**: Field
+**Model.prototype.getParent()**: Model
+
+> Returns the parent model instance in a tree of models.
+
+**Model.prototype.getProp(...keys)**: Prop
 
 > Returns a class instance of a property at path.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a property (e.g. `['book', 0, 'title']`).
+
+**Model.prototype.getRoot()**: Model
+
+> Returns the first model instance in a tree of models.
 
 **Model.prototype.handle(error, { quiet }): Promise(Model)**
 
@@ -516,18 +476,22 @@ user.flatten(); // -> [{path: [...], property: ...}, ...]
 
 ```ts
 try {
-  // throws an error (e.g. you can call the `validate()` method)
-}
-catch (e) {
-  model.handle(e);
+  await model.validate(e); // imagine it throws an error
+} catch (e) {
+  await model.handle(e);
 }
 ```
 
-**Model.prototype.hasErrors()**: Boolean
+**Model.prototype.isChanged()**: Boolean
 
-> Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
+> Returns `true` if at least one model property has been changed.
+]
 
-**Model.prototype.hasField(...keys)**: Boolean
+**Model.prototype.isEqual(value)**: Boolean
+
+> Returns `true` when the provided `value` represents an object with the same properties as the model itself.
+
+**Model.prototype.isProp(...keys)**: Boolean
 
 > Returns `true` when a property path exists.
 
@@ -535,29 +499,13 @@ catch (e) {
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a property (e.g. `['book', 0, 'title']`).
 
-**Model.prototype.isChanged()**: Boolean
-
-> Returns `true` if at least one model property has been changed.
-
-**Model.prototype.isNested()**: Boolean
-
-> Returns `true` if nested properties exist.
-
 **Model.prototype.isValid()**: Boolean
 
-> Returns `true` when all model properties are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
+> Returns `true` when all model properties are valid. Make sure that you call the `validate()` method first.
 
 **Model.prototype.invalidate()**: Model
 
 > Clears `errors` on all properties.
-
-**Model.prototype.options**: Object
-
-> Model options.
-
-**Model.prototype.parent**: Model
-
-> Parent model instance.
 
 **Model.prototype.populate(data, strategy)**: Model
 
@@ -575,10 +523,6 @@ catch (e) {
 **Model.prototype.rollback()**: Model
 
 > Sets each model property to its initial value (last committed value). This is how you can discharge model changes.
-
-**Model.prototype.root**: Model
-
-> The first model instance in a tree of models.
 
 **Model.prototype.scroll(handler)**: Integer
 
@@ -607,69 +551,68 @@ catch (e) {
 ```ts
 try {
   await model.validate(); // throws a validation error when invalid properties exist
-}
-catch (e) {
+} catch (e) {
   // `e` is a 422 validation error
 }
 ```
 
-### Field Class
+### Prop Class
 
-**Field({ type, get, set, defaultValue, fakeValue, validate, validators, handle, handlers, owner, failFast })**
+**Prop(config)**
 
 > A model property.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| type | String, Model | No | - | Data type (pass a Model to create a nested structure).
-| get | Function | No | - | Custom getter.
-| set | Function | No | - | Custom setter.
-| defaultValue | Any | No | - | Field default value.
-| fakeValue | Any | No | - | Field fake value.
-| validate | Array | No | - | List of validator recipes.
-| handle | Array | No | - | List of error handler recipes.
-| validators | Object | No | - | Custom validators.
-| handlers | Object | No | - | Custom handlers.
-| owner | Model | No | - | An instance of a Model which owns the property.
-| failFast | Boolean | No | false | Stops validation on the first error when set to `true`.
+| config.set | Function | No | - | Custom setter.
+| config.get | Function | No | - | Custom getter.
+| config.cast.handler | String, Model | No | - | Data type handler (pass a Model to create a nested structure).
+| config.cast.array | Boolean | No | false | Force array type.
+| config.defaultValue | Any | No | - | Prop default value.
+| config.fakeValue | Any | No | - | Prop fake value.
+| config.emptyValue | Any | No | - | Prop empty value.
+| config.validator | Validator | No | Validator | Property validator instance.
+| config.validate | Array | No | - | List of validator recipes.
+| config.handler | Handler | No | Handler | Property error handler instance.
+| config.handle | Array | No | - | List of error handler recipes.
+| config.populatable | String[] | No | - | List of strategies for populating the property value.
+| config.serializable | String[] | No | - | List of strategies for serializing the property value.
+| config.enumerable | Boolean | No | true | Indicates that the property is enumerable.
+| config.model | Model | No | null | Parent model instance.
 
-**Field.prototype.cast(value)**: Any
+**Prop.prototype.$config**: Object
 
-> Returns transformed value based on property's type.
+> Property configuration object.
 
-**Field.prototype.clear()**: Field
+**Prop.prototype.empty()**: Prop
 
 > Sets property and related subproperties to `null`.
 
-**Field.prototype.commit()**: Field
+**Prop.prototype.commit()**: Prop
 
 > Sets initial value to the current value. This is how property change tracking is restarted.
 
-**Field.prototype.defaultValue**: Any
-
-> A getter which returns the default property value.
-
-**Field.prototype.errors**: Object[]
-
-> List of property errors (sets the `validate` method).
-
-**Field.prototype.equals(value)**: Boolean
-
-> Returns `true` when the provided `value` represents an object that looks the same.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| value | Any | Yes | - | A value to compare to.
-
-**Field.prototype.fake()**: Field
+**Prop.prototype.fake()**: Prop
 
 > Sets property to a generated fake value.
 
-**Field.prototype.fakeValue**: Any
+**Prop.prototype.getErrorCodes()**: Number[]
 
-> A getter which returns a fake property value.
+> List of property error codes (sets the `validate` method).
 
-**Field.prototype.handle(error)**: Promise(Field)
+**Prop.prototype.getInitialValue()**: Any
+
+> Returns property initial value.
+
+**Prop.prototype.getValue()**: Any
+
+> Returns current property value.
+
+**Prop.prototype.getRawValue()**: Any
+
+> Returns current property raw value.
+
+**Prop.prototype.handle(error)**: Promise(Prop)
 
 > Validates the `value` and populates the `errors` property with errors.
 
@@ -677,272 +620,93 @@ catch (e) {
 |--------|------|----------|---------|------------
 | error | Any | Yes | - | Error to be handled.
 
-**Field.prototype.hasErrors()**: Boolean
+**Prop.prototype.isArray()**: Boolean
 
-> Returns `true` when no errors exist (inverse of `isValid()`). Make sure that you call the `validate()` method first.
+> Returns `true` if the property is an array.
 
-**Field.prototype.initialValue**: Any
+**Prop.prototype.isEmpty()**: Boolean
 
-> A getter which returns the last committed property value.
+> Returns `true` if the property has no value.
 
-**Field.prototype.isChanged()**: Boolean
+**Prop.prototype.isEqual(value)**: Boolean
+
+> Returns `true` when the provided `value` represents an object that looks the same.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| value | Any | Yes | - | A value to compare to.
+
+**Prop.prototype.isChanged()**: Boolean
 
 > Returns `true` if the property or at least one subproperty have been changed.
 
-**Field.prototype.isNested()**: Boolean
+**Prop.prototype.isModel()**: Boolean
 
 > Returns `true` if the property is a nested model.
 
-**Field.prototype.isValid()**: Boolean
+**Prop.prototype.isPopulatable(strategy)**: Boolean
+
+> Returns `true` if the property can be set.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| strategy | String | No | - | Populating strategy.
+
+**Prop.prototype.isSerializable(strategy)**: Boolean
+
+> Returns `true` if the property can be serialized.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| strategy | String | No | - | Serialization strategy.
+
+**Prop.prototype.isValid()**: Boolean
 
 > Returns `true` if the property and all subproperties are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
 
-**Field.prototype.invalidate()**: Field
+**Prop.prototype.invalidate()**: Prop
 
 > Clears the `errors` property on all properties (the reverse of `validate()`).
 
-**Field.prototype.options**: Object
-
-> A getter which returns property options.
-
-**Field.prototype.owner**: Model
-
-> A getter which returns a reference to a Model instance on which the property is defined.
-
-**Field.prototype.recipe**: Object
-
-> A getter which returns a property recipe object.
-
-**Field.prototype.reset()**: Field
+**Prop.prototype.reset()**: Prop
 
 > Sets the property to its default value.
 
-**Field.prototype.rollback()**: Field
+**Prop.prototype.rollback()**: Prop
 
 > Sets the property to its initial value (last committed value). This is how you can discharge property's changes.
 
-**Field.prototype.type**: Any
+**Prop.prototype.serialize(strategy)**
 
-> A getter which returns property type (set to `Model` for a nested structure).
+> Returns a serialized property value.
 
-**Field.prototype.validate()**: Promise(Field)
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| strategy | String | No | - | Serialization strategy.
+
+**Prop.prototype.setValue(value)**
+
+> Sets current property value.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| value | String | Yes | - | Arbitrary value.
+
+**Prop.prototype.validate()**: Promise(Prop)
 
 > Validates the `value` and populates the `errors` property with errors.
-
-**Field.prototype.value**: Any
-
-> Field current value (the actual model's property).
 
 ### Built-in Data Types
 
 | Type | Description
 |------|------------
-| 'String' | A string value.
-| 'Boolean' | A boolean value.
-| 'Number' | An integer or a float number.
-| 'Integer' | An integer number.
-| 'Float' | A float number.
-| 'Date' | A date.
-
-**NOTE:** Field data type should always represent a `value`. This means that you should never assign a `function` to a property. If you need to handle dynamic property values, please use [property value transformations](#property-value-transformation) instead. You can also define your own data type by using the `defineType` method.
-
-### Built-in Validators
-
-**absence**
-
-> Validates that the specified property is blank.
-
-**arrayExclusion**
-
-> Validates that the specified property is not in an array of values.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| values | Array | Yes | - | Array of restricted values.
-
-**arrayInclusion**
-
-> Validates that the specified property is in an array of values.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| values | Array | Yes | - | Array of allowed values.
-
-**arrayLength**
-
-> Validates the size of an array.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| min | Number | No | - | Allowed minimum items count.
-| minOrEqual | Number | No | - | Allowed minimum items count (allowing equal).
-| max | Number | No | - | Allowed maximum items count.
-| maxOrEqual | Number | No | - | Allowed maximum items count (allowing equal).
-
-**block**
-
-> Validates the specified property against the provided block function. If the function returns true then the property is treated as valid.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| block | Function,Promise | Yes | - | Synchronous or asynchronous function (e.g. `async () => true`)
-
-```ts
-const recipe = {
-  validator: 'block',
-  message: 'must be present',
-  async block (value, recipe) { return true },
-};
-```
-
-**numberSize**
-
-> Validates the size of a number.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| min | Number | No | - | Allowed minimum value.
-| minOrEqual | Number | No | - | Allowed minimum value (allowing equal).
-| max | Number | No | - | Allowed maximum value.
-| maxOrEqual | Number | No | - | Allowed maximum value (allowing equal).
-
-**presence**
-
-> Validates that the specified property is not blank.
-
-**stringBase64**
-
-> Validates that the specified property is base64 encoded string.
-
-**stringDate**
-
-> Validates that the specified property is a date string.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|----------|-----------
-| iso | Boolean | No | false | When `true` only ISO-8601 date format is accepted.
-
-**stringEmail**
-
-> Validates that the specified property is an email.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| allowDisplayName | Boolean | No | false | When set to true, the validator will also match `name <address>`.
-| allowUtf8LocalPart | Boolean | No | false | When set to false, the validator will not allow any non-English UTF8 character in email address' local part.
-| requireTld | Boolean | No | true | When set to false, email addresses without having TLD in their domain will also be matched.
-
-**stringETHAddress**
-
-> Checks if the string represents an ethereum address.
-
-**stringExclusion**
-
-> Checks if the string does not contain the seed.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| seed | String | Yes | - | The seed which should exist in the string.
-
-**stringFQDN**
-
-> Validates that the specified property is a fully qualified domain name (e.g. domain.com).
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| requireTld | Boolean | No | true | Require top-level domain name.
-| allowUnderscores | Boolean | No | false | Allow string to include underscores.
-| allowTrailingDot | Boolean | No | false | Allow string to include a trailing dot.
-
-**stringHexColor**
-
-> Validates that the specified property is a hexadecimal color string.
-
-**stringHexadecimal**
-
-> Validates that a specified property is a hexadecimal number.
-
-**stringInclusion**
-
-> Checks if the string contains the seed.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| seed | String | Yes | - | The seed which should exist in the string.
-
-**stringJSON**
-
-> Validates that the specified property is a JSON string.
-
-**stringLength**
-
-> Validates the length of the specified property.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| bytes | Boolean | No | false | When `true` the number of bytes is returned.
-| min | Number | No | - | Allowed minimum number of characters.
-| minOrEqual | Number | No | - | Allowed minimum value number of characters (allowing equal).
-| max | Number | No | - | Allowed maximum number of characters.
-| maxOrEqual | Number | No | - | Allowed maximum number of characters (allowing equal).
-
-**stringLowercase**
-
-> Validates that the specified property is lowercase.
-
-**stringMatch**
-
-> Validates that the specified property matches the pattern.
-
-| Key | Type | Required | Default | Description
-|-----|------|----------|---------|------------
-| regexp | RegExp | Yes | - | Regular expression pattern.
-
-**stringUppercase**
-
-> Validates that the specified property is uppercase.
-
-**stringUUID**
-
-> Validates that the specified property is a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| version | Integer | No | - | UUID version (1, 2, 3, 4 or 5).
-
-### Built-in Handlers
-
-**block**
-
-> Checks if the provided block function succeeds.
-
-| Option | Type | Required | Description
-|--------|------|----------|------------
-| block | Function,Promise | Yes | Synchronous or asynchronous function (e.g. `async () => true`).
-
-```ts
-const recipe = {
-  handler: 'block',
-  message: 'is unknown error',
-  async block (error, recipe) { return true },
-};
-```
-
-**mongoUniqueness**
-
-> Checks if the error represents a MongoDB unique constraint error.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| indexName | String | Yes | - | MongoDB collection's unique index name.
-
-```ts
-const recipe = {
-  handler: 'mongoUniqueness',
-  message: 'is unknown error',
-  indexName: 'uniqueEmail', // make sure that this index name exists in your MongoDB collection
-};
-```
+| 'String' | String value.
+| 'Boolean' | Boolean value.
+| 'Number' | Integer or a float number.
+| 'Integer' | Integer number.
+| 'Float' | Float number.
+| 'Date' | Date object.
+| Model | Nested model instance.
 
 ## Packages
 
