@@ -403,14 +403,14 @@ spec.test('method `getProp` returns an instance of a prop at path', (ctx) => {
   ctx.is(user.getProp(), undefined);
 });
 
-spec.test('method `hasProp` returns `true` if the prop exists', (ctx) => {
+spec.test('method `isProp` returns `true` if the prop exists', (ctx) => {
   class User extends Model {
     @prop()
     name: string;
   }
   const user = new User();
-  ctx.is(user.hasProp(['name']), true);
-  ctx.is(user.hasProp(['book', 'title']), false);
+  ctx.is(user.isProp(['name']), true);
+  ctx.is(user.isProp(['book', 'title']), false);
 });
 
 spec.test('method `flatten` returns an array of props', (ctx) => {

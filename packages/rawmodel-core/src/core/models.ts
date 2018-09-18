@@ -113,7 +113,7 @@ export class Model {
   /**
    * Returns `true` if the prop exists.
    */
-  public hasProp(...keys: any[]): boolean {
+  public isProp(...keys: any[]): boolean {
     return !isUndefined(this.getProp(...keys));
   }
 
