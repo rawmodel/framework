@@ -1,0 +1,17 @@
+title: rawmodel
+heading: Strongly-typed JavaScript object with support for validation and error handling.
+logo: /assets/images/rawmodel.svg
+email: info@rawmodel.org
+google_analytics: 
+
+menu:
+  - url: '#introduction'
+    title: What is rawmodel
+  - url: '#installation'
+    title: Getting started 
+  - url: '#usage'
+    title: Usage
+
+remote_theme: davision/rawmodel-gp-theme
+plugins:
+  - jekyll-remote-theme
