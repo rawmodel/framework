@@ -715,7 +715,7 @@ try {
 
 > Validates the `value` and populates the `errors` property with errors.
 
-### Built-in Data Types
+### Available Data Types
 
 | Type | Description
 |------|------------
@@ -727,12 +727,32 @@ try {
 | 'Date' | Date object.
 | Model | Nested model instance.
 
+### Available Handlers
+
+**mongoUniquenessHandler(options)**
+
+> Checks if the error represents a MongoDB unique constraint error.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.indexName | String | No | - | MongoDB collection's unique index name.
+
+```js
+import { mongoUniquenessHandler } from '@rawmodel/handlers';
+
+const recipe = { // make sure that this index name exists in your MongoDB collection
+  handler: mongoUniquenessHandler({ indexName: 'uniqueEmail' }),
+  code: 422,
+};
+```
+
 ## Packages
 
 | Package | Description | Version
 |-|-|-
 | [@rawmodel/core](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-core) | Model and property classes. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fcore.svg)](https://badge.fury.io/js/%40rawmodel%2Fcore)
 | [@rawmodel/handler](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-handler) | Property error handler. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fhandler.svg)](https://badge.fury.io/js/%40rawmodel%2Fhandler)
+| [@rawmodel/handlers](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-handlers) | Collection of error handlers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fhandlers.svg)](https://badge.fury.io/js/%40rawmodel%2Fhandlers)
 | [@rawmodel/parser](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-parser) | Parsing and type casting. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fparser.svg)](https://badge.fury.io/js/%40rawmodel%2Fparser)
 | [@rawmodel/utils](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-utils) | Framework helpers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Futils.svg)](https://badge.fury.io/js/%40rawmodel%2Futils)
 | [@rawmodel/validator](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-validator) | Property validator. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fvalidator.svg)](https://badge.fury.io/js/%40rawmodel%2Fvalidator)
