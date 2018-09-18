@@ -1,10 +1,10 @@
 import { Spec } from '@hayspec/spec';
-import * as validator from '..';
+import * as handlers from '..';
 
 const spec = new Spec();
 
 spec.test('exposed content', (t) => {
-  t.true(!!validator.Validator);
-});
+  t.true(!!handlers.mongoUniquenessHandler);
+ });
 
 export default spec;
