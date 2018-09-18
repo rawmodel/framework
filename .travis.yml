@@ -4,8 +4,6 @@ node_js:
   - 10
   - 9
   - 8
-  - 7
-  - 6
 script:
   # use latest npm to work on node9
   - npm install -g npm
