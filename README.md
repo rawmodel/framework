@@ -30,7 +30,7 @@ import { Model } from '@rawmodel/core';
 // defining a basic model
 class User extends Model {
   @prop()
-  public name: string;
+  name: string;
 }
 
 // usage example
@@ -49,11 +49,11 @@ Below we explain some of the most important features that this framework provide
 Model properties are defined using the `prop` ES6 decorator. The code below is an example of a basic model class with a `name` property.
 
 ```ts
-import { Model } from 'rawmodel';
+import { Model, prop } from 'rawmodel';
 
 class User extends Model {
   @prop()
-  public name: string;
+  name: string;
 }
 
 const user = new User();
@@ -172,11 +172,11 @@ class User extends Model {
   @prop({
     populatable: ['internal'], // list population strategy names
   })
-  public id: string;
+  id: string;
   @prop({
     populatable: ['input', 'internal'], // list population strategy names
   })
-  public name: string;
+  name: string;
 }
 
 const data = {
@@ -212,11 +212,11 @@ class User extends Model {
   @prop({
     serializable: ['output'], // list serialization strategy names
   })
-  public id: string;
+  id: string;
   @prop({
     serializable: ['input', 'output'], // list serialization strategy names
   })
-  public name: string;
+  name: string;
 }
 
 const user = new User({
@@ -235,7 +235,7 @@ RawModel tracks changes for all properties and provides a mechanism for committi
 ```ts
 class User extends Model {
   @prop()
-  public name: string;
+  name: string;
 }
 
 const user = new User();
@@ -264,7 +264,7 @@ class User extends Model {
       },
     ],
   })
-  public name: string;
+  name: string;
 }
 
 const user = new User();
@@ -288,7 +288,7 @@ class User extends Model {
       },
     ],
   })
-  public name: string;
+  name: string;
 }
 
 const error = new Error();
@@ -375,6 +375,25 @@ class User extends Model {
   name: string; // [required] typescript property definition
 }
 ```
+
+**Model.@prop(config)**
+
+> Model property decorator
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| config.set | Function | No | - | Custom setter.
+| config.get | Function | No | - | Custom getter.
+| config.cast.handler | String, Model | No | - | Data type handler (pass a Model to create a nested structure).
+| config.cast.array | Boolean | No | false | Force array type.
+| config.defaultValue | Any | No | - | Prop default value.
+| config.fakeValue | Any | No | - | Prop fake value.
+| config.emptyValue | Any | No | - | Prop empty value.
+| config.validate | Array | No | - | List of validator recipes.
+| config.handle | Array | No | - | List of error handler recipes.
+| config.populatable | String[] | No | - | List of strategies for populating the property value.
+| config.serializable | String[] | No | - | List of strategies for serializing the property value.
+| config.enumerable | Boolean | No | true | Indicates that the property is enumerable.
 
 **Model.prototype.$config**: Object
 
