@@ -25,7 +25,7 @@ This package uses promises thus you need to use [Promise polyfill](https://githu
 The code below shows a basic usage example.
 
 ```ts
-import { Model } from '@rawmodel/core';
+import { Model, prop } from '@rawmodel/core';
 
 // defining a basic model
 class User extends Model {
@@ -111,7 +111,7 @@ The `defaultValue` can also be a method which returns a dynamic value. This func
 
 ```ts
 @prop({
-  defaultValue () { return new Date() },
+  defaultValue() { return new Date() },
 })
 now: string;
 ```
@@ -124,7 +124,7 @@ The `fakeValue` can also be a method which returns a dynamic value. This functio
 
 ```ts
 @prop({
-  fakeValue () { return new Date() },
+  fakeValue() { return new Date() },
 })
 today: string;
 ```
@@ -137,7 +137,7 @@ The `emptyValue` can also be a method which returns a dynamic value. Note that t
 
 ```ts
 @prop({
-  fakeValue () { return '' },
+  fakeValue() { return '' },
 })
 name: string;
 ```
@@ -148,8 +148,8 @@ A property can have a custom `getter` and a custom `setter`. These methods all s
 
 ```ts
 @prop({
-  get (value) { return value },
-  set (value) { return value },
+  get(value) { return value },
+  set(value) { return value },
 })
 name: string;
 ```
@@ -260,7 +260,7 @@ class User extends Model {
       { // validator recipe
         handler: (v) => !!v, // [required] validator function
         code: 422, // [optional] error code
-        condition () { return true }, // [optional] condition which switches the validation on/off
+        condition() { return true }, // [optional] condition which switches the validation on/off
       },
     ],
   })
@@ -284,7 +284,7 @@ class User extends Model {
       { // handler recipe
         handler: (e) => e.message === 'foo', // [required] errir handler function
         code: 422, // [optional] error code
-        condition () { return true }, // [optional] condition which switches the handling on/off
+        condition() { return true }, // [optional] condition which switches the handling on/off
       },
     ],
   })
