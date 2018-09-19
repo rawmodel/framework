@@ -1,4 +1,4 @@
-# Rawmodel framework
+# Rawmodel Framework
 
 [![Build Status](https://travis-ci.org/rawmodel/framework.svg?branch=master)](https://travis-ci.org/rawmodel/framework)&nbsp;[![codecov](https://codecov.io/gh/rawmodel/framework/branch/master/graph/badge.svg)](https://codecov.io/gh/rawmodel/framework)
 
@@ -7,7 +7,7 @@ Rawmodel is a strongly-typed JavaScript object with support for validation and e
 
 ## Introduction
 
-RawModel provides a mechanism for creating strongly-typed data objects with built-in logic for unified data validation and error handling. It has a simple and intuitive API and tends to be a powerful, magic-free, minimalistic and unopinionated framework for writing application data layers where you have a complete control. It could be a perfect fit when writing an [Express.js](http://expressjs.com/) action, [GraphQL](http://graphql.org/) resolver or similar and it's easily extendable.
+Rawmodel provides a mechanism for creating strongly-typed data objects with built-in logic for unified data validation and error handling. It has a simple and intuitive API and tends to be a powerful, magic-free, minimalistic and unopinionated framework for writing application data layers where you have a complete control. It could be a perfect fit when writing an [Express.js](http://expressjs.com/) action, [GraphQL](http://graphql.org/) resolver or similar and it's easily extendable.
 
 ## Installation
 
@@ -291,7 +291,7 @@ class User extends Model {
 }
 
 const error = new Error();
-lconstet user = new User();
+const user = new User();
 user.handle(error).then(() => {
   user.collectErrors(); // -> [{ path: ['name'], errors: [{ handler: 'block', message: 'is unknown', code: 422 }] }]
 });
@@ -301,7 +301,7 @@ This mechanism is especially handful when saving data to a database. MongoDB cou
 
 ### GraphQL
 
-RawModel.js can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
+RawModel can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
 
 ```ts
 import { Model } from 'rawmodel';
@@ -604,7 +604,7 @@ try {
 
 **Prop.prototype.empty()**: Prop
 
-> Sets property and related subproperties to `null`.
+> Sets property and related sub-properties to `null`.
 
 **Prop.prototype.commit()**: Prop
 
@@ -656,7 +656,7 @@ try {
 
 **Prop.prototype.isChanged()**: Boolean
 
-> Returns `true` if the property or at least one subproperty have been changed.
+> Returns `true` if the property or at least one sub-property have been changed.
 
 **Prop.prototype.isModel()**: Boolean
 
@@ -680,7 +680,7 @@ try {
 
 **Prop.prototype.isValid()**: Boolean
 
-> Returns `true` if the property and all subproperties are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
+> Returns `true` if the property and all sub-properties are valid (inverse of `hasErrors()`). Make sure that you call the `validate()` method first.
 
 **Prop.prototype.invalidate()**: Prop
 
@@ -800,7 +800,7 @@ const recipe = {
 
 **ethAddressValidator()**: Function
 
-> Checks if the string represents an ethereum address.
+> Checks if the string represents an Ethereum address.
 
 **fqdnValidator(options)**: Function
 
