@@ -12,6 +12,6 @@ menu:
   - url: '#usage'
     title: Usage
 
-remote_theme: davision/rawmodel-gp-theme
+remote_theme: rawmodel/gp-theme
 plugins:
   - jekyll-remote-theme
