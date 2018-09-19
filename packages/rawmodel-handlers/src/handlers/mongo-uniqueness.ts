@@ -27,5 +27,5 @@ export function mongoUniquenessHandler(options?: {
     } else {
       return false;
     }
-  }
+  };
 }

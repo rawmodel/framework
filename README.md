@@ -727,9 +727,161 @@ try {
 | 'Date' | Date object.
 | Model | Nested model instance.
 
+### Available Validators
+
+**absenceValidator()**: Function
+
+> Validates that the specified property is blank.
+
+**arrayExclusionValidator(options)**: Function
+
+> Validates that the specified property is not in an array of values.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.values | Array | Yes | - | Array of restricted values.
+
+**arrayInclusionValidator(options)**: Function
+
+> Validates that the specified property is in an array of values.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.values | Array | Yes | - | Array of allowed values.
+
+**arrayLengthValidator(options)**: Function
+
+> Validates the size of an array.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.min | Number | No | - | Allowed minimum items count.
+| options.minOrEqual | Number | No | - | Allowed minimum items count (allowing equal).
+| options.max | Number | No | - | Allowed maximum items count.
+| options.maxOrEqual | Number | No | - | Allowed maximum items count (allowing equal).
+
+**base64Validator()**: Function
+
+> Validates that the specified property is base64 encoded string.
+
+**bsonObjectIdValidator()**: Function
+
+> Validates that the specified property is BSON ObjectId encoded string.
+
+**dateValidator(options)**: Function
+
+> Validates that the specified property is a date string.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|----------|-----------
+| options.iso | Boolean | No | false | When `true` only ISO-8601 date format is accepted.
+
+**downcaseStringValidator()**: Function
+
+> Validates that the specified property is lowercase.
+
+**emailValidator(options)**: Function
+
+> Validates that the specified property is an email.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.allowDisplayName | Boolean | No | false | When set to true, the validator will also match `name <address>`.
+| options.allowUtf8LocalPart | Boolean | No | false | When set to false, the validator will not allow any non-English UTF8 character in email address' local part.
+| options.requireTld | Boolean | No | true | When set to false, email addresses without having TLD in their domain will also be matched.
+
+**ethAddressValidator()**: Function
+
+> Checks if the string represents an ethereum address.
+
+**fqdnValidator(options)**: Function
+
+> Validates that the specified property is a fully qualified domain name (e.g. domain.com).
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.requireTld | Boolean | No | true | Require top-level domain name.
+| options.allowUnderscores | Boolean | No | false | Allow string to include underscores.
+| options.allowTrailingDot | Boolean | No | false | Allow string to include a trailing dot.
+
+**hexColorValidator()**: Function
+
+> Validates that the specified property is a hexadecimal color string.
+
+**hexValidator()**: Function
+
+> Validates that a specified property is a hexadecimal number.
+
+**jsonStringValidator(options)**: Function
+
+> Validates that the specified property is a JSON string.
+
+**matchValidator(options)**: Function
+
+> Validates that the specified property matches the pattern.
+
+| Key | Type | Required | Default | Description
+|-----|------|----------|---------|------------
+| options.regexp | RegExp | Yes | - | Regular expression pattern.
+
+**numberSizeValidator(options)**: Function
+
+> Validates the size of a number.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.min | Number | No | - | Allowed minimum value.
+| options.minOrEqual | Number | No | - | Allowed minimum value (allowing equal).
+| options.max | Number | No | - | Allowed maximum value.
+| options.maxOrEqual | Number | No | - | Allowed maximum value (allowing equal).
+
+**presenceValidator()**: Function
+
+> Validates that the specified property is not blank.
+
+**stringExclusionValidator(options)**: Function
+
+> Checks if the string does not contain the seed.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.seed | String | Yes | - | The seed which should exist in the string.
+
+**stringInclusionValidator()**: Function
+
+> Checks if the string contains the seed.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.seed | String | Yes | - | The seed which should exist in the string.
+
+**stringLengthValidator(options)**: Function
+
+> Validates the length of the specified property.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.bytes | Boolean | No | false | When `true` the number of bytes is returned.
+| options.min | Number | No | - | Allowed minimum number of characters.
+| options.minOrEqual | Number | No | - | Allowed minimum value number of characters (allowing equal).
+| options.max | Number | No | - | Allowed maximum number of characters.
+| options.maxOrEqual | Number | No | - | Allowed maximum number of characters (allowing equal).
+
+**upcaseStringValidator()**: Function
+
+> Validates that the specified property is uppercase.
+
+**uuidValidator(options)**: Function
+
+> Validates that the specified property is a [UUID](https://en.wikipedia.org/wiki/Universally_unique_identifier).
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.version | Integer | No | - | UUID version (1, 2, 3, 4 or 5).
+
 ### Available Handlers
 
-**mongoUniquenessHandler(options)**
+**mongoUniquenessHandler(options)**: Function
 
 > Checks if the error represents a MongoDB unique constraint error.
 
@@ -756,6 +908,7 @@ const recipe = { // make sure that this index name exists in your MongoDB collec
 | [@rawmodel/parser](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-parser) | Parsing and type casting. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fparser.svg)](https://badge.fury.io/js/%40rawmodel%2Fparser)
 | [@rawmodel/utils](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-utils) | Framework helpers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Futils.svg)](https://badge.fury.io/js/%40rawmodel%2Futils)
 | [@rawmodel/validator](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-validator) | Property validator. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fvalidator.svg)](https://badge.fury.io/js/%40rawmodel%2Fvalidator)
+| [@rawmodel/validators](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-validators) | Collection of validators. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fvalidators.svg)](https://badge.fury.io/js/%40rawmodel%2Fvalidators)
 
 ## Contributing
 
