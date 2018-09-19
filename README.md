@@ -733,6 +733,15 @@ try {
 
 > Validates that the specified property is blank.
 
+```ts
+import { absenceValidator } from '@rawmodel/validators';
+
+const recipe = {
+  handler: absenceValidator(),
+  code: 422,
+};
+```
+
 **arrayExclusionValidator(options)**: Function
 
 > Validates that the specified property is not in an array of values.
