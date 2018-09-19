@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/rawmodel/framework.svg?branch=master)](https://travis-ci.org/rawmodel/framework)&nbsp;[![codecov](https://codecov.io/gh/rawmodel/framework/branch/master/graph/badge.svg)](https://codecov.io/gh/rawmodel/framework)
 
 
-Rawmodel strongly-typed JavaScript object with support for validation and error handling. It's a lightweight open source framework for the **server** and **browser** (using module bundler), written with [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/rawmodel/framework) where you can also find our [issue tracker](https://github.com/rawmodel/framework/issues).
+Rawmodel is a strongly-typed JavaScript object with support for validation and error handling. It's a lightweight open source framework for the **server** and **browser** (using module bundler), written with [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/rawmodel/framework) where you can also find our [issue tracker](https://github.com/rawmodel/framework/issues).
 
 ## Introduction
 
