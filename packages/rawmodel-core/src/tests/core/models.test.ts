@@ -732,6 +732,42 @@ spec.test('methods `commit()` and `rollback()` manage committed states', (ctx) =
   ctx.is(user.getProp('books', 0, 'title').getValue(), 'baz');
 });
 
+spec.test('methods `freeze` makes property not settable', async (ctx) => {
+  class Book extends Model {
+    @prop()
+    title: string;
+  }
+  class User extends Model {
+    @prop()
+    name: string;
+    @prop({
+      cast: { handler: Book },
+    })
+    book: Book;
+    @prop({
+      cast: { handler: Book, array: true },
+    })
+    books: Book[];
+  }
+  const user = new User({
+    name: 'foo',
+    book: {
+      title: 'bar',
+    },
+    books: [
+      {
+        title: 'baz',
+      },
+    ],
+  });
+  user.freeze();
+  ctx.throws(() => user.name = null);
+  ctx.throws(() => user.book = null);
+  ctx.throws(() => user.book.title = null);
+  ctx.throws(() => user.books = null);
+  ctx.throws(() => user.books[0].title = null);
+});
+
 spec.test('method `isEqual` returns `true` when the passing object looks the same', (ctx) => {
   class Book extends Model {
     @prop()

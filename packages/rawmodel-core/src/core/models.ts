@@ -263,6 +263,16 @@ export class Model {
   }
 
   /**
+   * Makes all properties not settable.
+   */
+  public freeze(): this {
+    Object.keys(this.$props)
+      .forEach((key) => this.$props[key].freeze());
+
+    return this;
+  }
+
+  /**
    * Returns `true` when the `value` represents an object with the same prop
    * values as the original model.
    */

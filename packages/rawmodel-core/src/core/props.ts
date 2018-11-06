@@ -69,6 +69,7 @@ export class Prop {
   protected rawValue: any | (() => any);
   protected initialValue: any | (() => any);
   protected errorCodes: number[] = [];
+  protected frozen: boolean = false;
   readonly $config: PropConfig;
 
   /**
@@ -90,6 +91,11 @@ export class Prop {
    * Sets the current value.
    */
   public setValue(data: any | (() => any), strategy?: string) {
+    if (this.frozen) {
+      const error = new Error('Mutation of frozen property failed');
+      error['code'] = 500;
+      throw error;
+    }
     if (!this.isPopulatable(strategy)) {
       return;
     }
@@ -362,6 +368,22 @@ export class Prop {
     }
 
     this.rawValue = value;
+
+    return this;
+  }
+
+  /**
+   * Makes this property not settable.
+   */
+  public freeze(): this {
+
+    if (this.isModel()) {
+      (toArray(this.rawValue) || [])
+        .filter((doc) => isInstanceOf(doc, Model))
+        .forEach((doc) => doc.freeze());
+    }
+
+    this.frozen = true;
 
     return this;
   }

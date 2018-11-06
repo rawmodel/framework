@@ -226,6 +226,12 @@ spec.test('methods `rollback` reverts property to the last commited value', (ctx
   ctx.is(prop.getValue(), 'foo');
 });
 
+spec.test('methods `freeze` makes property not settable', async (ctx) => {
+  const prop = new Prop();
+  prop.freeze();
+  ctx.throws(() => prop.setValue('foo'));
+});
+
 spec.test('methods `validate` validates property and populates error codes', async (ctx) => {
   const validator = new Validator();
   const prop = new Prop({
