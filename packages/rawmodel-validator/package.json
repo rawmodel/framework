@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/validator",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Property value validator for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -81,6 +81,6 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "@rawmodel/utils": "^2.0.3"
+    "@rawmodel/utils": "^2.0.4"
   }
 }

@@ -468,6 +468,10 @@ model.collectErrors(); // => { path: ['name'], errors: [{ validator: 'absence', 
 user.flatten(); // -> [{ path: [...], property: ... }, ...]
 ```
 
+**Model.prototype.freeze()**: Model
+
+> Makes each model property not settable.
+
 **Model.prototype.getParent()**: Model
 
 > Returns the parent model instance in a tree of models.
@@ -614,6 +618,10 @@ try {
 **Prop.prototype.fake()**: Prop
 
 > Sets property to a generated fake value.
+
+**Prop.prototype.freeze()**: Prop
+
+> Makes property not settable.
 
 **Prop.prototype.getErrorCodes()**: Number[]
 
