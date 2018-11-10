@@ -2,9 +2,6 @@
 language: node_js
 node_js:
   - 11
-  - 10
-  - 9
-  - 8
 script:
   # use latest npm to work on node9
   - npm install -g npm
