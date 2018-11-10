@@ -10,11 +10,14 @@ import { isValue } from './is-value';
 export function toArray(v?: any): Array<any> {
   if (isArray(v)) {
     return v;
-  } else if (isUndefined(v) || isNull(v)) {
+  }
+  else if (isUndefined(v) || isNull(v)) {
     return null;
-  } else if (!isValue(v)) {
+  }
+  else if (!isValue(v)) {
     return [];
-  } else {
+  }
+  else {
     return [v];
   }
 }

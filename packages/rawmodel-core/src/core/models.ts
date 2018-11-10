@@ -89,10 +89,12 @@ export class Model {
       const parent = root.getParent();
       if (parent) {
         root = parent;
-      } else {
+      }
+      else {
         return root;
       }
-    } while (true);
+    }
+    while (true);
   }
 
   /**
@@ -167,7 +169,8 @@ export class Model {
                 .filter((f) => isArray(f))
                 .reduce((a, b) => a.concat(b), [])
             );
-          } else {
+          }
+          else {
             props = props.concat(
               prop.getValue().flatten(path)
             );
@@ -347,7 +350,8 @@ export class Model {
       const error = new Error('Validation failed');
       error['code'] = 422;
       throw error;
-    } else if (!quiet && this.isValid()) {
+    }
+    else if (!quiet && this.isValid()) {
       throw error; // always throw unhandled errors
     }
 

@@ -10,6 +10,7 @@ export function isDeepEqual(a, b) {
   if (a == null || typeof a != 'object' || b == null || typeof b != 'object') {
     return false;
   }
+
   let propsInA = 0;
   let propsInB = 0;
 

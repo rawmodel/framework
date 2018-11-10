@@ -9,9 +9,11 @@ import { isString } from './is-string';
 export function toString(v?: any) {
   if (isString(v)) {
     return v;
-  } else if (isUndefined(v) || isNull(v)) {
+  }
+  else if (isUndefined(v) || isNull(v)) {
     return null;
-  } else {
+  }
+  else {
     return toString(v.toString());
   }
 }

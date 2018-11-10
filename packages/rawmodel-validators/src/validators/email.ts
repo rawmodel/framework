@@ -40,9 +40,11 @@ export function emailValidator(recipe: {
 
     if (!stringLengthValidator({ bytes: true, max: 64 })(user) || !stringLengthValidator({ bytes: true, max: 256 })(domain)) {
       return false;
-    } else if (!fqdnValidator({ requireTld })(domain)) {
+    }
+    else if (!fqdnValidator({ requireTld })(domain)) {
       return false;
-    } else if (user[0] === '"') {
+    }
+    else if (user[0] === '"') {
       user = user.slice(1, user.length - 1);
       return allowUtf8LocalPart
         ? QUOTED_EMAIL_USER_UTF8_REGEX.test(user)

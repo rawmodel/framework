@@ -1,0 +1,51 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
+  "rushVersion": "5.5.1",
+  "npmVersion": "6.4.1",
+  "nodeSupportedVersionRange": ">=11.0.0",
+  "gitPolicy": {},
+  "repository": {},
+  "eventHooks": {
+    "preRushInstall": [],
+    "postRushInstall": [],
+    "preRushBuild": [],
+    "postRushBuild": []
+  },
+  "projects": [
+    {
+      "packageName": "@rawmodel/core",
+      "projectFolder": "packages/rawmodel-core",
+      "versionPolicyName": "patchAll"
+    },
+    {
+      "packageName": "@rawmodel/handler",
+      "projectFolder": "packages/rawmodel-handler",
+      "versionPolicyName": "patchAll"
+    },
+    {
+      "packageName": "@rawmodel/handlers",
+      "projectFolder": "packages/rawmodel-handlers",
+      "versionPolicyName": "patchAll"
+    },
+    {
+      "packageName": "@rawmodel/parser",
+      "projectFolder": "packages/rawmodel-parser",
+      "versionPolicyName": "patchAll"
+    },
+    {
+      "packageName": "@rawmodel/utils",
+      "projectFolder": "packages/rawmodel-utils",
+      "versionPolicyName": "patchAll"
+    },
+    {
+      "packageName": "@rawmodel/validator",
+      "projectFolder": "packages/rawmodel-validator",
+      "versionPolicyName": "patchAll"
+    },
+    {
+      "packageName": "@rawmodel/validators",
+      "projectFolder": "packages/rawmodel-validators",
+      "versionPolicyName": "patchAll"
+    }
+  ]
+}
