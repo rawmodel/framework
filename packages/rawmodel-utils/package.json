@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/utils",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Shared helpers for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -85,6 +85,6 @@
     "nyc": "^13.0.1",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",
-    "typescript": "^3.0.3"
+    "typescript": "^3.1.6"
   }
 }
