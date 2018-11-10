@@ -38,7 +38,7 @@ spec.test('cast null values', (ctx) => {
   ctx.deepEqual(cast(100, undefined, false), 100);
 });
 
-spec.test('cast custom types', (ctx) => {
+spec.test('cast with custom types', (ctx) => {
   ctx.deepEqual(cast('foo', (v) => `${v}-bar`, false), 'foo-bar');
   ctx.deepEqual(cast('foo', (v) => `${v}-bar`, true), ['foo-bar']);
   ctx.deepEqual(cast(['foo0', 'foo1'], (v) => `${v}-bar`, true), ['foo0-bar', 'foo1-bar']);

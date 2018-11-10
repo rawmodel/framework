@@ -978,7 +978,7 @@ spec.test('method `validate` validates properties and throws an error', async (c
     books1: [{}]
   });
   const errors = [100, 200];
-  await user.validate({quiet: true});
+  await user.validate({ quiet: true });
   ctx.is(await user.validate().catch(() => false), false);
   ctx.deepEqual(user.collectErrors(), [
     { path: ['name'], errors },

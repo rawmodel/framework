@@ -6,10 +6,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "clean": "rm -Rf ./dist",
-    "transpile": "npm run clean; tsc",
-    "lint": "tslint 'src/**/*.ts?(x)'",
-    "prepare": "npm run transpile",
-    "test": "nyc hayspec test"
+    "build": "npm run clean; npx tsc",
+    "lint": "npx tslint 'src/**/*.ts?(x)'",
+    "test": "npx nyc npx hayspec test"
   },
   "hayspec": {
     "require": [

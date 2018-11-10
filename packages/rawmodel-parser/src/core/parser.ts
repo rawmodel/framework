@@ -2,18 +2,17 @@ import { isUndefined, isNull, toArray, toString, toBoolean, toInteger, toFloat,
   toNumber, toDate, isFunction, isString } from '@rawmodel/utils';
 
 /**
+ * Handler function type.
+ */
+export type CastHandler = 'String' | 'Boolean' | 'Integer' | 'Float' | 'Number' | 'Date' | ((v: any) => any);
+
+/**
  * Model property type interface.
  */
 export interface CastConfig {
   handler?: CastHandler;
   array?: boolean;
 }
-
-/**
- * Handler function type.
- */
-export type CastHandler = 'String' | 'Boolean' | 'Integer' | 'Float' | 'Number'
-  | 'Date' | ((v: any) => any);
 
 /**
  * Converts the provided value into desired type.

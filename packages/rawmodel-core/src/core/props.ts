@@ -2,8 +2,8 @@ import { Validator, ValidatorRecipe } from '@rawmodel/validator';
 import { Handler, HandlerRecipe } from '@rawmodel/handler';
 import { normalize, realize, isDeepEqual, isClassOf, isUndefined, isPresent,
   toArray, isInstanceOf } from '@rawmodel/utils';
-import { Model } from './models';
-import { CastConfig, CastHandler, cast } from './parsing';
+  import { CastConfig, CastHandler, cast } from '@rawmodel/parser';
+  import { Model } from './models';
 
 /**
  * Property error interface.
@@ -24,10 +24,17 @@ export interface PropRef {
 /**
  * Model property class configuration object.
  */
+export interface PropCast extends CastConfig {
+  handler?: CastHandler | any;
+}
+
+/**
+ * Model property class configuration object.
+ */
 export interface PropConfig {
   set?: (v: any) => any;
   get?: (v: any) => any;
-  cast?: CastConfig;
+  cast?: PropCast;
   defaultValue?: any | (() => any);
   fakeValue?: any | (() => any);
   emptyValue?: any | (() => any);
@@ -269,7 +276,7 @@ export class Prop {
           return new Klass(null, {
             parent: this.$config.model,
             ...this.$config.model.$config
-          }).populate(data, strategy).commit();
+          }).populate(data, strategy);
         }
       };
     }

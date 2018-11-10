@@ -8,6 +8,6 @@ import { isFunction } from './is-function';
  */
 export function realize(value: any, context?: any, args?: any[]) {
   return isFunction(value)
-    ? value.call(context, ...args)
+    ? value.call(context, ...(args || []))
     : value;
 }
