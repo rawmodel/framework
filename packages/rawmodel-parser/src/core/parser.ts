@@ -1,4 +1,5 @@
-import { isUndefined, isNull, toArray, toString, toBoolean, toInteger, toFloat, toNumber, toDate } from '@rawmodel/utils';
+import { isUndefined, isNull, toArray, toString, toBoolean, toInteger, toFloat,
+  toNumber, toDate, isFunction, isString } from '@rawmodel/utils';
 
 /**
  * Model property type interface.
@@ -23,11 +24,14 @@ export type CastHandler = 'String' | 'Boolean' | 'Integer' | 'Float' | 'Number'
 export function cast(value: any, handler: CastHandler, array: boolean) {
   if (isUndefined(value) || isNull(value)) {
     return value;
-  } else if (array) {
+  }
+  else if (array) {
     return toArray(value).map((v) => cast(v, handler, false));
-  } else if (typeof handler === 'function') {
-    return handler(value);
-  } else if (typeof handler === 'string') {
+  }
+  else if (isFunction(handler)) {
+    return (handler as any)(value);
+  }
+  else if (isString(handler)) {
     return {
       'String': toString,
       'Boolean': toBoolean,
@@ -35,8 +39,9 @@ export function cast(value: any, handler: CastHandler, array: boolean) {
       'Float': toFloat,
       'Number': toNumber,
       'Date': toDate,
-    }[handler](value);
-  } else {
+    }[handler as string](value);
+  }
+  else {
     return value;
   }
 }

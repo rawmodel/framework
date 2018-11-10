@@ -10,15 +10,19 @@ import { toBoolean } from './to-boolean';
 export function toFloat(v?: any) {
   if (isFloat(v)) {
     return v;
-  } else if (isUndefined(v) || isNull(v)) {
+  }
+  else if (isUndefined(v) || isNull(v)) {
     return null;
-  } else {
+  }
+  else {
     const pv = parseFloat(v);
     if (isFloat(pv)) {
       return pv;
-    } else if (toBoolean(v)) {
+    }
+    else if (toBoolean(v)) {
       return 1;
-    } else {
+    }
+    else {
       return 0;
     }
   }

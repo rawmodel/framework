@@ -11,17 +11,22 @@ import { toBoolean } from './to-boolean';
 export function toInteger(v?: any) {
   if (isInteger(v)) {
     return v;
-  } else if (isUndefined(v) || isNull(v)) {
+  }
+  else if (isUndefined(v) || isNull(v)) {
     return null;
-  } else if (isFloat(v)) {
+  }
+  else if (isFloat(v)) {
     return parseInt(v);
-  } else {
+  }
+  else {
     const pv = parseInt(v);
     if (isInteger(pv)) {
       return pv;
-    } else if (toBoolean(v)) {
+    }
+    else if (toBoolean(v)) {
       return 1;
-    } else {
+    }
+    else {
       return 0;
     }
   }

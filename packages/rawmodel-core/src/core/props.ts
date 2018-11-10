@@ -260,11 +260,12 @@ export class Prop {
     const config = { ...this.$config.cast };
 
     if (this.isModel()) {
-      const Klass = (config.handler as typeof Model);
+      const Klass = (config.handler as any);
       config.handler = (data: any) => {
         if (isInstanceOf(data, Klass)) {
-          return data; // keep instances
-        } else {
+          return data; // keep instances for speed
+        }
+        else {
           return new Klass(null, {
             parent: this.$config.model,
             ...this.$config.model.$config
@@ -287,13 +288,16 @@ export class Prop {
     const value = this.getValue();
     if (!value) {
       return null;
-    } else if (this.isModel()) {
+    }
+    else if (this.isModel()) {
       if (this.isArray()) {
         return value.map((m) => m ? m.serialize() : null);
-      } else {
+      }
+      else {
         return value.serialize();
       }
-    } else {
+    }
+    else {
       return normalize(value);
     }
   }
@@ -344,13 +348,16 @@ export class Prop {
     const value = this.rawValue; // same process as serialization
     if (!value) {
       this.initialValue = null;
-    } else if (this.isModel()) {
+    }
+    else if (this.isModel()) {
       if (this.isArray()) {
         this.initialValue = value.map((m) => m ? m.serialize() : null);
-      } else {
+      }
+      else {
         this.initialValue = value.serialize();
       }
-    } else {
+    }
+    else {
       this.initialValue = normalize(value);
     }
 

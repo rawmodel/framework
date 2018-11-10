@@ -13,7 +13,9 @@ export function jsonStringValidator() {
     try {
       const obj = JSON.parse(value);
       return !!obj && typeof obj === 'object';
-    } catch (e) {}
+    }
+    catch (e) {}
+
     return false;
   };
 }

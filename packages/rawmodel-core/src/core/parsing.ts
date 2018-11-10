@@ -5,7 +5,7 @@ import { Model } from './models';
  * Model property type interface.
  */
 export interface CastConfig {
-  handler?: CastHandler | (typeof Model);
+  handler?: CastHandler | Model;
   array?: boolean;
 }
 
