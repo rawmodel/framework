@@ -8,11 +8,8 @@ node_js:
 script:
   # use latest npm to work on node9
   - npm install -g npm
-  # codecov
+  # install required global npm packages
   - npm install -g codecov
-  # initialization
-  - npm install
-  - npm run bootstrap
   - npm install -g @microsoft/rush
   # testing
   - rush test
