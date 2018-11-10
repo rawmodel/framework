@@ -12,6 +12,8 @@ script:
   - npm install -g codecov
   - npm install -g @microsoft/rush
   # testing
+  - rush update --full
+  - rush rebuild
   - rush test
 after_success:
   # code coverage & codecov upload
