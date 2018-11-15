@@ -2,8 +2,8 @@ import { Validator, ValidatorRecipe } from '@rawmodel/validator';
 import { Handler, HandlerRecipe } from '@rawmodel/handler';
 import { normalize, realize, isDeepEqual, isClassOf, isUndefined, isPresent,
   toArray, isInstanceOf } from '@rawmodel/utils';
-  import { CastConfig, CastHandler, cast } from '@rawmodel/parser';
-  import { Model } from './models';
+import { CastConfig, CastHandler, cast } from '@rawmodel/parser';
+import { Model } from './models';
 
 /**
  * Property error interface.
