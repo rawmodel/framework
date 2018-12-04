@@ -11,7 +11,7 @@ export function toString(v?: any) {
     return v;
   }
   else if (isUndefined(v) || isNull(v)) {
-    return null;
+    return v;
   }
   else {
     return toString(v.toString());

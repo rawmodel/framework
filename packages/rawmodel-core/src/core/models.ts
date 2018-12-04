@@ -28,7 +28,7 @@ export class Model {
   public constructor(data?: any, config?: ModelConfig) {
 
     Object.defineProperty(this, '$config', {
-      value: { ...config },
+      value: config || {},
       enumerable: false,
     });
     Object.defineProperty(this, '$props', {
@@ -38,7 +38,6 @@ export class Model {
 
     this.defineProps();
     this.populate(data);
-    this.commit();
   }
 
   /**
@@ -124,9 +123,12 @@ export class Model {
    */
   public populate(data: any, strategy?: string): this {
 
-    Object.keys(data || {})
-      .filter((key) => !!this.$props[key])
-      .forEach((key) => this.$props[key].setValue(normalize(data[key]), strategy));
+    Object.keys(data || {}).forEach((key) => {
+      const prop = this.$props[key];
+      if (prop) {
+        prop.setValue(data[key], strategy);
+      }
+    });
 
     return this;
   }
@@ -229,6 +231,7 @@ export class Model {
    * Resets properties then sets properties to their fake values.
    */
   public fake(): this {
+
     Object.keys(this.$props)
       .forEach((key) => this.$props[key].fake());
 
@@ -239,6 +242,7 @@ export class Model {
    * Sets all fileds to `null`.
    */
   public empty(): this {
+
     Object.keys(this.$props)
       .forEach((key) => this.$props[key].empty());
 
@@ -249,6 +253,7 @@ export class Model {
    * Resets information about changed props by setting initial value of each prop.
    */
   public commit(): this {
+
     Object.keys(this.$props)
       .forEach((key) => this.$props[key].commit());
 
@@ -259,6 +264,7 @@ export class Model {
    * Sets each prop to its initial value (value before last commit).
    */
   public rollback(): this {
+
     Object.keys(this.$props)
       .forEach((key) => this.$props[key].rollback());
 
@@ -269,6 +275,7 @@ export class Model {
    * Makes all properties not settable.
    */
   public freeze(): this {
+
     Object.keys(this.$props)
       .forEach((key) => this.$props[key].freeze());
 

@@ -3,12 +3,12 @@
  */
 export function normalize(data: any) {
   if (typeof data === 'undefined') {
-    return null;
+    return data;
   }
   try {
     return JSON.parse(JSON.stringify(data));
   }
   catch (e) {
-    return null;
+    return data;
   }
 }

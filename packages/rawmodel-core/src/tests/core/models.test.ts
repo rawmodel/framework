@@ -51,7 +51,7 @@ spec.test('decorator `prop` supports deep type casting', (ctx) => {
   ctx.true(user.books[0] instanceof Book);
   ctx.is(user.books[1].name, 'Zed');
   ctx.true(user.books[1] instanceof Book);
-  ctx.not(user.book, book); // recreates instance
+  ctx.is(user.book, book); // preserves instance
   user.book = book; // preserves instance
   ctx.is(user.book, book);
 });
@@ -245,7 +245,7 @@ spec.test('method `populate` deeply assignes property data using strategies', (c
   ctx.is(user0.book0.id, 200);
   ctx.is(user0.book0.title, 'Foo');
   ctx.is(user0.book1, null);
-  ctx.is(user0.books[0], null);
+  ctx.is(user0.books[0], undefined);
   ctx.is(user0.books[1].title, 'Baz');
   user1.populate(data, 'input');
   ctx.is(user1.id, null);
@@ -253,7 +253,7 @@ spec.test('method `populate` deeply assignes property data using strategies', (c
   ctx.is(user1.email, 'foo@bar.com');
   ctx.is(user1.book0, null);
   ctx.is(user1.book1, null);
-  ctx.is(user1.books[0], null);
+  ctx.is(user1.books[0], undefined);
   ctx.is(user1.books[1].id, null);
   ctx.is(user1.books[1].title, null);
   ctx.is(user1.books[1].description, 'Zed');
@@ -267,8 +267,8 @@ spec.test('method `populate` deeply assignes property data using strategies', (c
   ctx.is(user2.book1, null);
   ctx.is(user2.books, null);
   user3.populate({ book0: book, books: [book] });
-  ctx.not(user3.book0, book);
-  ctx.not(user3.books[1], book);
+  ctx.is(user3.book0, book); // preserves instance
+  ctx.is(user3.books[0], book); // preserves instance
 });
 
 spec.test('method `serialize` deeply serializes property data using strategies', (ctx) => {
@@ -827,7 +827,8 @@ spec.test('method `isChanged` returns `true` if at least one prop has been chang
   const user1 = new User(data);
   const user2 = new User(data);
   const user3 = new User(data);
-  ctx.false(user0.isChanged());
+  const user4 = new User();
+  ctx.true(user0.isChanged());
   user0.name = 'foo-new';
   ctx.true(user0.isChanged());
   user1.book.title = 'bar-new';
@@ -836,6 +837,7 @@ spec.test('method `isChanged` returns `true` if at least one prop has been chang
   ctx.true(user2.isChanged());
   user3.books[1].title = 'baz-new';
   ctx.true(user3.isChanged());
+  ctx.false(user4.isChanged()); // no data, no change
 });
 
 spec.test('method `applyErrors` sets properties errors', (ctx) => {

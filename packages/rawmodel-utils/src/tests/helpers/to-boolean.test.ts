@@ -4,8 +4,8 @@ import { toBoolean } from '../..';
 const spec = new Spec();
 
 spec.test('perform tests', (ctx) => {
-  ctx.is(toBoolean(), null);
-  ctx.is(toBoolean(undefined), null);
+  ctx.is(toBoolean(), undefined);
+  ctx.is(toBoolean(undefined), undefined);
   ctx.is(toBoolean(null), null);
   ctx.is(toBoolean(false), false);
   ctx.is(toBoolean(NaN), false);
