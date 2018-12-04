@@ -275,23 +275,23 @@ spec.test('method `serialize` deeply serializes property data using strategies',
   class Book extends Model {
     @prop({
       cast: { handler: 'Number' },
-      populatable: ['output'],
     })
     id: number;
     @prop({
       cast: { handler: 'String' },
+      serializable: ['output'],
     })
     title: string;
     @prop({
       cast: { handler: 'String' },
-      populatable: ['input'],
+      serializable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
       cast: { handler: 'Number' },
-      populatable: ['output'],
+      serializable: ['output'],
     })
     id: number;
     @prop({
@@ -300,12 +300,12 @@ spec.test('method `serialize` deeply serializes property data using strategies',
     name: string;
     @prop({
       cast: { handler: 'String' },
-      populatable: ['input'],
+      serializable: ['input'],
     })
     email: string;
     @prop({
       cast: { handler: Book },
-      populatable: ['output'],
+      serializable: ['output'],
     })
     book0: Book;
     @prop({
@@ -314,7 +314,7 @@ spec.test('method `serialize` deeply serializes property data using strategies',
     book1: Book;
     @prop({
       cast: { handler: Book, array: true },
-      populatable: ['input'],
+      serializable: ['input'],
     })
     books: Book[];
   }
@@ -338,206 +338,23 @@ spec.test('method `serialize` deeply serializes property data using strategies',
     ],
   };
   const user = new User(data);
-  const json = user.serialize();
-  ctx.deepEqual(json, {
+  const json0 = user.serialize('output');
+  const json1 = user.serialize('input');
+  ctx.deepEqual(json0, {
     id: 100,
-    name: 'John',
-    email: 'foo@bar.com',
     book0: {
-      id: 200,
       title: 'Foo',
-      description: 'Bar',
     },
-    book1: null,
+  });
+  ctx.deepEqual(json1, {
+    email: 'foo@bar.com',
     books: [
       null,
       {
-        id: 300,
-        title: 'Baz',
         description: 'Zed',
-      },
+      }
     ],
   });
-  ctx.false(json.book0 instanceof Book);
-  ctx.is(json.books[0], null);
-  ctx.false(json.books[1] instanceof Book);
-});
-
-spec.test('method `serialize` different strategies test', (ctx) => {
-  class Book extends Model {
-    @prop({
-      cast: { handler: 'Number' },
-      serializable: ['output'],
-    })
-    id: number;
-    @prop({
-      cast: { handler: 'String' },
-    })
-    title: string;
-    @prop({
-      cast: { handler: 'String' },
-      populatable: ['input'],
-    })
-    description: string;
-  }
-  class User extends Model {
-    @prop({
-      cast: { handler: 'Number' },
-      serializable: ['output'],
-    })
-    id: number;
-    @prop({
-      cast: { handler: 'String' },
-      serializable: ['output'],
-    })
-    name: string;
-    @prop({
-      cast: { handler: 'String' },
-      populatable: ['input'],
-    })
-    email: string;
-    @prop({
-      cast: { handler: Book },
-    })
-    book0: Book;
-    @prop({
-      cast: { handler: Book },
-    })
-    book1: Book;
-    @prop({
-      cast: { handler: Book, array: true },
-      populatable: ['input'],
-    })
-    books: Book[];
-  }
-  const data = {
-    id: 100,
-    name: 'John',
-    email: 'foo@bar.com',
-    book0: {
-      id: 200,
-      title: 'Foo',
-      description: 'Bar',
-    },
-    book1: null,
-    books: [
-      null,
-      {
-        id: 300,
-        title: 'Baz',
-        description: 'Zed',
-      },
-    ],
-  };
-  const user = new User(data);
-  const json = user.serialize('output');
-  ctx.deepEqual(json, {
-    id: 100,
-    name: 'John',
-  });
-  // ctx.false(json.book0 instanceof Book);
-  // ctx.is(json.books[0], null);
-  // ctx.false(json.books[1] instanceof Book);
-});
-
-spec.test('method `serialize` different strategies test', (ctx) => {
-  class Author extends Model {
-    @prop({
-      cast: { handler: 'Number' },
-      serializable: ['output'],
-    })
-    id: number;
-    @prop({
-      cast: { handler: 'String' },
-      serializable: ['output'],
-    })
-    name: string;
-    @prop({
-      cast: { handler: 'String' },
-      populatable: ['input'],
-    })
-    email: string;
-  }
-  class Book extends Model {
-    @prop({
-      cast: { handler: 'Number' },
-      serializable: ['output'],
-    })
-    id: number;
-    @prop({
-      cast: { handler: 'String' },
-    })
-    title: string;
-    @prop({
-      cast: { handler: 'String' },
-      populatable: ['input'],
-    })
-    description: string;
-    @prop({
-      cast: { handler: Author, array: true },
-      populatable: ['input'],
-    })
-    author: Author[];
-  }
-  class User extends Model {
-    @prop({
-      cast: { handler: 'Number' },
-      serializable: ['output'],
-    })
-    id: number;
-    @prop({
-      cast: { handler: 'String' },
-      serializable: ['output'],
-    })
-    name: string;
-    @prop({
-      cast: { handler: 'String' },
-      populatable: ['input'],
-    })
-    email: string;
-    @prop({
-      cast: { handler: Book },
-    })
-    book0: Book;
-    @prop({
-      cast: { handler: Book },
-    })
-    book1: Book;
-    @prop({
-      cast: { handler: Book, array: true },
-      populatable: ['input'],
-    })
-    books: Book[];
-  }
-  console.time('users');
-  const users = [];
-  for (let i = 0; i < 10; i++) {
-    const books = [];
-    for (let j = 0; j < 1000; j++) {
-      books.push(new Book({
-        id: 300,
-        title: 'Baz',
-        description: 'Zed',
-        author: [
-          new User({ id: 100, name: 'John', email: 'foo@bar.com' }),
-          new User({ id: 100, name: 'John', email: 'foo@bar.com' }),
-          new User({ id: 100, name: 'John', email: 'foo@bar.com' }),
-          new User({ id: 100, name: 'John', email: 'foo@bar.com' }),
-          new User({ id: 100, name: 'John', email: 'foo@bar.com' }),
-        ]
-      }));
-    }
-    users.push(new User({
-      id: 100,
-      name: 'John',
-      email: 'foo@bar.com',
-      book0: books[0],
-      book1: books[1],
-      books: books
-    }));
-  }
-  console.timeEnd('users');
-  ctx.is(users.length, 100);
 });
 
 spec.test('method `getProp` returns an instance of a prop at path', (ctx) => {
@@ -1303,6 +1120,101 @@ spec.test('method `clone` returns an exact copy of the original', (ctx) => {
   ctx.is(clone0.getParent(), null);
   ctx.is(clone0.getRoot(), clone0);
   ctx.is(clone1.book.title, 'foo');
+});
+
+spec.test('speed test creation of ~50k strongly typed objects', (ctx) => {
+  class Author extends Model {
+    @prop({
+      cast: { handler: 'Number' },
+      serializable: ['output'],
+    })
+    id: number;
+    @prop({
+      cast: { handler: 'String' },
+      serializable: ['output'],
+    })
+    name: string;
+    @prop({
+      cast: { handler: 'String' },
+      populatable: ['input'],
+    })
+    email: string;
+  }
+  class Book extends Model {
+    @prop({
+      cast: { handler: 'Number' },
+      serializable: ['output'],
+    })
+    id: number;
+    @prop({
+      cast: { handler: 'String' },
+    })
+    title: string;
+    @prop({
+      cast: { handler: 'String' },
+      populatable: ['input'],
+    })
+    description: string;
+    @prop({
+      cast: { handler: Author, array: true },
+      populatable: ['input'],
+    })
+    author: Author[];
+  }
+  class User extends Model {
+    @prop({
+      cast: { handler: 'Number' },
+      serializable: ['output'],
+    })
+    id: number;
+    @prop({
+      cast: { handler: 'String' },
+      serializable: ['output'],
+    })
+    name: string;
+    @prop({
+      cast: { handler: 'String' },
+      populatable: ['input'],
+    })
+    email: string;
+    @prop({
+      cast: { handler: Book },
+    })
+    book0: Book;
+    @prop({
+      cast: { handler: Book },
+    })
+    book1: Book;
+    @prop({
+      cast: { handler: Book, array: true },
+      populatable: ['input'],
+    })
+    books: Book[];
+  }
+  const sampleBooks = Array(1000).fill(null).map(() => ({
+    id: 300,
+    title: 'Baz',
+    description: 'Zed',
+    author: [
+      { id: 100, name: 'John', email: 'foo@bar.com' },
+      { id: 100, name: 'John', email: 'foo@bar.com' },
+      { id: 100, name: 'John', email: 'foo@bar.com' },
+      { id: 100, name: 'John', email: 'foo@bar.com' },
+      { id: 100, name: 'John', email: 'foo@bar.com' },
+    ],
+  }));
+  const sampleUsers = Array(10).fill(null).map(() => ({
+    id: 100,
+    name: 'John',
+    email: 'foo@bar.com',
+    book0: sampleBooks[0],
+    book1: sampleBooks[1],
+    books: [...sampleBooks],
+  }));
+  console.time('users');
+  const users = sampleUsers.map((data) => new User(data));
+  console.timeEnd('users');
+  ctx.is(users.length, 10);
 });
 
 export default spec;

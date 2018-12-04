@@ -289,7 +289,7 @@ export class Prop {
    */
   public serialize(strategy?: string): any {
     if (!this.isSerializable(strategy)) {
-      return null;
+      return undefined;
     }
 
     const value = this.getValue();
@@ -298,10 +298,10 @@ export class Prop {
     }
     else if (this.isModel()) {
       if (this.isArray()) {
-        return value.map((m) => m ? m.serialize() : null);
+        return value.map((m) => m ? m.serialize(strategy) : null);
       }
       else {
-        return value.serialize();
+        return value.serialize(strategy);
       }
     }
     else {
