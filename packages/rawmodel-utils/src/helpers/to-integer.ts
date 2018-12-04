@@ -13,7 +13,7 @@ export function toInteger(v?: any) {
     return v;
   }
   else if (isUndefined(v) || isNull(v)) {
-    return null;
+    return v;
   }
   else if (isFloat(v)) {
     return parseInt(v);

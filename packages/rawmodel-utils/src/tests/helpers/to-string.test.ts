@@ -4,8 +4,8 @@ import { toString } from '../..';
 const spec = new Spec();
 
 spec.test('perform tests', (ctx) => {
-  ctx.is(toString(), null);
-  ctx.is(toString(undefined), null);
+  ctx.is(toString(), undefined);
+  ctx.is(toString(undefined), undefined);
   ctx.is(toString(null), null);
   ctx.is(toString(''), '');
   ctx.is(toString(NaN), 'NaN');

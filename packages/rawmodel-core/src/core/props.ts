@@ -90,7 +90,7 @@ export class Prop {
       enumerable: false,
     });
 
-    this.setValue(this.$config.defaultValue);
+    this.initialValue = this.rawValue = this.$config.defaultValue || null;
   }
 
   /**
@@ -292,16 +292,10 @@ export class Prop {
     }
 
     const value = this.getValue();
-    if (!value) {
-      return null;
-    }
-    else if (this.isModel()) {
-      if (this.isArray()) {
-        return value.map((m) => m ? m.serialize(strategy) : null);
-      }
-      else {
-        return value.serialize(strategy);
-      }
+    if (value && this.isModel()) {
+      return this.isArray()
+        ? value.map((m) => m ? m.serialize(strategy) : null)
+        : value.serialize(strategy);
     }
     else {
       return normalize(value);

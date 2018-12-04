@@ -8,11 +8,8 @@ import { isInfinite } from './is-infinite';
  * @param v Arbitrary value.
  */
 export function toBoolean(v?: any) {
-  if (isBoolean(v)) {
+  if (isBoolean(v) || isUndefined(v) || isNull(v)) {
     return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
-    return null;
   }
   else {
     return (

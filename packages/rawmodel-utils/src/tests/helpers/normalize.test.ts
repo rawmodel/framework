@@ -11,7 +11,7 @@ spec.test('perform tests', (ctx) => {
   const user = new User();
   ctx.false(normalize(user) instanceof User);
   ctx.is(normalize(null), null);
-  ctx.is(normalize(undefined), null); // nullify
+  ctx.is(normalize(undefined), undefined); // nullify
   ctx.is(normalize(false), false);
   ctx.deepEqual(normalize(user), {
     foo: 'Foo',

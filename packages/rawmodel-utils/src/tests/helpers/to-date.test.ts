@@ -8,8 +8,8 @@ spec.test('perform tests', (ctx) => {
   ctx.is(toDate(d), d);
   ctx.deepEqual(toDate(100000), new Date(100000));
   ctx.deepEqual(toDate('2016-01-02'), new Date('2016-01-02'));
-  ctx.is(toDate(), null);
-  ctx.is(toDate(undefined), null);
+  ctx.is(toDate(), undefined);
+  ctx.is(toDate(undefined), undefined);
   ctx.is(toDate(null), null);
   ctx.is(toDate('8sadufsdjfk1231'), null);
 });

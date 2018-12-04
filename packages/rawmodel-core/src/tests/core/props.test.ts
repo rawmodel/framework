@@ -40,7 +40,7 @@ spec.test('config `set` option sets property custom setter', (ctx) => {
   const prop = new Prop({
     set: (v) => `foo-${v}`,
   });
-  ctx.is(prop.getValue(), 'foo-null');
+  ctx.is(prop.getValue(), null);
   prop.setValue('bar');
   ctx.is(prop.getValue(), 'foo-bar');
 });
