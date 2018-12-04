@@ -7,7 +7,7 @@ import { normalize, isDeepEqual, isArray, isUndefined, toArray } from '@rawmodel
  * Model configuration interface.
  */
 export interface ModelConfig {
-  ctx?: any | (() => any);
+  context?: any | (() => any);
   failFast?: boolean | (() => boolean);
   parent?: Model;
 }
@@ -70,6 +70,13 @@ export class Model {
       enumerable: config.enumerable !== false,
       configurable: false,
     });
+  }
+
+  /**
+   * Returns model context object.
+   */
+  public getContext() {
+    return this.$config.context || null;
   }
 
   /**
