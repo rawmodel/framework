@@ -42,7 +42,7 @@ spec.test('method `handle` supports conditional handlers', async (ctx) => {
 
 spec.test('method `handle` passes context to each handler', async (ctx) => {
   const handler = new Handler({
-    ctx: { foo: 'foo' },
+    context: { foo: 'foo' },
   });
   const recipes = [
     { code: 100, handler(v) { return v === this.foo; } },
@@ -53,7 +53,7 @@ spec.test('method `handle` passes context to each handler', async (ctx) => {
 
 spec.test('method `handle` passes context to each condition', async (ctx) => {
   const handler = new Handler({
-    ctx: { foo: 'foo' },
+    context: { foo: 'foo' },
   });
   const recipes = [
     { code: 100, handler: (v) => true, condition(v) { return v === this.foo; } },
