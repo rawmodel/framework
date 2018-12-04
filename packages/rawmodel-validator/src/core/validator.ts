@@ -14,7 +14,7 @@ export interface ValidatorRecipe {
  * Validator configuration interface.
  */
 export interface ValidatorConfig {
-  ctx?: any | (() => any);
+  context?: any | (() => any);
   failFast?: boolean | (() => boolean);
 }
 
@@ -44,13 +44,13 @@ export class Validator {
 
       const condition = recipe.condition;
       if (condition) {
-        const result = await condition.call(this.$config.ctx, value, recipe);
+        const result = await condition.call(this.$config.context, value, recipe);
         if (!result) {
           continue;
         }
       }
 
-      const context = realize(this.$config.ctx);
+      const context = realize(this.$config.context);
       const isValid = await Promise.all(
         (isArray(value) ? value : [value])
           .map((v) => recipe.handler.call(context, v, recipe))

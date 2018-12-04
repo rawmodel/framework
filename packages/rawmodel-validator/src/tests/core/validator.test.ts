@@ -41,7 +41,7 @@ spec.test('method `validate` supports conditional handlers', async (ctx) => {
 
 spec.test('method `validate` passes context to each handler', async (ctx) => {
   const validator = new Validator({
-    ctx: { foo: 'foo' },
+    context: { foo: 'foo' },
   });
   const recipes = [
     { code: 100, handler(v) { return v === this.foo; } },
@@ -52,7 +52,7 @@ spec.test('method `validate` passes context to each handler', async (ctx) => {
 
 spec.test('method `validate` passes context to each condition', async (ctx) => {
   const validator = new Validator({
-    ctx: { foo: 'foo' },
+    context: { foo: 'foo' },
   });
   const recipes = [
     { code: 100, handler: (v) => false, condition(v) { return v === this.foo; } },

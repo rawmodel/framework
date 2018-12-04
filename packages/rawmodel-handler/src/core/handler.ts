@@ -14,7 +14,7 @@ export interface HandlerRecipe {
  * Error handler configuration interface.
  */
 export interface HandlerConfig {
-  ctx?: any | (() => any);
+  context?: any | (() => any);
   failFast?: boolean | (() => boolean);
 }
 
@@ -44,13 +44,13 @@ export class Handler {
 
       const condition = recipe.condition;
       if (condition) {
-        const result = await condition.call(this.$config.ctx, error, recipe);
+        const result = await condition.call(this.$config.context, error, recipe);
         if (!result) {
           continue;
         }
       }
 
-      const context = realize(this.$config.ctx);
+      const context = realize(this.$config.context);
       const isMatch = await Promise.all(
         (isArray(error) ? error : [error])
           .map((v) => recipe.handler.call(context, v, recipe))
