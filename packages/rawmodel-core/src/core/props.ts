@@ -91,7 +91,6 @@ export class Prop {
     });
 
     this.setValue(this.$config.defaultValue);
-    this.commit();
   }
 
   /**
