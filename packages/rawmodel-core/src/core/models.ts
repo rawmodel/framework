@@ -1,13 +1,13 @@
 import { Validator } from '@rawmodel/validator';
 import { Handler } from '@rawmodel/handler';
 import { Prop, PropConfig, PropRef, PropError } from './props';
-import { normalize, isDeepEqual, isArray, isUndefined, toArray } from '@rawmodel/utils';
+import { normalize, isDeepEqual, isArray, isUndefined, toArray, realize } from '@rawmodel/utils';
 
 /**
  * Model configuration interface.
  */
-export interface ModelConfig {
-  context?: any | (() => any);
+export interface ModelConfig<Context> {
+  context?: Context | (() => Context);
   failFast?: boolean | (() => boolean);
   parent?: Model;
 }
@@ -15,8 +15,8 @@ export interface ModelConfig {
 /**
  * Strongly typed javascript object.
  */
-export class Model {
-  readonly $config: ModelConfig;
+export class Model<Context = any> {
+  readonly $config: ModelConfig<Context>;
   readonly $props: {[key: string]: Prop};
   static readonly $props: {[key: string]: PropConfig} = {};
 
@@ -25,7 +25,7 @@ export class Model {
    * @param data Model initial data.
    * @param config Model configuration.
    */
-  public constructor(data?: any, config?: ModelConfig) {
+  public constructor(data?: any, config?: ModelConfig<Context>) {
 
     Object.defineProperty(this, '$config', {
       value: config || {},
@@ -75,8 +75,8 @@ export class Model {
   /**
    * Returns model context object.
    */
-  public getContext() {
-    return this.$config.context || null;
+  public getContext(): Context {
+    return realize(this.$config.context) || null;
   }
 
   /**
