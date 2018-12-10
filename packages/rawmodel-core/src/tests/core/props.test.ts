@@ -31,7 +31,7 @@ spec.test('config `get` option sets property custom getter', (ctx) => {
   const prop = new Prop({
     get: (v) => `foo-${v}`,
   });
-  ctx.is(prop.getValue(), null);
+  ctx.is(prop.getValue(), `foo-null`);
   prop.setValue('bar');
   ctx.is(prop.getValue(), 'foo-bar');
 });

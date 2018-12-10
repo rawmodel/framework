@@ -110,6 +110,18 @@ spec.test('decorator `prop` supports property enumerable style', (ctx) => {
   ctx.deepEqual(Object.keys(user1), []);
 });
 
+spec.test('method `getContext` returns configuration context', (ctx) => {
+  interface Context {
+    foo: string;
+    bar: number;
+  }
+  class User extends Model<Context> {}
+  const context = { foo: 'foo', bar: 1 };
+  const user = new User(null, { context });
+  ctx.is(user.getContext().foo, 'foo');
+  ctx.is(user.getContext().bar, 1);
+});
+
 spec.test('method `getParent` returns an instance of the parent model', (ctx) => {
   class Book extends Model {
     @prop()
@@ -143,7 +155,7 @@ spec.test('method `getParent` returns an instance of the parent model', (ctx) =>
   ctx.is(user.books[1].getParent(), user);
 });
 
-spec.test('method `getRoot` return the first model in a tree of nested models', (ctx) => {
+spec.test('method `getRoot` returns the first model in a tree of nested models', (ctx) => {
   class Book extends Model {
     @prop()
     title: string;

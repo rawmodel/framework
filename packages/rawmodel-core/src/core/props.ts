@@ -94,6 +94,13 @@ export class Prop {
   }
 
   /**
+   * Returns model reference.
+   */
+  public getModel() {
+    return this.$config.model;
+  }
+
+  /**
    * Sets the current value.
    */
   public setValue(data: any | (() => any), strategy?: string) {
@@ -128,7 +135,7 @@ export class Prop {
       value = this.$config.get.call(this, value);
     }
 
-    if (this.isEmpty()) {
+    if (!isPresent(value)) {
       value = realize(this.$config.emptyValue, this);
     }
 
