@@ -1,7 +1,7 @@
 import { Validator, ValidatorRecipe } from '@rawmodel/validator';
 import { Handler, HandlerRecipe } from '@rawmodel/handler';
 import { normalize, realize, isDeepEqual, isClassOf, isUndefined, isPresent,
-  toArray, isInstanceOf } from '@rawmodel/utils';
+  toArray, isInstanceOf, isValue } from '@rawmodel/utils';
 import { CastConfig, CastHandler, cast } from '@rawmodel/parser';
 import { Model } from './models';
 
@@ -90,7 +90,9 @@ export class Prop {
       enumerable: false,
     });
 
-    this.initialValue = this.rawValue = this.$config.defaultValue || null;
+    this.initialValue = this.rawValue = isUndefined(this.$config.defaultValue)
+      ? null
+      : this.$config.defaultValue;
   }
 
   /**
@@ -135,7 +137,7 @@ export class Prop {
       value = this.$config.get.call(this, value);
     }
 
-    if (!isPresent(value)) {
+    if (!isPresent(value) && !isUndefined(this.$config.emptyValue)) {
       value = realize(this.$config.emptyValue, this);
     }
 
