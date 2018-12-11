@@ -7,12 +7,12 @@ const spec = new Spec();
 
 spec.test('config `defaultValue` option configures property default value', (ctx) => {
   const prop0 = new Prop({
-    defaultValue: 'foo',
+    defaultValue: 0,
   });
   const prop1 = new Prop({
     defaultValue: () => 'bar',
   });
-  ctx.is(prop0.getValue(), 'foo');
+  ctx.is(prop0.getValue(), 0);
   ctx.is(prop1.getValue(), 'bar');
 });
 

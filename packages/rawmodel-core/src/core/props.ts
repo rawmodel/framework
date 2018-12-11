@@ -90,7 +90,9 @@ export class Prop {
       enumerable: false,
     });
 
-    this.initialValue = this.rawValue = this.$config.defaultValue || null;
+    this.initialValue = this.rawValue = isUndefined(this.$config.defaultValue)
+      ? null
+      : this.$config.defaultValue;
   }
 
   /**
