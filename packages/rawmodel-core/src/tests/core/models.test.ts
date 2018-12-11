@@ -86,9 +86,36 @@ spec.test('decorator `prop` supports default value', (ctx) => {
       defaultValue: 'foo',
     })
     name: string;
+    @prop({
+      defaultValue: [],
+    })
+    tags: string[];
   }
   const user = new User();
   ctx.is(user.name, 'foo');
+  ctx.deepEqual(user.tags, []);
+});
+
+spec.test('decorator `prop` supports empty value', (ctx) => {
+  class User extends Model {
+    @prop({
+      emptyValue: 'foo',
+    })
+    name: string;
+    @prop({
+      emptyValue: [],
+    })
+    list: string[];
+    @prop({
+      defaultValue: [],
+      emptyValue: ['foo'], // override default value if empty
+    })
+    tags: string[];
+  }
+  const user = new User();
+  ctx.is(user.name, 'foo');
+  ctx.deepEqual(user.list, []);
+  ctx.deepEqual(user.tags, ['foo']);
 });
 
 spec.test('decorator `prop` supports property enumerable style', (ctx) => {

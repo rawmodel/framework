@@ -10,10 +10,14 @@ spec.test('config `defaultValue` option configures property default value', (ctx
     defaultValue: 0,
   });
   const prop1 = new Prop({
+    defaultValue: [], // empty value
+  });
+  const prop2 = new Prop({
     defaultValue: () => 'bar',
   });
   ctx.is(prop0.getValue(), 0);
-  ctx.is(prop1.getValue(), 'bar');
+  ctx.deepEqual(prop1.getValue(), []);
+  ctx.is(prop2.getValue(), 'bar');
 });
 
 spec.test('config `emptyValue` option configures property empty value', (ctx) => {
