@@ -2,6 +2,12 @@
   "name": "@rawmodel/parser",
   "entries": [
     {
+      "version": "2.1.5",
+      "tag": "@rawmodel/parser_v2.1.5",
+      "date": "Tue, 11 Dec 2018 10:35:14 GMT",
+      "comments": {}
+    },
+    {
       "version": "2.1.4",
       "tag": "@rawmodel/parser_v2.1.4",
       "date": "Tue, 11 Dec 2018 09:55:28 GMT",
