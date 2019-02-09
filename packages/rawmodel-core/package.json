@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/core",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "Strongly-typed JavaScript object with support for validation and error handling.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -88,9 +88,9 @@
     "typescript": "^3.1.6"
   },
   "dependencies": {
-    "@rawmodel/handler": "^2.1.5",
-    "@rawmodel/parser": "^2.1.5",
-    "@rawmodel/utils": "^2.1.5",
-    "@rawmodel/validator": "^2.1.5"
+    "@rawmodel/handler": "^2.1.6",
+    "@rawmodel/parser": "^2.1.6",
+    "@rawmodel/utils": "^2.1.6",
+    "@rawmodel/validator": "^2.1.6"
   }
 }
