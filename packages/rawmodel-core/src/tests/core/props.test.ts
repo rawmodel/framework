@@ -91,6 +91,10 @@ spec.test('methods `getInitialValue` returns property value on last commit', (ct
   prop.commit();
   prop.setValue('bar');
   ctx.is(prop.getInitialValue(), 'foo');
+  prop.setValue(false);
+  prop.commit();
+  prop.setValue(true);
+  ctx.is(prop.getInitialValue(), false);
 });
 
 spec.test('methods `isModel` returns true if the property type represents a Model', (ctx) => {

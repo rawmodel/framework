@@ -355,7 +355,7 @@ export class Prop {
     }
 
     const value = this.rawValue; // same process as serialization
-    if (!value) {
+    if (!isValue(value)) {
       this.initialValue = null;
     }
     else if (this.isModel()) {
