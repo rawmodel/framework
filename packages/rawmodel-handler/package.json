@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/handler",
-  "version": "2.1.6",
+  "version": "2.2.0",
   "description": "Property error handler for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -88,6 +88,6 @@
     "typescript": "^3.4.3"
   },
   "dependencies": {
-    "@rawmodel/utils": "^2.1.6"
+    "@rawmodel/utils": "^2.2.0"
   }
 }

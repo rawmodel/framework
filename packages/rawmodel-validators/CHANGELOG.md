@@ -1,6 +1,11 @@
 # Change Log - @rawmodel/validators
 
-This log was last generated on Tue, 11 Dec 2018 10:35:14 GMT and should not be manually modified.
+This log was last generated on Wed, 10 Apr 2019 07:55:41 GMT and should not be manually modified.
+
+## 2.2.0
+Wed, 10 Apr 2019 07:55:41 GMT
+
+*Version update only*
 
 ## 2.1.5
 Tue, 11 Dec 2018 10:35:14 GMT
