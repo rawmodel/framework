@@ -59,8 +59,14 @@ export class Model<Context = any> {
 
     this.$props[key] = new Prop({
       model: this,
-      validator: () => new Validator(config as any), // lazy load
-      handler: () => new Handler(config as any), // lazy load
+      validator: () => new Validator({
+        context: this,
+        failFast: this.$config.failFast,
+      }), // lazy load
+      handler: () => new Handler({
+        context: this,
+        failFast: this.$config.failFast,
+      }), // lazy load
       ...config,
     });
 

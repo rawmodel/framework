@@ -121,7 +121,7 @@ export class Prop {
       value = this.cast(value, strategy);
     }
     if (this.$config.set) {
-      value = this.$config.set.call(this, value);
+      value = this.$config.set.call(this.$config.model, value);
     }
 
     this.rawValue = value;
@@ -131,14 +131,14 @@ export class Prop {
    * Calculates the current value.
    */
   public getValue(): any {
-    let value = realize(this.rawValue, this);
+    let value = realize(this.rawValue, this.$config.model);
 
     if (this.$config.get) {
-      value = this.$config.get.call(this, value);
+      value = this.$config.get.call(this.$config.model, value);
     }
 
     if (!isPresent(value) && !isUndefined(this.$config.emptyValue)) {
-      value = realize(this.$config.emptyValue, this);
+      value = realize(this.$config.emptyValue, this.$config.model);
     }
 
     return isUndefined(value) ? null : value;
@@ -215,7 +215,7 @@ export class Prop {
    */
   public isEmpty() {
     return !isPresent(
-      realize(this.rawValue, this)
+      realize(this.rawValue, this.$config.model)
     );
   }
 
@@ -224,8 +224,8 @@ export class Prop {
    */
   public isChanged(): boolean {
 
-    let initialValue = realize(this.initialValue);
-    let rawValue = realize(this.rawValue);
+    let initialValue = realize(this.initialValue, this.$config.model);
+    let rawValue = realize(this.rawValue, this.$config.model);
     if (this.isModel()) {
       initialValue = isInstanceOf(initialValue, Model) ? initialValue.serialize() : initialValue;
       rawValue = isInstanceOf(rawValue, Model) ? rawValue.serialize() : rawValue;
@@ -242,7 +242,7 @@ export class Prop {
    */
   public isEqual(data: any): boolean {
 
-    let value = realize(data);
+    let value = realize(data, this.$config.model);
     if (isInstanceOf(value, Prop) || isInstanceOf(value, Model)) {
       value = value.serialize();
     }
@@ -415,7 +415,7 @@ export class Prop {
         .map((doc) => doc.validate({ quiet: true }))
     );
 
-    const validator = realize(this.$config.validator, this) as Validator;
+    const validator = realize(this.$config.validator, this.$config.model);
     this.errorCodes = await validator.validate(
       this.getValue(),
       this.$config.validate
@@ -435,7 +435,7 @@ export class Prop {
         .map((doc) => doc.handle(error))
     ).catch(() => {}); // do not throw even when unhandled error
 
-    const handler = realize(this.$config.handler, this) as Handler;
+    const handler = realize(this.$config.handler, this.$config.model) as Handler;
     this.errorCodes = await handler.handle(
       error,
       this.$config.handle
