@@ -141,11 +141,17 @@ spec.test('decorator `prop` supports fake value', (ctx) => {
       fakeValue: 'foo',
     })
     name: string;
+    @prop({
+      fakeValue: () => 'bar',
+    })
+    email: string;
   }
   const user = new User();
   ctx.is(user.name, null);
+  ctx.is(user.email, null);
   user.fake();
   ctx.is(user.name, 'foo');
+  ctx.is(user.email, 'bar');
 });
 
 spec.test('decorator `prop` fake value shares associated model context', (ctx) => {

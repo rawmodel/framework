@@ -118,10 +118,10 @@ export class Prop {
     let value = isUndefined(data) ? null : data;
 
     if (this.$config.cast) {
-      value = this.cast(value, strategy);
+      value = this.cast(realize(value), strategy);
     }
     if (this.$config.set) {
-      value = this.$config.set.call(this.$config.model, value);
+      value = this.$config.set.call(this.$config.model, realize(value));
     }
 
     this.rawValue = value;
