@@ -48,7 +48,7 @@ Below we explain some of the most important features that this framework provide
 Model properties are defined using the `prop` ES6 decorator. The code below is an example of a basic model class with a `name` property.
 
 ```ts
-import { Model, prop } from 'rawmodel';
+import { Model, prop } from '@rawmodel/core';
 
 class User extends Model {
   @prop()
@@ -304,7 +304,7 @@ This mechanism is especially handful when saving data to a database. MongoDB cou
 RawModel can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
 
 ```ts
-import { Model } from 'rawmodel';
+import { Model } from '@rawmodel/core';
 import { graphql, buildSchema } from 'graphql';
 
 class App extends Model { // root resolver
