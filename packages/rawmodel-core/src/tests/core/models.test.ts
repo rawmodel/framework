@@ -68,6 +68,19 @@ spec.test('decorator `prop` supports custom setter', (ctx) => {
   ctx.is(user.name, 'foo-bar');
 });
 
+spec.test('decorator `prop` setter shares associated model context', (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      set() { context = this; },
+    })
+    name: string;
+  }
+  const user = new User();
+  user.name = 'foo'; // run setter
+  ctx.is(context, user);
+});
+
 spec.test('decorator `prop` supports custom getter', (ctx) => {
   class User extends Model {
     @prop({
@@ -78,6 +91,19 @@ spec.test('decorator `prop` supports custom getter', (ctx) => {
   const user = new User();
   user.name = 'bar';
   ctx.is(user.name, 'foo-bar');
+});
+
+spec.test('decorator `prop` getter shares associated model context', (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      get() { context = this; },
+    })
+    name: string;
+  }
+  const user = new User();
+  user.name; // run getter
+  ctx.is(context, user);
 });
 
 spec.test('decorator `prop` supports default value', (ctx) => {
@@ -94,6 +120,52 @@ spec.test('decorator `prop` supports default value', (ctx) => {
   const user = new User();
   ctx.is(user.name, 'foo');
   ctx.deepEqual(user.tags, []);
+});
+
+spec.test('decorator `prop` default value shares associated model context', (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      defaultValue() { context = this; },
+    })
+    name: string;
+  }
+  const user = new User();
+  user.name; // run getter (default value)
+  ctx.is(context, user);
+});
+
+spec.test('decorator `prop` supports fake value', (ctx) => {
+  class User extends Model {
+    @prop({
+      fakeValue: 'foo',
+    })
+    name: string;
+    @prop({
+      fakeValue: () => 'bar',
+    })
+    email: string;
+  }
+  const user = new User();
+  ctx.is(user.name, null);
+  ctx.is(user.email, null);
+  user.fake();
+  ctx.is(user.name, 'foo');
+  ctx.is(user.email, 'bar');
+});
+
+spec.test('decorator `prop` fake value shares associated model context', (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      fakeValue() { context = this; },
+    })
+    name: string;
+  }
+  const user = new User();
+  user.fake(); // set fake value
+  user.name; // run getter (fake value)
+  ctx.is(context, user);
 });
 
 spec.test('decorator `prop` supports empty value', (ctx) => {
@@ -116,6 +188,19 @@ spec.test('decorator `prop` supports empty value', (ctx) => {
   ctx.is(user.name, 'foo');
   ctx.deepEqual(user.list, []);
   ctx.deepEqual(user.tags, ['foo']);
+});
+
+spec.test('decorator `prop` empty value shares associated model context', (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      emptyValue() { context = this; },
+    })
+    name: string;
+  }
+  const user = new User();
+  user.name; // run getter (default value)
+  ctx.is(context, user);
 });
 
 spec.test('decorator `prop` supports property enumerable style', (ctx) => {
@@ -1024,6 +1109,21 @@ spec.test('method `validate` validates properties and throws an error', async (c
   ]);
 });
 
+spec.test('validators share associated model context', async (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      validate: [
+        { handler(v) { return context = this; }, code: 100 },
+      ],
+    })
+    name: string;
+  }
+  const user = new User();
+  await user.validate({ quiet: true }); // run validation
+  ctx.is(context, user);
+});
+
 spec.test('method `handle` handles property errors', async (ctx) => {
   const handle = [{
     handler: (e) => e.message === 'foo',
@@ -1088,6 +1188,21 @@ spec.test('method `handle` handles property errors', async (ctx) => {
     { path: ['book1', 'title'], errors },
     { path: ['books1', 0, 'title'], errors },
   ]);
+});
+
+spec.test('handlers share associated model context', async (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      handle: [
+        { handler(v) { return context = this; }, code: 100 },
+      ],
+    })
+    name: string;
+  }
+  const user = new User();
+  await user.handle(new Error()); // run handler
+  ctx.is(context, user);
 });
 
 spec.test('method `invalidate` clears property errors', async (ctx) => {

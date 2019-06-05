@@ -106,7 +106,7 @@ class User extends Model {
 
 We can set a `defaultValue` for each property which will automatically populate a property on creation.
 
-The `defaultValue` can also be a method which returns a dynamic value. This function shares the context of a property instance thus you have access to all the features of the `Prop` class.
+The `defaultValue` can also be a method which returns a dynamic value. This function shares the context of the associated model.
 
 ```ts
 @prop({
@@ -119,7 +119,7 @@ now: string;
 
 Similar to default values, we can set a `fakeValue` for each property, to populate a property with fakes data when calling the `fake()` method.
 
-The `fakeValue` can also be a method which returns a dynamic value. This function shares the context of a property instance, thus you have access to all the features of the `Prop` class.
+The `fakeValue` can also be a method which returns a dynamic value. This function shares the context of the associated model.
 
 ```ts
 @prop({
@@ -132,18 +132,18 @@ today: string;
 
 By default, all defined properties are set to `null`. Similar to default and fake value we can set an `emptyValue` option for each property, to automatically replace `null` values.
 
-The `emptyValue` can also be a method which returns a dynamic value. Note that this function shares the context of a property instance, thus you have access to all the features of the `Prop` class.
+The `emptyValue` can also be a method which returns a dynamic value. This function shares the context of the associated model.
 
 ```ts
 @prop({
-  fakeValue() { return '' },
+  emptyValue() { return '' },
 })
 name: string;
 ```
 
 ### Prop Value Transformation
 
-A property can have a custom `getter` and a custom `setter`. These methods all share the context of a property instance, thus you have access to all the features of the `Prop` class.
+A property can have a custom `getter` and a custom `setter`. This function shares the context of the associated model.
 
 ```ts
 @prop({
@@ -250,14 +250,14 @@ Note that the `commit` method will memorize a serialized data and the `rollback`
 
 ### Validation
 
-RawModel provides a simple mechanism for validating properties.
+RawModel provides a simple mechanism for validating properties. Validators shares the context of the associated model.
 
 ```ts
 class User extends Model {
   @prop({
     validate: [ // property validation setup
       { // validator recipe
-        handler: (v) => !!v, // [required] validator function
+        handler(v) { return !!v }, // [required] validator function
         code: 422, // [optional] error code
         condition() { return true }, // [optional] condition which switches the validation on/off
       },
@@ -274,14 +274,14 @@ user.validate().catch((err) => {
 
 ### Error Handling
 
-RawModel provides a mechanism for handling property-related errors. The logic is aligned with the validation thus the validation and the error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in a unified format.
+RawModel provides a mechanism for handling property-related errors. The logic is aligned with the validation thus the validation and the error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in a unified format. Handlers shares the context of the associated model.
 
 ```ts
 class User extends Model {
   @prop({
     handle: [ // property error handling setup
       { // handler recipe
-        handler: (e) => e.message === 'foo', // [required] errir handler function
+        handler(e) { return e.message === 'foo' }, // [required] errir handler function
         code: 422, // [optional] error code
         condition() { return true }, // [optional] condition which switches the handling on/off
       },
