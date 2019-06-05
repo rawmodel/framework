@@ -84,7 +84,7 @@
     "@hayspec/spec": "^0.8.3",
     "nyc": "^13.0.3",
     "ts-node": "^8.0.3",
-    "tslint": "^5.15.0",
+    "tslint": "^5.17.0",
     "typescript": "^3.4.3"
   },
   "dependencies": {
