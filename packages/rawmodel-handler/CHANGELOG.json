@@ -2,6 +2,12 @@
   "name": "@rawmodel/handler",
   "entries": [
     {
+      "version": "2.4.0",
+      "tag": "@rawmodel/handler_v2.4.0",
+      "date": "Fri, 12 Jul 2019 17:57:56 GMT",
+      "comments": {}
+    },
+    {
       "version": "2.3.0",
       "tag": "@rawmodel/handler_v2.3.0",
       "date": "Thu, 11 Apr 2019 11:45:39 GMT",

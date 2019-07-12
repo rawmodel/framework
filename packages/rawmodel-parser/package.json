@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/parser",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Parser and type casting for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -88,6 +88,6 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@rawmodel/utils": "^2.3.0"
+    "@rawmodel/utils": "^2.4.0"
   }
 }

@@ -1,6 +1,11 @@
 # Change Log - @rawmodel/handler
 
-This log was last generated on Thu, 11 Apr 2019 11:45:39 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2019 17:57:56 GMT and should not be manually modified.
+
+## 2.4.0
+Fri, 12 Jul 2019 17:57:56 GMT
+
+*Version update only*
 
 ## 2.3.0
 Thu, 11 Apr 2019 11:45:39 GMT
