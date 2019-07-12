@@ -4,6 +4,7 @@ import { normalize, realize, isDeepEqual, isClassOf, isUndefined, isPresent,
   toArray, isInstanceOf, isValue } from '@rawmodel/utils';
 import { CastConfig, CastHandler, cast } from '@rawmodel/parser';
 import { Model } from './models';
+import { isFunction } from 'util';
 
 /**
  * Property error interface.
@@ -288,8 +289,11 @@ export class Prop {
         }
       };
     }
+    else if (isFunction(config.handler)) {
+      config.handler = config.handler.bind(this.$config.model);
+    }
 
-    return cast(value, config.handler as CastHandler, config.array);
+    return cast(value, config.handler, config.array);
   }
 
   /**

@@ -56,6 +56,19 @@ spec.test('decorator `prop` supports deep type casting', (ctx) => {
   ctx.is(user.book, book);
 });
 
+spec.test('decorator `prop` caster shares associated model context', (ctx) => {
+  let context = null;
+  class User extends Model {
+    @prop({
+      cast: { handler(v) { context = this; return v; } },
+    })
+    name: string;
+  }
+  const user = new User();
+  user.name = 'foo'; // run setter
+  ctx.is(context, user);
+});
+
 spec.test('decorator `prop` supports custom setter', (ctx) => {
   class User extends Model {
     @prop({
