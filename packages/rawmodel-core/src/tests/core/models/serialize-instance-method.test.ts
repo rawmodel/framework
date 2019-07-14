@@ -7,46 +7,46 @@ const spec = new Spec();
 spec.test('deeply serializes property data using strategies', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: { handler: floatParser() },
+      parse: { resolver: floatParser() },
     })
     id: number;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
       serializable: ['output'],
     })
     title: string;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
       serializable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
-      parse: { handler: floatParser() },
+      parse: { resolver: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
     })
     name: string;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
       serializable: ['input'],
     })
     email: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
       serializable: ['output'],
     })
     book0: Book;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
       serializable: ['input'],
     })
     books: Book[];

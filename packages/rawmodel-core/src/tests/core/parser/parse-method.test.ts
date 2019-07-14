@@ -15,8 +15,8 @@ spec.test('converts to arrays', (ctx) => {
 });
 
 spec.test('converts to custom type', (ctx) => {
-  ctx.deepEqual(parse(100, { handler(v) { return 'foo'; } }), 'foo');
-  ctx.deepEqual(parse(100, { array: true, handler(v) { return 'foo'; } }), ['foo']);
+  ctx.deepEqual(parse(100, { resolver(v) { return 'foo'; } }), 'foo');
+  ctx.deepEqual(parse(100, { array: true, resolver(v) { return 'foo'; } }), ['foo']);
 });
 
 export default spec;

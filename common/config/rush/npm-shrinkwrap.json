@@ -224,7 +224,7 @@
     },
     "@rush-temp/schema": {
       "version": "file:projects/schema.tgz",
-      "integrity": "sha512-0otWeLJJo6eSwkzKA10wxOyLhGzdC2OHVuDwDVhN2ecZAjKpf8oHGDCGaxFRMipuD3Lq7F4q1zVVO0jaut4ANg==",
+      "integrity": "sha512-mwFyJaBdt77kxGZsncP6tQFTDOaVHHBgCaO+8JEGGlFsHtS7pSUAkK75ofRdM/3Os2zqOTTy91x9kMHZLl8YDw==",
       "requires": {
         "@hayspec/cli": "^0.8.4",
         "@hayspec/spec": "^0.8.4",

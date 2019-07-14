@@ -16,12 +16,12 @@ spec.test('sets properties to their fake values', (ctx) => {
     })
     name: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
       fakeValue: 'bar',
     })
     book: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
       fakeValue: [null, {}],
     })
     books: Book[];

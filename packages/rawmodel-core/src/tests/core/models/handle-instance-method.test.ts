@@ -5,7 +5,7 @@ const spec = new Spec();
 
 spec.test('handles property errors', async (ctx) => {
   const handle = [{
-    handler: (e) => e.message === 'foo',
+    resolver: (e) => e.message === 'foo',
     code: 100,
   }];
   class Book extends Model {
@@ -25,24 +25,24 @@ spec.test('handles property errors', async (ctx) => {
     name: string;
     @prop({
       handle,
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book0: Book;
     @prop({
       handle,
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
     })
     books0: Book[];
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
     })
     books1: Book[];
     @prop({
-      parse: { handler: Country },
+      parse: { resolver: Country },
     })
     country: Country;
   }

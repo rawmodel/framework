@@ -55,8 +55,13 @@ export interface PropConfig {
  */
 export interface ParserRecipe {
   array?: boolean;
-  handler?: ((v?: any, r?: ParserRecipe) => any) | typeof Model;
+  resolver?: ParserResolver;
 }
+
+/**
+ * Parser resolver definition.
+ */
+export type ParserResolver = ((v?: any, r?: ParserRecipe) => any) | typeof Model;
 
 /**
  * Parser configuration interface.
@@ -70,16 +75,19 @@ export interface ParserConfig {
  */
 export interface ValidatorRecipe {
   code: number;
-  handler: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>;
-  condition?: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>;
+  resolver: ValidatorResolver;
 }
+
+/**
+ * Validator handler definition.
+ */
+export type ValidatorResolver = (v?: any, r?: ValidatorRecipe) => (boolean | Promise<boolean>);
 
 /**
  * Validator configuration interface.
  */
 export interface ValidatorConfig {
   context?: any | (() => any);
-  failFast?: boolean | (() => boolean);
 }
 
 /**
@@ -87,14 +95,17 @@ export interface ValidatorConfig {
  */
 export interface HandlerRecipe {
   code: number;
-  handler: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>;
-  condition?: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>;
+  resolver: HandlerResolver;
 }
+
+/**
+ * Handler handler definition.
+ */
+export type HandlerResolver = (v?: any, r?: HandlerRecipe) => (boolean | Promise<boolean>);
 
 /**
  * Error handler configuration interface.
  */
 export interface HandlerConfig {
   context?: any | (() => any);
-  failFast?: boolean | (() => boolean);
 }

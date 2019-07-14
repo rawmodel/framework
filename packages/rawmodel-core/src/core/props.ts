@@ -221,16 +221,16 @@ export class Prop {
   protected parse(value: any, strategy?: string): any {
     const parser = (this.$config.parse || {}) as any;
     const recipe = {
-      handler: parser.handler,
+      resolver: parser.resolver,
       array: parser.array || false,
     };
     const config = {
       context: this.getModel(),
     };
 
-    if (isClassOf(recipe.handler, Model)) {
-      const Klass = (recipe.handler as any);
-      recipe.handler = (data: any) => {
+    if (isClassOf(recipe.resolver, Model)) {
+      const Klass = (recipe.resolver as any);
+      recipe.resolver = (data: any) => {
         if (isInstanceOf(data, Klass)) {
           return data; // keep instances for speed
         }
@@ -360,7 +360,6 @@ export class Prop {
       this.$config.validate,
       {
         context: this.getModel(),
-        failFast: this.$config.failFast,
       },
     );
 
@@ -383,7 +382,6 @@ export class Prop {
       this.$config.handle,
       {
         context: this.getModel(),
-        failFast: this.$config.failFast,
       },
     );
 

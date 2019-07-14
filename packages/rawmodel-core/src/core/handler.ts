@@ -12,26 +12,15 @@ export async function handle(error: any, recipes: HandlerRecipe[] = [], config: 
 
   for (const recipe of recipes) {
 
-    const condition = recipe.condition;
-    if (condition) {
-      const result = await condition.call(config.context, error, recipe);
-      if (!result) {
-        continue;
-      }
-    }
-
     const context = realize(config.context);
     const isMatch = await Promise.all(
       (isArray(error) ? error : [error])
-        .map((v) => recipe.handler.call(context, v, recipe))
+        .map((v) => recipe.resolver.call(context, v, recipe))
     ).then((r) => r.indexOf(false) === -1);
 
     if (isMatch) {
       codes.push(recipe.code);
-
-      if (realize(config.failFast)) {
-        break;
-      }
+      break;
     }
   }
 

@@ -43,21 +43,21 @@ spec.test('supports property enumerable style', (ctx) => {
 spec.test('supports deep type parsing', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
     })
     name: string;
   }
   class User extends Model {
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
     })
     name: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
     })
     books: Book[];
     @prop({
@@ -94,7 +94,7 @@ spec.test('parser shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      parse: { handler(v) { context = this; return v; } },
+      parse: { resolver(v) { context = this; return v; } },
     })
     name: string;
   }
@@ -255,7 +255,7 @@ spec.test('validators share associated model context', async (ctx) => {
   class User extends Model {
     @prop({
       validate: [
-        { handler(v) { return context = this; }, code: 100 },
+        { resolver(v) { return context = this; }, code: 100 },
       ],
     })
     name: string;
@@ -265,18 +265,18 @@ spec.test('validators share associated model context', async (ctx) => {
   ctx.is(context, user);
 });
 
-spec.test('handlers share associated model context', async (ctx) => {
+spec.test('resolvers share associated model context', async (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
       handle: [
-        { handler(v) { return context = this; }, code: 100 },
+        { resolver(v) { return context = this; }, code: 100 },
       ],
     })
     name: string;
   }
   const user = new User();
-  await user.handle(new Error()); // run handler
+  await user.handle(new Error()); // run resolver
   ctx.is(context, user);
 });
 

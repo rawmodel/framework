@@ -12,26 +12,15 @@ export async function validate(value: any, recipes: ValidatorRecipe[] = [], conf
 
   for (const recipe of recipes) {
 
-    const condition = recipe.condition;
-    if (condition) {
-      const result = await condition.call(config.context, value, recipe);
-      if (!result) {
-        continue;
-      }
-    }
-
     const context = realize(config.context);
     const isValid = await Promise.all(
       (isArray(value) ? value : [value])
-        .map((v) => recipe.handler.call(context, v, recipe))
+        .map((v) => recipe.resolver.call(context, v, recipe))
     ).then((r) => r.indexOf(false) === -1);
 
     if (!isValid) {
       codes.push(recipe.code);
-
-      if (realize(config.failFast)) {
-        break;
-      }
+      break;
     }
   }
 

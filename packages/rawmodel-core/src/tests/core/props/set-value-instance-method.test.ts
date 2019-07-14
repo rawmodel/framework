@@ -17,7 +17,7 @@ spec.test('sets property value', (ctx) => {
 
 spec.test('parses input data', (ctx) => {
   const prop = new Prop({
-    parse: { handler: integerParser() },
+    parse: { resolver: integerParser() },
   });
   prop.setValue('100');
   ctx.is(prop.getValue(), 100);

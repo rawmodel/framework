@@ -74,7 +74,7 @@ import { stringParser } from '@rawmodel/parsers';
 class User extends Model {
   @prop({
     parse: {
-      handler: stringParser(),
+      resolver: stringParser(),
     },
   })
   name: string;
@@ -103,14 +103,14 @@ class Friend extends Model {
 class User extends Model {
   @prop({
     parse: {
-      handler: Address,
+      resolver: Address,
     },
   })
   address: Address;
   @prop({
     parse: {
       array: true,
-      handler: Friend,
+      resolver: Friend,
     },
   })
   friends: Friend[];
@@ -274,9 +274,8 @@ class User extends Model {
   @prop({
     validate: [ // property validation setup
       { // validator recipe
-        handler(v) { return !!v }, // [required] validator function
+        resolver(v) { return !!v }, // [required] validator function
         code: 422, // [optional] error code
-        condition() { return true }, // [optional] condition which switches the validation on/off
       },
     ],
   })
@@ -298,9 +297,8 @@ class User extends Model {
   @prop({
     handle: [ // property error handling setup
       { // handler recipe
-        handler(e) { return e.message === 'foo' }, // [required] errir handler function
+        resolver(e) { return e.message === 'foo' }, // [required] error resolve function
         code: 31000, // [optional] error code
-        condition() { return true }, // [optional] condition which switches the handling on/off
       },
     ],
   })
@@ -366,23 +364,20 @@ class User extends Model {
     get(v) { return v; }, // [optional] custom getter
     parse: { // [optional] property type casting
       array: true, // [optional] forces to array conversion when `true`
-      handler: User, // [optional] parser function or Model
+      resolver: User, // [optional] parser function or Model
     },
     defaultValue: 'Noname', // [optional] property default value (value or function)
-    failFast: true, // [optional] Stop validation and error handling when the first error is found.
     fakeValue: 'Noname', // [optional] property fake value (value or function)
     emptyValue: '', // [optional] property empty value (value or function)
     validate: [ // [optional] value validator recipes
       { // validator recipe (check validatable.js for more)
-        handler(v) { return !!v; }, // [required] validator function (supports async)
-        condition(v) { return true; }, // [optional] condition which switches the validation on/off
+        resolver(v) { return !!v; }, // [required] validator resolve function (supports async)
         code: 422, // [optional] error code
       },
     ],
     handle: [ // [optional] error handling recipies
       { // handler recipe
-        handler(e) { return e.message === 'foo'; }, // [required] error handler function (supports async)
-        condition(e) { return true; }, // [optional] condition which switches the handling on/off
+        resolver(e) { return e.message === 'foo'; }, // [required] handler resolve function (supports async)
         code: 31000, // [required] error code
       },
     ],
@@ -404,7 +399,6 @@ class User extends Model {
 | config.get | Function | No | - | Custom getter.
 | config.parse | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
-| config.failFast | Boolean | No | false | When `true` the validation and error handling stop when the first error is found.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
 | config.validate | Array | No | - | List of validator recipes.
@@ -599,12 +593,9 @@ This class is provided by the `@rawmodel/core` package.
 | config.get | Function | No | - | Custom getter.
 | config.parse | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
-| config.failFast | Boolean | No | false | When `true` the validation and error handling stop when the first error is found.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
-| config.validator | Validator | No | Validator | Property validator instance.
 | config.validate | Array | No | - | List of validator recipes.
-| config.handler | Handler | No | Handler | Property error handler instance.
 | config.handle | Array | No | - | List of error handler recipes.
 | config.populatable | String[] | No | - | List of strategies for populating the property value.
 | config.serializable | String[] | No | - | List of strategies for serializing the property value.
@@ -729,7 +720,7 @@ This class is provided by the `@rawmodel/core` package.
 
 ### Available Parsers
 
-Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser handler.
+Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser resolver.
 
 **booleanParser()**
 
@@ -738,7 +729,7 @@ Parsers are provided by the `@rawmodel/parsers` package. Note that every model c
 ```ts
 const recipe = {
   array: true, // optional
-  handler: booleanParser(),
+  resolver: booleanParser(),
 }
 ```
 
@@ -768,7 +759,7 @@ const recipe = {
 import { absenceValidator } from '@rawmodel/validators';
 
 const recipe = {
-  handler: absenceValidator(),
+  resolver: absenceValidator(),
   code: 422,
 };
 ```
@@ -933,7 +924,7 @@ const recipe = {
 import { mongoUniquenessHandler } from '@rawmodel/handlers';
 
 const recipe = { // make sure that this index name exists in your MongoDB collection
-  handler: mongoUniquenessHandler({ indexName: 'uniqueEmail' }),
+  resolver: mongoUniquenessHandler({ indexName: 'uniqueEmail' }),
   code: 422,
 };
 ```
@@ -943,11 +934,10 @@ const recipe = { // make sure that this index name exists in your MongoDB collec
 | Package | Description | Version
 |-|-|-
 | [@rawmodel/core](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-core) | Model and property classes. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fcore.svg)](https://badge.fury.io/js/%40rawmodel%2Fcore)
-| [@rawmodel/handler](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-handler) | Property error handler. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fhandler.svg)](https://badge.fury.io/js/%40rawmodel%2Fhandler)
 | [@rawmodel/handlers](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-handlers) | Collection of error handlers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fhandlers.svg)](https://badge.fury.io/js/%40rawmodel%2Fhandlers)
-| [@rawmodel/parser](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-parser) | Parsing and type casting. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fparser.svg)](https://badge.fury.io/js/%40rawmodel%2Fparser)
+| [@rawmodel/parsers](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-parsers) | Collection of data parsers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fparsers.svg)](https://badge.fury.io/js/%40rawmodel%2Fparsers)
+| [@rawmodel/schema](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-schema) | JSON Schema utils. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fschema.svg)](https://badge.fury.io/js/%40rawmodel%2Fschema)
 | [@rawmodel/utils](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-utils) | Framework helpers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Futils.svg)](https://badge.fury.io/js/%40rawmodel%2Futils)
-| [@rawmodel/validator](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-validator) | Property validator. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fvalidator.svg)](https://badge.fury.io/js/%40rawmodel%2Fvalidator)
 | [@rawmodel/validators](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-validators) | Collection of validators. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fvalidators.svg)](https://badge.fury.io/js/%40rawmodel%2Fvalidators)
 
 ## Contributing
