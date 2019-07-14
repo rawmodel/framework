@@ -5,8 +5,8 @@ const spec = new Spec();
 
 spec.test('validates properties or throws on error', async (ctx) => {
   const validate = [
-    { handler: (v) => !!v, code: 100 },
-    { handler: (v) => !!v, code: 200 },
+    { resolver: (v) => true, code: 100 },
+    { resolver: (v) => !!v, code: 200 },
   ];
   class Book extends Model {
     @prop({
@@ -20,22 +20,22 @@ spec.test('validates properties or throws on error', async (ctx) => {
     })
     name: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
       validate,
     })
     book0: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
       validate,
     })
     books0: Book[];
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
       validate,
     })
     book1: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
       validate,
     })
     books1: Book[];
@@ -44,7 +44,7 @@ spec.test('validates properties or throws on error', async (ctx) => {
     book1: {},
     books1: [{}]
   });
-  const errors = [100, 200];
+  const errors = [200];
   await user.validate({ quiet: true });
   ctx.is(await user.validate().catch(() => false), false);
   ctx.deepEqual(user.collectErrors(), [
@@ -58,7 +58,7 @@ spec.test('validates properties or throws on error', async (ctx) => {
 
 spec.test('validates polymorphic arrays', async (ctx) => {
   const validate = [
-    { handler: (v) => !!v, code: 100 },
+    { resolver: (v) => !!v, code: 100 },
   ];
   const parser = (v) => {
     if (v && v.kind === 'Book') {
@@ -75,7 +75,7 @@ spec.test('validates polymorphic arrays', async (ctx) => {
   }
   class User extends Model {
     @prop({
-      parse: { array: true, handler: parser },
+      parse: { array: true, resolver: parser },
       validate,
     })
     books: Book[];

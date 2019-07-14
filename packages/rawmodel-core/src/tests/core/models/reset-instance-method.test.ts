@@ -16,12 +16,12 @@ spec.test('sets properties to their default values', (ctx) => {
     })
     name: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
       defaultValue: {},
     })
     book: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
       defaultValue: [null, {}],
     })
     books: Book[];

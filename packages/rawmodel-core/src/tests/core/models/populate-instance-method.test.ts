@@ -7,46 +7,46 @@ const spec = new Spec();
 spec.test('deeply assignes property data using strategies', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: { handler: floatParser() },
+      parse: { resolver: floatParser() },
       populatable: ['output'],
     })
     id: number;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
     })
     title: string;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
       populatable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
-      parse: { handler: floatParser() },
+      parse: { resolver: floatParser() },
       populatable: ['output'],
     })
     id: number;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
     })
     name: string;
     @prop({
-      parse: { handler: stringParser() },
+      parse: { resolver: stringParser() },
       populatable: ['input'],
     })
     email: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
       populatable: ['output'],
     })
     book0: Book;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
       populatable: ['input'],
     })
     books: Book[];

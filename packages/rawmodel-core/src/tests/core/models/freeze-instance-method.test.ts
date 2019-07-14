@@ -12,11 +12,11 @@ spec.test('makes property not settable', async (ctx) => {
     @prop()
     name: string;
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book: Book;
     @prop({
-      parse: { array: true, handler: Book },
+      parse: { array: true, resolver: Book },
     })
     books: Book[];
   }

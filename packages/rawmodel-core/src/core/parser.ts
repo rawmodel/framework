@@ -15,8 +15,8 @@ export function parse(value: any, recipe?: ParserRecipe, config?: ParserConfig) 
     if (isUndefined(value) || isNull(value)) {
       return value;
     }
-    return recipe.handler
-      ? recipe.handler.call(config.context, value)
+    return recipe.resolver
+      ? recipe.resolver.call(config.context, value)
       : value;
   };
 

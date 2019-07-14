@@ -10,7 +10,7 @@ spec.test('returns the first model in a tree of nested models', (ctx) => {
   }
   class User extends Model {
     @prop({
-      parse: { handler: Book },
+      parse: { resolver: Book },
     })
     book: Book;
   }
