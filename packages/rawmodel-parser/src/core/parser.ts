@@ -1,46 +1,32 @@
 import { isUndefined, isNull, toArray, toString, toBoolean, toInteger, toFloat,
-  toNumber, toDate, isFunction, isString } from '@rawmodel/utils';
-
-/**
- * Handler function type.
- */
-export type CastHandler = 'String' | 'Boolean' | 'Integer' | 'Float' | 'Number' | 'Date' | ((v: any) => any);
-
-/**
- * Model property type interface.
- */
-export interface CastConfig {
-  handler?: CastHandler;
-  array?: boolean;
-}
+  toDate } from '@rawmodel/utils';
+import { ParserConfig, ParserKind } from './types';
 
 /**
  * Converts the provided value into desired type.
  * @param value Value or an object.
- * @param handler Cast handler function or type name.
- * @param array Set to `true` to automatically convert to array.
+ * @param config Parser configuration.
  */
-export function cast(value: any, handler: CastHandler, array: boolean) {
-  if (isUndefined(value) || isNull(value)) {
+export function parse(value: any, config: ParserConfig) {
+  if (isUndefined(value) || isNull(value) || !config || !config.kind) {
     return value;
   }
-  else if (array) {
-    return toArray(value).map((v) => cast(v, handler, false));
-  }
-  else if (isFunction(handler)) {
-    return (handler as any)(value);
-  }
-  else if (isString(handler)) {
-    return {
-      'String': toString,
-      'Boolean': toBoolean,
-      'Integer': toInteger,
-      'Float': toFloat,
-      'Number': toNumber,
-      'Date': toDate,
-    }[handler as string](value);
-  }
-  else {
-    return value;
+  switch (config.kind) {
+    case ParserKind.ARRAY:
+      return toArray(value).map((v) => parse(v, config.parse));
+    case ParserKind.CUSTOM:
+      return config.handler(value);
+    case ParserKind.STRING:
+      return toString(value);
+    case ParserKind.BOOLEAN:
+      return toBoolean(value);
+    case ParserKind.INTEGER:
+      return toInteger(value);
+    case ParserKind.FLOAT:
+      return toFloat(value);
+    case ParserKind.DATE:
+      return toDate(value);
+    default:
+      return value;
   }
 }

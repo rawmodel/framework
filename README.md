@@ -2,7 +2,6 @@
 
 [![Build Status](https://travis-ci.org/rawmodel/framework.svg?branch=master)](https://travis-ci.org/rawmodel/framework)&nbsp;[![codecov](https://codecov.io/gh/rawmodel/framework/branch/master/graph/badge.svg)](https://codecov.io/gh/rawmodel/framework)
 
-
 Rawmodel is a strongly-typed JavaScript object with support for validation and error handling. It's a lightweight open source framework for the **server** and **browser** (using module bundler), written with [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/rawmodel/framework) where you can also find our [issue tracker](https://github.com/rawmodel/framework/issues).
 
 ## Introduction
@@ -34,7 +33,7 @@ class User extends Model {
 
 // usage example
 const model = new User({
-  'name': 'John Smith'
+  'name': 'John Smith',
 });
 model.name; // => 'John Smith'
 ```
@@ -65,40 +64,55 @@ user.name; // -> "John Smith"
 Each property has a built-in system for type casting, thus we can force a value to be automatically converted to a specific type when setting a value.
 
 ```ts
-@prop({
-  cast: { handler: 'String' },
-})
-name: string;
+import { ParserKind } from '@rawmodel/core';
+
+class User extends Model {
+  @prop({
+    parse: {
+      kind: ParserKind.STRING,
+    },
+  })
+  name: string;
+}
 ```
 
-Common types are supported by default. A `Model` also represents a type handler.
-
-```ts
-class User extends Model {}
-...
-@prop({
-  cast: { handler: User, array: true },
-})
-user: User[];
-```
-
-You can use your own handler function. Please see the API section for further details.
+Common types are supported by default. A `Model` also represents a type and you can create your own parsers when needed. Please see the API section for further details.
 
 ### Nested Models
 
-As mentioned above, a model class is already a type handler. This way you can create complex nested structures by nesting models as shown in the example below.
+As mentioned above, a model class is already a type. This way you can create complex nested structures by nesting models as shown in the example below.
 
 ```ts
-class Book extends Model {
+import { Model, ParserKind, prop } from '@rawmodel/core';
+
+class Address extends Model {
   @prop()
-  title: string;
+  country: string;
+}
+
+class Friend extends Model {
+  @prop()
+  name: string;
 }
 
 class User extends Model {
   @prop({
-    cast: { handler: Book },
+    parse: {
+      kind: ParserKind.MODEL,
+      model: Address,
+    },
   })
-  book: Book;
+  address: Address;
+  @prop({
+    parse: {
+      kind: ParserKind.ARRAY,
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Friend,
+      },
+    },
+  })
+  friends: Friend[];
 }
 ```
 
@@ -117,7 +131,7 @@ now: string;
 
 ### Prop Fake Value
 
-Similar to default values, we can set a `fakeValue` for each property, to populate a property with fakes data when calling the `fake()` method.
+Similar to default values, we can set a `fakeValue` for each property, to populate a property with fake data when calling the `fake()` method. This is useful when writting automated tests.
 
 The `fakeValue` can also be a method which returns a dynamic value. This function shares the context of the associated model.
 
@@ -130,7 +144,7 @@ today: string;
 
 ### Prop Empty Value
 
-By default, all defined properties are set to `null`. Similar to default and fake value we can set an `emptyValue` option for each property, to automatically replace `null` values.
+By default, all defined properties are set to `null`. Similar to default and fake values we can set an `emptyValue` option for each property, to automatically replace `null` values.
 
 The `emptyValue` can also be a method which returns a dynamic value. This function shares the context of the associated model.
 
@@ -164,7 +178,7 @@ model.populate({
 });
 ```
 
-We can allow only selected properties to be populated by using population strategies (e.g. populating data received from a form ).
+We can allow only selected properties to be populated by using population strategies (e.g. useful when populating data received from a form).
 
 ```ts
 class User extends Model {
@@ -188,23 +202,17 @@ user.populate(data, 'internal'); // -> { "id": 100, "name": "John Smith" }
 user.serialize(data, 'input'); // -> { id: null, "name": "John Smith" }
 ```
 
-### Serialization & Filtering
-
-Model provides useful methods for object serialization and filtering (check the API for more methods).
+Model properties also support dynamic data assignments. In translation, this means that we can populate a property using a function that shares the context of the associated model and is realized on property assignment.
 
 ```ts
-const user = new User({
-  'name': 'John Smith', // initial value
-});
-
-user.scroll(function(property) { // argument is an instance of a property
-  // do something useful
-}).then((count) => { // number of processed properties
-  user.serialize(); // -> { "name": "John Smith" }
-});
+user.name = () => 'Join';
 ```
 
-Props are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude properties for different occasions by using serialization strategies.
+It's encouraged to use the `populate()` method for assigning values unless you know how RawModel works in-depth. Adding items to an array through the native `push` method, directly assigning model instances and similar data manipulation can lead to strange effects.
+
+### Serialization & Filtering
+
+Model provides useful methods for object serialization and filtering. All properties are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude properties for different situations by using serialization strategies.
 
 ```ts
 class User extends Model {
@@ -225,6 +233,14 @@ const user = new User({
 user.serialize(); // -> { "id": 100, "name": "John Smith" }
 user.serialize('input'); // -> { "name": "John Smith" }
 user.serialize('output'); // -> { "id": 100, "name": "John Smith" }
+```
+
+A model can also be serialized into an array by using the `flatten()` method. We can thus easily scroll through all model values in a loop. The method also supports strategies thus we can customize the output and include or exclude properties for different situations.
+
+```ts
+user.flatten(); // [{ path, value, prop }, ...]
+user.flatten('input');
+user.flatten('output');
 ```
 
 ### Commits & Rollbacks
@@ -250,7 +266,7 @@ Note that the `commit` method will memorize a serialized data and the `rollback`
 
 ### Validation
 
-RawModel provides a simple mechanism for validating properties. Validators shares the context of the associated model.
+RawModel provides a simple mechanism for validating properties. All validators shares the context of the associated model.
 
 ```ts
 class User extends Model {
@@ -268,13 +284,13 @@ class User extends Model {
 
 const user = new User();
 user.validate().catch((err) => {
-  user.collectErrors(); // -> [{path: ['name'], errors: [{validator: 'presence', message: 'is must be present', code: 422}]}]
+  user.collectErrors(); // -> [{ path: ['name'], errors: [422] }]
 });
 ```
 
 ### Error Handling
 
-RawModel provides a mechanism for handling property-related errors. The logic is aligned with the validation thus the validation and the error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in a unified format. Handlers shares the context of the associated model.
+RawModel provides a mechanism for handling property-related errors. The logic is aligned with the validation thus the validation and error handling can easily be managed in a unified way. This is great because we always deal with validation errors and can thus directly send these errors back to a user in a unified format. All handlers shares the context of the associated model.
 
 ```ts
 class User extends Model {
@@ -282,7 +298,7 @@ class User extends Model {
     handle: [ // property error handling setup
       { // handler recipe
         handler(e) { return e.message === 'foo' }, // [required] errir handler function
-        code: 422, // [optional] error code
+        code: 31000, // [optional] error code
         condition() { return true }, // [optional] condition which switches the handling on/off
       },
     ],
@@ -293,11 +309,11 @@ class User extends Model {
 const error = new Error();
 const user = new User();
 user.handle(error).then(() => {
-  user.collectErrors(); // -> [{ path: ['name'], errors: [{ handler: 'block', message: 'is unknown', code: 422 }] }]
+  user.collectErrors(); // -> [{ path: ['name'], errors: [31000] }]
 });
 ```
 
-This mechanism is especially handful when saving data to a database. MongoDB could, for example, throw a uniqueness error (E11000) if we try to insert a value that already exists in the database. We can catch that error by using the `handle()` method and then return a unified validation error message to a user.
+This mechanism is especially handful when saving data to a database. MongoDB database, for example, throws a uniqueness error (E11000) if we try to insert a value that already exists in the database. We can catch that error by using the `handle()` method and then return a unified validation error message to a user.
 
 ### GraphQL
 
@@ -336,7 +352,7 @@ graphql(schema, '{ hello }', root).then((response) => {
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| data | Object | No | - | Data for populating model properties.
+| data | Any | No | - | Data for populating model properties.
 | config.ctx | Any | No | - | Model context
 | config.failFast | Boolean | No | false | When `true` the validation and error handling stops when the first error is found.
 | config.parent | Model | Only when used as a submodel | - | Parent model instance.
@@ -346,9 +362,8 @@ class User extends Model {
   @prop({
     set(v) { return v; }, // [optional] custom setter
     get(v) { return v; }, // [optional] custom getter
-    cast: { // [optional] property type casting
-      handler(v) { return `${v}`; }, // [optional] type handler function
-      array: false, // [optional] force to array type
+    parse: { // [optional] property type casting
+      kind: ParserKind.STRING, // [required] parser kind
     },
     defaultValue: 'Noname', // [optional] property default value (value or function)
     fakeValue: 'Noname', // [optional] property fake value (value or function)
@@ -364,7 +379,7 @@ class User extends Model {
       { // handler recipe
         handler(e) { return e.message === 'foo'; }, // [required] error handler function (supports async)
         condition(e) { return true; }, // [optional] condition which switches the handling on/off
-        code: 422, // [optional] error code
+        code: 31000, // [required] error code
       },
     ],
     populatable: ['input', 'internal'], // [optional] population strategies
@@ -383,8 +398,7 @@ class User extends Model {
 |--------|------|----------|---------|------------
 | config.set | Function | No | - | Custom setter.
 | config.get | Function | No | - | Custom getter.
-| config.cast.handler | String, Model | No | - | Data type handler (pass a Model to create a nested structure).
-| config.cast.array | Boolean | No | false | Force array type.
+| config.parse | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
@@ -406,6 +420,11 @@ class User extends Model {
 
 > Deeply populates properties with the provided `errors`.
 
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| errors.$.path | Array | Yes | - | Property path array.
+| errors.$.errors | Integer[] | Yes | - | Error codes.
+
 ```ts
 model.applyErrors([
   {
@@ -423,20 +442,12 @@ model.applyErrors([
 |--------|------|----------|---------|------------
 | data | Object | No | - | Data to override initial data.
 
-**Model.prototype.collect(handler)**: Array
-
-> Scrolls through model properties and collects results.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| handler | Function | Yes | - | A handler method which is executed for each property.
-
 **Model.prototype.collectErrors()**: Array
 
 > Returns a list of errors for all the properties ({path, errors}[]).
 
 ```ts
-model.collectErrors(); // => { path: ['name'], errors: [{ validator: 'absence', message: 'must be blank', code: 422 }] }
+model.collectErrors(); // => { path: ['name'], errors: [300,400] }
 ```
 
 **Model.prototype.commit()**: Model
@@ -445,26 +456,22 @@ model.collectErrors(); // => { path: ['name'], errors: [{ validator: 'absence', 
 
 **Model.prototype.empty()**: Model
 
-> Sets all model properties to `null`.
+> Sets all model properties to `null` or other empty values.
 
 **Model.prototype.fake()**: Model
 
 > Sets each model property to its fake value if the fake value generator is defined.
 
-**Model.prototype.filter(handler)**: Object
-
-> Converts a model into serialized data object with only the keys that pass the test.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| handler | Function | Yes | - | A function to test each key value. If the function returns `true` then the key is included in the returned object.
-
-**Model.prototype.flatten()**: Array
+**Model.prototype.flatten(strategy)**: Array
 
 > Converts the model into an array of properties.
 
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| strategy | String | No | - | When the strategy name is provided, the output will include only the properties where the `serializable` option includes this strategy name. If the parameter is not provided then all properties are included in the result.
+
 ```ts
-user.flatten(); // -> [{ path: [...], property: ... }, ...]
+user.flatten(); // -> [{ path, prop, value }, ...]
 ```
 
 **Model.prototype.freeze()**: Model
@@ -477,7 +484,7 @@ user.flatten(); // -> [{ path: [...], property: ... }, ...]
 
 **Model.prototype.getProp(...keys)**: Prop
 
-> Returns a class instance of a property at path.
+> Returns a class instance of a property at path. Note that array values do not have properties but refer to object property.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -504,22 +511,25 @@ try {
 }
 ```
 
+**Model.prototype.hasProp(...keys)**: Boolean
+
+> Returns `true` when a property path exists. Note that array values do not have properties but refer to object property.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| keys | Array | Yes | - | Path to a property (e.g. `['book', 0, 'title']`).
+
 **Model.prototype.isChanged()**: Boolean
 
 > Returns `true` if at least one model property has been changed.
-]
 
 **Model.prototype.isEqual(value)**: Boolean
 
 > Returns `true` when the provided `value` represents an object with the same properties as the model itself.
 
-**Model.prototype.isProp(...keys)**: Boolean
-
-> Returns `true` when a property path exists.
-
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| keys | Array | Yes | - | Path to a property (e.g. `['book', 0, 'title']`).
+| value | Any | Yes | - | Arbitrary value.
 
 **Model.prototype.isValid()**: Boolean
 
@@ -545,14 +555,6 @@ try {
 **Model.prototype.rollback()**: Model
 
 > Sets each model property to its initial value (last committed value). This is how you can discharge model changes.
-
-**Model.prototype.scroll(handler)**: Integer
-
-> Scrolls through model properties and executes a handler on each property.
-
-| Option | Type | Required | Default | Description
-|--------|------|----------|---------|------------
-| handler | Function | Yes | - | A handler method which is executed for each property.
 
 **Model.prototype.serialize(strategy)**: Object
 
@@ -588,8 +590,7 @@ try {
 |--------|------|----------|---------|------------
 | config.set | Function | No | - | Custom setter.
 | config.get | Function | No | - | Custom getter.
-| config.cast.handler | String, Model | No | - | Data type handler (pass a Model to create a nested structure).
-| config.cast.array | Boolean | No | false | Force array type.
+| config.parse | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
@@ -660,15 +661,11 @@ try {
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| value | Any | Yes | - | A value to compare to.
+| value | Any | Yes | - | A value to compare with.
 
 **Prop.prototype.isChanged()**: Boolean
 
 > Returns `true` if the property or at least one sub-property have been changed.
-
-**Prop.prototype.isModel()**: Boolean
-
-> Returns `true` if the property is a nested model.
 
 **Prop.prototype.isPopulatable(strategy)**: Boolean
 
@@ -722,17 +719,74 @@ try {
 
 > Validates the `value` and populates the `errors` property with errors.
 
-### Available Data Types
+### Available Parsers
 
-| Type | Description
-|------|------------
-| 'String' | String value.
-| 'Boolean' | Boolean value.
-| 'Number' | Integer or a float number.
-| 'Integer' | Integer number.
-| 'Float' | Float number.
-| 'Date' | Date object.
-| Model | Nested model instance.
+**ParserKind.ARRAY**
+
+> Converts a value to an array. Note that tuples are not supported.
+
+```ts
+{
+  kind: ParserKind.ARRAY,
+  parse: { ... }, // other parser definition
+}
+```
+
+**ParserKind.BOOLEAN**
+
+> Converts a value to a boolean value.
+
+```ts
+{
+  kind: ParserKind.BOOLEAN,
+}
+```
+
+**ParserKind.CUSTOM**
+
+> Converts a value using a custom handler.
+
+```ts
+{
+  kind: ParserKind.CUSTOM,
+  handler(value) {
+    if (value && value.kind === 'Cat') {
+      return value instanceof Cat ? value : new Cat(value);
+    } else if (value && value.kind === 'Dog') {
+      return value instanceof Dog ? value : new Dog(value);
+    } else {
+      throw new Error('Invalid data');
+    }
+  },
+}
+```
+
+**ParserKind.DATE**
+
+> Converts a value to a date object.
+
+**ParserKind.FLOAT**
+
+> Converts a value to a decimal number.
+
+**ParserKind.INTEGER**
+
+> Converts a value to an integer number.
+
+**ParserKind.MODEL**
+
+> Converts a value to a specific model instance.
+
+```ts
+{
+  kind: ParserKind.MODEL,
+  model: Book, // model class
+}
+```
+
+**ParserKind.STRING**
+
+> Converts a value to a string.
 
 ### Available Validators
 

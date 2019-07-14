@@ -1,16 +1,8 @@
 import { Validator } from '@rawmodel/validator';
 import { Handler } from '@rawmodel/handler';
-import { Prop, PropConfig, PropRef, PropError } from './props';
-import { normalize, isDeepEqual, isArray, isUndefined, toArray, realize } from '@rawmodel/utils';
-
-/**
- * Model configuration interface.
- */
-export interface ModelConfig<Context> {
-  context?: Context | (() => Context);
-  failFast?: boolean | (() => boolean);
-  parent?: Model;
-}
+import { Prop } from './props';
+import { normalize, isDeepEqual, isArray, isUndefined, toArray, realize, isObject, isInteger } from '@rawmodel/utils';
+import { ModelConfig, PropConfig, PropItem, PropError, PropPath } from './types';
 
 /**
  * Strongly typed javascript object.
@@ -54,6 +46,8 @@ export class Model<Context = any> {
 
   /**
    * Defines a new class property.
+   * @param key Property name.
+   * @param config Property configuration.
    */
   protected defineProp(key: string, config: PropConfig) {
 
@@ -111,13 +105,16 @@ export class Model<Context = any> {
 
   /**
    * Returns a value at path.
+   * @param keys Property path keys.
    */
   public getProp(...keys: any[]): Prop {
     keys = [].concat(isArray(keys[0]) ? keys[0] : keys);
 
-    const lastKey = keys.pop();
+    let lastKey = keys.pop();
     if (keys.length === 0) {
       return this.$props[lastKey];
+    } else if (isInteger(lastKey)) {
+      lastKey = keys.pop(); // array items refer to parent prop
     }
 
     const prop = keys.reduce((a, c) => (a[c] || {}), this);
@@ -126,13 +123,16 @@ export class Model<Context = any> {
 
   /**
    * Returns `true` if the prop exists.
+   * @param keys Property path keys.
    */
-  public isProp(...keys: any[]): boolean {
+  public hasProp(...keys: any[]): boolean {
     return !isUndefined(this.getProp(...keys));
   }
 
   /**
    * Deeply assignes data to model props.
+   * @param data Data for populating model.
+   * @param strategy Population strategy name.
    */
   public populate(data: any, strategy?: string): this {
 
@@ -148,85 +148,50 @@ export class Model<Context = any> {
 
   /**
    * Converts this class into serialized data object.
+   * @param strategy Serialization strategy name.
    */
   public serialize(strategy?: string): { [key: string]: any } {
     const data = {};
 
-    Object.keys(this.$props)
-      .forEach((key) => {
-        const value = this.$props[key].serialize(strategy);
-        if (!isUndefined(value)) {
-          data[key] = value;
-        }
-      });
+    Object.keys(this.$props).forEach((key) => {
+      const value = this.$props[key].serialize(strategy);
+      if (!isUndefined(value)) {
+        data[key] = value;
+      }
+    });
 
     return data;
   }
 
   /**
    * Scrolls through the model and returns an array of property instances.
+   * @param strategy Serialization strategy name.
    */
-  public flatten(prefix: string[] = []): PropRef[] {
-    let props = [];
+  public flatten(strategy?: string): PropItem[] {
+    const items = [];
 
-    Object.keys(this.$props)
-      .forEach((key) => {
-        const prop = this.$props[key];
-        const path = (prefix || []).concat(key);
+    const transform = (obj: any, prefix: PropPath = []) => {
+      if (isArray(obj)) {
+        obj.forEach((value, index) => {
+          const path = prefix.concat([index]);
+          const prop = this.getProp(prefix);
+          items.push({ path, prop, value });
+          transform(value, path);
+        });
+      }
+      else if (isObject(obj)) {
+        Object.keys(obj).forEach((key) => {
+          const path = prefix.concat([key]);
+          const prop = this.getProp(path);
+          const value = obj[key];
+          items.push({ path, prop, value });
+          transform(value, path);
+        });
+      }
+    };
+    transform(this.serialize(strategy));
 
-        props.push({ path, prop });
-
-        if (!prop.isEmpty() && prop.isModel()) {
-          if (prop.isArray()) {
-            props = props.concat(
-              prop.getValue()
-                .map((f, i) => (f && f instanceof Model ? f.flatten(path.concat([i])) : null))
-                .filter((f) => isArray(f))
-                .reduce((a, b) => a.concat(b), [])
-            );
-          }
-          else {
-            props = props.concat(
-              prop.getValue().flatten(path)
-            );
-          }
-        }
-      });
-
-    return props;
-  }
-
-  /**
-   * Scrolls through object props and collects results.
-   */
-  public collect(handler: (prop: PropRef) => any): any[] {
-    return this.flatten().map(handler);
-  }
-
-  /**
-   * Scrolls through model props and executes a handler on each prop.
-   */
-  public scroll(handler: (prop: PropRef) => void): number {
-    return this.flatten().map(handler).length;
-  }
-
-  /**
-   * Converts this class into serialized data object with only the keys that
-   * pass the provided `test`.
-   */
-  public filter(test: (prop: PropRef) => boolean): {[key: string]: any} {
-    const data = this.serialize();
-
-    this.flatten()
-      .sort((a, b) => b.path.length - a.path.length)
-      .filter((prop) => !test(prop))
-      .forEach((prop) => {
-        const names = prop.path.concat();
-        const lastName = names.pop();
-        delete names.reduce((o, k) => o[k], data)[lastName];
-      });
-
-    return data;
+    return items;
   }
 
   /**
@@ -298,6 +263,7 @@ export class Model<Context = any> {
   /**
    * Returns `true` when the `value` represents an object with the same prop
    * values as the original model.
+   * @param value A value to verify.
    */
   public isEqual(value: any): boolean {
     return isDeepEqual(
@@ -324,6 +290,7 @@ export class Model<Context = any> {
 
   /**
    * Validates props and throws an error.
+   * @param quiet Set to `true` to not throw on validation error.
    */
   public async validate({
     quiet = false
@@ -347,6 +314,7 @@ export class Model<Context = any> {
 
   /**
    * Handles the error and throws an error if the error can not be handled.
+   * @param quiet Set to `true` to not throw on error.
    */
   public async handle(error: any, {
     quiet = true
@@ -380,8 +348,9 @@ export class Model<Context = any> {
 
   /**
    * Sets props errors.
+   * @param errors A list of error codes per path.
    */
-  public applyErrors(errors: PropError[] = []): this {
+  public applyErrors(errors: PropError[]): this {
     toArray(errors).forEach((error) => {
       const prop = this.getProp(...error.path);
       if (prop) {
@@ -413,6 +382,7 @@ export class Model<Context = any> {
 
   /**
    * Returns a new Model instance which is the exact copy of the original.
+   * @param data Data for populating the new model.
    */
   public clone(data = {}): this {
     return new (this.constructor as any)({

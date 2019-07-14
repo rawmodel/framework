@@ -7,7 +7,11 @@ import { isFunction } from './is-function';
  * @param args Value function arguments.
  */
 export function realize(value: any, context?: any, args?: any[]) {
-  return isFunction(value)
-    ? value.call(context, ...(args || []))
-    : value;
+  try {
+    return isFunction(value)
+      ? value.call(context, ...(args || []))
+      : value;
+  } catch (e) {
+    return value;
+  }
 }

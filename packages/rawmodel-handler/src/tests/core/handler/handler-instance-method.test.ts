@@ -1,9 +1,9 @@
 import { Spec } from '@hayspec/spec';
-import { Handler } from '../..';
+import { Handler } from '../../..';
 
 const spec = new Spec();
 
-spec.test('method `handle` handles an error and returns error codes', async (ctx) => {
+spec.test('handles an error and returns error codes', async (ctx) => {
   const handler = new Handler();
   const recipes = [
     { code: 200, handler: (e) => e.message === 'foo' },
@@ -16,7 +16,7 @@ spec.test('method `handle` handles an error and returns error codes', async (ctx
   ctx.deepEqual(codes, [200, 400]);
 });
 
-spec.test('method `handle` can fail fast', async (ctx) => {
+spec.test('can fail fast', async (ctx) => {
   const handler = new Handler({
     failFast: true,
   });
@@ -29,7 +29,7 @@ spec.test('method `handle` can fail fast', async (ctx) => {
   ctx.deepEqual(codes, [400]);
 });
 
-spec.test('method `handle` supports conditional handlers', async (ctx) => {
+spec.test('supports conditional handlers', async (ctx) => {
   const handler = new Handler();
   const recipes = [
     { code: 100, handler: (v) => true, condition: (v) => true },
@@ -40,7 +40,7 @@ spec.test('method `handle` supports conditional handlers', async (ctx) => {
   ctx.deepEqual(codes, [100, 300]);
 });
 
-spec.test('method `handle` passes context to each handler', async (ctx) => {
+spec.test('passes context to each handler', async (ctx) => {
   const handler = new Handler({
     context: { foo: 'foo' },
   });
@@ -51,7 +51,7 @@ spec.test('method `handle` passes context to each handler', async (ctx) => {
   ctx.deepEqual(codes, [100]);
 });
 
-spec.test('method `handle` passes context to each condition', async (ctx) => {
+spec.test('passes context to each condition', async (ctx) => {
   const handler = new Handler({
     context: { foo: 'foo' },
   });
@@ -62,7 +62,7 @@ spec.test('method `handle` passes context to each condition', async (ctx) => {
   ctx.deepEqual(codes, [100]);
 });
 
-spec.test('method `handle` passes recipe to each handler', async (ctx) => {
+spec.test('passes recipe to each handler', async (ctx) => {
   const handler = new Handler();
   const recipes = [
     { code: 100, handler: (v, r) => v === r.code },
@@ -71,7 +71,7 @@ spec.test('method `handle` passes recipe to each handler', async (ctx) => {
   ctx.deepEqual(codes, [100]);
 });
 
-spec.test('method `handle` passes recipe to each condition', async (ctx) => {
+spec.test('passes recipe to each condition', async (ctx) => {
   const handler = new Handler();
   const recipes = [
     { code: 100, handler: (v) => true, condition: (v, r) => r.code === 100 },
