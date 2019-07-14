@@ -3,13 +3,13 @@ import * as parsers from '..';
 
 const spec = new Spec();
 
-spec.test('exposed content', (t) => {
-  t.true(!!parsers.arrayParser);
-  t.true(!!parsers.booleanParser);
-  t.true(!!parsers.dateParser);
-  t.true(!!parsers.floatParser);
-  t.true(!!parsers.integerParser);
-  t.true(!!parsers.stringParser);
+spec.test('exposed content', (ctx) => {
+  ctx.true(!!parsers.arrayParser);
+  ctx.true(!!parsers.booleanParser);
+  ctx.true(!!parsers.dateParser);
+  ctx.true(!!parsers.floatParser);
+  ctx.true(!!parsers.integerParser);
+  ctx.true(!!parsers.stringParser);
  });
 
 export default spec;
