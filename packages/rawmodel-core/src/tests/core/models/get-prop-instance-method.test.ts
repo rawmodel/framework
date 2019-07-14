@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, prop } from '../../..';
+import { Model, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -12,20 +12,11 @@ spec.test('returns an instance of a prop at path', (ctx) => {
     @prop()
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
     })
     book: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
     })
     books: Book[];
   }

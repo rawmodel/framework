@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, prop } from '../../..';
+import { Model, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -20,21 +20,12 @@ spec.test('sets properties to `null`', (ctx) => {
     })
     description: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
       defaultValue: {},
     })
     book: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
       defaultValue: [null, {}],
     })
     books: Book[];

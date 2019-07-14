@@ -18,28 +18,23 @@
       "versionPolicyName": "patchAll"
     },
     {
-      "packageName": "@rawmodel/handler",
-      "projectFolder": "packages/rawmodel-handler",
-      "versionPolicyName": "patchAll"
-    },
-    {
       "packageName": "@rawmodel/handlers",
       "projectFolder": "packages/rawmodel-handlers",
       "versionPolicyName": "patchAll"
     },
     {
-      "packageName": "@rawmodel/parser",
-      "projectFolder": "packages/rawmodel-parser",
+      "packageName": "@rawmodel/parsers",
+      "projectFolder": "packages/rawmodel-parsers",
       "versionPolicyName": "patchAll"
     },
+    // {
+    //   "packageName": "@rawmodel/schema",
+    //   "projectFolder": "packages/rawmodel-schema",
+    //   "versionPolicyName": "patchAll"
+    // },
     {
       "packageName": "@rawmodel/utils",
       "projectFolder": "packages/rawmodel-utils",
-      "versionPolicyName": "patchAll"
-    },
-    {
-      "packageName": "@rawmodel/validator",
-      "projectFolder": "packages/rawmodel-validator",
       "versionPolicyName": "patchAll"
     },
     {

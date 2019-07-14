@@ -1,9 +1,10 @@
-import { Handler } from '@rawmodel/handler';
 import { normalize, realize, isDeepEqual, isUndefined, isPresent, toArray,
   isInstanceOf, isValue, isClassOf } from '@rawmodel/utils';
 import { Model } from './models';
-import { PropConfig, ParserKind } from './types';
-import { parse } from '@rawmodel/parser';
+import { PropConfig } from './types';
+import { parse } from './parser';
+import { validate } from './validator';
+import { handle } from './handler';
 
 /**
  * Property decorator for model.
@@ -56,7 +57,7 @@ export class Prop {
    * Returns model reference.
    */
   public getModel() {
-    return this.$config.model;
+    return realize(this.$config.model);
   }
 
   /**
@@ -132,8 +133,8 @@ export class Prop {
    * Returns `true` if the property is an array.
    */
   public isArray(): boolean {
-    const { kind } = this.$config.parse || {} as any;
-    return kind === ParserKind.ARRAY;
+    const { array } = this.$config.parse || {} as any;
+    return array === true;
   }
 
   /**
@@ -214,44 +215,35 @@ export class Prop {
 
   /**
    * Parses input value using RawModel parser.
+   * @param value Arbitrary value.
+   * @param strategy Population strategy (only for Model types).
    */
   protected parse(value: any, strategy?: string): any {
-
-    const inject = (config: any = {}) => {
-      let def: any = {
-        kind: ParserKind.ANY,
-        ...config,
-      };
-
-      if (config.kind === ParserKind.ARRAY) {
-        def = {
-          kind: ParserKind.ARRAY,
-          parse: inject(config.parse),
-        };
-      }
-      else if (config.kind === ParserKind.MODEL) {
-        const Klass = realize(config.model, this.getModel());
-        def = {
-          kind: ParserKind.CUSTOM,
-          handler: (data: any) => {
-            if (isInstanceOf(data, Klass)) {
-              return data; // keep instances for speed
-            }
-            else {
-              return new Klass(null, {
-                parent: this.getModel(),
-                ...this.getModel().$config
-              }).populate(data, strategy);
-            }
-          }
-        };
-      } else if (def.kind === ParserKind.CUSTOM) {
-        def.handler = def.handler.bind(this.getModel());
-      }
-      return def;
+    const parser = (this.$config.parse || {}) as any;
+    const recipe = {
+      handler: parser.handler,
+      array: parser.array || false,
+    };
+    const config = {
+      context: this.getModel(),
     };
 
-    return parse(value, inject(this.$config.parse));
+    if (isClassOf(recipe.handler, Model)) {
+      const Klass = (recipe.handler as any);
+      recipe.handler = (data: any) => {
+        if (isInstanceOf(data, Klass)) {
+          return data; // keep instances for speed
+        }
+        else {
+          return new Klass(null, {
+            parent: this.getModel(),
+            ...this.getModel().$config
+          }).populate(data, strategy);
+        }
+      };
+    }
+
+    return parse(value, recipe, config);
   }
 
   /**
@@ -363,16 +355,19 @@ export class Prop {
    */
   public async validate(): Promise<this> {
 
+    this.errorCodes = await validate(
+      this.getValue(),
+      this.$config.validate,
+      {
+        context: this.getModel(),
+        failFast: this.$config.failFast,
+      },
+    );
+
     await Promise.all( // validate related models
       (toArray(this.rawValue) || [])
         .filter((doc) => isInstanceOf(doc, Model))
         .map((doc) => doc.validate({ quiet: true }))
-    );
-
-    const validator = realize(this.$config.validator, this.getModel());
-    this.errorCodes = await validator.validate(
-      this.getValue(),
-      this.$config.validate
     );
 
     return this;
@@ -383,17 +378,20 @@ export class Prop {
    */
   public async handle(error: any): Promise<this> {
 
+    this.errorCodes = await handle(
+      error,
+      this.$config.handle,
+      {
+        context: this.getModel(),
+        failFast: this.$config.failFast,
+      },
+    );
+
     await Promise.all( // handle related models
       (toArray(this.rawValue) || [])
         .filter((doc) => isInstanceOf(doc, Model))
         .map((doc) => doc.handle(error))
     ).catch(() => {}); // do not throw even when unhandled error
-
-    const handler = realize(this.$config.handler, this.getModel()) as Handler;
-    this.errorCodes = await handler.handle(
-      error,
-      this.$config.handle
-    );
 
     return this;
   }

@@ -1,6 +1,6 @@
 import { Spec } from '@hayspec/spec';
+import { integerParser } from '@rawmodel/parsers';
 import { Prop } from '../../..';
-import { ParserKind } from '../../../core/types';
 
 const spec = new Spec();
 
@@ -17,7 +17,7 @@ spec.test('sets property value', (ctx) => {
 
 spec.test('parses input data', (ctx) => {
   const prop = new Prop({
-    parse: { kind: ParserKind.INTEGER },
+    parse: { handler: integerParser() },
   });
   prop.setValue('100');
   ctx.is(prop.getValue(), 100);

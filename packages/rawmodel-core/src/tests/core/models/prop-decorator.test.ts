@@ -1,5 +1,6 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, Prop, prop } from '../../..';
+import { stringParser } from '@rawmodel/parsers';
+import { Model, Prop, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -42,40 +43,25 @@ spec.test('supports property enumerable style', (ctx) => {
 spec.test('supports deep type parsing', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
     })
     name: string;
   }
   class User extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
     })
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
     })
     book: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
     })
     books: Book[];
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-      },
+      parse: { array: true },
     })
     items: any[];
   }
@@ -108,10 +94,7 @@ spec.test('parser shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.CUSTOM,
-        handler(v) { context = this; return v; }
-      },
+      parse: { handler(v) { context = this; return v; } },
     })
     name: string;
   }

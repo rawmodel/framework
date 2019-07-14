@@ -1,15 +1,11 @@
 import { Prop } from './props';
 import { Model } from './models';
-import { Validator, ValidatorRecipe } from '@rawmodel/validator';
-import { Handler, HandlerRecipe } from '@rawmodel/handler';
-import { CustomParserHandler } from '@rawmodel/parser';
 
 /**
  * Model configuration interface.
  */
-export interface ModelConfig<Context> {
+export interface ModelConfig<Context = any> {
   context?: Context | (() => Context);
-  failFast?: boolean | (() => boolean);
   parent?: Model;
 }
 
@@ -36,72 +32,69 @@ export interface PropItem {
 }
 
 /**
- * Parser kinds.
- */
-export enum ParserKind {
-  STRING = 'string',
-  BOOLEAN = 'boolean',
-  INTEGER = 'integer',
-  FLOAT = 'float',
-  DATE = 'date',
-  ARRAY = 'array',
-  CUSTOM = 'custom',
-  ANY = 'any',
-  MODEL = 'model',
-}
-
-/**
- * Property parser configurations.
- */
-export type Parser = PrimitiveParserConfig | ArrayParserConfig | CustomParserConfig | ModelParserConfig;
-
-/**
- * Primitive parser interface.
- */
-export interface PrimitiveParserConfig {
-  kind: ParserKind.STRING | ParserKind.BOOLEAN | ParserKind.INTEGER |
-    ParserKind.FLOAT | ParserKind.DATE | ParserKind.ANY;
-}
-
-/**
- * Array parser interface.
- */
-export interface ArrayParserConfig {
-  kind: ParserKind.ARRAY;
-  parse?: PrimitiveParserConfig | CustomParserConfig | ModelParserConfig; // not supporting tuples
-}
-
-/**
- * Custom parser interface.
- */
-export interface CustomParserConfig {
-  kind: ParserKind.CUSTOM;
-  handler: CustomParserHandler;
-}
-/**
- * Model parser interface.
- */
-export interface ModelParserConfig {
-  kind: ParserKind.MODEL;
-  model: typeof Model;
-}
-
-/**
  * Model property class configuration object.
  */
 export interface PropConfig {
   set?: (v: any) => any;
   get?: (v: any) => any;
-  parse?: Parser;
+  parse?: ParserRecipe;
+  failFast?: boolean | (() => boolean);
   defaultValue?: any | (() => any);
   fakeValue?: any | (() => any);
   emptyValue?: any | (() => any);
-  validator?: Validator | (() => Validator);
   validate?: ValidatorRecipe[];
-  handler?: Handler | (() => Handler);
   handle?: HandlerRecipe[];
   populatable?: string[];
   serializable?: string[];
   enumerable?: boolean;
   model?: Model;
+}
+
+/**
+ * Parser recipe interface.
+ */
+export interface ParserRecipe {
+  array?: boolean;
+  handler?: ((v?: any, r?: ParserRecipe) => any) | typeof Model;
+}
+
+/**
+ * Parser configuration interface.
+ */
+export interface ParserConfig {
+  context?: any | (() => any);
+}
+
+/**
+ * Validation recipe interface.
+ */
+export interface ValidatorRecipe {
+  code: number;
+  handler: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>;
+  condition?: (v?: any, r?: ValidatorRecipe) => boolean | Promise<boolean>;
+}
+
+/**
+ * Validator configuration interface.
+ */
+export interface ValidatorConfig {
+  context?: any | (() => any);
+  failFast?: boolean | (() => boolean);
+}
+
+/**
+ * Error handler recipe interface.
+ */
+export interface HandlerRecipe {
+  code: number;
+  handler: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>;
+  condition?: (v?: any, r?: HandlerRecipe) => boolean | Promise<boolean>;
+}
+
+/**
+ * Error handler configuration interface.
+ */
+export interface HandlerConfig {
+  context?: any | (() => any);
+  failFast?: boolean | (() => boolean);
 }

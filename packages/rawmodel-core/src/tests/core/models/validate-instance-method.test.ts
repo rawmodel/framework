@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, prop } from '../../..';
+import { Model, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -20,40 +20,22 @@ spec.test('validates properties or throws on error', async (ctx) => {
     })
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
       validate,
     })
     book0: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
       validate,
     })
     books0: Book[];
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
       validate,
     })
     book1: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
       validate,
     })
     books1: Book[];
@@ -78,6 +60,13 @@ spec.test('validates polymorphic arrays', async (ctx) => {
   const validate = [
     { handler: (v) => !!v, code: 100 },
   ];
+  const parser = (v) => {
+    if (v && v.kind === 'Book') {
+      return new Book(v);
+    } else {
+      return v;
+    }
+  };
   class Book extends Model {
     @prop({
       validate,
@@ -86,19 +75,7 @@ spec.test('validates polymorphic arrays', async (ctx) => {
   }
   class User extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.CUSTOM,
-          handler(v) {
-            if (v && v.kind === 'Book') {
-              return new Book(v);
-            } else {
-              return v;
-            }
-          },
-        },
-      },
+      parse: { array: true, handler: parser },
       validate,
     })
     books: Book[];

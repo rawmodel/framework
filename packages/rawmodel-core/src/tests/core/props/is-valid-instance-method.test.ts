@@ -1,6 +1,5 @@
 import { Spec } from '@hayspec/spec';
 import { Model, Prop, prop } from '../../..';
-import { ParserKind } from '../../../core/types';
 
 const spec = new Spec();
 
@@ -17,7 +16,7 @@ spec.test('returns true if the property has no errors', (ctx) => {
   prop0.setErrorCodes();
   prop0.setValue(user);
   ctx.true(prop0.isValid());
-  prop0.$config.parse = { kind: ParserKind.MODEL, model: User }; // nested model type
+  prop0.$config.parse = { handler: User }; // nested model type
   user.getProp('name').setErrorCodes(200); // nested model error
   ctx.false(prop0.isValid());
 });
