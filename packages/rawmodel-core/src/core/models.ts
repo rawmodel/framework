@@ -1,7 +1,6 @@
-import { Validator } from '@rawmodel/validator';
-import { Handler } from '@rawmodel/handler';
 import { Prop } from './props';
-import { normalize, isDeepEqual, isArray, isUndefined, toArray, realize, isObject, isInteger } from '@rawmodel/utils';
+import { normalize, isDeepEqual, isArray, isUndefined, toArray, realize,
+  isObject, isInteger } from '@rawmodel/utils';
 import { ModelConfig, PropConfig, PropItem, PropError, PropPath } from './types';
 
 /**
@@ -52,16 +51,8 @@ export class Model<Context = any> {
   protected defineProp(key: string, config: PropConfig) {
 
     this.$props[key] = new Prop({
-      model: this,
-      validator: () => new Validator({
-        context: this,
-        failFast: this.$config.failFast,
-      }), // lazy load
-      handler: () => new Handler({
-        context: this,
-        failFast: this.$config.failFast,
-      }), // lazy load
       ...config,
+      model: this,
     });
 
     Object.defineProperty(this, key, {

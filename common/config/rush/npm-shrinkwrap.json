@@ -188,19 +188,7 @@
     },
     "@rush-temp/core": {
       "version": "file:projects/core.tgz",
-      "integrity": "sha512-X7YOYURgMAXOcIsUZTtPp4fJ/T3xT2+B6NXYzYX35ZyS8OnYtBhtLzc91V5HpqP3QObpJzHZCp7wV75eTJUl+w==",
-      "requires": {
-        "@hayspec/cli": "^0.8.4",
-        "@hayspec/spec": "^0.8.4",
-        "nyc": "^14.1.1",
-        "ts-node": "^8.3.0",
-        "tslint": "^5.18.0",
-        "typescript": "^3.5.3"
-      }
-    },
-    "@rush-temp/handler": {
-      "version": "file:projects/handler.tgz",
-      "integrity": "sha512-8xXVOoanF0W8bLCVVVajQm+Olv6/RKAedrzzQaLNJQ1XI+wa0uYXYkZ2SiqychwHsXJHQeVbvdhRlj9zHhtesg==",
+      "integrity": "sha512-r/jizljcPzOKoFotNcirvIK7MvKY/TfPYdfcQ2o5qJzt8HLzgihbiPT6aqfbLfIDSPf53TWq10u5MsDi6ookJQ==",
       "requires": {
         "@hayspec/cli": "^0.8.4",
         "@hayspec/spec": "^0.8.4",
@@ -222,9 +210,21 @@
         "typescript": "^3.5.3"
       }
     },
-    "@rush-temp/parser": {
-      "version": "file:projects/parser.tgz",
-      "integrity": "sha512-YArv2PdfO1iBn+NfLS0VSczbz3EP1MjcuXFACu8xJgPYtIBUp5w0HwtfIihx0y0QwTeDCtnkDIDr+cyzQOrHqQ==",
+    "@rush-temp/parsers": {
+      "version": "file:projects/parsers.tgz",
+      "integrity": "sha512-/dKP/J5G6Ekz0pdxhwrQ5BUYoC5wKlooCnvw6WZEuNFGJ/6d4pcqTPMYdFcZijfezC3G4EDgx4mUz1JbnfFrcA==",
+      "requires": {
+        "@hayspec/cli": "^0.8.4",
+        "@hayspec/spec": "^0.8.4",
+        "nyc": "^14.1.1",
+        "ts-node": "^8.3.0",
+        "tslint": "^5.18.0",
+        "typescript": "^3.5.3"
+      }
+    },
+    "@rush-temp/schema": {
+      "version": "file:projects/schema.tgz",
+      "integrity": "sha512-0otWeLJJo6eSwkzKA10wxOyLhGzdC2OHVuDwDVhN2ecZAjKpf8oHGDCGaxFRMipuD3Lq7F4q1zVVO0jaut4ANg==",
       "requires": {
         "@hayspec/cli": "^0.8.4",
         "@hayspec/spec": "^0.8.4",
@@ -237,18 +237,6 @@
     "@rush-temp/utils": {
       "version": "file:projects/utils.tgz",
       "integrity": "sha512-rUZXy2uzlyuBj3mD+pMTL+UoGb4dtGJZxp/xlcEBm+XzviO5k1l/tvMLdx5XUV65EX2JNehKTuCn9PBTtAa5Tw==",
-      "requires": {
-        "@hayspec/cli": "^0.8.4",
-        "@hayspec/spec": "^0.8.4",
-        "nyc": "^14.1.1",
-        "ts-node": "^8.3.0",
-        "tslint": "^5.18.0",
-        "typescript": "^3.5.3"
-      }
-    },
-    "@rush-temp/validator": {
-      "version": "file:projects/validator.tgz",
-      "integrity": "sha512-WhzqmDmYFTGoMz/mAbEJ4WPjTapzhQWvgnqbdAzIM+TV7xoDGUNDQgqAl16+RkDP+/wxoJuHzdswEcrkgS9WZA==",
       "requires": {
         "@hayspec/cli": "^0.8.4",
         "@hayspec/spec": "^0.8.4",

@@ -1,75 +1,52 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, prop } from '../../..';
+import { floatParser, stringParser } from '@rawmodel/parsers';
+import { Model, prop } from '../../..';
 
 const spec = new Spec();
 
 spec.test('deeply serializes property data using strategies', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.FLOAT,
-      },
+      parse: { handler: floatParser() },
     })
     id: number;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       serializable: ['output'],
     })
     title: string;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       serializable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.FLOAT,
-      },
+      parse: { handler: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
     })
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       serializable: ['input'],
     })
     email: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
       serializable: ['output'],
     })
     book0: Book;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
     })
     book1: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
       serializable: ['input'],
     })
     books: Book[];

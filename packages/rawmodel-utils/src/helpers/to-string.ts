@@ -1,6 +1,8 @@
 import { isUndefined } from './is-undefined';
 import { isNull } from './is-null';
 import { isString } from './is-string';
+import { isNumber } from './is-number';
+import { isInfinite } from './is-infinite';
 
 /**
  * Converts the provided value to string.
@@ -13,7 +15,9 @@ export function toString(v?: any) {
   else if (isUndefined(v) || isNull(v)) {
     return v;
   }
-  else {
-    return toString(v.toString());
+  else if (isNumber(v) && (isNaN(v) || isInfinite(v))) {
+    return null;
+  } else {
+    return JSON.stringify(v);
   }
 }

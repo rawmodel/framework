@@ -1,109 +1,74 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, prop } from '../../..';
+import { floatParser, stringParser } from '@rawmodel/parsers';
+import { Model, prop } from '../../..';
 
 const spec = new Spec();
 
 spec.test('creation of ~5k models', (ctx) => {
   class Author extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.FLOAT,
-      },
+      parse: { handler: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       serializable: ['output'],
     })
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       populatable: ['input'],
     })
     email: string;
   }
   class Book extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.FLOAT,
-      },
+      parse: { handler: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
     })
     title: string;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       populatable: ['input'],
     })
     description: string;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Author,
-        },
-      },
+      parse: { array: true, handler: Author },
       populatable: ['input'],
     })
     author: Author[];
   }
   class User extends Model {
     @prop({
-      parse: {
-        kind: ParserKind.FLOAT,
-      },
+      parse: { handler: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       serializable: ['output'],
     })
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.STRING,
-      },
+      parse: { handler: stringParser() },
       populatable: ['input'],
     })
     email: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
     })
     book0: Book;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
     })
     book1: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
       populatable: ['input'],
     })
     books: Book[];

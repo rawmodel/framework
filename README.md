@@ -14,6 +14,10 @@ Run the command below to install the package.
 
 ```
 $ npm install --save @rawmodel/core
+$ npm install --save @rawmodel/handlers // OPTIONAL
+$ npm install --save @rawmodel/parsers // OPTIONAL
+$ npm install --save @rawmodel/schema // OPTIONAL
+$ npm install --save @rawmodel/validators // OPTIONAL
 ```
 
 This package uses promises thus you need to use [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) when promises are not supported.
@@ -65,11 +69,12 @@ Each property has a built-in system for type casting, thus we can force a value 
 
 ```ts
 import { ParserKind } from '@rawmodel/core';
+import { stringParser } from '@rawmodel/parsers';
 
 class User extends Model {
   @prop({
     parse: {
-      kind: ParserKind.STRING,
+      handler: stringParser(),
     },
   })
   name: string;
@@ -98,18 +103,14 @@ class Friend extends Model {
 class User extends Model {
   @prop({
     parse: {
-      kind: ParserKind.MODEL,
-      model: Address,
+      handler: Address,
     },
   })
   address: Address;
   @prop({
     parse: {
-      kind: ParserKind.ARRAY,
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Friend,
-      },
+      array: true,
+      handler: Friend,
     },
   })
   friends: Friend[];
@@ -346,6 +347,8 @@ graphql(schema, '{ hello }', root).then((response) => {
 
 ### Model Class
 
+This class is provided by the `@rawmodel/core` package.
+
 **Model(data, config)**
 
 > Abstract class which represents a strongly-typed JavaScript object.
@@ -353,8 +356,7 @@ graphql(schema, '{ hello }', root).then((response) => {
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | data | Any | No | - | Data for populating model properties.
-| config.ctx | Any | No | - | Model context
-| config.failFast | Boolean | No | false | When `true` the validation and error handling stops when the first error is found.
+| config.context | Any | No | - | Arbitrary context data.
 | config.parent | Model | Only when used as a submodel | - | Parent model instance.
 
 ```ts
@@ -363,9 +365,11 @@ class User extends Model {
     set(v) { return v; }, // [optional] custom setter
     get(v) { return v; }, // [optional] custom getter
     parse: { // [optional] property type casting
-      kind: ParserKind.STRING, // [required] parser kind
+      array: true, // [optional] forces to array conversion when `true`
+      handler: User, // [optional] parser function or Model
     },
     defaultValue: 'Noname', // [optional] property default value (value or function)
+    failFast: true, // [optional] Stop validation and error handling when the first error is found.
     fakeValue: 'Noname', // [optional] property fake value (value or function)
     emptyValue: '', // [optional] property empty value (value or function)
     validate: [ // [optional] value validator recipes
@@ -400,6 +404,7 @@ class User extends Model {
 | config.get | Function | No | - | Custom getter.
 | config.parse | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
+| config.failFast | Boolean | No | false | When `true` the validation and error handling stop when the first error is found.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
 | config.validate | Array | No | - | List of validator recipes.
@@ -582,6 +587,8 @@ try {
 
 ### Prop Class
 
+This class is provided by the `@rawmodel/core` package.
+
 **Prop(config)**
 
 > A model property.
@@ -592,6 +599,7 @@ try {
 | config.get | Function | No | - | Custom getter.
 | config.parse | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
+| config.failFast | Boolean | No | false | When `true` the validation and error handling stop when the first error is found.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
 | config.validator | Validator | No | Validator | Property validator instance.
@@ -721,70 +729,32 @@ try {
 
 ### Available Parsers
 
-**ParserKind.ARRAY**
+Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser handler.
 
-> Converts a value to an array. Note that tuples are not supported.
-
-```ts
-{
-  kind: ParserKind.ARRAY,
-  parse: { ... }, // other parser definition
-}
-```
-
-**ParserKind.BOOLEAN**
+**booleanParser()**
 
 > Converts a value to a boolean value.
 
 ```ts
-{
-  kind: ParserKind.BOOLEAN,
+const recipe = {
+  array: true, // optional
+  handler: booleanParser(),
 }
 ```
 
-**ParserKind.CUSTOM**
-
-> Converts a value using a custom handler.
-
-```ts
-{
-  kind: ParserKind.CUSTOM,
-  handler(value) {
-    if (value && value.kind === 'Cat') {
-      return value instanceof Cat ? value : new Cat(value);
-    } else if (value && value.kind === 'Dog') {
-      return value instanceof Dog ? value : new Dog(value);
-    } else {
-      throw new Error('Invalid data');
-    }
-  },
-}
-```
-
-**ParserKind.DATE**
+**dateParser()**
 
 > Converts a value to a date object.
 
-**ParserKind.FLOAT**
+**floatParser()**
 
 > Converts a value to a decimal number.
 
-**ParserKind.INTEGER**
+**integerParser()**
 
 > Converts a value to an integer number.
 
-**ParserKind.MODEL**
-
-> Converts a value to a specific model instance.
-
-```ts
-{
-  kind: ParserKind.MODEL,
-  model: Book, // model class
-}
-```
-
-**ParserKind.STRING**
+**stringParser**
 
 > Converts a value to a string.
 

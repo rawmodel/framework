@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, ParserKind, prop } from '../../..';
+import { Model, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -24,46 +24,25 @@ spec.test('handles property errors', async (ctx) => {
     })
     name: string;
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
       handle,
+      parse: { handler: Book },
     })
     book0: Book;
     @prop({
       handle,
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
     })
     books0: Book[];
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Book,
-      },
+      parse: { handler: Book },
     })
     book1: Book;
     @prop({
-      parse: {
-        kind: ParserKind.ARRAY,
-        parse: {
-          kind: ParserKind.MODEL,
-          model: Book,
-        },
-      },
+      parse: { array: true, handler: Book },
     })
     books1: Book[];
     @prop({
-      parse: {
-        kind: ParserKind.MODEL,
-        model: Country,
-      },
+      parse: { handler: Country },
     })
     country: Country;
   }

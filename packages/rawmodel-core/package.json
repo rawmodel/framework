@@ -75,22 +75,22 @@
     "fields",
     "serialize",
     "serialization",
-    "serializable"
+    "serializable",
+    "schema",
+    "json"
   ],
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",
   "devDependencies": {
     "@hayspec/cli": "^0.8.4",
     "@hayspec/spec": "^0.8.4",
+    "@rawmodel/parsers": "3.0.0-alpha0",
     "nyc": "^14.1.1",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@rawmodel/handler": "3.0.0-alpha0",
-    "@rawmodel/parser": "3.0.0-alpha0",
-    "@rawmodel/utils": "3.0.0-alpha0",
-    "@rawmodel/validator": "3.0.0-alpha0"
+    "@rawmodel/utils": "3.0.0-alpha0"
   }
 }
