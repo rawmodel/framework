@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, prop } from '../../..';
+import { Model, ParserKind, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -12,11 +12,20 @@ spec.test('manage committed states', (ctx) => {
     @prop()
     name: string;
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
     })
     book: Book;
     @prop({
-      cast: { handler: Book, array: true },
+      parse: {
+        kind: ParserKind.ARRAY,
+        parse: {
+          kind: ParserKind.MODEL,
+          model: Book,
+        },
+      },
     })
     books: Book[];
   }
@@ -35,21 +44,6 @@ spec.test('manage committed states', (ctx) => {
   ctx.is(user.getProp('name').getInitialValue(), 'foo');
   ctx.is(user.getProp('book', 'title').getInitialValue(), 'bar');
   ctx.is(user.getProp('books', 0, 'title').getInitialValue(), 'baz');
-  user.populate({
-    name: 'foo-new',
-    book: {
-      title: 'bar-new',
-    },
-    books: [
-      {
-        title: 'baz-new',
-      },
-    ],
-  });
-  user.rollback();
-  ctx.is(user.getProp('name').getValue(), 'foo');
-  ctx.is(user.getProp('book', 'title').getValue(), 'bar');
-  ctx.is(user.getProp('books', 0, 'title').getValue(), 'baz');
 });
 
 export default spec;

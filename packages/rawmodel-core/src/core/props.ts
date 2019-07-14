@@ -1,53 +1,9 @@
-import { Validator, ValidatorRecipe } from '@rawmodel/validator';
-import { Handler, HandlerRecipe } from '@rawmodel/handler';
-import { normalize, realize, isDeepEqual, isClassOf, isUndefined, isPresent,
-  toArray, isInstanceOf, isValue } from '@rawmodel/utils';
-import { CastConfig, CastHandler, cast } from '@rawmodel/parser';
+import { Handler } from '@rawmodel/handler';
+import { normalize, realize, isDeepEqual, isUndefined, isPresent, toArray,
+  isInstanceOf, isValue, isClassOf } from '@rawmodel/utils';
 import { Model } from './models';
-import { isFunction } from 'util';
-
-/**
- * Property error interface.
- */
-export interface PropError {
-  path: (string | number)[];
-  errors: number[];
-}
-
-/**
- * Model property class configuration object.
- */
-export interface PropRef {
-  path: string[];
-  prop: Prop;
-}
-
-/**
- * Model property class configuration object.
- */
-export interface PropCast extends CastConfig {
-  handler?: CastHandler | any;
-}
-
-/**
- * Model property class configuration object.
- */
-export interface PropConfig {
-  set?: (v: any) => any;
-  get?: (v: any) => any;
-  cast?: PropCast;
-  defaultValue?: any | (() => any);
-  fakeValue?: any | (() => any);
-  emptyValue?: any | (() => any);
-  validator?: Validator | (() => Validator);
-  validate?: ValidatorRecipe[];
-  handler?: Handler | (() => Handler);
-  handle?: HandlerRecipe[];
-  populatable?: string[];
-  serializable?: string[];
-  enumerable?: boolean;
-  model?: Model;
-}
+import { PropConfig, ParserKind } from './types';
+import { parse } from '@rawmodel/parser';
 
 /**
  * Property decorator for model.
@@ -117,12 +73,11 @@ export class Prop {
     }
 
     let value = isUndefined(data) ? null : data;
-
-    if (this.$config.cast) {
-      value = this.cast(realize(value), strategy);
+    if (this.$config.parse) {
+      value = this.parse(realize(value, this.getModel()), strategy);
     }
     if (this.$config.set) {
-      value = this.$config.set.call(this.$config.model, realize(value));
+      value = this.$config.set.call(this.getModel(), realize(value, this.getModel()));
     }
 
     this.rawValue = value;
@@ -132,14 +87,14 @@ export class Prop {
    * Calculates the current value.
    */
   public getValue(): any {
-    let value = realize(this.rawValue, this.$config.model);
+    let value = realize(this.rawValue, this.getModel());
 
     if (this.$config.get) {
-      value = this.$config.get.call(this.$config.model, value);
+      value = this.$config.get.call(this.getModel(), value);
     }
 
     if (!isPresent(value) && !isUndefined(this.$config.emptyValue)) {
-      value = realize(this.$config.emptyValue, this.$config.model);
+      value = realize(this.$config.emptyValue, this.getModel());
     }
 
     return isUndefined(value) ? null : value;
@@ -174,19 +129,11 @@ export class Prop {
   }
 
   /**
-   * Returns `true` if the property type represents a Model.
-   */
-  public isModel(): boolean {
-    const { handler } = this.$config.cast || {} as any;
-    return isClassOf(handler, Model);
-  }
-
-  /**
    * Returns `true` if the property is an array.
    */
   public isArray(): boolean {
-    const { array } = this.$config.cast || {} as any;
-    return array === true;
+    const { kind } = this.$config.parse || {} as any;
+    return kind === ParserKind.ARRAY;
   }
 
   /**
@@ -216,7 +163,7 @@ export class Prop {
    */
   public isEmpty() {
     return !isPresent(
-      realize(this.rawValue, this.$config.model)
+      realize(this.rawValue, this.getModel())
     );
   }
 
@@ -224,17 +171,16 @@ export class Prop {
    * Returns `true` if the value has been changed.
    */
   public isChanged(): boolean {
+    const initialValue = realize(this.initialValue, this.getModel());
 
-    let initialValue = realize(this.initialValue, this.$config.model);
-    let rawValue = realize(this.rawValue, this.$config.model);
-    if (this.isModel()) {
-      initialValue = isInstanceOf(initialValue, Model) ? initialValue.serialize() : initialValue;
-      rawValue = isInstanceOf(rawValue, Model) ? rawValue.serialize() : rawValue;
+    let value = realize(this.rawValue, this.getModel());
+    if (isInstanceOf(value, Prop) || isInstanceOf(value, Model)) {
+      value = value.serialize();
     }
 
     return !isDeepEqual(
       normalize(initialValue),
-      normalize(rawValue)
+      normalize(value)
     );
   }
 
@@ -243,7 +189,7 @@ export class Prop {
    */
   public isEqual(data: any): boolean {
 
-    let value = realize(data, this.$config.model);
+    let value = realize(data, this.getModel());
     if (isInstanceOf(value, Prop) || isInstanceOf(value, Model)) {
       value = value.serialize();
     }
@@ -261,39 +207,51 @@ export class Prop {
     if (this.getErrorCodes().length > 0) {
       return false;
     }
-    if (this.isModel()) {
-      return !(toArray(this.rawValue) || []) // nested models
-        .filter((m) => isInstanceOf(m, Model))
-        .some((m) => !m.isValid());
-    }
-    return true;
+    return !(toArray(this.rawValue) || []) // nested models
+      .filter((m) => isInstanceOf(m, Model))
+      .some((m) => !m.isValid());
   }
 
   /**
-   * Converts the provided value to the property type.
+   * Parses input value using RawModel parser.
    */
-  protected cast(value: any, strategy?: string): any {
-    const config = { ...this.$config.cast };
+  protected parse(value: any, strategy?: string): any {
 
-    if (this.isModel()) {
-      const Klass = (config.handler as any);
-      config.handler = (data: any) => {
-        if (isInstanceOf(data, Klass)) {
-          return data; // keep instances for speed
-        }
-        else {
-          return new Klass(null, {
-            parent: this.$config.model,
-            ...this.$config.model.$config
-          }).populate(data, strategy);
-        }
+    const inject = (config: any = {}) => {
+      let def: any = {
+        kind: ParserKind.ANY,
+        ...config,
       };
-    }
-    else if (isFunction(config.handler)) {
-      config.handler = config.handler.bind(this.$config.model);
-    }
 
-    return cast(value, config.handler, config.array);
+      if (config.kind === ParserKind.ARRAY) {
+        def = {
+          kind: ParserKind.ARRAY,
+          parse: inject(config.parse),
+        };
+      }
+      else if (config.kind === ParserKind.MODEL) {
+        const Klass = realize(config.model, this.getModel());
+        def = {
+          kind: ParserKind.CUSTOM,
+          handler: (data: any) => {
+            if (isInstanceOf(data, Klass)) {
+              return data; // keep instances for speed
+            }
+            else {
+              return new Klass(null, {
+                parent: this.getModel(),
+                ...this.getModel().$config
+              }).populate(data, strategy);
+            }
+          }
+        };
+      } else if (def.kind === ParserKind.CUSTOM) {
+        def.handler = def.handler.bind(this.getModel());
+      }
+      return def;
+    };
+
+    return parse(value, inject(this.$config.parse));
   }
 
   /**
@@ -305,10 +263,11 @@ export class Prop {
     }
 
     const value = this.getValue();
-    if (value && this.isModel()) {
-      return this.isArray()
-        ? value.map((m) => m ? m.serialize(strategy) : null)
-        : value.serialize(strategy);
+    if (value && this.isArray()) {
+      return value.map((m) => isInstanceOf(m, Model) ? m.serialize(strategy) : m);
+    }
+    else if (value) {
+      return isInstanceOf(value, Model) ? value.serialize(strategy) : value;
     }
     else {
       return normalize(value);
@@ -352,26 +311,19 @@ export class Prop {
    */
   public commit(): this {
 
-    if (this.isModel()) {
-      (toArray(this.rawValue) || [])
-        .filter((doc) => isInstanceOf(doc, Model))
-        .forEach((doc) => doc.commit());
-    }
+    (toArray(this.rawValue) || [])
+      .filter((doc) => isInstanceOf(doc, Model))
+      .forEach((doc) => doc.commit());
 
     const value = this.rawValue; // same process as serialization
     if (!isValue(value)) {
       this.initialValue = null;
     }
-    else if (this.isModel()) {
-      if (this.isArray()) {
-        this.initialValue = value.map((m) => m ? m.serialize() : null);
-      }
-      else {
-        this.initialValue = value.serialize();
-      }
+    else if (this.isArray()) {
+      this.initialValue = value.map((m) => isInstanceOf(m, Model) ? m.serialize() : normalize(m));
     }
     else {
-      this.initialValue = normalize(value);
+      this.initialValue = isInstanceOf(value, Model) ? value.serialize() : normalize(value);
     }
 
     return this;
@@ -383,8 +335,8 @@ export class Prop {
   public rollback(): this {
     let value = this.initialValue;
 
-    if (this.$config.cast) {
-      value = this.cast(value);
+    if (this.$config.parse) {
+      value = this.parse(value);
     }
 
     this.rawValue = value;
@@ -397,11 +349,9 @@ export class Prop {
    */
   public freeze(): this {
 
-    if (this.isModel()) {
-      (toArray(this.rawValue) || [])
-        .filter((doc) => isInstanceOf(doc, Model))
-        .forEach((doc) => doc.freeze());
-    }
+    (toArray(this.rawValue) || [])
+      .filter((doc) => isInstanceOf(doc, Model))
+      .forEach((doc) => doc.freeze());
 
     this.frozen = true;
 
@@ -419,7 +369,7 @@ export class Prop {
         .map((doc) => doc.validate({ quiet: true }))
     );
 
-    const validator = realize(this.$config.validator, this.$config.model);
+    const validator = realize(this.$config.validator, this.getModel());
     this.errorCodes = await validator.validate(
       this.getValue(),
       this.$config.validate
@@ -439,7 +389,7 @@ export class Prop {
         .map((doc) => doc.handle(error))
     ).catch(() => {}); // do not throw even when unhandled error
 
-    const handler = realize(this.$config.handler, this.$config.model) as Handler;
+    const handler = realize(this.$config.handler, this.getModel()) as Handler;
     this.errorCodes = await handler.handle(
       error,
       this.$config.handle

@@ -1,78 +1,114 @@
 import { Spec } from '@hayspec/spec';
-import { Model, prop } from '../../..';
+import { Model, ParserKind, prop } from '../../..';
 
 const spec = new Spec();
 
-spec.test('creation of ~50k models', (ctx) => {
+spec.test('creation of ~5k models', (ctx) => {
   class Author extends Model {
     @prop({
-      cast: { handler: 'Number' },
+      parse: {
+        kind: ParserKind.FLOAT,
+      },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       serializable: ['output'],
     })
     name: string;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       populatable: ['input'],
     })
     email: string;
   }
   class Book extends Model {
     @prop({
-      cast: { handler: 'Number' },
+      parse: {
+        kind: ParserKind.FLOAT,
+      },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
     })
     title: string;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       populatable: ['input'],
     })
     description: string;
     @prop({
-      cast: { handler: Author, array: true },
+      parse: {
+        kind: ParserKind.ARRAY,
+        parse: {
+          kind: ParserKind.MODEL,
+          model: Author,
+        },
+      },
       populatable: ['input'],
     })
     author: Author[];
   }
   class User extends Model {
     @prop({
-      cast: { handler: 'Number' },
+      parse: {
+        kind: ParserKind.FLOAT,
+      },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       serializable: ['output'],
     })
     name: string;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       populatable: ['input'],
     })
     email: string;
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
     })
     book0: Book;
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
     })
     book1: Book;
     @prop({
-      cast: { handler: Book, array: true },
+      parse: {
+        kind: ParserKind.ARRAY,
+        parse: {
+          kind: ParserKind.MODEL,
+          model: Book,
+        },
+      },
       populatable: ['input'],
     })
     books: Book[];
   }
-  const sampleBooks = Array(1000).fill(null).map(() => ({
+  const sampleBooks = Array(500).fill(null).map(() => ({
     id: 300,
     title: 'Baz',
     description: 'Zed',
@@ -84,7 +120,7 @@ spec.test('creation of ~50k models', (ctx) => {
       { id: 100, name: 'John', email: 'foo@bar.com' },
     ],
   }));
-  const sampleUsers = Array(10).fill(null).map(() => ({
+  const sampleUsers = Array(100).fill(null).map(() => ({
     id: 100,
     name: 'John',
     email: 'foo@bar.com',
@@ -93,7 +129,7 @@ spec.test('creation of ~50k models', (ctx) => {
     books: [...sampleBooks],
   }));
   const users = sampleUsers.map((data) => new User(data));
-  ctx.is(users.length, 10);
+  ctx.is(users.length, 100);
 });
 
 export default spec;

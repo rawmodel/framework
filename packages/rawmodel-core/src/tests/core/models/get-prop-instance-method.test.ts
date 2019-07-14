@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, prop } from '../../..';
+import { Model, ParserKind, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -12,11 +12,20 @@ spec.test('returns an instance of a prop at path', (ctx) => {
     @prop()
     name: string;
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
     })
     book: Book;
     @prop({
-      cast: { handler: Book, array: true },
+      parse: {
+        kind: ParserKind.ARRAY,
+        parse: {
+          kind: ParserKind.MODEL,
+          model: Book,
+        },
+      },
     })
     books: Book[];
   }
@@ -36,6 +45,7 @@ spec.test('returns an instance of a prop at path', (ctx) => {
   ctx.is(user.getProp('name').getValue(), 'foo');
   ctx.is(user.getProp(['book', 'title']).getValue(), 'bar');
   ctx.is(user.getProp('book', 'title').getValue(), 'bar');
+  ctx.is(user.getProp(['books', 1]), user.getProp(['books'])); // array items refer to parent prop
   ctx.is(user.getProp(['books', 1, 'title']).getValue(), 'baz');
   ctx.is(user.getProp('books', 1, 'title').getValue(), 'baz');
   ctx.is(user.getProp(['fake']), undefined);

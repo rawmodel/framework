@@ -1,51 +1,75 @@
 import { Spec } from '@hayspec/spec';
-import { Model, prop } from '../../..';
+import { Model, ParserKind, prop } from '../../..';
 
 const spec = new Spec();
 
 spec.test('deeply assignes property data using strategies', (ctx) => {
   class Book extends Model {
     @prop({
-      cast: { handler: 'Number' },
+      parse: {
+        kind: ParserKind.FLOAT,
+      },
       populatable: ['output'],
     })
     id: number;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
     })
     title: string;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       populatable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
-      cast: { handler: 'Number' },
+      parse: {
+        kind: ParserKind.FLOAT,
+      },
       populatable: ['output'],
     })
     id: number;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
     })
     name: string;
     @prop({
-      cast: { handler: 'String' },
+      parse: {
+        kind: ParserKind.STRING,
+      },
       populatable: ['input'],
     })
     email: string;
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
       populatable: ['output'],
     })
     book0: Book;
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
     })
     book1: Book;
     @prop({
-      cast: { handler: Book, array: true },
+      parse: {
+        kind: ParserKind.ARRAY,
+        parse: {
+          kind: ParserKind.MODEL,
+          model: Book,
+        },
+      },
       populatable: ['input'],
     })
     books: Book[];

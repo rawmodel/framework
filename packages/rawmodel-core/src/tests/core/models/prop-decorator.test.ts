@@ -1,11 +1,11 @@
 import { Spec } from '@hayspec/spec';
-import { Model, Prop, prop } from '../../..';
+import { Model, ParserKind, Prop, prop } from '../../..';
 
 const spec = new Spec();
 
 spec.test('defines model property', (ctx) => {
   class User extends Model {
-    @prop({})
+    @prop()
     name: string;
   }
   const user = new User();
@@ -39,18 +39,45 @@ spec.test('supports property enumerable style', (ctx) => {
   ctx.deepEqual(Object.keys(user1), []);
 });
 
-spec.test('supports deep type casting', (ctx) => {
+spec.test('supports deep type parsing', (ctx) => {
   class Book extends Model {
-    @prop({ cast: { handler: 'String' } })
+    @prop({
+      parse: {
+        kind: ParserKind.STRING,
+      },
+    })
     name: string;
   }
   class User extends Model {
-    @prop({ cast: { handler: 'String' } })
+    @prop({
+      parse: {
+        kind: ParserKind.STRING,
+      },
+    })
     name: string;
-    @prop({ cast: { handler: Book } })
+    @prop({
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
+    })
     book: Book;
-    @prop({ cast: { handler: Book, array: true } })
+    @prop({
+      parse: {
+        kind: ParserKind.ARRAY,
+        parse: {
+          kind: ParserKind.MODEL,
+          model: Book,
+        },
+      },
+    })
     books: Book[];
+    @prop({
+      parse: {
+        kind: ParserKind.ARRAY,
+      },
+    })
+    items: any[];
   }
   const book = new Book({
     name: 'Baz',
@@ -62,6 +89,7 @@ spec.test('supports deep type casting', (ctx) => {
       book,
       { name: 'Zed' },
     ],
+    items: [100, { foo: 'foo'}, 'bar'],
   });
   ctx.is(user.name, '100');
   ctx.is(user.book.name, 'Baz');
@@ -73,13 +101,17 @@ spec.test('supports deep type casting', (ctx) => {
   ctx.is(user.book, book); // preserves instance
   user.book = book; // preserves instance
   ctx.is(user.book, book);
+  ctx.deepEqual(user.items, [100, { foo: 'foo'}, 'bar']);
 });
 
-spec.test('cast handler shares associated model context', (ctx) => {
+spec.test('parser shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      cast: { handler(v) { context = this; return v; } },
+      parse: {
+        kind: ParserKind.CUSTOM,
+        handler(v) { context = this; return v; }
+      },
     })
     name: string;
   }

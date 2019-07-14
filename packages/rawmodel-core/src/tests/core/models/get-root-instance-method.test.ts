@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, prop } from '../../..';
+import { Model, ParserKind, prop } from '../../..';
 
 const spec = new Spec();
 
@@ -10,7 +10,10 @@ spec.test('returns the first model in a tree of nested models', (ctx) => {
   }
   class User extends Model {
     @prop({
-      cast: { handler: Book },
+      parse: {
+        kind: ParserKind.MODEL,
+        model: Book,
+      },
     })
     book: Book;
   }

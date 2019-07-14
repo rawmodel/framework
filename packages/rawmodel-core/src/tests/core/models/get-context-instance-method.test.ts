@@ -1,5 +1,5 @@
 import { Spec } from '@hayspec/spec';
-import { Model, prop } from '../../..';
+import { Model } from '../../..';
 
 const spec = new Spec();
 

@@ -1,5 +1,6 @@
 import { Spec } from '@hayspec/spec';
 import { Prop } from '../../..';
+import { ParserKind } from '../../../core/types';
 
 const spec = new Spec();
 
@@ -14,7 +15,17 @@ spec.test('sets property value', (ctx) => {
   ctx.is(prop.getValue(), 'zak');
 });
 
-spec.test('sets property value using strategy', (ctx) => {
+spec.test('parses input data', (ctx) => {
+  const prop = new Prop({
+    parse: { kind: ParserKind.INTEGER },
+  });
+  prop.setValue('100');
+  ctx.is(prop.getValue(), 100);
+  prop.setValue(() => '200');
+  ctx.is(prop.getValue(), 200);
+});
+
+spec.test('support strategies', (ctx) => {
   const prop = new Prop({
     populatable: ['foo'],
   });

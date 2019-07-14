@@ -9,8 +9,8 @@ spec.test('returns `true` if the prop exists', (ctx) => {
     name: string;
   }
   const user = new User();
-  ctx.is(user.isProp(['name']), true);
-  ctx.is(user.isProp(['book', 'title']), false);
+  ctx.is(user.hasProp(['name']), true);
+  ctx.is(user.hasProp(['book', 'title']), false);
 });
 
 export default spec;
