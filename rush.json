@@ -27,11 +27,11 @@
       "projectFolder": "packages/rawmodel-parsers",
       "versionPolicyName": "patchAll"
     },
-    // {
-    //   "packageName": "@rawmodel/schema",
-    //   "projectFolder": "packages/rawmodel-schema",
-    //   "versionPolicyName": "patchAll"
-    // },
+    {
+      "packageName": "@rawmodel/schema",
+      "projectFolder": "packages/rawmodel-schema",
+      "versionPolicyName": "patchAll"
+    },
     {
       "packageName": "@rawmodel/utils",
       "projectFolder": "packages/rawmodel-utils",
