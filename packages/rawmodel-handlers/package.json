@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/handlers",
-  "version": "2.4.0",
+  "version": "3.0.0-alpha0",
   "description": "General property error handlers for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
