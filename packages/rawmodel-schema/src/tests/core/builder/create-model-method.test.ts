@@ -1,5 +1,6 @@
 import { Model } from '@rawmodel/core';
 import { Spec } from '@hayspec/spec';
+import { stringParser } from '@rawmodel/parsers';
 import { createModel } from '../../..';
 
 const spec = new Spec();
@@ -26,41 +27,78 @@ spec.test('generates model with properties', (ctx) => {
 
 spec.test('supports property default value', (ctx) => {
   const Klass = createModel({
-    props: [{
-      name: 'firstName',
-      defaultValue: 'default',
-    }],
+    defaultValues: {
+      smithName() { return 'Smith'; },
+    },
+    props: [
+      {
+        name: 'firstName',
+        defaultValue: 'John',
+      },
+      {
+        name: 'lastName',
+        defaultValue: 'smithName',
+      },
+    ],
   });
   const model = new Klass();
-  ctx.deepEqual(model.serialize(), { firstName: 'default' });
+  ctx.deepEqual(model.serialize(), {
+    firstName: 'John',
+    lastName: 'Smith',
+  });
 });
 
 spec.test('supports property fake value', (ctx) => {
   const Klass = createModel({
-    props: [{
-      name: 'firstName',
-      fakeValue: 'fake',
-    }],
+    fakeValues: {
+      smithName() { return 'Smith'; },
+    },
+    props: [
+      {
+        name: 'firstName',
+        fakeValue: 'John',
+      },
+      {
+        name: 'lastName',
+        fakeValue: 'smithName',
+      },
+    ],
   });
   const model = new Klass().fake();
-  ctx.deepEqual(model.serialize(), { firstName: 'fake' });
+  ctx.deepEqual(model.serialize(), {
+    firstName: 'John',
+    lastName: 'Smith',
+  });
 });
 
 spec.test('supports property empty value', (ctx) => {
   const Klass = createModel({
+    emptyValues: {
+      emptyString() { return ''; },
+    },
     props: [
       {
         name: 'firstName',
         emptyValue: 'none',
       },
+      {
+        name: 'lastName',
+        emptyValue: 'emptyString',
+      },
     ],
   });
   const model = new Klass();
-  ctx.deepEqual(model.serialize(), { firstName: 'none' });
+  ctx.deepEqual(model.serialize(), {
+    firstName: 'none',
+    lastName: '',
+  });
 });
 
 spec.test('supports property parsers', (ctx) => {
   const Klass = createModel({
+    parsers: {
+      string: stringParser(),
+    },
     props: [
       {
         name: 'firstName',
@@ -71,7 +109,6 @@ spec.test('supports property parsers', (ctx) => {
   const model = new Klass({
     firstName: 100,
   });
-  console.log(model.serialize());
   ctx.deepEqual(model.serialize(), {
     firstName: '100',
   });

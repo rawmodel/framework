@@ -1,29 +1,6 @@
 import { Model } from '@rawmodel/core';
-import { booleanParser, dateParser, floatParser, integerParser, stringParser } from '@rawmodel/parsers';
-import { isUndefined } from '@rawmodel/utils';
+import { isUndefined, isFunction } from '@rawmodel/utils';
 import { SchemaRecipe } from './types';
-
-/**
- * Default model recipe configuration object.
- */
-export const defaultRecipe = {
-  context: {},
-  getters: {},
-  setters: {},
-  defaultValues: {},
-  fakeValues: {},
-  emptyValues: {},
-  parsers: {
-    boolean: booleanParser(),
-    date: dateParser(),
-    float: floatParser(),
-    integer: integerParser(),
-    string: stringParser(),
-  },
-  validators: {},
-  handlers: {},
-  props: [],
-};
 
 /**
  * Returns a Model class generated from the provided schema recipe.
@@ -31,7 +8,16 @@ export const defaultRecipe = {
  */
 export function createModel(recipe: SchemaRecipe): typeof Model {
   recipe = {
-    ...defaultRecipe,
+    context: {},
+    getters: {},
+    setters: {},
+    defaultValues: {},
+    fakeValues: {},
+    emptyValues: {},
+    parsers: {},
+    validators: {},
+    handlers: {},
+    props: [],
     ...recipe,
   };
 
@@ -69,7 +55,7 @@ export function createModel(recipe: SchemaRecipe): typeof Model {
     }
 
     if (!isUndefined(prop.parse)) {
-      if (prop.parse.resolver && !isUndefined(recipe.parsers[prop.parse.resolver])) {
+      if (prop.parse.resolver && !isFunction(recipe.parsers[prop.parse.resolver])) {
         obj.parse = {
           array: !!prop.parse.array,
           resolver: recipe.parsers[prop.parse.resolver],
