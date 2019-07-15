@@ -314,6 +314,46 @@ user.handle(error).then(() => {
 
 This mechanism is especially handful when saving data to a database. MongoDB database, for example, throws a uniqueness error (E11000) if we try to insert a value that already exists in the database. We can catch that error by using the `handle()` method and then return a unified validation error message to a user.
 
+### Raw Schema
+
+[JSON Schema](https://json-schema.org) is pretty popular standard for describing JSON objects. It's sufficiant for general use cases but it's not powerful enough to cover all RawModel features. RawModel provides it's own schema syntax which allows for creation of generic models from a JSON definition.
+
+```ts
+import { createModel } from '@rawmodel/schema';
+
+const User = createModel({
+  props: [
+    {
+      path: ['name'],
+    },
+  ],
+});
+```
+
+Advanced features are also supported. We can define static or dynamic default values. Dynamic values must have a resolver under the `defaultValues` option. If property's `defaultValue` matches the resolver name, then the dynamic resolver is applied otherwise the static value of the `defaultValue` is copied. 
+
+```ts
+const schema = {
+  defaultValues: {
+    currentDate() { return new Date() },
+  },
+  props: [
+    {
+      path: ['name'],
+      defaultValue: 'Noname',
+    },
+    {
+      path: ['date'],
+      defaultValue: 'currentDate', // referencing currentDate()
+    },
+  ],
+};
+```
+
+This concept also apply to features like fake and empty values.
+
+// TODO: Parse, Validate, Handle
+
 ### GraphQL
 
 RawModel can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
@@ -718,6 +758,12 @@ This class is provided by the `@rawmodel/core` package.
 
 > Validates the `value` and populates the `errors` property with errors.
 
+### Schema Methods
+
+This methods are provided by the `@rawmodel/schema` package.
+
+// TODO
+
 ### Available Parsers
 
 Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser resolver.
@@ -737,7 +783,7 @@ const recipe = {
 
 > Converts a value to a date object.
 
-**floatParser()**
+**floatParser()**`
 
 > Converts a value to a decimal number.
 

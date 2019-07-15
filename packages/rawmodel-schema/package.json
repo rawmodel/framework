@@ -90,6 +90,8 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@rawmodel/core": "3.0.0-alpha0"
+    "@rawmodel/core": "3.0.0-alpha0",
+    "@rawmodel/parsers": "3.0.0-alpha0",
+    "@rawmodel/utils": "3.0.0-alpha0"
   }
 }

@@ -20,6 +20,7 @@ export interface SchemaRecipe {
  * Schema property recipe.
  */
 export interface PropRecipe {
+  name: string;
   set?: string;
   get?: string;
   parse?: ParserRecipe;
