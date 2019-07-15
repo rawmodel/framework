@@ -15,7 +15,7 @@ export async function validate(value: any, recipes: ValidatorRecipe[] = [], conf
     const context = realize(config.context);
     const isValid = await Promise.all(
       (isArray(value) ? value : [value])
-        .map((v) => recipe.resolver.call(context, v, recipe))
+        .map((v) => recipe.resolver.call(context, v))
     ).then((r) => r.indexOf(false) === -1);
 
     if (!isValid) {

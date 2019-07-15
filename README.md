@@ -314,6 +314,72 @@ user.handle(error).then(() => {
 
 This mechanism is especially handful when saving data to a database. MongoDB database, for example, throws a uniqueness error (E11000) if we try to insert a value that already exists in the database. We can catch that error by using the `handle()` method and then return a unified validation error message to a user.
 
+### Raw Schema
+
+[JSON Schema](https://json-schema.org) is a pretty popular standard for describing JSON objects. It's sufficient for general use cases, but it's not powerful enough to cover all RawModel features. RawModel provides its own schema syntax which allows for the creation of generic models from a JSON definition.
+
+We use `createModelClass` method to generate a new generic model class from a JSON definition. A model with a single property `name` could look something like this:
+
+```ts
+import { createModelClass } from '@rawmodel/schema';
+
+const schema = { // raw model schema
+  props: [ // properties definition
+    {
+      name: 'email', // property name
+    },
+  ],
+};
+
+const Model = createModelClass(schema); // creates model class
+```
+
+We can define static or dynamic default values. Dynamic values must have a resolver under the `defaultValues` option. If the property's `defaultValue` matches the resolver name, then the dynamic resolver is applied, otherwise, the static value of the `defaultValue` is copied. Similar logic applies to getters, setters, fake and empty values.
+
+```ts
+const schema = {
+  defaultValues: {
+    currentDate() { return new Date() },
+  },
+  props: [
+    {
+      name: 'email',
+      defaultValue: 'Noname',
+    },
+    {
+      name: 'date',
+      defaultValue: 'currentDate', // referencing currentDate()
+    },
+  ],
+};
+```
+
+Validators and handlers can be defined in a similar way.
+
+```ts
+import { stringLengthValidator } from '@rawmodel/validators';
+
+const schema = {
+  validators: { // schema validators
+    stringLength: stringLengthValidator, // validator resolver
+  },
+  props: [ // schema properties
+    { // property definition
+      name: 'title', // property name
+      validate: [
+        {
+          resolver: 'stringLength', // validator resolver name
+          code: 30001, // validation error code
+          options: { min: 5 }, // validator arguments
+        },
+      ],
+    },
+  ],
+};
+```
+
+Schema supports basically all RawModel features. Check the API section for all the details.
+
 ### GraphQL
 
 RawModel can be a perfect framework for writing GraphQL resolvers. An instance of a root model, in our case the `App` class, can represent GraphQL's `rootValue`.
@@ -718,6 +784,12 @@ This class is provided by the `@rawmodel/core` package.
 
 > Validates the `value` and populates the `errors` property with errors.
 
+### Schema Methods
+
+This methods are provided by the `@rawmodel/schema` package.
+
+// TODO
+
 ### Available Parsers
 
 Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser resolver.
@@ -737,7 +809,7 @@ const recipe = {
 
 > Converts a value to a date object.
 
-**floatParser()**
+**floatParser()**`
 
 > Converts a value to a decimal number.
 
