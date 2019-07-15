@@ -6,7 +6,7 @@ import { SchemaRecipe } from './types';
  * Returns a Model class generated from the provided schema recipe.
  * @param recipe Model schema recipe.
  */
-export function createModel(recipe: SchemaRecipe): typeof Model {
+export function createModelClass(recipe: SchemaRecipe): typeof Model {
   recipe = {
     context: {},
     getters: {},

@@ -2,17 +2,17 @@ import { Model } from '@rawmodel/core';
 import { Spec } from '@hayspec/spec';
 import { stringParser } from '@rawmodel/parsers';
 import { stringLengthValidator } from '@rawmodel/validators';
-import { createModel } from '../../..';
+import { createModelClass } from '../../..';
 
 const spec = new Spec();
 
 spec.test('generates empty model class', (ctx) => {
-  const Klass = createModel({});
+  const Klass = createModelClass({});
   ctx.true(new Klass() instanceof Model);
 });
 
 spec.test('generates model with properties', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     props: [
       { name: 'firstName' },
       { name: 'lastName' },
@@ -27,7 +27,7 @@ spec.test('generates model with properties', (ctx) => {
 });
 
 spec.test('supports property custom getter', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     getters: {
       foo () { return () => 'foo'; },
     },
@@ -45,7 +45,7 @@ spec.test('supports property custom getter', (ctx) => {
 });
 
 spec.test('supports property custom setter', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     setters: {
       foo () { return () => 'foo'; },
     },
@@ -65,7 +65,7 @@ spec.test('supports property custom setter', (ctx) => {
 });
 
 spec.test('supports property default value', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     defaultValues: {
       smithName() { return 'Smith'; },
     },
@@ -88,7 +88,7 @@ spec.test('supports property default value', (ctx) => {
 });
 
 spec.test('supports property fake value', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     fakeValues: {
       smithName() { return 'Smith'; },
     },
@@ -111,7 +111,7 @@ spec.test('supports property fake value', (ctx) => {
 });
 
 spec.test('supports property empty value', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     emptyValues: {
       emptyString() { return ''; },
     },
@@ -134,7 +134,7 @@ spec.test('supports property empty value', (ctx) => {
 });
 
 spec.test('supports property parsers', (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     parsers: {
       string: stringParser,
     },
@@ -157,7 +157,7 @@ spec.test('supports property parsers', (ctx) => {
 });
 
 spec.test('supports property validators', async (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     validators: {
       stringLength: stringLengthValidator,
     },
@@ -184,7 +184,7 @@ spec.test('supports property validators', async (ctx) => {
 });
 
 spec.test('supports property handlers', async (ctx) => {
-  const Klass = createModel({
+  const Klass = createModelClass({
     handlers: {
       generalError() { return (e: any) => true; },
     },

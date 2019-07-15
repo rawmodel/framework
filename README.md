@@ -316,21 +316,25 @@ This mechanism is especially handful when saving data to a database. MongoDB dat
 
 ### Raw Schema
 
-[JSON Schema](https://json-schema.org) is pretty popular standard for describing JSON objects. It's sufficiant for general use cases but it's not powerful enough to cover all RawModel features. RawModel provides it's own schema syntax which allows for creation of generic models from a JSON definition.
+[JSON Schema](https://json-schema.org) is a pretty popular standard for describing JSON objects. It's sufficient for general use cases, but it's not powerful enough to cover all RawModel features. RawModel provides its own schema syntax which allows for the creation of generic models from a JSON definition.
+
+We use `createModelClass` method to generate a new generic model class from a JSON definition. A model with a single property `name` could look something like this:
 
 ```ts
-import { createModel } from '@rawmodel/schema';
+import { createModelClass } from '@rawmodel/schema';
 
-const User = createModel({
-  props: [
+const schema = { // raw model schema
+  props: [ // properties definition
     {
-      path: ['name'],
+      name: 'email', // property name
     },
   ],
-});
+};
+
+const Model = createModelClass(schema); // creates model class
 ```
 
-Advanced features are also supported. We can define static or dynamic default values. Dynamic values must have a resolver under the `defaultValues` option. If property's `defaultValue` matches the resolver name, then the dynamic resolver is applied otherwise the static value of the `defaultValue` is copied. 
+We can define static or dynamic default values. Dynamic values must have a resolver under the `defaultValues` option. If the property's `defaultValue` matches the resolver name, then the dynamic resolver is applied, otherwise, the static value of the `defaultValue` is copied. Similar logic applies to getters, setters, fake and empty values.
 
 ```ts
 const schema = {
@@ -339,20 +343,42 @@ const schema = {
   },
   props: [
     {
-      path: ['name'],
+      name: 'email',
       defaultValue: 'Noname',
     },
     {
-      path: ['date'],
+      name: 'date',
       defaultValue: 'currentDate', // referencing currentDate()
     },
   ],
 };
 ```
 
-This concept also apply to features like fake and empty values.
+Validators and handlers can be defined in a similar way.
 
-// TODO: Parse, Validate, Handle
+```ts
+import { stringLengthValidator } from '@rawmodel/validators';
+
+const schema = {
+  validators: { // schema validators
+    stringLength: stringLengthValidator, // validator resolver
+  },
+  props: [ // schema properties
+    { // property definition
+      name: 'title', // property name
+      validate: [
+        {
+          resolver: 'stringLength', // validator resolver name
+          code: 30001, // validation error code
+          options: { min: 5 }, // validator arguments
+        },
+      ],
+    },
+  ],
+};
+```
+
+Schema supports basically all RawModel features. Check the API section for all the details.
 
 ### GraphQL
 

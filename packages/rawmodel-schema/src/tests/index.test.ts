@@ -4,7 +4,7 @@ import * as rawmodel from '..';
 const spec = new Spec();
 
 spec.test('exposed content', (ctx) => {
-  ctx.true(!!rawmodel.createModel);
+  ctx.true(!!rawmodel.createModelClass);
 });
 
 export default spec;
