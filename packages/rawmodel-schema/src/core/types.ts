@@ -1,18 +1,18 @@
-import { ParserResolver, ValidatorResolver, HandlerResolver } from '@rawmodel/core';
+import { HandlerResolver, ParserResolver, SimpleResolver, ValidatorResolver } from '@rawmodel/core';
 
 /**
  * Schema recipe for creating a model.
  */
 export interface SchemaRecipe {
   context?: any;
-  getters?: { [name: string]: ((v: any) => any) };
-  setters?: { [name: string]: ((v: any) => any) };
-  defaultValues?: { [name: string]: (any | (() => any)) };
-  fakeValues?: { [name: string]: (any | (() => any)) };
-  emptyValues?: { [name: string]: (any | (() => any)) };
-  parsers?: { [name: string]: ParserResolver };
-  validators?: { [name: string]: ValidatorResolver };
-  handlers?: { [name: string]: HandlerResolver };
+  getters?: { [name: string]: (o?: any) => SimpleResolver };
+  setters?: { [name: string]: (o?: any) => SimpleResolver };
+  defaultValues?: { [name: string]: (o?: any) => (SimpleResolver | any) };
+  fakeValues?: { [name: string]: (o?: any) => (SimpleResolver | any) };
+  emptyValues?: { [name: string]: (o?: any) => (SimpleResolver | any) };
+  parsers?: { [name: string]: (o?: any) => ParserResolver };
+  validators?: { [name: string]: (o?: any) => ValidatorResolver };
+  handlers?: { [name: string]: (o?: any) => HandlerResolver };
   props?: PropRecipe[];
 }
 
@@ -39,7 +39,8 @@ export interface PropRecipe {
  */
 export interface ParserRecipe {
   array?: boolean;
-  resolver: string;
+  resolver?: string;
+  options?: any;
 }
 
 /**
@@ -48,14 +49,7 @@ export interface ParserRecipe {
 export interface ValidatorRecipe {
   code: number;
   resolver: string;
-}
-
-/**
- * Validation recipe interface.
- */
-export interface ValidatorRecipe {
-  code: number;
-  resolver: string;
+  options?: any;
 }
 
 /**
@@ -64,4 +58,5 @@ export interface ValidatorRecipe {
 export interface HandlerRecipe {
   code: number;
   resolver: string;
+  options?: any;
 }

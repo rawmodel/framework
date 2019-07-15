@@ -1,6 +1,7 @@
 import { Model } from '@rawmodel/core';
 import { Spec } from '@hayspec/spec';
 import { stringParser } from '@rawmodel/parsers';
+import { stringLengthValidator } from '@rawmodel/validators';
 import { createModel } from '../../..';
 
 const spec = new Spec();
@@ -23,6 +24,44 @@ spec.test('generates model with properties', (ctx) => {
   };
   const model = new Klass(data);
   ctx.deepEqual(model.serialize(), data);
+});
+
+spec.test('supports property custom getter', (ctx) => {
+  const Klass = createModel({
+    getters: {
+      foo () { return () => 'foo'; },
+    },
+    props: [
+      {
+        name: 'firstName',
+        get: 'foo',
+      },
+    ],
+  });
+  const model = new Klass();
+  ctx.deepEqual(model.serialize(), {
+    firstName: 'foo',
+  });
+});
+
+spec.test('supports property custom setter', (ctx) => {
+  const Klass = createModel({
+    setters: {
+      foo () { return () => 'foo'; },
+    },
+    props: [
+      {
+        name: 'firstName',
+        set: 'foo',
+      },
+    ],
+  });
+  const model = new Klass({
+    firstName: 'bar',
+  });
+  ctx.deepEqual(model.serialize(), {
+    firstName: 'foo',
+  });
 });
 
 spec.test('supports property default value', (ctx) => {
@@ -97,12 +136,15 @@ spec.test('supports property empty value', (ctx) => {
 spec.test('supports property parsers', (ctx) => {
   const Klass = createModel({
     parsers: {
-      string: stringParser(),
+      string: stringParser,
     },
     props: [
       {
         name: 'firstName',
-        parse: { resolver: 'string' },
+        parse: {
+          array: true,
+          resolver: 'string',
+        },
       },
     ],
   });
@@ -110,8 +152,59 @@ spec.test('supports property parsers', (ctx) => {
     firstName: 100,
   });
   ctx.deepEqual(model.serialize(), {
-    firstName: '100',
+    firstName: ['100'],
   });
+});
+
+spec.test('supports property validators', async (ctx) => {
+  const Klass = createModel({
+    validators: {
+      stringLength: stringLengthValidator,
+    },
+    props: [
+      {
+        name: 'firstName',
+        validate: [
+          {
+            resolver: 'stringLength',
+            code: 400,
+            options: { min: 5 },
+          },
+        ],
+      },
+    ],
+  });
+  const model = new Klass({
+    firstName: '123',
+  });
+  await ctx.throws(() => model.validate());
+  ctx.deepEqual(model.collectErrors(), [
+    { path: ['firstName'], errors: [400] },
+  ]);
+});
+
+spec.test('supports property handlers', async (ctx) => {
+  const Klass = createModel({
+    handlers: {
+      generalError() { return (e: any) => true; },
+    },
+    props: [
+      {
+        name: 'firstName',
+        handle: [
+          {
+            resolver: 'generalError',
+            code: 400,
+          },
+        ],
+      },
+    ],
+  });
+  const model = new Klass();
+  await ctx.throws(() => model.handle(new Error(), { quiet: false }));
+  ctx.deepEqual(model.collectErrors(), [
+    { path: ['firstName'], errors: [400] },
+  ]);
 });
 
 export default spec;

@@ -15,7 +15,7 @@ export async function handle(error: any, recipes: HandlerRecipe[] = [], config: 
     const context = realize(config.context);
     const isMatch = await Promise.all(
       (isArray(error) ? error : [error])
-        .map((v) => recipe.resolver.call(context, v, recipe))
+        .map((v) => recipe.resolver.call(context, v))
     ).then((r) => r.indexOf(false) === -1);
 
     if (isMatch) {

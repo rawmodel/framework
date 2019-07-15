@@ -24,13 +24,4 @@ spec.test('passes context to each resolver', async (ctx) => {
   ctx.deepEqual(codes, [100]);
 });
 
-spec.test('passes recipe to each resolver', async (ctx) => {
-  let note = null;
-  const recipes = [
-    { code: 100, resolver: (v, r) => note = r },
-  ];
-  await ctx.notThrows(() => handle(100, recipes));
-  ctx.deepEqual(note, recipes[0]);
-});
-
 export default spec;

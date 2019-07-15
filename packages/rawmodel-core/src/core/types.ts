@@ -35,13 +35,12 @@ export interface PropItem {
  * Model property class configuration object.
  */
 export interface PropConfig {
-  set?: (v: any) => any;
-  get?: (v: any) => any;
+  set?: SimpleResolver;
+  get?: SimpleResolver;
   parse?: ParserRecipe;
-  failFast?: boolean | (() => boolean);
-  defaultValue?: any | (() => any);
-  fakeValue?: any | (() => any);
-  emptyValue?: any | (() => any);
+  defaultValue?: any | SimpleResolver;
+  fakeValue?: any | SimpleResolver;
+  emptyValue?: any | SimpleResolver;
   validate?: ValidatorRecipe[];
   handle?: HandlerRecipe[];
   populatable?: string[];
@@ -59,15 +58,20 @@ export interface ParserRecipe {
 }
 
 /**
+ * Simple data resolver.
+ */
+export type SimpleResolver = (v?: any) => any;
+
+/**
  * Parser resolver definition.
  */
-export type ParserResolver = ((v?: any, r?: ParserRecipe) => any) | typeof Model;
+export type ParserResolver = SimpleResolver | typeof Model;
 
 /**
  * Parser configuration interface.
  */
 export interface ParserConfig {
-  context?: any | (() => any);
+  context?: any | SimpleResolver;
 }
 
 /**
@@ -81,13 +85,13 @@ export interface ValidatorRecipe {
 /**
  * Validator handler definition.
  */
-export type ValidatorResolver = (v?: any, r?: ValidatorRecipe) => (boolean | Promise<boolean>);
+export type ValidatorResolver = (v?: any) => (boolean | Promise<boolean>);
 
 /**
  * Validator configuration interface.
  */
 export interface ValidatorConfig {
-  context?: any | (() => any);
+  context?: any | SimpleResolver;
 }
 
 /**
@@ -101,11 +105,11 @@ export interface HandlerRecipe {
 /**
  * Handler handler definition.
  */
-export type HandlerResolver = (v?: any, r?: HandlerRecipe) => (boolean | Promise<boolean>);
+export type HandlerResolver = (v?: any) => (boolean | Promise<boolean>);
 
 /**
  * Error handler configuration interface.
  */
 export interface HandlerConfig {
-  context?: any | (() => any);
+  context?: any | SimpleResolver;
 }
