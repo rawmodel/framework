@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/validators",
-  "version": "3.0.0-alpha0",
+  "version": "3.0.0-alpha4",
   "description": "General validators for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -90,6 +90,6 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@rawmodel/utils": "3.0.0-alpha0"
+    "@rawmodel/utils": "3.0.0-alpha4"
   }
 }
