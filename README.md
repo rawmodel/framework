@@ -784,11 +784,99 @@ This class is provided by the `@rawmodel/core` package.
 
 > Validates the `value` and populates the `errors` property with errors.
 
-### Schema Methods
+### Schema Utils
 
 This methods are provided by the `@rawmodel/schema` package.
 
-// TODO
+**createModelClass(recipe):Class**
+
+> Returns a new generic model class build from the provided schema `recipe`.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| recipe.context | Any | No | - | Arbitrary context data.
+| recipe.getters | Object | No | - | Hash of getter functions which return a resolver.
+| recipe.setters | Object | No | - | Hash of setters functions which return a resolver.
+| recipe.defaultValues | Object | No | - | Hash of default value functions which return a resolver or static values.
+| recipe.fakeValues | Object | No | - | Hash of fake value functions which return a resolver or static values.
+| recipe.emptyValues | Object | No | - | Hash of empty value functions which return a resolver or static values.
+| recipe.parsers | Object | No | - | Hash of parser functions which return a resolver.
+| recipe.validators | Object | No | - | Hash of validator functions which return a resolver.
+| recipe.handlers | Object | No | - | Hash of handler functions which return a resolver.
+| recipe.props | Array | No | - | Hash of property definitions.
+| recipe.props.$.set | String | No | - | Setter resolver name.
+| recipe.props.$.get | String | No | - | Getter resolver name.
+| recipe.props.$.parse | Object | No | - | Data type parser recipe.
+| recipe.props.$.parse.array | Boolean | No | false | When `true` the input data will automatically be converted to array.
+| recipe.props.$.parse.resolver | String | No | - | Parser resolver name
+| recipe.props.$.defaultValue | Any | No | - | Default value resolver name or a value.
+| recipe.props.$.fakeValue | Any | No | - | Fake value resolver name or a value.
+| recipe.props.$.emptyValue | Any | No | - | Empty value resolver name or a value.
+| recipe.props.$.validate | Array | No | - | List of validator recipes.
+| recipe.props.$.validate.code | Integer | Yes | - | Validator error code.
+| recipe.props.$.validate.resolver | String | Yes | - | Validator resolver name.
+| recipe.props.$.validate.options | Object | No | - | Validator resolver arguments.
+| recipe.props.$.handle | Array | No | - | List of error handler recipes.
+| recipe.props.$.handle.code | Integer | Yes | - | Handler error code.
+| recipe.props.$.handle.resolver | String | Yes | - | Handler resolver name.
+| recipe.props.$.handle.options | Object | No | - | Handler resolver arguments.
+| recipe.props.$.populatable | Array | No | - | List of strategies for populating the property value.
+| recipe.props.$.serializable | Array | No | - | List of strategies for serializing the property value.
+| recipe.props.$.enumerable | Boolean | No | true | Indicates that the property is enumerable.
+
+```ts
+const Model = createModelClass({
+  context: {},
+  getters: {
+    customGetter(options: any) { // custom getter function which returns a resolver
+      return function(v: any) { return v; } // context aware resolver
+    },
+  },
+  setters: {}, // see getters
+  defaultValues: {
+    dynamicValue(options: any) { // custom default value function which returns a resolver
+      return function(v: any) { return v; } // context aware resolver
+    },
+    staticValue(options: any) { // custom default value function which returns a static value
+      return 'foo';
+  },
+  fakeValues: {}, // see defaultValues
+  emptyValues: {}, // see defaultValues
+  parsers: {
+    toString() { // custom parser function which returns a resolver
+      return function(v: any) { return v.toString(); }; // context aware resolver
+    },
+  },
+  validators: {
+    isPresent() { // custom validator function which returns a resolver
+      return function(v: any) { return !!v }; // context aware resolver (function or promise)
+    },
+  };
+  handlers: {}, // see validators
+  props: [
+    name: 'firstName', // property name
+    get: 'customGetter', // getter name (defined in `getters`)
+    set: 'customSetter', // setter name (defined in `setters`)
+    parse: {
+      array: true, // when `true` the input is converted to array
+      resolver: 'toString', // parser resolver name
+    },
+    defaultValue: 'none', // static default value
+    fakeValue: 'none', // static fake value
+    emptyValue: '', // static empty value
+    validate: [
+      {
+        code: 30001, // validator error code
+        resolver: 'isPresent', // validator resolver name
+      },
+    ],
+    handle: [], // see validators
+    populatable: ['input', 'db'], // populatable strategies
+    serializable: ['input', 'db'], // serializable strategies
+    enumerable: true, // property is enumerable
+  ],
+});
+```
 
 ### Available Parsers
 
