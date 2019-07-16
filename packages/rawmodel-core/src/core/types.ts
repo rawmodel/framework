@@ -65,7 +65,7 @@ export type SimpleResolver = (v?: any) => any;
 /**
  * Parser resolver definition.
  */
-export type ParserResolver = SimpleResolver | typeof Model;
+export type ParserResolver = SimpleResolver | any;
 
 /**
  * Parser configuration interface.
