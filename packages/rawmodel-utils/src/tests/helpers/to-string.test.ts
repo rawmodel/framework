@@ -8,6 +8,7 @@ spec.test('perform tests', (ctx) => {
   ctx.is(toString(undefined), undefined);
   ctx.is(toString(null), null);
   ctx.is(toString(''), '');
+  ctx.is(toString('foo'), 'foo');
   ctx.is(toString(NaN), null);
   ctx.is(toString(Infinity), null);
   ctx.is(toString(true), 'true');

@@ -1,5 +1,5 @@
 import { toString } from '@rawmodel/utils/dist/helpers/to-string';
-import { hexValidator } from './hex';
+import { isHex } from '@rawmodel/utils/dist/helpers/is-hex';
 
 /**
  * Returns a function for detecting BSON ObjectId objects.
@@ -7,10 +7,10 @@ import { hexValidator } from './hex';
 export function bsonObjectIdValidator() {
   return (value?: any) => {
 
-    value = toString(value);
+    value = (toString(value) || '').replace(/\"/g, '');
 
     return (
-      hexValidator()(value)
+      isHex(value)
       && value.length === 24
     );
   };

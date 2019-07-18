@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/parsers",
-  "version": "3.0.0-alpha4",
+  "version": "3.0.0-alpha6",
   "description": "General data parsers for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -84,12 +84,13 @@
   "devDependencies": {
     "@hayspec/cli": "^0.8.4",
     "@hayspec/spec": "^0.8.4",
+    "mongodb": "^3.2.7",
     "nyc": "^14.1.1",
     "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@rawmodel/utils": "3.0.0-alpha4"
+    "@rawmodel/utils": "3.0.0-alpha6"
   }
 }
