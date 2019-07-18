@@ -1,4 +1,4 @@
-import { isUndefined } from 'util';
+import { isUndefined } from './is-undefined';
 import { isNull } from './is-null';
 
 /**
