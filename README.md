@@ -882,7 +882,7 @@ const Model = createModelClass({
 
 Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser resolver.
 
-**booleanParser()**
+**booleanParser()**: Function
 
 > Converts a value to a boolean value.
 
@@ -893,19 +893,23 @@ const recipe = {
 }
 ```
 
-**dateParser()**
+ **bsonObjectIdStringParser()**: Function
+
+> Converts a value to a valid BSON ObjectId string.
+
+**dateParser()**: Function
 
 > Converts a value to a date object.
 
-**floatParser()**`
+**floatParser()**: Function
 
 > Converts a value to a decimal number.
 
-**integerParser()**
+**integerParser()**: Function
 
 > Converts a value to an integer number.
 
-**stringParser**
+**stringParser**: Function
 
 > Converts a value to a string.
 

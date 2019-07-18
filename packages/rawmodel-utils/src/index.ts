@@ -5,6 +5,7 @@ export * from './helpers/is-date';
 export * from './helpers/is-deep-equal';
 export * from './helpers/is-float';
 export * from './helpers/is-function';
+export * from './helpers/is-hex';
 export * from './helpers/is-infinite';
 export * from './helpers/is-instance-of';
 export * from './helpers/is-integer';

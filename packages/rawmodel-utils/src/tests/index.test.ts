@@ -11,6 +11,7 @@ spec.test('exposed content', (ctx) => {
   ctx.true(!!rawmodel.isDeepEqual);
   ctx.true(!!rawmodel.isFloat);
   ctx.true(!!rawmodel.isFunction);
+  ctx.true(!!rawmodel.isHex);
   ctx.true(!!rawmodel.isInfinite);
   ctx.true(!!rawmodel.isInstanceOf);
   ctx.true(!!rawmodel.isInteger);

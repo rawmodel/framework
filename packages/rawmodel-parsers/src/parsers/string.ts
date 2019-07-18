@@ -6,7 +6,7 @@ import { toString } from '@rawmodel/utils';
 export function stringParser() {
   return (value: any) => {
     try {
-     return toString(value);
+      return toString(value);
     } catch (e) {
       return null;
     }

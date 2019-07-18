@@ -1,8 +1,11 @@
+import { isUndefined } from 'util';
+import { isNull } from './is-null';
+
 /**
  * Converts the provided data to primitive data type.
  */
 export function normalize(data: any) {
-  if (typeof data === 'undefined') {
+  if (isUndefined(data) || isNull(data)) {
     return data;
   }
   try {

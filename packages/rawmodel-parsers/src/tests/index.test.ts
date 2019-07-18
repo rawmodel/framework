@@ -6,6 +6,7 @@ const spec = new Spec();
 spec.test('exposed content', (ctx) => {
   ctx.true(!!parsers.arrayParser);
   ctx.true(!!parsers.booleanParser);
+  ctx.true(!!parsers.bsonObjectIdStringParser);
   ctx.true(!!parsers.dateParser);
   ctx.true(!!parsers.floatParser);
   ctx.true(!!parsers.integerParser);
