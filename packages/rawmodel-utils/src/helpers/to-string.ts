@@ -9,15 +9,16 @@ import { isInfinite } from './is-infinite';
  * @param v Arbitrary value.
  */
 export function toString(v?: any) {
-  if (isString(v)) {
+  if (isUndefined(v) || isNull(v)) {
     return v;
   }
-  else if (isUndefined(v) || isNull(v)) {
+  else if (isString(v)) {
     return v;
   }
   else if (isNumber(v) && (isNaN(v) || isInfinite(v))) {
     return null;
-  } else {
+  }
+  else {
     return JSON.stringify(v);
   }
 }
