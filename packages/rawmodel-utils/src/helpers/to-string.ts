@@ -9,10 +9,7 @@ import { isInfinite } from './is-infinite';
  * @param v Arbitrary value.
  */
 export function toString(v?: any) {
-  if (isUndefined(v) || isNull(v)) {
-    return v;
-  }
-  else if (isString(v)) {
+  if (isString(v) || isUndefined(v) || isNull(v)) {
     return v;
   }
   else if (isNumber(v) && (isNaN(v) || isInfinite(v))) {

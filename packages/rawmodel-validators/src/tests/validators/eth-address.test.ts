@@ -12,6 +12,11 @@ spec.test('fails on invalid address', (ctx) => {
   ctx.false(ethAddressValidator()('0x0'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(ethAddressValidator()(undefined));
+  ctx.true(ethAddressValidator()(null));
+});
+
 spec.test('passes on valid address', (ctx) => {
   ctx.true(ethAddressValidator()('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed'));
   ctx.true(ethAddressValidator()('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359'));

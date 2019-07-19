@@ -1,4 +1,6 @@
 import { isNumber } from '@rawmodel/utils';
+import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
+import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 
 /**
  * Returns a function for detecting number size.
@@ -11,7 +13,10 @@ export function numberSizeValidator(options: {
 } = {}) {
   return (value?: any) => {
 
-    if (!isNumber(value)) {
+    if (isUndefined(value) || isNull(value)) {
+      return true;
+    }
+    else if (!isNumber(value)) {
       return false;
     }
 

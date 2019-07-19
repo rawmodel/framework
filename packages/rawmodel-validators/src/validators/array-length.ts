@@ -1,5 +1,7 @@
 import { isArray } from '@rawmodel/utils/dist/helpers/is-array';
 import { isNumber } from '@rawmodel/utils/dist/helpers/is-number';
+import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
+import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 
 /**
  * Returns a function for detecting array size.
@@ -12,7 +14,10 @@ export function arrayLengthValidator(options: {
 } = {}) {
   return (value?: any) => {
 
-    if (!isArray(value)) {
+    if (isUndefined(value) || isNull(value)) {
+      return true;
+    }
+    else if (!isArray(value)) {
       return false;
     }
 

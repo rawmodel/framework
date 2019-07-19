@@ -15,6 +15,11 @@ spec.test('fails when invalid iso8601', (ctx) => {
   ctx.false(dateValidator({ iso: true })('12.12.2016'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(dateValidator()(undefined));
+  ctx.true(dateValidator()(null));
+});
+
 spec.test('passes when valid', (ctx) => {
   ctx.true(dateValidator()('2009'));
 });

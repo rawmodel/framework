@@ -15,6 +15,11 @@ spec.test('fails when too long', (ctx) => {
   ctx.false(stringLengthValidator({ max: 2 })('hello'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(stringLengthValidator()(undefined));
+  ctx.true(stringLengthValidator()(null));
+});
+
 spec.test('passes without options', (ctx) => {
   ctx.true(stringLengthValidator()('hello'));
 });

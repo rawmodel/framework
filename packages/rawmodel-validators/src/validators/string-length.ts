@@ -1,5 +1,7 @@
 import { isString } from '@rawmodel/utils/dist/helpers/is-string';
 import { isNumber } from '@rawmodel/utils/dist/helpers/is-number';
+import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
+import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 
 /**
  * Returns a function for detecting string length.
@@ -13,7 +15,12 @@ export function stringLengthValidator(recipe: {
 } = {}) {
   return (value?: any) => {
 
-    if (!isString(value)) return false;
+    if (isUndefined(value) || isNull(value)) {
+      return true;
+    }
+    else if (!isString(value)) {
+      return false;
+    }
 
     const { bytes = false, min, minOrEqual, max, maxOrEqual } = recipe;
     const len = bytes
@@ -23,16 +30,15 @@ export function stringLengthValidator(recipe: {
     if (isNumber(min) && !(len > min)) {
       return false;
     }
-    if (isNumber(minOrEqual) && !(len >= minOrEqual)) {
+    else if (isNumber(minOrEqual) && !(len >= minOrEqual)) {
       return false;
     }
-    if (isNumber(max) && !(len < max)) {
+    else if (isNumber(max) && !(len < max)) {
       return false;
     }
-    if (isNumber(maxOrEqual) && !(len <= maxOrEqual)) {
+    else if (isNumber(maxOrEqual) && !(len <= maxOrEqual)) {
       return false;
     }
-
     return true;
   };
 }

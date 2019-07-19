@@ -1,6 +1,8 @@
 import { isString } from '@rawmodel/utils/dist/helpers/is-string';
 import { fqdnValidator } from './fqdn';
 import { stringLengthValidator } from './string-length';
+import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
+import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 
 const DISPLAY_NAME_REGEX = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~\.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF\s]*<(.+)>$/i;
 const EMAIL_USER_REGEX = /^[a-z\d!#\$%&'\*\+\-\/=\?\^_`{\|}~]+$/i;
@@ -18,7 +20,10 @@ export function emailValidator(recipe: {
 } = {}) {
   return (value?: any) => {
 
-    if (!isString(value)) {
+    if (isUndefined(value) || isNull(value)) {
+      return true;
+    }
+    else if (!isString(value)) {
       return false;
     }
 
