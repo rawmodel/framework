@@ -8,7 +8,7 @@ spec.test('fails when null', (ctx) => {
 });
 
 spec.test('fails when undefined', (ctx) => {
-  ctx.false(presenceValidator()());
+  ctx.false(presenceValidator()(undefined));
 });
 
 spec.test('fails when blank', (ctx) => {

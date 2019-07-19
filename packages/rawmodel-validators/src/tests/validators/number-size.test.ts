@@ -15,6 +15,11 @@ spec.test('fails when too large', (ctx) => {
   ctx.false(numberSizeValidator({ max: 20 })(100));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(numberSizeValidator()(undefined));
+  ctx.true(numberSizeValidator()(null));
+});
+
 spec.test('passes without options', (ctx) => {
   ctx.true(numberSizeValidator()(100));
 });

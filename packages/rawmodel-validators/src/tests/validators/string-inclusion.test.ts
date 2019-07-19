@@ -11,6 +11,11 @@ spec.test('fails when not containing the provided seed', (ctx) => {
   ctx.false(stringInclusionValidator({ seed: 'black' })('my fake2 description'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(stringInclusionValidator()(undefined));
+  ctx.true(stringInclusionValidator()(null));
+});
+
 spec.test('passes when containing the provided seed', (ctx) => {
   ctx.true(stringInclusionValidator({ seed: 'fake' })('my fake description'));
 });

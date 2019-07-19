@@ -11,6 +11,11 @@ spec.test('fails when invalid', (ctx) => {
   ctx.false(hexValidator()('abcdefg'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(hexValidator()(undefined));
+  ctx.true(hexValidator()(null));
+});
+
 spec.test('passes when valid', (ctx) => {
   ctx.true(hexValidator()('ff0044'));
 });

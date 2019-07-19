@@ -1,4 +1,6 @@
 import { isString } from '@rawmodel/utils/dist/helpers/is-string';
+import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
+import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 
 /**
  * Returns a function for detecting domain names.
@@ -12,7 +14,10 @@ export function fqdnValidator(options: {
 
 		const { requireTld = true, allowUnderscores = false, allowTrailingDot = false } = options;
 
-		if (!isString(value)) {
+		if (isUndefined(value) || isNull(value)) {
+			return true;
+		}
+		else if (!isString(value)) {
 			return false;
 		}
 

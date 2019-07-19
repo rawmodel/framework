@@ -1,4 +1,6 @@
 import { isString } from '@rawmodel/utils/dist/helpers/is-string';
+import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
+import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 
 /**
  * Returns a function for detecting JSON strings.
@@ -6,7 +8,10 @@ import { isString } from '@rawmodel/utils/dist/helpers/is-string';
 export function jsonStringValidator() {
   return (value?: any) => {
 
-    if (!isString(value)) {
+    if (isUndefined(value) || isNull(value)) {
+      return true;
+    }
+    else if (!isString(value)) {
       return false;
     }
 

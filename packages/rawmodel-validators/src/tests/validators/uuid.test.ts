@@ -7,6 +7,11 @@ spec.test('fails when not a string', (ctx) => {
   ctx.false(uuidValidator()(true));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(uuidValidator()(undefined));
+  ctx.true(uuidValidator()(null));
+});
+
 spec.test('passes for valid v1', (ctx) => {
   ctx.true(uuidValidator({ version: 1 })('857b3f0a-a777-11e5-bf7f-feff819cdc9f'));
   ctx.true(uuidValidator({ version: 1 })('857b4504-a777-11e5-bf7f-feff819cdc9f'));

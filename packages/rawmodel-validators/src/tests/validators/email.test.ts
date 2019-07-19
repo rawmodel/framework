@@ -28,6 +28,11 @@ spec.test('fails without top-level domain name', (ctx) => {
   ctx.false(emailValidator({ requireTld: true })('john@domain'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(emailValidator()(undefined));
+  ctx.true(emailValidator()(null));
+});
+
 spec.test('passes with display name when allowDisplayName is true', (ctx) => {
   ctx.true(emailValidator({ allowDisplayName: true })('John <john@domain.com>'));
   ctx.false(emailValidator({ allowDisplayName: false })('John <john@domain.com>'));

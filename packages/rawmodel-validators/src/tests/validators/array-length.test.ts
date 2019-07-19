@@ -15,6 +15,11 @@ spec.test('fails when too large', (ctx) => {
   ctx.false(arrayLengthValidator({ max: 2 })([1, 2, 3]));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(arrayLengthValidator()(undefined));
+  ctx.true(arrayLengthValidator()(null));
+});
+
 spec.test('passes without options', (ctx) => {
   ctx.true(arrayLengthValidator()([1, 2, 3]));
 });

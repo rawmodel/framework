@@ -915,6 +915,8 @@ const recipe = {
 
 ### Available Validators
 
+Please note that the validators do not trigger if no value is present (on `undefined` or `null`). Make sure your custom validators follow the same concept. The exception are validators which verify value presence or absence.
+
 **absenceValidator()**: Function
 
 > Validates that the specified property is blank.

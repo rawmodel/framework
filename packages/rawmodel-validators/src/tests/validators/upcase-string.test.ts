@@ -11,6 +11,11 @@ spec.test('fails when invalid', (ctx) => {
   ctx.false(upcaseStringValidator()('Hello'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(upcaseStringValidator()(undefined));
+  ctx.true(upcaseStringValidator()(null));
+});
+
 spec.test('passes when valid', (ctx) => {
   ctx.true(upcaseStringValidator()('HELLO'));
 });

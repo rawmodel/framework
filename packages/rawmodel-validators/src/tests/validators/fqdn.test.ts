@@ -19,6 +19,11 @@ spec.test('fails when including trailing dot', (ctx) => {
   ctx.false(fqdnValidator()('domain.com.'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(fqdnValidator()(undefined));
+  ctx.true(fqdnValidator()(null));
+});
+
 spec.test('passes with top-level domain name', (ctx) => {
   ctx.true(fqdnValidator()('domain.com'));
 });

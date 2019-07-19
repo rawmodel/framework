@@ -11,6 +11,11 @@ spec.test('fails when invalid', (ctx) => {
   ctx.false(hexColorValidator()('#ff'));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(hexColorValidator()(undefined));
+  ctx.true(hexColorValidator()(null));
+});
+
 spec.test('passes when valid', (ctx) => {
   ctx.true(hexColorValidator()('#ff0034'));
 });

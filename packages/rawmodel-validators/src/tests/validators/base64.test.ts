@@ -19,6 +19,11 @@ spec.test('fails when invalid', (ctx) => {
   ctx.false(base64Validator()('Zm9vYmFy===='));
 });
 
+spec.test('passes when value not present', (ctx) => {
+  ctx.true(base64Validator()(undefined));
+  ctx.true(base64Validator()(null));
+});
+
 spec.test('passes when valid', (ctx) => {
   ctx.true(base64Validator()('Zg=='));
   ctx.true(base64Validator()('Zm8='));
