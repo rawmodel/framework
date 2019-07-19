@@ -9,10 +9,7 @@ import { toBoolean } from './to-boolean';
  * @param v Arbitrary value.
  */
 export function toInteger(v?: any) {
-  if (isInteger(v)) {
-    return v;
-  }
-  else if (isUndefined(v) || isNull(v)) {
+  if (isInteger(v) || isUndefined(v) || isNull(v)) {
     return v;
   }
   else if (isFloat(v)) {
