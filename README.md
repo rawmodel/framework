@@ -127,7 +127,7 @@ The `defaultValue` can also be a method which returns a dynamic value. This func
 @prop({
   defaultValue() { return new Date() },
 })
-now: string;
+public now: string;
 ```
 
 ### Prop Fake Value
@@ -140,7 +140,7 @@ The `fakeValue` can also be a method which returns a dynamic value. This functio
 @prop({
   fakeValue() { return new Date() },
 })
-today: string;
+public today: string;
 ```
 
 ### Prop Empty Value
@@ -153,7 +153,7 @@ The `emptyValue` can also be a method which returns a dynamic value. This functi
 @prop({
   emptyValue() { return '' },
 })
-name: string;
+public name: string;
 ```
 
 ### Prop Value Transformation
@@ -165,7 +165,7 @@ A property can have a custom `getter` and a custom `setter`. This function share
   get(value) { return value },
   set(value) { return value },
 })
-name: string;
+public name: string;
 ```
 
 ### Value Assignments
