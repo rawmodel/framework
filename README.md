@@ -32,7 +32,7 @@ import { Model, prop } from '@rawmodel/core';
 // defining a basic model
 class User extends Model {
   @prop()
-  name: string;
+  public name: string;
 }
 
 // usage example
@@ -55,7 +55,7 @@ import { Model, prop } from '@rawmodel/core';
 
 class User extends Model {
   @prop()
-  name: string;
+  public name: string;
 }
 
 const user = new User();
@@ -77,7 +77,7 @@ class User extends Model {
       resolver: stringParser(),
     },
   })
-  name: string;
+  public name: string;
 }
 ```
 
@@ -92,12 +92,12 @@ import { Model, ParserKind, prop } from '@rawmodel/core';
 
 class Address extends Model {
   @prop()
-  country: string;
+  public country: string;
 }
 
 class Friend extends Model {
   @prop()
-  name: string;
+  public name: string;
 }
 
 class User extends Model {
@@ -106,14 +106,14 @@ class User extends Model {
       resolver: Address,
     },
   })
-  address: Address;
+  public address: Address;
   @prop({
     parse: {
       array: true,
       resolver: Friend,
     },
   })
-  friends: Friend[];
+  public friends: Friend[];
 }
 ```
 
@@ -186,11 +186,11 @@ class User extends Model {
   @prop({
     populatable: ['internal'], // list population strategy names
   })
-  id: string;
+  public id: string;
   @prop({
     populatable: ['input', 'internal'], // list population strategy names
   })
-  name: string;
+  public name: string;
 }
 
 const data = {
@@ -220,11 +220,11 @@ class User extends Model {
   @prop({
     serializable: ['output'], // list serialization strategy names
   })
-  id: string;
+  public id: string;
   @prop({
     serializable: ['input', 'output'], // list serialization strategy names
   })
-  name: string;
+  public name: string;
 }
 
 const user = new User({
@@ -251,7 +251,7 @@ RawModel tracks changes for all properties and provides a mechanism for committi
 ```ts
 class User extends Model {
   @prop()
-  name: string;
+  public name: string;
 }
 
 const user = new User();
@@ -279,7 +279,7 @@ class User extends Model {
       },
     ],
   })
-  name: string;
+  public name: string;
 }
 
 const user = new User();
@@ -302,7 +302,7 @@ class User extends Model {
       },
     ],
   })
-  name: string;
+  public name: string;
 }
 
 const error = new Error();
@@ -451,7 +451,7 @@ class User extends Model {
     serializable: ['input', 'output'], // [optional] serialization strategies
     enumerable: true, // [optional] when set to `false` the property is not enumerable (ignored by `Object.keys()`)
   })
-  name: string; // [required] typescript property definition
+  public name: string; // [required] typescript property definition
 }
 ```
 
@@ -570,7 +570,7 @@ user.flatten(); // -> [{ path, prop, value }, ...]
 
 ```ts
 try {
-  await model.validate(e); // imagine it throws an error
+  await model.validate(); // imagine it throws an error
 } catch (e) {
   await model.handle(e);
 }
