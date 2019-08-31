@@ -28,7 +28,7 @@ spec.test('tell if model has no errors', async (ctx) => {
   ctx.true(user0.isValid());
   ctx.true(user1.isValid());
   user0.applyErrors([
-    { path: ['books', 1, 'title'], errors: [100]},
+    { path: ['books', 1, 'title'], code: 100},
   ]);
   ctx.false(user0.isValid());
 });

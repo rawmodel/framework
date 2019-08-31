@@ -25,14 +25,14 @@ spec.test('clears property errors', async (ctx) => {
     books: [null, {}]
   });
   user.applyErrors([
-    { path: ['name'], errors: [100] },
-    { path: ['book', 'title'], errors: [200] },
-    { path: ['books', 1, 'title'], errors: [300] },
+    { path: ['name'], code: 100 },
+    { path: ['book', 'title'], code: 200 },
+    { path: ['books', 1, 'title'], code: 300 },
   ]);
   user.invalidate();
-  ctx.deepEqual(user.getProp('name').getErrorCodes(), []);
-  ctx.deepEqual(user.getProp('book', 'title').getErrorCodes(), []);
-  ctx.deepEqual(user.getProp('books', 1, 'title').getErrorCodes(), []);
+  ctx.deepEqual(user.getProp('name').getErrorCode(), null);
+  ctx.deepEqual(user.getProp('book', 'title').getErrorCode(), null);
+  ctx.deepEqual(user.getProp('books', 1, 'title').getErrorCode(), null);
 });
 
 export default spec;

@@ -5,9 +5,9 @@ const spec = new Spec();
 
 spec.test('clears property errors', (ctx) => {
   const prop = new Prop();
-  prop.setErrorCodes(100, 200, 300);
+  prop.setErrorCode(100);
   prop.invalidate();
-  ctx.deepEqual(prop.getErrorCodes(), []);
+  ctx.deepEqual(prop.getErrorCode(), null);
 });
 
 export default spec;

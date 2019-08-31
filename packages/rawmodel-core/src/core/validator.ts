@@ -7,8 +7,7 @@ import { ValidatorConfig, ValidatorRecipe } from './types';
  * @param recipe Handler recipes.
  * @param config Handler configuration.
  */
-export async function validate(value: any, recipes: ValidatorRecipe[] = [], config: ValidatorConfig = {}): Promise<number[]> {
-  const codes = [];
+export async function validate(value: any, recipes: ValidatorRecipe[] = [], config: ValidatorConfig = {}): Promise<number> {
 
   for (const recipe of recipes) {
 
@@ -19,10 +18,9 @@ export async function validate(value: any, recipes: ValidatorRecipe[] = [], conf
     ).then((r) => r.indexOf(false) === -1);
 
     if (!isValid) {
-      codes.push(recipe.code);
-      break;
+      return recipe.code;
     }
   }
 
-  return codes;
+  return null;
 }

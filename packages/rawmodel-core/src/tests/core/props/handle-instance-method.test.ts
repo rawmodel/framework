@@ -11,7 +11,7 @@ spec.test('handles property errors and populates error codes', async (ctx) => {
     ],
   });
   await prop.handle('foo');
-  ctx.deepEqual(prop.getErrorCodes(), [400]);
+  ctx.deepEqual(prop.getErrorCode(), 400);
 });
 
 export default spec;

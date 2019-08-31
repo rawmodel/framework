@@ -179,7 +179,7 @@ spec.test('supports property validators', async (ctx) => {
   });
   await ctx.throws(() => model.validate());
   ctx.deepEqual(model.collectErrors(), [
-    { path: ['firstName'], errors: [400] },
+    { path: ['firstName'], code: 400 },
   ]);
 });
 
@@ -203,7 +203,7 @@ spec.test('supports property handlers', async (ctx) => {
   const model = new Klass();
   await ctx.throws(() => model.handle(new Error(), { quiet: false }));
   ctx.deepEqual(model.collectErrors(), [
-    { path: ['firstName'], errors: [400] },
+    { path: ['firstName'], code: 400 },
   ]);
 });
 

@@ -9,8 +9,8 @@ spec.test('handles an error and returns error codes', async (ctx) => {
     { code: 201, resolver(e) { return e.message === 'bar'; } },
   ];
   const error = new Error('foo');
-  const codes = await handle(error, recipes);
-  ctx.deepEqual(codes, [200]);
+  const code = await handle(error, recipes);
+  ctx.deepEqual(code, 200);
 });
 
 spec.test('passes context to each resolver', async (ctx) => {
@@ -20,8 +20,8 @@ spec.test('passes context to each resolver', async (ctx) => {
   const recipes = [
     { code: 100, resolver(v) { return v === this.foo; } },
   ];
-  const codes = await handle('foo', recipes, config);
-  ctx.deepEqual(codes, [100]);
+  const code = await handle('foo', recipes, config);
+  ctx.deepEqual(code, 100);
 });
 
 export default spec;
