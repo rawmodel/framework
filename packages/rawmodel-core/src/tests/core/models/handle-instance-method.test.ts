@@ -53,7 +53,7 @@ spec.test('handles property errors', async (ctx) => {
   });
   const problem0 = new Error();
   const problem1 = new Error('foo');
-  const errors = [100];
+  const code = 100;
   await user.handle(problem0);
   ctx.true(user.isValid());
   await user.handle(problem1);
@@ -61,11 +61,11 @@ spec.test('handles property errors', async (ctx) => {
   ctx.throws(() => user.handle(problem0, { quiet: false }));
   ctx.throws(() => user.handle(problem1, { quiet: false }));
   ctx.deepEqual(user.collectErrors(), [
-    { path: ['name'], errors },
-    { path: ['book0'], errors },
-    { path: ['books0'], errors },
-    { path: ['book1', 'title'], errors },
-    { path: ['books1', 0, 'title'], errors },
+    { path: ['name'], code },
+    { path: ['book0'], code },
+    { path: ['books0'], code },
+    { path: ['book1', 'title'], code },
+    { path: ['books1', 0, 'title'], code },
   ]);
 });
 

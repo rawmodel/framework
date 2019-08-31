@@ -1,6 +1,6 @@
 import { Prop } from './props';
 import { normalize, isDeepEqual, isArray, isUndefined, toArray, realize,
-  isObject, isInteger } from '@rawmodel/utils';
+  isObject, isInteger, isNumber } from '@rawmodel/utils';
 import { ModelConfig, PropConfig, PropItem, PropError, PropPath } from './types';
 
 /**
@@ -345,7 +345,7 @@ export class Model<Context = any> {
     toArray(errors).forEach((error) => {
       const prop = this.getProp(...error.path);
       if (prop) {
-        prop.setErrorCodes(...error.errors);
+        prop.setErrorCode(error.code);
       }
     });
 
@@ -357,8 +357,8 @@ export class Model<Context = any> {
    */
   public collectErrors(): PropError[] {
     return this.flatten()
-      .map(({ path, prop }) => ({ path, errors: prop.getErrorCodes() }))
-      .filter(({ errors }) => errors.length > 0);
+      .map(({ path, prop }) => ({ path, code: prop.getErrorCode() }))
+      .filter(({ code }) => isNumber(code));
   }
 
   /**

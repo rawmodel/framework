@@ -10,8 +10,8 @@ spec.test('validates a value and returns error codes', async (ctx) => {
     { code: 400, resolver: (v) => v === 'bar' },
     { code: 401, resolver: (v) => v === 'bar' },
   ];
-  const codes = await validate('foo', recipes);
-  ctx.deepEqual(codes, [400]);
+  const code = await validate('foo', recipes);
+  ctx.deepEqual(code, 400);
 });
 
 spec.test('passes context to each resolver', async (ctx) => {
@@ -21,8 +21,8 @@ spec.test('passes context to each resolver', async (ctx) => {
   const recipes = [
     { code: 100, resolver(v) { return v === this.foo; } },
   ];
-  const codes = await validate('foo', recipes, config);
-  ctx.deepEqual(codes, []);
+  const code = await validate('foo', recipes, config);
+  ctx.deepEqual(code, null);
 });
 
 export default spec;

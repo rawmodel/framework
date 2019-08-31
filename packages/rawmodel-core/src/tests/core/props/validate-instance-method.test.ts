@@ -11,7 +11,7 @@ spec.test('validates property and populates error codes', async (ctx) => {
     ],
   });
   await prop.validate();
-  ctx.deepEqual(prop.getErrorCodes(), [401]);
+  ctx.deepEqual(prop.getErrorCode(), 401);
 });
 
 export default spec;

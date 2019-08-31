@@ -284,7 +284,7 @@ class User extends Model {
 
 const user = new User();
 user.validate().catch((err) => {
-  user.collectErrors(); // -> [{ path: ['name'], errors: [422] }]
+  user.collectErrors(); // -> [{ path: ['name'], code: 422 }]
 });
 ```
 
@@ -308,7 +308,7 @@ class User extends Model {
 const error = new Error();
 const user = new User();
 user.handle(error).then(() => {
-  user.collectErrors(); // -> [{ path: ['name'], errors: [31000] }]
+  user.collectErrors(); // -> [{ path: ['name'], code: 31000 }]
 });
 ```
 
@@ -488,13 +488,13 @@ class User extends Model {
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | errors.$.path | Array | Yes | - | Property path array.
-| errors.$.errors | Integer[] | Yes | - | Error codes.
+| errors.$.code | Integer | Yes | - | Error code.
 
 ```ts
 model.applyErrors([
   {
     path: ['books', 1, 'title'], // property path
-    errors: [422, 500], // error codes
+    code: 422, // error code
   },
 ]);
 ```
@@ -509,10 +509,10 @@ model.applyErrors([
 
 **Model.prototype.collectErrors()**: Array
 
-> Returns a list of errors for all the properties ({path, errors}[]).
+> Returns a list of errors for all the properties ({path, code}[]).
 
 ```ts
-model.collectErrors(); // => { path: ['name'], errors: [300,400] }
+model.collectErrors(); // => { path: ['name'], code: 300 }
 ```
 
 **Model.prototype.commit()**: Model
@@ -688,9 +688,9 @@ This class is provided by the `@rawmodel/core` package.
 
 > Makes property not settable.
 
-**Prop.prototype.getErrorCodes()**: Number[]
+**Prop.prototype.getErrorCode()**: Number
 
-> List of property error codes (sets the `validate` method).
+> Returns property error code (sets the `validate` method).
 
 **Prop.prototype.getInitialValue()**: Any
 
@@ -706,7 +706,7 @@ This class is provided by the `@rawmodel/core` package.
 
 **Prop.prototype.handle(error)**: Promise(Prop)
 
-> Validates the `value` and populates the `errors` property with errors.
+> Handles the `error` and populates the property with error.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -754,7 +754,7 @@ This class is provided by the `@rawmodel/core` package.
 
 **Prop.prototype.invalidate()**: Prop
 
-> Clears the `errors` property on all properties (the reverse of `validate()`).
+> Clears the property error (the reverse of `validate()`).
 
 **Prop.prototype.reset()**: Prop
 
@@ -782,7 +782,7 @@ This class is provided by the `@rawmodel/core` package.
 
 **Prop.prototype.validate()**: Promise(Prop)
 
-> Validates the `value` and populates the `errors` property with errors.
+> Validates the `value` and populates the property with error.
 
 ### Schema Utils
 

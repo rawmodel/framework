@@ -19,7 +19,7 @@ export type PropPath = (string | number)[];
  */
 export interface PropError {
   path: PropPath;
-  errors: number[];
+  code: number;
 }
 
 /**

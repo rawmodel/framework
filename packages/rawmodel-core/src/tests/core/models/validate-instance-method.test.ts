@@ -44,15 +44,15 @@ spec.test('validates properties or throws on error', async (ctx) => {
     book1: {},
     books1: [{}]
   });
-  const errors = [200];
+  const code = 200;
   await user.validate({ quiet: true });
   ctx.is(await user.validate().catch(() => false), false);
   ctx.deepEqual(user.collectErrors(), [
-    { path: ['name'], errors },
-    { path: ['book0'], errors },
-    { path: ['books0'], errors },
-    { path: ['book1', 'title'], errors },
-    { path: ['books1', 0, 'title'], errors },
+    { path: ['name'], code },
+    { path: ['book0'], code },
+    { path: ['books0'], code },
+    { path: ['book1', 'title'], code },
+    { path: ['books1', 0, 'title'], code },
   ]);
 });
 
@@ -85,7 +85,7 @@ spec.test('validates polymorphic arrays', async (ctx) => {
   });
   ctx.is(await user.validate().catch(() => false), false);
   ctx.deepEqual(user.collectErrors(), [
-    { path: ['books', 1, 'title'], errors: [100] },
+    { path: ['books', 1, 'title'], code: 100 },
   ]);
 });
 

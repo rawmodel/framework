@@ -24,13 +24,13 @@ spec.test('returns an array of errors', (ctx) => {
     book: {},
     books: [{}]
   });
-  user.getProp('name').setErrorCodes(100);
-  user.getProp('book', 'title').setErrorCodes(200, 300);
-  user.getProp('books', 0, 'title').setErrorCodes(400);
+  user.getProp('name').setErrorCode(100);
+  user.getProp('book', 'title').setErrorCode(200);
+  user.getProp('books', 0, 'title').setErrorCode(400);
   ctx.deepEqual(user.collectErrors(), [
-    { path: ['name'], errors: [100] },
-    { path: ['book', 'title'], errors: [200, 300] },
-    { path: ['books', 0, 'title'], errors: [400] },
+    { path: ['name'], code: 100 },
+    { path: ['book', 'title'], code: 200 },
+    { path: ['books', 0, 'title'], code: 400 },
   ]);
 });
 

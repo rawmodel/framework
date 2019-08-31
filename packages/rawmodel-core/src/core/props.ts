@@ -1,5 +1,5 @@
 import { normalize, realize, isDeepEqual, isUndefined, isPresent, toArray,
-  isInstanceOf, isValue, isClassOf } from '@rawmodel/utils';
+  isInstanceOf, isValue, isClassOf, isNumber } from '@rawmodel/utils';
 import { Model } from './models';
 import { PropConfig } from './types';
 import { parse } from './parser';
@@ -33,7 +33,7 @@ export function prop(config?: PropConfig) {
 export class Prop {
   protected rawValue: any | (() => any);
   protected initialValue: any | (() => any);
-  protected errorCodes: number[] = [];
+  protected errorCode: number = null;
   protected frozen: boolean = false;
   readonly $config: PropConfig;
 
@@ -102,17 +102,17 @@ export class Prop {
   }
 
   /**
-   * Sets local error codes.
+   * Sets local error code.
    */
-  public setErrorCodes(...codes: number[]) {
-    this.errorCodes = codes;
+  public setErrorCode(code: number) {
+    this.errorCode = code;
   }
 
   /**
    * Gets local error codes.
    */
-  public getErrorCodes() {
-    return this.errorCodes;
+  public getErrorCode() {
+    return this.errorCode;
   }
 
   /**
@@ -205,7 +205,7 @@ export class Prop {
    * Returns `true` when the value and possible nested models have no errors.
    */
   public isValid(): boolean {
-    if (this.getErrorCodes().length > 0) {
+    if (isNumber(this.errorCode)) {
       return false;
     }
     return !(toArray(this.rawValue) || []) // nested models
@@ -355,7 +355,7 @@ export class Prop {
    */
   public async validate(): Promise<this> {
 
-    this.errorCodes = await validate(
+    this.errorCode = await validate(
       this.getValue(),
       this.$config.validate,
       {
@@ -377,7 +377,7 @@ export class Prop {
    */
   public async handle(error: any): Promise<this> {
 
-    this.errorCodes = await handle(
+    this.errorCode = await handle(
       error,
       this.$config.handle,
       {
@@ -402,7 +402,7 @@ export class Prop {
       .filter((doc) => isInstanceOf(doc, Model))
       .forEach((doc) => doc.invalidate());
 
-    this.errorCodes = [];
+    this.errorCode = null;
 
     return this;
   }
