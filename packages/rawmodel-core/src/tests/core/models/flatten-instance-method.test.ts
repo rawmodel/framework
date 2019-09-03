@@ -66,4 +66,26 @@ spec.test('supports serialization strategies', (ctx) => {
   ctx.is(items.length, 1);
 });
 
+spec.test('supports JSON types', (ctx) => {
+  class User extends Model {
+    @prop()
+    name: string;
+    @prop()
+    json: any;
+  }
+  const user = new User({
+    name: 'foo',
+    json: { foo: 'foo' },
+  });
+  const items = user.flatten().map(({ path, prop }) => {
+    return { path, prop: !!prop };
+  });
+
+  ctx.deepEqual(items, [
+    { path: ['name'], prop: true },
+    { path: ['json'], prop: true },
+    { path: ['json', 'foo'], prop: false },
+  ]);
+});
+
 export default spec;

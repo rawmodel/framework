@@ -34,4 +34,29 @@ spec.test('returns an array of errors', (ctx) => {
   ]);
 });
 
+spec.test('supports JSON types', (ctx) => {
+  class User extends Model {
+    @prop()
+    name: string;
+    @prop()
+    json0: any;
+    @prop()
+    json1: any;
+    @prop()
+    json2: any;
+  }
+  const user = new User({
+    name: 'foo',
+    json0: { foo: 'foo' },
+    json1: {},
+  });
+  user.getProp('name').setErrorCode(100);
+  user.getProp('json0').setErrorCode(200);
+
+  ctx.deepEqual(user.collectErrors(), [
+    { path: ['name'], code: 100 },
+    { path: ['json0'], code: 200 },
+  ]);
+});
+
 export default spec;
