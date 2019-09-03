@@ -357,7 +357,7 @@ export class Model<Context = any> {
    */
   public collectErrors(): PropError[] {
     return this.flatten()
-      .map(({ path, prop }) => ({ path, code: prop.getErrorCode() }))
+      .map(({ path, prop }) => ({ path, code: prop ? prop.getErrorCode() : null }))
       .filter(({ code }) => isNumber(code));
   }
 
