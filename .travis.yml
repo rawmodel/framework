@@ -1,6 +1,7 @@
 ---
 language: node_js
 node_js:
+  - 12
   - 11
 script:
   # use latest npm to work on node9
