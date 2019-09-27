@@ -52,9 +52,8 @@ export interface PropConfig {
 /**
  * Model property class configuration object.
  */
-export interface PropDefinition {
+export interface PropDefinition extends PropConfig {
   name: string;
-  prop?: PropConfig;
 }
 
 /**
