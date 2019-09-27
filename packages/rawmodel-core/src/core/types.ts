@@ -50,6 +50,14 @@ export interface PropConfig {
 }
 
 /**
+ * Model property class configuration object.
+ */
+export interface PropDefinition {
+  name: string;
+  prop?: PropConfig;
+}
+
+/**
  * Parser recipe interface.
  */
 export interface ParserRecipe {

@@ -8,7 +8,6 @@ import { SchemaRecipe } from './types';
  */
 export function createModelClass(recipe: SchemaRecipe): typeof Model {
   recipe = {
-    context: {},
     getters: {},
     setters: {},
     defaultValues: {},

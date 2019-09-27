@@ -409,9 +409,37 @@ graphql(schema, '{ hello }', root).then((response) => {
 
 ## API
 
-### Model Class
+### @rawmodel/core
 
-This class is provided by the `@rawmodel/core` package.
+**createModelClass(config)**
+
+> Create the Model class from a list of property definitions.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| config.$.name | String | Yes | - | Property name.
+| config.$.prop.set | Function | No | - | Custom setter.
+| config.$.prop.get | Function | No | - | Custom getter.
+| config.$.prop.parse | Parser | No | - | Data type parser (see supported types).
+| config.$.prop.defaultValue | Any | No | - | Prop default value.
+| config.$.prop.fakeValue | Any | No | - | Prop fake value.
+| config.$.prop.emptyValue | Any | No | - | Prop empty value.
+| config.$.prop.validate | Array | No | - | List of validator recipes.
+| config.$.prop.handle | Array | No | - | List of error handler recipes.
+| config.$.prop.populatable | String[] | No | - | List of strategies for populating the property value.
+| config.$.prop.serializable | String[] | No | - | List of strategies for serializing the property value.
+| config.$.prop.enumerable | Boolean | No | true | Indicates that the property is enumerable.
+
+```ts
+const Model = createModelClass([
+  {
+    name: 'name',
+    prop: {
+      defaultValue: 'John Smith',
+    },
+  },
+]);
+```
 
 **Model(data, config)**
 
@@ -645,10 +673,6 @@ try {
 }
 ```
 
-### Prop Class
-
-This class is provided by the `@rawmodel/core` package.
-
 **Prop(config)**
 
 > A model property.
@@ -784,9 +808,7 @@ This class is provided by the `@rawmodel/core` package.
 
 > Validates the `value` and populates the property with error.
 
-### Schema Utils
-
-This methods are provided by the `@rawmodel/schema` package.
+### @rawmodel/schema
 
 **createModelClass(recipe):Class**
 
@@ -794,7 +816,6 @@ This methods are provided by the `@rawmodel/schema` package.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| recipe.context | Any | No | - | Arbitrary context data.
 | recipe.getters | Object | No | - | Hash of getter functions which return a resolver.
 | recipe.setters | Object | No | - | Hash of setters functions which return a resolver.
 | recipe.defaultValues | Object | No | - | Hash of default value functions which return a resolver or static values.
@@ -826,7 +847,6 @@ This methods are provided by the `@rawmodel/schema` package.
 
 ```ts
 const Model = createModelClass({
-  context: {},
   getters: {
     customGetter(options: any) { // custom getter function which returns a resolver
       return function(v: any) { return v; } // context aware resolver
@@ -878,9 +898,9 @@ const Model = createModelClass({
 });
 ```
 
-### Available Parsers
+### @rawmodel/parsers
 
-Parsers are provided by the `@rawmodel/parsers` package. Note that every model can be used as a parser resolver.
+**NOTE:** Every model can be used as a parser `resolver`.
 
 **booleanParser()**: Function
 
@@ -913,7 +933,7 @@ const recipe = {
 
 > Converts a value to a string.
 
-### Available Validators
+### @rawmodel/validators
 
 Please note that the validators do not trigger if no value is present (on `undefined` or `null`). Make sure your custom validators follow the same concept. The exception are validators which verify value presence or absence.
 
@@ -1076,7 +1096,7 @@ const recipe = {
 |--------|------|----------|---------|------------
 | options.version | Integer | No | - | UUID version (1, 2, 3, 4 or 5).
 
-### Available Handlers
+### @rawmodel/handlers
 
 **mongoUniquenessHandler(options)**: Function
 
