@@ -1,6 +1,6 @@
 {
   "name": "@rawmodel/parsers",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "General data parsers for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -91,6 +91,6 @@
     "typescript": "^3.5.3"
   },
   "dependencies": {
-    "@rawmodel/utils": "3.0.0"
+    "@rawmodel/utils": "3.1.0"
   }
 }
