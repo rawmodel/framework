@@ -1,8 +1,13 @@
 # Change Log - @rawmodel/core
 
-This log was last generated on Fri, 12 Jul 2019 17:57:56 GMT and should not be manually modified.
+This log was last generated on Fri, 27 Sep 2019 22:48:59 GMT and should not be manually modified.
 
-## 2.4.0
+## 3.1.0
+Fri, 27 Sep 2019 22:48:59 GMT
+
+*Version update only*
+
+## 3.0.0
 Fri, 12 Jul 2019 17:57:56 GMT
 
 *Version update only*
