@@ -13,13 +13,13 @@ export interface SchemaRecipe {
   parsers?: { [name: string]: (o?: any) => ParserResolver };
   validators?: { [name: string]: (o?: any) => ValidatorResolver };
   handlers?: { [name: string]: (o?: any) => HandlerResolver };
-  props?: PropRecipe[];
+  props?: PropDefinition[];
 }
 
 /**
  * Schema property recipe.
  */
-export interface PropRecipe {
+export interface PropDefinition {
   name: string;
   set?: string;
   get?: string;

@@ -15,16 +15,14 @@ spec.test('generates model with properties', (ctx) => {
     },
     {
       name: 'book',
-      prop: {
-        parse: {
-          resolver: createModelClass([
-            {
-              name: 'title',
-            }
-          ]),
-        },
-      }
-    }
+      parse: {
+        resolver: createModelClass([
+          {
+            name: 'title',
+          }
+        ]),
+      },
+    },
   ]);
   const data = {
     name: 'foo',

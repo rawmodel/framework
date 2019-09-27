@@ -15,7 +15,7 @@ export function createModelClass(props: PropDefinition[]): typeof Model {
   });
 
   props.forEach((prop) => {
-    Klass.$props[prop.name] = { ...prop.prop };
+    Klass.$props[prop.name] = { ...prop };
   });
 
   return Klass;
