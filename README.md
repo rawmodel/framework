@@ -441,7 +441,7 @@ const Model = createModelClass([
 ]);
 ```
 
-**Model(data, config)**
+**Model<Context>(data, config)**
 
 > Abstract class which represents a strongly-typed JavaScript object.
 
@@ -570,6 +570,10 @@ user.flatten(); // -> [{ path, prop, value }, ...]
 **Model.prototype.freeze()**: Model
 
 > Makes each model property not settable.
+
+**Model.prototype.getContext()**: Context
+
+> Returns model context data.
 
 **Model.prototype.getParent()**: Model
 
