@@ -2,6 +2,12 @@
   "name": "@rawmodel/core",
   "entries": [
     {
+      "version": "3.2.1",
+      "tag": "@rawmodel/core_v3.2.1",
+      "date": "Sun, 29 Sep 2019 10:22:42 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.2.0",
       "tag": "@rawmodel/core_v3.2.0",
       "date": "Fri, 27 Sep 2019 23:06:25 GMT",

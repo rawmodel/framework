@@ -1127,7 +1127,7 @@ const recipe = { // make sure that this index name exists in your MongoDB collec
 | [@rawmodel/handlers](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-handlers) | Collection of error handlers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fhandlers.svg)](https://badge.fury.io/js/%40rawmodel%2Fhandlers)
 | [@rawmodel/parsers](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-parsers) | Collection of data parsers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fparsers.svg)](https://badge.fury.io/js/%40rawmodel%2Fparsers)
 | [@rawmodel/schema](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-schema) | JSON Schema utils. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fschema.svg)](https://badge.fury.io/js/%40rawmodel%2Fschema)
-| [@rawmodel/utils](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-utils) | Framework helpers. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Futils.svg)](https://badge.fury.io/js/%40rawmodel%2Futils)
+| [@rawmodel/utils](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-utils) | Helper functions. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Futils.svg)](https://badge.fury.io/js/%40rawmodel%2Futils)
 | [@rawmodel/validators](https://github.com/rawmodel/framework/tree/master/packages/rawmodel-validators) | Collection of validators. | [![NPM Version](https://badge.fury.io/js/@rawmodel%2Fvalidators.svg)](https://badge.fury.io/js/%40rawmodel%2Fvalidators)
 
 ## Contributing

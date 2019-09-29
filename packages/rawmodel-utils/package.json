@@ -1,7 +1,7 @@
 {
   "name": "@rawmodel/utils",
-  "version": "3.2.0",
-  "description": "Shared helpers for RawModel.",
+  "version": "3.2.1",
+  "description": "Helper functions for RawModel.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
