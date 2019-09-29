@@ -1,0 +1,3 @@
+> Helper functions for [Rawmodel](https://github.com/rawmodel/.
+
+[Rawmodel](https://github.com/rawmodel/framework) is a strongly-typed JavaScript object with support for validation and error handling. It's a lightweight open source framework for the **server** and **browser** (using module bundler), written with [TypeScript](https://www.typescriptlang.org). It's actively maintained, well tested and already used in production environments. The source code is available on [GitHub](https://github.com/rawmodel/framework) where you can also find our [issue tracker](https://github.com/rawmodel/framework/issues).
