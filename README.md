@@ -571,6 +571,10 @@ user.flatten(); // -> [{ path, prop, value }, ...]
 
 > Makes each model property not settable.
 
+**Model.prototype.getAncestors()**: Model[]
+
+> Returns a list of all parent model instances.
+
 **Model.prototype.getContext()**: Context
 
 > Returns model context data.
@@ -586,10 +590,6 @@ user.flatten(); // -> [{ path, prop, value }, ...]
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | keys | Array | Yes | - | Path to a property (e.g. `['book', 0, 'title']`).
-
-**Model.prototype.getRoot()**: Model
-
-> Returns the first model instance in a tree of models.
 
 **Model.prototype.handle(error, { quiet }): Promise(Model)**
 
