@@ -30,8 +30,8 @@ export function createModelClass(recipe: SchemaRecipe): typeof Model {
 
   (recipe.props || []).forEach((prop) => {
     const obj: any = {
-      set: undefined,
-      get: undefined,
+      setter: undefined,
+      getter: undefined,
       populatable: prop.populatable,
       serializable: prop.serializable,
       enumerable: prop.enumerable,

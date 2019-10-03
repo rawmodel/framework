@@ -143,8 +143,11 @@ export class Prop {
    */
   public isPopulatable(strategy?: string): boolean {
     return (
-      isUndefined(strategy)
-      || (this.$config.populatable || []).indexOf(strategy) !== -1
+      this.$config.enumerable !== false
+      && (
+        isUndefined(strategy)
+        || (this.$config.populatable || []).indexOf(strategy) !== -1
+      )
     );
   }
 
@@ -154,8 +157,11 @@ export class Prop {
    */
   public isSerializable(strategy?: string): boolean {
     return (
-      isUndefined(strategy)
-      || (this.$config.serializable || []).indexOf(strategy) !== -1
+      this.$config.enumerable !== false
+      && (
+        isUndefined(strategy)
+        || (this.$config.serializable || []).indexOf(strategy) !== -1
+      )
     );
   }
 

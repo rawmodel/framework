@@ -90,4 +90,37 @@ spec.test('deeply serializes property data using strategies', (ctx) => {
   });
 });
 
+spec.test('ignores not enumerable properties', (ctx) => {
+  class Book extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+  }
+  class User extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+    @prop({
+      parser: { resolver: Book },
+    })
+    book: Book;
+  }
+  const data = {
+    id: 100,
+    name: 'John',
+    book: { id: 200, name: 'Smith' },
+  };
+  const user = new User(data);
+  console.log(user.serialize());
+
+  ctx.deepEqual(user.serialize(), {
+    name: 'John',
+    book: {
+      name: 'Smith',
+    },
+  });
+});
+
 export default spec;

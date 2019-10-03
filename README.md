@@ -170,7 +170,7 @@ public name: string;
 
 ### Value Assignments
 
-Model's properties are like properties on a Javascript Object. We can easily assign a value to a property through its setter method (e.g. `model.name = 'value';`). Instead of assigning properties one by one, we can use the `populate()` method as shown below.
+Model's properties are like properties of a Javascript Object. We can easily assign a value to a property through its setter method (e.g. `model.name = 'value';`). Instead of assigning properties one by one, we can use the `populate()` method to assign values to multiple enumerable properties.
 
 ```ts
 model.populate({
@@ -213,7 +213,7 @@ It's encouraged to use the `populate()` method for assigning values unless you k
 
 ### Serialization & Filtering
 
-Model provides useful methods for object serialization and filtering. All properties are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude properties for different situations by using serialization strategies.
+Model provides useful methods for object serialization and filtering. All enumerable properties are serializable by default and are thus included in the result object returned by the `serialize()` method. We can customize the output and include or exclude properties for different situations by using serialization strategies.
 
 ```ts
 class User extends Model {
@@ -638,7 +638,7 @@ try {
 
 **Model.prototype.populate(data, strategy)**: Model
 
-> Applies data to a model.
+> Populates enumerable properties with data.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -655,7 +655,7 @@ try {
 
 **Model.prototype.serialize(strategy)**: Object
 
-> Converts a model into serialized data object.
+> Converts a model into serialized data object. The result will include only enumerable properties.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -794,7 +794,7 @@ try {
 
 **Prop.prototype.serialize(strategy)**
 
-> Returns a serialized property value.
+> Returns a serialized property value. Note that only enumerable properties are serializable.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------

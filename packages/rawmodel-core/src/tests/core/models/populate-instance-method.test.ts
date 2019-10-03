@@ -112,4 +112,33 @@ spec.test('deeply assignes property data using strategies', (ctx) => {
   ctx.is(user3.books[0], book); // preserves instance
 });
 
+spec.test('ignores not enumerable properties', (ctx) => {
+  class Book extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+  }
+  class User extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+    @prop({
+      parser: { resolver: Book },
+    })
+    book: Book;
+  }
+  const data = {
+    id: 100,
+    name: 'John',
+    book: { id: 200, name: 'Smith' },
+  };
+  const user = new User();
+  user.populate(data);
+  ctx.is(user.id, null);
+  ctx.is(user.name, 'John');
+  ctx.is(user.book.id, null);
+});
+
 export default spec;
