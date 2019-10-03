@@ -7,9 +7,9 @@ import { ModelConfig, PropConfig, PropItem, PropError, PropPath } from './types'
  * Strongly typed javascript object.
  */
 export class Model<Context = any> {
-  readonly $config: ModelConfig<Context>;
-  readonly $props: {[key: string]: Prop};
-  static readonly $props: {[key: string]: PropConfig} = {};
+  public readonly $config: ModelConfig<Context>;
+  public readonly $props: {[key: string]: Prop};
+  public static readonly $props: {[key: string]: PropConfig} = {};
 
   /**
    * Class constructor.

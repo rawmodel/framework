@@ -31,11 +31,11 @@ export function prop(config?: PropConfig) {
  * Model property class.
  */
 export class Prop {
-  protected rawValue: any | (() => any);
-  protected initialValue: any | (() => any);
-  protected errorCode: number = null;
-  protected frozen: boolean = false;
-  readonly $config: PropConfig;
+  protected _rawValue: any | (() => any);
+  protected _initialValue: any | (() => any);
+  protected _errorCode: number = null;
+  protected _frozen: boolean = false;
+  public readonly $config: PropConfig;
 
   /**
    * Class constructor.
@@ -48,7 +48,7 @@ export class Prop {
       enumerable: false,
     });
 
-    this.initialValue = this.rawValue = isUndefined(this.$config.defaultValue)
+    this._initialValue = this._rawValue = isUndefined(this.$config.defaultValue)
       ? null
       : this.$config.defaultValue;
   }
@@ -64,8 +64,8 @@ export class Prop {
    * Sets the current value.
    */
   public setValue(data: any | (() => any), strategy?: string) {
-    if (this.frozen) {
-      const error = new Error('Mutation of frozen property failed');
+    if (this._frozen) {
+      const error = new Error('Mutation of _frozen property failed');
       error['code'] = 500;
       throw error;
     }
@@ -81,14 +81,14 @@ export class Prop {
       value = this.$config.setter.call(this.getModel(), realize(value, this.getModel()));
     }
 
-    this.rawValue = value;
+    this._rawValue = value;
   }
 
   /**
    * Calculates the current value.
    */
   public getValue(): any {
-    let value = realize(this.rawValue, this.getModel());
+    let value = realize(this._rawValue, this.getModel());
 
     if (this.$config.getter) {
       value = this.$config.getter.call(this.getModel(), value);
@@ -105,28 +105,28 @@ export class Prop {
    * Sets local error code.
    */
   public setErrorCode(code: number) {
-    this.errorCode = code;
+    this._errorCode = code;
   }
 
   /**
    * Gets local error codes.
    */
   public getErrorCode() {
-    return this.errorCode;
+    return this._errorCode;
   }
 
   /**
    * Returns raw property value.
    */
   public getRawValue() {
-    return this.rawValue;
+    return this._rawValue;
   }
 
   /**
    * Returns property value on last commit.
    */
   public getInitialValue() {
-    return this.initialValue;
+    return this._initialValue;
   }
 
   /**
@@ -164,7 +164,7 @@ export class Prop {
    */
   public isEmpty() {
     return !isPresent(
-      realize(this.rawValue, this.getModel())
+      realize(this._rawValue, this.getModel())
     );
   }
 
@@ -172,15 +172,15 @@ export class Prop {
    * Returns `true` if the value has been changed.
    */
   public isChanged(): boolean {
-    const initialValue = realize(this.initialValue, this.getModel());
+    const _initialValue = realize(this._initialValue, this.getModel());
 
-    let value = realize(this.rawValue, this.getModel());
+    let value = realize(this._rawValue, this.getModel());
     if (isInstanceOf(value, Prop) || isInstanceOf(value, Model)) {
       value = value.serialize();
     }
 
     return !isDeepEqual(
-      normalize(initialValue),
+      normalize(_initialValue),
       normalize(value)
     );
   }
@@ -205,10 +205,10 @@ export class Prop {
    * Returns `true` when the value and possible nested models have no errors.
    */
   public isValid(): boolean {
-    if (isNumber(this.errorCode)) {
+    if (isNumber(this._errorCode)) {
       return false;
     }
-    return !(toArray(this.rawValue) || []) // nested models
+    return !(toArray(this._rawValue) || []) // nested models
       .filter((m) => isInstanceOf(m, Model))
       .some((m) => !m.isValid());
   }
@@ -282,7 +282,7 @@ export class Prop {
 
     this.setValue(this.$config.fakeValue);
 
-    (toArray(this.rawValue) || []) // related fake values
+    (toArray(this._rawValue) || []) // related fake values
       .filter((doc) => isInstanceOf(doc, Model))
       .map((doc) => doc.fake());
 
@@ -303,19 +303,19 @@ export class Prop {
    */
   public commit(): this {
 
-    (toArray(this.rawValue) || [])
+    (toArray(this._rawValue) || [])
       .filter((doc) => isInstanceOf(doc, Model))
       .forEach((doc) => doc.commit());
 
-    const value = this.rawValue; // same process as serialization
+    const value = this._rawValue; // same process as serialization
     if (!isValue(value)) {
-      this.initialValue = null;
+      this._initialValue = null;
     }
     else if (this.isArray()) {
-      this.initialValue = value.map((m) => isInstanceOf(m, Model) ? m.serialize() : normalize(m));
+      this._initialValue = value.map((m) => isInstanceOf(m, Model) ? m.serialize() : normalize(m));
     }
     else {
-      this.initialValue = isInstanceOf(value, Model) ? value.serialize() : normalize(value);
+      this._initialValue = isInstanceOf(value, Model) ? value.serialize() : normalize(value);
     }
 
     return this;
@@ -325,13 +325,13 @@ export class Prop {
    * Sets local property value to the initial value.
    */
   public rollback(): this {
-    let value = this.initialValue;
+    let value = this._initialValue;
 
     if (this.$config.parser) {
       value = this.parse(value);
     }
 
-    this.rawValue = value;
+    this._rawValue = value;
 
     return this;
   }
@@ -341,11 +341,11 @@ export class Prop {
    */
   public freeze(): this {
 
-    (toArray(this.rawValue) || [])
+    (toArray(this._rawValue) || [])
       .filter((doc) => isInstanceOf(doc, Model))
       .forEach((doc) => doc.freeze());
 
-    this.frozen = true;
+    this._frozen = true;
 
     return this;
   }
@@ -355,7 +355,7 @@ export class Prop {
    */
   public async validate(): Promise<this> {
 
-    this.errorCode = await validate(
+    this._errorCode = await validate(
       this.getValue(),
       this.$config.validators,
       {
@@ -364,7 +364,7 @@ export class Prop {
     );
 
     await Promise.all( // validate related models
-      (toArray(this.rawValue) || [])
+      (toArray(this._rawValue) || [])
         .filter((doc) => isInstanceOf(doc, Model))
         .map((doc) => doc.validate({ quiet: true }))
     );
@@ -377,7 +377,7 @@ export class Prop {
    */
   public async handle(error: any): Promise<this> {
 
-    this.errorCode = await handle(
+    this._errorCode = await handle(
       error,
       this.$config.handlers,
       {
@@ -386,7 +386,7 @@ export class Prop {
     );
 
     await Promise.all( // handle related models
-      (toArray(this.rawValue) || [])
+      (toArray(this._rawValue) || [])
         .filter((doc) => isInstanceOf(doc, Model))
         .map((doc) => doc.handle(error))
     ).catch(() => {}); // do not throw even when unhandled error
@@ -398,11 +398,11 @@ export class Prop {
    * Clears errors.
    */
   public invalidate(): this {
-    (toArray(this.rawValue) || []) // invalidate related models
+    (toArray(this._rawValue) || []) // invalidate related models
       .filter((doc) => isInstanceOf(doc, Model))
       .forEach((doc) => doc.invalidate());
 
-    this.errorCode = null;
+    this._errorCode = null;
 
     return this;
   }
