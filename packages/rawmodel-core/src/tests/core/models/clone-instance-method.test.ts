@@ -38,9 +38,8 @@ spec.test('returns an exact copy of the original', (ctx) => {
   const clone1 = user.clone({book: { title: 'foo' }});
   ctx.true(clone0 !== user);
   ctx.true(clone0.isEqual(user));
-  ctx.is(clone0.book.getParent(), clone0);
-  ctx.is(clone0.getParent(), null);
-  ctx.is(clone0.getRoot(), clone0);
+  ctx.deepEqual(clone0.getAncestors(), []);
+  ctx.deepEqual(clone0.book.getAncestors(), [clone0]);
   ctx.is(clone1.book.title, 'foo');
 });
 

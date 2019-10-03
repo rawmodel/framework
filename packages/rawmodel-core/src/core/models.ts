@@ -73,25 +73,27 @@ export class Model<Context = any> {
   /**
    * Returns parent model instance.
    */
-  public getParent() {
+  public getParent(): Model<Context> {
     return this.$config.parent || null;
   }
 
   /**
-   * Returns the root model instance.
+   * Returns a list of all parent model instances.
    */
-  public getRoot() {
-    let root: Model = this;
-    do {
-      const parent = root.getParent();
+  public getAncestors(): Model<Context>[] {
+    const tree  = [];
+
+    let parent = this as any;
+    while (true) {
+      parent = parent.getParent();
       if (parent) {
-        root = parent;
-      }
-      else {
-        return root;
+        tree.unshift(parent);
+      } else {
+        break;
       }
     }
-    while (true);
+
+    return tree;
   }
 
   /**

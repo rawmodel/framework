@@ -236,8 +236,8 @@ export class Prop {
         }
         else {
           return new Klass(null, {
+            ...this.getModel().$config,
             parent: this.getModel(),
-            ...this.getModel().$config
           }).populate(data, strategy);
         }
       };
