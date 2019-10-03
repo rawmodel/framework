@@ -11,7 +11,7 @@ spec.test('defines model property', (ctx) => {
   }
   const user = new User();
   const descriptor = Object.getOwnPropertyDescriptor(user, 'name');
-  ctx.true(user.$props['name'] instanceof Prop);
+  ctx.true(user.__props['name'] instanceof Prop);
   ctx.is(user.name, null);
   ctx.is(typeof descriptor.get, 'function');
   ctx.is(typeof descriptor.set, 'function');

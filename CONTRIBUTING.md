@@ -37,7 +37,7 @@ Always fork the repo and create your branch from master. If you've added code th
 
 Please follow the [TypeScript coding guidelines](https://github.com/Microsoft/TypeScript/wiki/Coding-guidelines).
 
-You should prefix all private variables with `_` sign. To prevent accidental name collisions with your code Rawmodel somes prefixes names of public objects with `$` and names of private objects with `$$`. You can find this convention in outer frameworks like [AngularJS](https://docs.angularjs.org/api).
+You should prefix private and protected class variables with `_`. Public class variables should start with a letter. Public class variables which hold read-only configuration information should be prefixed with `__`.
 
 ## Release process
 

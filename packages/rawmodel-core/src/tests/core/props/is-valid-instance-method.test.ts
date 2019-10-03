@@ -16,7 +16,7 @@ spec.test('returns true if the property has no errors', (ctx) => {
   prop0.setErrorCode(null);
   prop0.setValue(user);
   ctx.true(prop0.isValid());
-  prop0.$config.parser = { resolver: User }; // nested model type
+  prop0.__config.parser = { resolver: User }; // nested model type
   user.getProp('name').setErrorCode(200); // nested model error
   ctx.false(prop0.isValid());
 });

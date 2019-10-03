@@ -7,9 +7,9 @@ import { ModelConfig, PropConfig, PropItem, PropError, PropPath } from './types'
  * Strongly typed javascript object.
  */
 export class Model<Context = any> {
-  public readonly $config: ModelConfig<Context>;
-  public readonly $props: {[key: string]: Prop};
-  public static readonly $props: {[key: string]: PropConfig} = {};
+  public readonly __config: ModelConfig<Context>;
+  public readonly __props: {[key: string]: Prop};
+  public static readonly __props: {[key: string]: PropConfig} = {};
 
   /**
    * Class constructor.
@@ -18,11 +18,11 @@ export class Model<Context = any> {
    */
   public constructor(data?: any, config?: ModelConfig<Context>) {
 
-    Object.defineProperty(this, '$config', {
+    Object.defineProperty(this, '__config', {
       value: config || {},
       enumerable: false,
     });
-    Object.defineProperty(this, '$props', {
+    Object.defineProperty(this, '__props', {
       value: {},
       enumerable: false,
     });
@@ -36,7 +36,7 @@ export class Model<Context = any> {
    * on the static variable using the @prop decorator.
    */
   protected defineProps() {
-    const recipes = this.constructor['$props'];
+    const recipes = this.constructor['__props'];
 
     for (const key in recipes) {
       this.defineProp(key, recipes[key]);
@@ -50,14 +50,14 @@ export class Model<Context = any> {
    */
   protected defineProp(key: string, config: PropConfig) {
 
-    this.$props[key] = new Prop({
+    this.__props[key] = new Prop({
       ...config,
       model: this,
     });
 
     Object.defineProperty(this, key, {
-      get: () => this.$props[key].getValue(),
-      set: (value) => this.$props[key].setValue(value),
+      get: () => this.__props[key].getValue(),
+      set: (value) => this.__props[key].setValue(value),
       enumerable: config.enumerable !== false,
       configurable: false,
     });
@@ -67,14 +67,14 @@ export class Model<Context = any> {
    * Returns model context object.
    */
   public getContext(): Context {
-    return realize(this.$config.context) || null;
+    return realize(this.__config.context) || null;
   }
 
   /**
    * Returns parent model instance.
    */
   public getParent(): Model<Context> {
-    return this.$config.parent || null;
+    return this.__config.parent || null;
   }
 
   /**
@@ -105,7 +105,7 @@ export class Model<Context = any> {
 
     let lastKey = keys.pop();
     if (keys.length === 0) {
-      return this.$props[lastKey];
+      return this.__props[lastKey];
     } else if (isInteger(lastKey)) {
       lastKey = keys.pop(); // array items refer to parent prop
     }
@@ -130,7 +130,7 @@ export class Model<Context = any> {
   public populate(data: any, strategy?: string): this {
 
     Object.keys(data || {}).forEach((key) => {
-      const prop = this.$props[key];
+      const prop = this.__props[key];
       if (prop) {
         prop.setValue(data[key], strategy);
       }
@@ -146,8 +146,8 @@ export class Model<Context = any> {
   public serialize(strategy?: string): { [key: string]: any } {
     const data = {};
 
-    Object.keys(this.$props).forEach((key) => {
-      const value = this.$props[key].serialize(strategy);
+    Object.keys(this.__props).forEach((key) => {
+      const value = this.__props[key].serialize(strategy);
       if (!isUndefined(value)) {
         data[key] = value;
       }
@@ -192,8 +192,8 @@ export class Model<Context = any> {
    */
   public reset(): this {
 
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].reset());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].reset());
 
     return this;
   }
@@ -203,8 +203,8 @@ export class Model<Context = any> {
    */
   public fake(): this {
 
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].fake());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].fake());
 
     return this;
   }
@@ -214,8 +214,8 @@ export class Model<Context = any> {
    */
   public empty(): this {
 
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].empty());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].empty());
 
     return this;
   }
@@ -225,8 +225,8 @@ export class Model<Context = any> {
    */
   public commit(): this {
 
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].commit());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].commit());
 
     return this;
   }
@@ -236,8 +236,8 @@ export class Model<Context = any> {
    */
   public rollback(): this {
 
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].rollback());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].rollback());
 
     return this;
   }
@@ -247,8 +247,8 @@ export class Model<Context = any> {
    */
   public freeze(): this {
 
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].freeze());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].freeze());
 
     return this;
   }
@@ -269,16 +269,16 @@ export class Model<Context = any> {
    * Returns `true` if at least one prop has been changed.
    */
   public isChanged(): boolean {
-    return Object.keys(this.$props)
-      .some((key) => this.$props[key].isChanged());
+    return Object.keys(this.__props)
+      .some((key) => this.__props[key].isChanged());
   }
 
   /**
    * Returns `true` when no errors exist.
    */
   public isValid(): boolean {
-    return !Object.keys(this.$props)
-      .some((key) => !this.$props[key].isValid());
+    return !Object.keys(this.__props)
+      .some((key) => !this.__props[key].isValid());
   }
 
   /**
@@ -292,8 +292,8 @@ export class Model<Context = any> {
   } = {}): Promise<this> {
 
     await Promise.all(
-      Object.keys(this.$props)
-        .map((key) => this.$props[key].validate())
+      Object.keys(this.__props)
+        .map((key) => this.__props[key].validate())
     );
 
     if (!quiet && !this.isValid()) {
@@ -323,8 +323,8 @@ export class Model<Context = any> {
     }
 
     await Promise.all(
-      Object.keys(this.$props)
-        .map((n) => this.$props[n].handle(error))
+      Object.keys(this.__props)
+        .map((n) => this.__props[n].handle(error))
     );
 
     if (!quiet && !this.isValid()) {
@@ -367,8 +367,8 @@ export class Model<Context = any> {
    * Removes props errors.
    */
   public invalidate(): this {
-    Object.keys(this.$props)
-      .forEach((key) => this.$props[key].invalidate());
+    Object.keys(this.__props)
+      .forEach((key) => this.__props[key].invalidate());
 
     return this;
   }
@@ -382,7 +382,7 @@ export class Model<Context = any> {
       ...this.serialize(),
       ...data,
     }, {
-      ...this.$config,
+      ...this.__config,
     });
   }
 
