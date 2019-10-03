@@ -31,7 +31,7 @@ spec.test('supports empty value', (ctx) => {
 
 spec.test('supports custom getter', (ctx) => {
   const prop = new Prop({
-    get: (v) => `foo-${v}`,
+    getter: (v) => `foo-${v}`,
   });
   ctx.is(prop.getValue(), `foo-null`);
   prop.setValue('bar');
@@ -40,7 +40,7 @@ spec.test('supports custom getter', (ctx) => {
 
 spec.test('supports custom setter', (ctx) => {
   const prop = new Prop({
-    set: (v) => `foo-${v}`,
+    setter: (v) => `foo-${v}`,
   });
   ctx.is(prop.getValue(), null);
   prop.setValue('bar');

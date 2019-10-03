@@ -43,25 +43,25 @@ spec.test('supports property enumerable style', (ctx) => {
 spec.test('supports deep type parsing', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
     })
     name: string;
   }
   class User extends Model {
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
     })
     name: string;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
     })
     books: Book[];
     @prop({
-      parse: { array: true },
+      parser: { array: true },
     })
     items: any[];
   }
@@ -94,7 +94,7 @@ spec.test('parser shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      parse: { resolver(v) { context = this; return v; } },
+      parser: { resolver(v) { context = this; return v; } },
     })
     name: string;
   }
@@ -106,7 +106,7 @@ spec.test('parser shares associated model context', (ctx) => {
 spec.test('supports custom setter', (ctx) => {
   class User extends Model {
     @prop({
-      set: (v) => `foo-${v}`,
+      setter: (v) => `foo-${v}`,
     })
     name: string;
   }
@@ -119,7 +119,7 @@ spec.test('setter shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      set() { context = this; },
+      setter() { context = this; },
     })
     name: string;
   }
@@ -131,7 +131,7 @@ spec.test('setter shares associated model context', (ctx) => {
 spec.test('supports custom getter', (ctx) => {
   class User extends Model {
     @prop({
-      get: (v) => `foo-${v}`,
+      getter: (v) => `foo-${v}`,
     })
     name: string;
   }
@@ -144,7 +144,7 @@ spec.test('getter shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      get() { context = this; },
+      getter() { context = this; },
     })
     name: string;
   }
@@ -254,7 +254,7 @@ spec.test('validators share associated model context', async (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      validate: [
+      validators: [
         { resolver(v) { return context = this; }, code: 100 },
       ],
     })
@@ -269,7 +269,7 @@ spec.test('resolvers share associated model context', async (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      handle: [
+      handlers: [
         { resolver(v) { return context = this; }, code: 100 },
       ],
     })

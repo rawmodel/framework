@@ -4,13 +4,13 @@ import { Model, prop } from '../../..';
 const spec = new Spec();
 
 spec.test('handles property errors', async (ctx) => {
-  const handle = [{
+  const handlers = [{
     resolver: (e) => e.message === 'foo',
     code: 100,
   }];
   class Book extends Model {
     @prop({
-      handle
+      handlers
     })
     title: string;
   }
@@ -20,29 +20,29 @@ spec.test('handles property errors', async (ctx) => {
   }
   class User extends Model {
     @prop({
-      handle
+      handlers
     })
     name: string;
     @prop({
-      handle,
-      parse: { resolver: Book },
+      handlers,
+      parser: { resolver: Book },
     })
     book0: Book;
     @prop({
-      handle,
-      parse: { array: true, resolver: Book },
+      handlers,
+      parser: { array: true, resolver: Book },
     })
     books0: Book[];
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
     })
     books1: Book[];
     @prop({
-      parse: { resolver: Country },
+      parser: { resolver: Country },
     })
     country: Country;
   }

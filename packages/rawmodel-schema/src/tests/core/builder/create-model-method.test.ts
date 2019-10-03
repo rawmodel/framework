@@ -34,7 +34,7 @@ spec.test('supports property custom getter', (ctx) => {
     props: [
       {
         name: 'firstName',
-        get: 'foo',
+        getter: 'foo',
       },
     ],
   });
@@ -52,7 +52,7 @@ spec.test('supports property custom setter', (ctx) => {
     props: [
       {
         name: 'firstName',
-        set: 'foo',
+        setter: 'foo',
       },
     ],
   });
@@ -141,7 +141,7 @@ spec.test('supports property parsers', (ctx) => {
     props: [
       {
         name: 'firstName',
-        parse: {
+        parser: {
           array: true,
           resolver: 'string',
         },
@@ -164,7 +164,7 @@ spec.test('supports property validators', async (ctx) => {
     props: [
       {
         name: 'firstName',
-        validate: [
+        validators: [
           {
             resolver: 'stringLength',
             code: 400,
@@ -191,7 +191,7 @@ spec.test('supports property handlers', async (ctx) => {
     props: [
       {
         name: 'firstName',
-        handle: [
+        handlers: [
           {
             resolver: 'generalError',
             code: 400,

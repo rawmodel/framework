@@ -73,7 +73,7 @@ import { stringParser } from '@rawmodel/parsers';
 
 class User extends Model {
   @prop({
-    parse: {
+    parser: {
       resolver: stringParser(),
     },
   })
@@ -102,13 +102,13 @@ class Friend extends Model {
 
 class User extends Model {
   @prop({
-    parse: {
+    parser: {
       resolver: Address,
     },
   })
   public address: Address;
   @prop({
-    parse: {
+    parser: {
       array: true,
       resolver: Friend,
     },
@@ -162,8 +162,8 @@ A property can have a custom `getter` and a custom `setter`. This function share
 
 ```ts
 @prop({
-  get(value) { return value },
-  set(value) { return value },
+  getter(value) { return value },
+  setter(value) { return value },
 })
 public name: string;
 ```
@@ -272,7 +272,7 @@ RawModel provides a simple mechanism for validating properties. All validators s
 ```ts
 class User extends Model {
   @prop({
-    validate: [ // property validation setup
+    validators: [ // property validation setup
       { // validator recipe
         resolver(v) { return !!v }, // [required] validator function
         code: 422, // [optional] error code
@@ -295,7 +295,7 @@ RawModel provides a mechanism for handling property-related errors. The logic is
 ```ts
 class User extends Model {
   @prop({
-    handle: [ // property error handling setup
+    handlers: [ // property error handling setup
       { // handler recipe
         resolver(e) { return e.message === 'foo' }, // [required] error resolve function
         code: 31000, // [optional] error code
@@ -366,7 +366,7 @@ const schema = {
   props: [ // schema properties
     { // property definition
       name: 'title', // property name
-      validate: [
+      validators: [
         {
           resolver: 'stringLength', // validator resolver name
           code: 30001, // validation error code
@@ -418,14 +418,14 @@ graphql(schema, '{ hello }', root).then((response) => {
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
 | config.$.name | String | Yes | - | Property name.
-| config.$.prop.set | Function | No | - | Custom setter.
-| config.$.prop.get | Function | No | - | Custom getter.
-| config.$.prop.parse | Parser | No | - | Data type parser (see supported types).
+| config.$.prop.setter | Function | No | - | Custom setter.
+| config.$.prop.getter | Function | No | - | Custom getter.
+| config.$.prop.parser | Parser | No | - | Data type parser (see supported types).
 | config.$.prop.defaultValue | Any | No | - | Prop default value.
 | config.$.prop.fakeValue | Any | No | - | Prop fake value.
 | config.$.prop.emptyValue | Any | No | - | Prop empty value.
-| config.$.prop.validate | Array | No | - | List of validator recipes.
-| config.$.prop.handle | Array | No | - | List of error handler recipes.
+| config.$.prop.validators | Array | No | - | List of validator recipes.
+| config.$.prop.handlers | Array | No | - | List of error handler recipes.
 | config.$.prop.populatable | String[] | No | - | List of strategies for populating the property value.
 | config.$.prop.serializable | String[] | No | - | List of strategies for serializing the property value.
 | config.$.prop.enumerable | Boolean | No | true | Indicates that the property is enumerable.
@@ -456,20 +456,20 @@ class User extends Model {
   @prop({
     set(v) { return v; }, // [optional] custom setter
     get(v) { return v; }, // [optional] custom getter
-    parse: { // [optional] property type casting
+    parser: { // [optional] property type casting
       array: true, // [optional] forces to array conversion when `true`
       resolver: User, // [optional] parser function or Model
     },
     defaultValue: 'Noname', // [optional] property default value (value or function)
     fakeValue: 'Noname', // [optional] property fake value (value or function)
     emptyValue: '', // [optional] property empty value (value or function)
-    validate: [ // [optional] value validator recipes
+    validators: [ // [optional] value validator recipes
       { // validator recipe (check validatable.js for more)
         resolver(v) { return !!v; }, // [required] validator resolve function (supports async)
         code: 422, // [optional] error code
       },
     ],
-    handle: [ // [optional] error handling recipies
+    handlers: [ // [optional] error handling recipies
       { // handler recipe
         resolver(e) { return e.message === 'foo'; }, // [required] handler resolve function (supports async)
         code: 31000, // [required] error code
@@ -489,14 +489,14 @@ class User extends Model {
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| config.set | Function | No | - | Custom setter.
-| config.get | Function | No | - | Custom getter.
-| config.parse | Parser | No | - | Data type parser (see supported types).
+| config.setter | Function | No | - | Custom setter.
+| config.getter | Function | No | - | Custom getter.
+| config.parser | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
-| config.validate | Array | No | - | List of validator recipes.
-| config.handle | Array | No | - | List of error handler recipes.
+| config.validators | Array | No | - | List of validator recipes.
+| config.handlers | Array | No | - | List of error handler recipes.
 | config.populatable | String[] | No | - | List of strategies for populating the property value.
 | config.serializable | String[] | No | - | List of strategies for serializing the property value.
 | config.enumerable | Boolean | No | true | Indicates that the property is enumerable.
@@ -683,14 +683,14 @@ try {
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
-| config.set | Function | No | - | Custom setter.
-| config.get | Function | No | - | Custom getter.
-| config.parse | Parser | No | - | Data type parser (see supported types).
+| config.setter | Function | No | - | Custom setter.
+| config.getter | Function | No | - | Custom getter.
+| config.parser | Parser | No | - | Data type parser (see supported types).
 | config.defaultValue | Any | No | - | Prop default value.
 | config.fakeValue | Any | No | - | Prop fake value.
 | config.emptyValue | Any | No | - | Prop empty value.
-| config.validate | Array | No | - | List of validator recipes.
-| config.handle | Array | No | - | List of error handler recipes.
+| config.validators | Array | No | - | List of validator recipes.
+| config.handlers | Array | No | - | List of error handler recipes.
 | config.populatable | String[] | No | - | List of strategies for populating the property value.
 | config.serializable | String[] | No | - | List of strategies for serializing the property value.
 | config.enumerable | Boolean | No | true | Indicates that the property is enumerable.
@@ -831,20 +831,20 @@ try {
 | recipe.props | Array | No | - | Hash of property definitions.
 | recipe.props.$.set | String | No | - | Setter resolver name.
 | recipe.props.$.get | String | No | - | Getter resolver name.
-| recipe.props.$.parse | Object | No | - | Data type parser recipe.
-| recipe.props.$.parse.array | Boolean | No | false | When `true` the input data will automatically be converted to array.
-| recipe.props.$.parse.resolver | String | No | - | Parser resolver name
+| recipe.props.$.parser | Object | No | - | Data type parser recipe.
+| recipe.props.$.parser.array | Boolean | No | false | When `true` the input data will automatically be converted to array.
+| recipe.props.$.parser.resolver | String | No | - | Parser resolver name
 | recipe.props.$.defaultValue | Any | No | - | Default value resolver name or a value.
 | recipe.props.$.fakeValue | Any | No | - | Fake value resolver name or a value.
 | recipe.props.$.emptyValue | Any | No | - | Empty value resolver name or a value.
-| recipe.props.$.validate | Array | No | - | List of validator recipes.
-| recipe.props.$.validate.code | Integer | Yes | - | Validator error code.
-| recipe.props.$.validate.resolver | String | Yes | - | Validator resolver name.
-| recipe.props.$.validate.options | Object | No | - | Validator resolver arguments.
-| recipe.props.$.handle | Array | No | - | List of error handler recipes.
-| recipe.props.$.handle.code | Integer | Yes | - | Handler error code.
-| recipe.props.$.handle.resolver | String | Yes | - | Handler resolver name.
-| recipe.props.$.handle.options | Object | No | - | Handler resolver arguments.
+| recipe.props.$.validators | Array | No | - | List of validator recipes.
+| recipe.props.$.validators.code | Integer | Yes | - | Validator error code.
+| recipe.props.$.validators.resolver | String | Yes | - | Validator resolver name.
+| recipe.props.$.validators.options | Object | No | - | Validator resolver arguments.
+| recipe.props.$.handlers | Array | No | - | List of error handler recipes.
+| recipe.props.$.handlers.code | Integer | Yes | - | Handler error code.
+| recipe.props.$.handlers.resolver | String | Yes | - | Handler resolver name.
+| recipe.props.$.handlers.options | Object | No | - | Handler resolver arguments.
 | recipe.props.$.populatable | Array | No | - | List of strategies for populating the property value.
 | recipe.props.$.serializable | Array | No | - | List of strategies for serializing the property value.
 | recipe.props.$.enumerable | Boolean | No | true | Indicates that the property is enumerable.
@@ -879,22 +879,22 @@ const Model = createModelClass({
   handlers: {}, // see validators
   props: [
     name: 'firstName', // property name
-    get: 'customGetter', // getter name (defined in `getters`)
-    set: 'customSetter', // setter name (defined in `setters`)
-    parse: {
+    getter: 'customGetter', // getter name (defined in `getters`)
+    setter: 'customSetter', // setter name (defined in `setters`)
+    parser: {
       array: true, // when `true` the input is converted to array
       resolver: 'toString', // parser resolver name
     },
     defaultValue: 'none', // static default value
     fakeValue: 'none', // static fake value
     emptyValue: '', // static empty value
-    validate: [
+    validators: [
       {
         code: 30001, // validator error code
         resolver: 'isPresent', // validator resolver name
       },
     ],
-    handle: [], // see validators
+    handlers: [], // see validators
     populatable: ['input', 'db'], // populatable strategies
     serializable: ['input', 'db'], // serializable strategies
     enumerable: true, // property is enumerable

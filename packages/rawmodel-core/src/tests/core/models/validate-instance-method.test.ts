@@ -4,39 +4,39 @@ import { Model, prop } from '../../..';
 const spec = new Spec();
 
 spec.test('validates properties or throws on error', async (ctx) => {
-  const validate = [
+  const validators = [
     { resolver: (v) => true, code: 100 },
     { resolver: (v) => !!v, code: 200 },
   ];
   class Book extends Model {
     @prop({
-      validate,
+      validators,
     })
     title: string;
   }
   class User extends Model {
     @prop({
-      validate,
+      validators,
     })
     name: string;
     @prop({
-      parse: { resolver: Book },
-      validate,
+      parser: { resolver: Book },
+      validators,
     })
     book0: Book;
     @prop({
-      parse: { array: true, resolver: Book },
-      validate,
+      parser: { array: true, resolver: Book },
+      validators,
     })
     books0: Book[];
     @prop({
-      parse: { resolver: Book },
-      validate,
+      parser: { resolver: Book },
+      validators,
     })
     book1: Book;
     @prop({
-      parse: { array: true, resolver: Book },
-      validate,
+      parser: { array: true, resolver: Book },
+      validators,
     })
     books1: Book[];
   }
@@ -57,7 +57,7 @@ spec.test('validates properties or throws on error', async (ctx) => {
 });
 
 spec.test('validates polymorphic arrays', async (ctx) => {
-  const validate = [
+  const validators = [
     { resolver: (v) => !!v, code: 100 },
   ];
   const parser = (v) => {
@@ -69,14 +69,14 @@ spec.test('validates polymorphic arrays', async (ctx) => {
   };
   class Book extends Model {
     @prop({
-      validate,
+      validators,
     })
     title: string;
   }
   class User extends Model {
     @prop({
-      parse: { array: true, resolver: parser },
-      validate,
+      parser: { array: true, resolver: parser },
+      validators,
     })
     books: Book[];
   }

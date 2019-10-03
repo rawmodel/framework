@@ -74,11 +74,11 @@ export class Prop {
     }
 
     let value = isUndefined(data) ? null : data;
-    if (this.$config.parse) {
+    if (this.$config.parser) {
       value = this.parse(realize(value, this.getModel()), strategy);
     }
-    if (this.$config.set) {
-      value = this.$config.set.call(this.getModel(), realize(value, this.getModel()));
+    if (this.$config.setter) {
+      value = this.$config.setter.call(this.getModel(), realize(value, this.getModel()));
     }
 
     this.rawValue = value;
@@ -90,8 +90,8 @@ export class Prop {
   public getValue(): any {
     let value = realize(this.rawValue, this.getModel());
 
-    if (this.$config.get) {
-      value = this.$config.get.call(this.getModel(), value);
+    if (this.$config.getter) {
+      value = this.$config.getter.call(this.getModel(), value);
     }
 
     if (!isPresent(value) && !isUndefined(this.$config.emptyValue)) {
@@ -133,7 +133,7 @@ export class Prop {
    * Returns `true` if the property is an array.
    */
   public isArray(): boolean {
-    const { array } = this.$config.parse || {} as any;
+    const { array } = this.$config.parser || {} as any;
     return array === true;
   }
 
@@ -219,7 +219,7 @@ export class Prop {
    * @param strategy Population strategy (only for Model types).
    */
   protected parse(value: any, strategy?: string): any {
-    const parser = (this.$config.parse || {}) as any;
+    const parser = (this.$config.parser || {}) as any;
     const recipe = {
       resolver: parser.resolver,
       array: parser.array || false,
@@ -327,7 +327,7 @@ export class Prop {
   public rollback(): this {
     let value = this.initialValue;
 
-    if (this.$config.parse) {
+    if (this.$config.parser) {
       value = this.parse(value);
     }
 
@@ -357,7 +357,7 @@ export class Prop {
 
     this.errorCode = await validate(
       this.getValue(),
-      this.$config.validate,
+      this.$config.validators,
       {
         context: this.getModel(),
       },
@@ -379,7 +379,7 @@ export class Prop {
 
     this.errorCode = await handle(
       error,
-      this.$config.handle,
+      this.$config.handlers,
       {
         context: this.getModel(),
       },

@@ -5,7 +5,7 @@ const spec = new Spec();
 
 spec.test('handles property errors and populates error codes', async (ctx) => {
   const prop = new Prop({
-    handle: [
+    handlers: [
       { code: 400, resolver: (e) => e === 'foo' },
       { code: 401, resolver: (e) => e === 'foo' },
     ],

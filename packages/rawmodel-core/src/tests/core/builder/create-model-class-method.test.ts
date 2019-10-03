@@ -15,7 +15,7 @@ spec.test('generates model with properties', (ctx) => {
     },
     {
       name: 'book',
-      parse: {
+      parser: {
         resolver: createModelClass([
           {
             name: 'title',

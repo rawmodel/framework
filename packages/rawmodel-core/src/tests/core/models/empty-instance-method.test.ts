@@ -20,12 +20,12 @@ spec.test('sets properties to `null`', (ctx) => {
     })
     description: string;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
       defaultValue: {},
     })
     book: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
       defaultValue: [null, {}],
     })
     books: Book[];

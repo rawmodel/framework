@@ -12,11 +12,11 @@ spec.test('manage committed states', (ctx) => {
     @prop()
     name: string;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
     })
     books: Book[];
   }
