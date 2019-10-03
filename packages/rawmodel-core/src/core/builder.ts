@@ -8,14 +8,14 @@ import { PropDefinition } from './types';
 export function createModelClass(props: PropDefinition[]): typeof Model {
   const Klass = class GenericModel extends Model {};
 
-  Object.defineProperty(Klass, '$props', {
+  Object.defineProperty(Klass, '__props', {
     value: {},
     enumerable: false,
     configurable: true,
   });
 
   props.forEach((prop) => {
-    Klass.$props[prop.name] = { ...prop };
+    Klass.__props[prop.name] = { ...prop };
   });
 
   return Klass;

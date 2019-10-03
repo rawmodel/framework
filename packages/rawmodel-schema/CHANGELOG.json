@@ -2,6 +2,12 @@
   "name": "@rawmodel/schema",
   "entries": [
     {
+      "version": "3.3.1",
+      "tag": "@rawmodel/schema_v3.3.1",
+      "date": "Thu, 03 Oct 2019 20:16:12 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.3.0",
       "tag": "@rawmodel/schema_v3.3.0",
       "date": "Thu, 03 Oct 2019 15:49:09 GMT",

@@ -22,7 +22,7 @@ export function createModelClass(recipe: SchemaRecipe): typeof Model {
 
   const Klass = class GenericModel extends Model {};
 
-  Object.defineProperty(Klass, '$props', {
+  Object.defineProperty(Klass, '__props', {
     value: {},
     enumerable: false,
     configurable: true,
@@ -88,7 +88,7 @@ export function createModelClass(recipe: SchemaRecipe): typeof Model {
       }
     });
 
-    Klass.$props[prop.name] = obj;
+    Klass.__props[prop.name] = obj;
   });
 
   return Klass;

@@ -14,11 +14,11 @@ export function prop(config?: PropConfig) {
 
     let other = {};
     if (target.constructor.prototype && target.constructor.prototype.constructor) {
-      other = { ...target.constructor.prototype.constructor.$props };
+      other = { ...target.constructor.prototype.constructor.__props };
     }
     other[key] = { ...config };
 
-    Object.defineProperty(target.constructor, '$props', {
+    Object.defineProperty(target.constructor, '__props', {
       value: other,
       enumerable: false,
       configurable: true,
@@ -35,7 +35,7 @@ export class Prop {
   protected _initialValue: any | (() => any);
   protected _errorCode: number = null;
   protected _frozen: boolean = false;
-  public readonly $config: PropConfig;
+  public readonly __config: PropConfig;
 
   /**
    * Class constructor.
@@ -43,21 +43,21 @@ export class Prop {
    */
   public constructor(config?: PropConfig) {
 
-    Object.defineProperty(this, '$config', {
+    Object.defineProperty(this, '__config', {
       value: { ...config },
       enumerable: false,
     });
 
-    this._initialValue = this._rawValue = isUndefined(this.$config.defaultValue)
+    this._initialValue = this._rawValue = isUndefined(this.__config.defaultValue)
       ? null
-      : this.$config.defaultValue;
+      : this.__config.defaultValue;
   }
 
   /**
    * Returns model reference.
    */
   public getModel() {
-    return realize(this.$config.model);
+    return realize(this.__config.model);
   }
 
   /**
@@ -74,11 +74,11 @@ export class Prop {
     }
 
     let value = isUndefined(data) ? null : data;
-    if (this.$config.parser) {
+    if (this.__config.parser) {
       value = this.parse(realize(value, this.getModel()), strategy);
     }
-    if (this.$config.setter) {
-      value = this.$config.setter.call(this.getModel(), realize(value, this.getModel()));
+    if (this.__config.setter) {
+      value = this.__config.setter.call(this.getModel(), realize(value, this.getModel()));
     }
 
     this._rawValue = value;
@@ -90,12 +90,12 @@ export class Prop {
   public getValue(): any {
     let value = realize(this._rawValue, this.getModel());
 
-    if (this.$config.getter) {
-      value = this.$config.getter.call(this.getModel(), value);
+    if (this.__config.getter) {
+      value = this.__config.getter.call(this.getModel(), value);
     }
 
-    if (!isPresent(value) && !isUndefined(this.$config.emptyValue)) {
-      value = realize(this.$config.emptyValue, this.getModel());
+    if (!isPresent(value) && !isUndefined(this.__config.emptyValue)) {
+      value = realize(this.__config.emptyValue, this.getModel());
     }
 
     return isUndefined(value) ? null : value;
@@ -133,7 +133,7 @@ export class Prop {
    * Returns `true` if the property is an array.
    */
   public isArray(): boolean {
-    const { array } = this.$config.parser || {} as any;
+    const { array } = this.__config.parser || {} as any;
     return array === true;
   }
 
@@ -143,10 +143,10 @@ export class Prop {
    */
   public isPopulatable(strategy?: string): boolean {
     return (
-      this.$config.enumerable !== false
+      this.__config.enumerable !== false
       && (
         isUndefined(strategy)
-        || (this.$config.populatable || []).indexOf(strategy) !== -1
+        || (this.__config.populatable || []).indexOf(strategy) !== -1
       )
     );
   }
@@ -157,10 +157,10 @@ export class Prop {
    */
   public isSerializable(strategy?: string): boolean {
     return (
-      this.$config.enumerable !== false
+      this.__config.enumerable !== false
       && (
         isUndefined(strategy)
-        || (this.$config.serializable || []).indexOf(strategy) !== -1
+        || (this.__config.serializable || []).indexOf(strategy) !== -1
       )
     );
   }
@@ -225,7 +225,7 @@ export class Prop {
    * @param strategy Population strategy (only for Model types).
    */
   protected parse(value: any, strategy?: string): any {
-    const parser = (this.$config.parser || {}) as any;
+    const parser = (this.__config.parser || {}) as any;
     const recipe = {
       resolver: parser.resolver,
       array: parser.array || false,
@@ -242,7 +242,7 @@ export class Prop {
         }
         else {
           return new Klass(null, {
-            ...this.getModel().$config,
+            ...this.getModel().__config,
             parent: this.getModel(),
           }).populate(data, strategy);
         }
@@ -276,7 +276,7 @@ export class Prop {
    * Sets property value to the default value.
    */
   public reset(): this {
-    this.setValue(this.$config.defaultValue);
+    this.setValue(this.__config.defaultValue);
 
     return this;
   }
@@ -286,7 +286,7 @@ export class Prop {
    */
   public fake(): this {
 
-    this.setValue(this.$config.fakeValue);
+    this.setValue(this.__config.fakeValue);
 
     (toArray(this._rawValue) || []) // related fake values
       .filter((doc) => isInstanceOf(doc, Model))
@@ -333,7 +333,7 @@ export class Prop {
   public rollback(): this {
     let value = this._initialValue;
 
-    if (this.$config.parser) {
+    if (this.__config.parser) {
       value = this.parse(value);
     }
 
@@ -363,7 +363,7 @@ export class Prop {
 
     this._errorCode = await validate(
       this.getValue(),
-      this.$config.validators,
+      this.__config.validators,
       {
         context: this.getModel(),
       },
@@ -385,7 +385,7 @@ export class Prop {
 
     this._errorCode = await handle(
       error,
-      this.$config.handlers,
+      this.__config.handlers,
       {
         context: this.getModel(),
       },

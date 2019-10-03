@@ -501,11 +501,11 @@ class User extends Model {
 | config.serializable | String[] | No | - | List of strategies for serializing the property value.
 | config.enumerable | Boolean | No | true | Indicates that the property is enumerable.
 
-**Model.prototype.$config**: Object
+**Model.prototype.__config**: Object
 
 > Model configuration data.
 
-**Model.prototype.$props**: Object
+**Model.prototype.__props**: Object
 
 > Model property instances.
 
@@ -696,7 +696,7 @@ try {
 | config.enumerable | Boolean | No | true | Indicates that the property is enumerable.
 | config.model | Model | No | null | Parent model instance.
 
-**Prop.prototype.$config**: Object
+**Prop.prototype.__config**: Object
 
 > Property configuration object.
 
