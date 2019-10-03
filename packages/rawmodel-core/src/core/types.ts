@@ -35,14 +35,14 @@ export interface PropItem {
  * Model property class configuration object.
  */
 export interface PropConfig {
-  set?: SimpleResolver;
-  get?: SimpleResolver;
-  parse?: ParserRecipe;
+  getter?: SimpleResolver;
+  setter?: SimpleResolver;
+  parser?: ParserRecipe;
   defaultValue?: any | SimpleResolver;
   fakeValue?: any | SimpleResolver;
   emptyValue?: any | SimpleResolver;
-  validate?: ValidatorRecipe[];
-  handle?: HandlerRecipe[];
+  validators?: ValidatorRecipe[];
+  handlers?: HandlerRecipe[];
   populatable?: string[];
   serializable?: string[];
   enumerable?: boolean;

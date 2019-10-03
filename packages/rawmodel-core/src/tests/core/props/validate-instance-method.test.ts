@@ -5,7 +5,7 @@ const spec = new Spec();
 
 spec.test('validates property and populates error codes', async (ctx) => {
   const prop = new Prop({
-    validate: [
+    validators: [
       { code: 400, resolver: (v) => true },
       { code: 401, resolver: (v) => false },
     ],

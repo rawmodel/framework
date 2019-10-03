@@ -21,14 +21,14 @@ export interface SchemaRecipe {
  */
 export interface PropDefinition {
   name: string;
-  set?: string;
-  get?: string;
-  parse?: ParserRecipe;
+  setter?: string;
+  getter?: string;
+  parser?: ParserRecipe;
   defaultValue?: string;
   fakeValue?: string;
   emptyValue?: string;
-  validate?: ValidatorRecipe[];
-  handle?: HandlerRecipe[];
+  validators?: ValidatorRecipe[];
+  handlers?: HandlerRecipe[];
   populatable?: string[];
   serializable?: string[];
   enumerable?: boolean;

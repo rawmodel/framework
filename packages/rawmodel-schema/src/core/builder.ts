@@ -30,21 +30,21 @@ export function createModelClass(recipe: SchemaRecipe): typeof Model {
 
   (recipe.props || []).forEach((prop) => {
     const obj: any = {
-      set: undefined,
-      get: undefined,
+      setter: undefined,
+      getter: undefined,
       populatable: prop.populatable,
       serializable: prop.serializable,
       enumerable: prop.enumerable,
-      parse: {},
-      validate: [],
-      handle: [],
+      parser: {},
+      validators: [],
+      handlers: [],
     };
 
-    if (!isUndefined(prop.get) && isFunction(recipe.getters[prop.get])) {
-      obj.get = recipe.getters[prop.get]();
+    if (!isUndefined(prop.getter) && isFunction(recipe.getters[prop.getter])) {
+      obj.getter = recipe.getters[prop.getter]();
     }
-    if (!isUndefined(prop.set) && isFunction(recipe.setters[prop.set])) {
-      obj.set = recipe.setters[prop.set]();
+    if (!isUndefined(prop.setter) && isFunction(recipe.setters[prop.setter])) {
+      obj.setter = recipe.setters[prop.setter]();
     }
 
     if (!isUndefined(prop.defaultValue)) {
@@ -63,25 +63,25 @@ export function createModelClass(recipe: SchemaRecipe): typeof Model {
         : prop.emptyValue;
     }
 
-    if (!isUndefined(prop.parse)) {
-      obj.parse.array = !!prop.parse.array;
-      if (prop.parse.resolver && isFunction(recipe.parsers[prop.parse.resolver])) {
-        obj.parse.resolver = recipe.parsers[prop.parse.resolver](prop.parse.options);
+    if (!isUndefined(prop.parser)) {
+      obj.parser.array = !!prop.parser.array;
+      if (prop.parser.resolver && isFunction(recipe.parsers[prop.parser.resolver])) {
+        obj.parser.resolver = recipe.parsers[prop.parser.resolver](prop.parser.options);
       }
     }
 
-    (prop.validate || []).forEach((validator) => {
+    (prop.validators || []).forEach((validator) => {
       if (isFunction(recipe.validators[validator.resolver])) {
-        obj.validate.push({
+        obj.validators.push({
           ...validator,
           resolver: recipe.validators[validator.resolver](validator.options),
         });
       }
     });
 
-    (prop.handle || []).forEach((handler) => {
+    (prop.handlers || []).forEach((handler) => {
       if (isFunction(recipe.handlers[handler.resolver])) {
-        obj.handle.push({
+        obj.handlers.push({
           ...handler,
           resolver: recipe.handlers[handler.resolver](handler.options),
         });

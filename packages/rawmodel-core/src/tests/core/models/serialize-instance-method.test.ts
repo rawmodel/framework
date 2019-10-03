@@ -7,46 +7,46 @@ const spec = new Spec();
 spec.test('deeply serializes property data using strategies', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       serializable: ['output'],
     })
     title: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       serializable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
     })
     name: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       serializable: ['input'],
     })
     email: string;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
       serializable: ['output'],
     })
     book0: Book;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
       serializable: ['input'],
     })
     books: Book[];
@@ -87,6 +87,39 @@ spec.test('deeply serializes property data using strategies', (ctx) => {
         description: 'Zed',
       }
     ],
+  });
+});
+
+spec.test('ignores not enumerable properties', (ctx) => {
+  class Book extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+  }
+  class User extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+    @prop({
+      parser: { resolver: Book },
+    })
+    book: Book;
+  }
+  const data = {
+    id: 100,
+    name: 'John',
+    book: { id: 200, name: 'Smith' },
+  };
+  const user = new User(data);
+  console.log(user.serialize());
+
+  ctx.deepEqual(user.serialize(), {
+    name: 'John',
+    book: {
+      name: 'Smith',
+    },
   });
 });
 

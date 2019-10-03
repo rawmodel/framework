@@ -7,46 +7,46 @@ const spec = new Spec();
 spec.test('deeply assignes property data using strategies', (ctx) => {
   class Book extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
       populatable: ['output'],
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
     })
     title: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       populatable: ['input'],
     })
     description: string;
   }
   class User extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
       populatable: ['output'],
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
     })
     name: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       populatable: ['input'],
     })
     email: string;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
       populatable: ['output'],
     })
     book0: Book;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
       populatable: ['input'],
     })
     books: Book[];
@@ -110,6 +110,35 @@ spec.test('deeply assignes property data using strategies', (ctx) => {
   user3.populate({ book0: book, books: [book] });
   ctx.is(user3.book0, book); // preserves instance
   ctx.is(user3.books[0], book); // preserves instance
+});
+
+spec.test('ignores not enumerable properties', (ctx) => {
+  class Book extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+  }
+  class User extends Model {
+    @prop({ enumerable: false })
+    id: number;
+    @prop()
+    name: number;
+    @prop({
+      parser: { resolver: Book },
+    })
+    book: Book;
+  }
+  const data = {
+    id: 100,
+    name: 'John',
+    book: { id: 200, name: 'Smith' },
+  };
+  const user = new User();
+  user.populate(data);
+  ctx.is(user.id, null);
+  ctx.is(user.name, 'John');
+  ctx.is(user.book.id, null);
 });
 
 export default spec;

@@ -7,68 +7,68 @@ const spec = new Spec();
 spec.test('creation of ~5k models', (ctx) => {
   class Author extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       serializable: ['output'],
     })
     name: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       populatable: ['input'],
     })
     email: string;
   }
   class Book extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
     })
     title: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       populatable: ['input'],
     })
     description: string;
     @prop({
-      parse: { array: true, resolver: Author },
+      parser: { array: true, resolver: Author },
       populatable: ['input'],
     })
     author: Author[];
   }
   class User extends Model {
     @prop({
-      parse: { resolver: floatParser() },
+      parser: { resolver: floatParser() },
       serializable: ['output'],
     })
     id: number;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       serializable: ['output'],
     })
     name: string;
     @prop({
-      parse: { resolver: stringParser() },
+      parser: { resolver: stringParser() },
       populatable: ['input'],
     })
     email: string;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book0: Book;
     @prop({
-      parse: { resolver: Book },
+      parser: { resolver: Book },
     })
     book1: Book;
     @prop({
-      parse: { array: true, resolver: Book },
+      parser: { array: true, resolver: Book },
       populatable: ['input'],
     })
     books: Book[];
