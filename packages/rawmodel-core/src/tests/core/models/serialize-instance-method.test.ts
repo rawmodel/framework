@@ -113,7 +113,6 @@ spec.test('ignores not enumerable properties', (ctx) => {
     book: { id: 200, name: 'Smith' },
   };
   const user = new User(data);
-  console.log(user.serialize());
 
   ctx.deepEqual(user.serialize(), {
     name: 'John',

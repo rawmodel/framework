@@ -369,11 +369,13 @@ export class Prop {
       },
     );
 
-    await Promise.all( // validate related models
-      (toArray(this._rawValue) || [])
-        .filter((doc) => isInstanceOf(doc, Model))
-        .map((doc) => doc.validate({ quiet: true }))
-    );
+    if (!isNumber(this._errorCode)) {
+      await Promise.all( // validate related models
+        (toArray(this._rawValue) || [])
+          .filter((doc) => isInstanceOf(doc, Model))
+          .map((doc) => doc.validate({ quiet: true }))
+      );
+    }
 
     return this;
   }
@@ -391,11 +393,13 @@ export class Prop {
       },
     );
 
-    await Promise.all( // handle related models
-      (toArray(this._rawValue) || [])
-        .filter((doc) => isInstanceOf(doc, Model))
-        .map((doc) => doc.handle(error))
-    ).catch(() => {}); // do not throw even when unhandled error
+    if (!isNumber(this._errorCode)) {
+      await Promise.all( // handle related models
+        (toArray(this._rawValue) || [])
+          .filter((doc) => isInstanceOf(doc, Model))
+          .map((doc) => doc.handle(error))
+      ).catch(() => {}); // do not throw even when unhandled error
+    }
 
     return this;
   }

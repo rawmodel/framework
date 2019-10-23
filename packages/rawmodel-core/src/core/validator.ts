@@ -1,4 +1,4 @@
-import { realize, isArray } from '@rawmodel/utils';
+import { realize } from '@rawmodel/utils';
 import { ValidatorConfig, ValidatorRecipe } from './types';
 
 /**
@@ -12,10 +12,11 @@ export async function validate(value: any, recipes: ValidatorRecipe[] = [], conf
   for (const recipe of recipes) {
 
     const context = realize(config.context);
-    const isValid = await Promise.all(
-      (isArray(value) ? value : [value])
-        .map((v) => recipe.resolver.call(context, v))
-    ).then((r) => r.indexOf(false) === -1);
+    const isValid = await Promise.resolve().then(() => {
+      return recipe.resolver.call(context, value);
+    }).then((r) => {
+      return r === true;
+    });
 
     if (!isValid) {
       return recipe.code;

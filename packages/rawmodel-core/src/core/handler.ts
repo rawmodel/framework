@@ -1,4 +1,4 @@
-import { realize, isArray } from '@rawmodel/utils';
+import { realize } from '@rawmodel/utils';
 import { HandlerConfig, HandlerRecipe } from './types';
 
 /**
@@ -12,10 +12,11 @@ export async function handle(error: any, recipes: HandlerRecipe[] = [], config: 
   for (const recipe of recipes) {
 
     const context = realize(config.context);
-    const isMatch = await Promise.all(
-      (isArray(error) ? error : [error])
-        .map((v) => recipe.resolver.call(context, v))
-    ).then((r) => r.indexOf(false) === -1);
+    const isMatch = await Promise.resolve().then(() => {
+      return recipe.resolver.call(context, error);
+    }).then((r) => {
+      return r === true;
+    });
 
     if (isMatch) {
       return recipe.code;
