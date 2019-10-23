@@ -1,6 +1,16 @@
 # Change Log - @rawmodel/handlers
 
-This log was last generated on Thu, 03 Oct 2019 20:16:12 GMT and should not be manually modified.
+This log was last generated on Wed, 23 Oct 2019 07:59:15 GMT and should not be manually modified.
+
+## 3.3.3
+Wed, 23 Oct 2019 07:59:15 GMT
+
+*Version update only*
+
+## 3.3.2
+Wed, 23 Oct 2019 06:38:22 GMT
+
+*Version update only*
 
 ## 3.3.1
 Thu, 03 Oct 2019 20:16:12 GMT

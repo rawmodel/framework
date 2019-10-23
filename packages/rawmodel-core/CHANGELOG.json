@@ -2,6 +2,18 @@
   "name": "@rawmodel/core",
   "entries": [
     {
+      "version": "3.3.3",
+      "tag": "@rawmodel/core_v3.3.3",
+      "date": "Wed, 23 Oct 2019 07:59:15 GMT",
+      "comments": {}
+    },
+    {
+      "version": "3.3.2",
+      "tag": "@rawmodel/core_v3.3.2",
+      "date": "Wed, 23 Oct 2019 06:38:22 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.3.1",
       "tag": "@rawmodel/core_v3.3.1",
       "date": "Thu, 03 Oct 2019 20:16:12 GMT",
