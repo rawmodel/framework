@@ -13,9 +13,11 @@ spec.test('exposed content', (ctx) => {
   ctx.true(!!validators.dateValidator);
   ctx.true(!!validators.emailValidator);
   ctx.true(!!validators.ethAddressValidator);
+  ctx.true(!!validators.exclusionValidator);
   ctx.true(!!validators.fqdnValidator);
   ctx.true(!!validators.hexColorValidator);
   ctx.true(!!validators.hexValidator);
+  ctx.true(!!validators.inclusionValidator);
   ctx.true(!!validators.jsonStringValidator);
   ctx.true(!!validators.downcaseStringValidator);
   ctx.true(!!validators.matchValidator);

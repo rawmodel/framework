@@ -1,6 +1,5 @@
-import { isUndefined } from '@rawmodel/utils/dist/helpers/is-undefined';
-import { isNull } from '@rawmodel/utils/dist/helpers/is-null';
 import { arrayInclusionValidator } from './array-inclusion';
+import { isPresent } from '@rawmodel/utils';
 
 /**
  * Returns a function for detecting values that do not exist in the array.
@@ -8,10 +7,14 @@ import { arrayInclusionValidator } from './array-inclusion';
 export function arrayExclusionValidator(options: {
   values?: any[];
 } = {}) {
-  return (value?: any) => {
+  return (value?: any[]) => {
+
+    console.log(
+      !arrayInclusionValidator(options)(value)
+    );
+
     return (
-      isUndefined(value)
-      || isNull(value)
+      !isPresent(value)
       || !arrayInclusionValidator(options)(value)
     );
   };

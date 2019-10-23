@@ -956,7 +956,7 @@ const recipe = {
 
 **arrayExclusionValidator(options)**: Function
 
-> Validates that the specified property is not in an array of values.
+> Validates that the specified array property is not in an array of values.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -964,7 +964,7 @@ const recipe = {
 
 **arrayInclusionValidator(options)**: Function
 
-> Validates that the specified property is in an array of values.
+> Validates that the specified array property is in an array of values.
 
 | Option | Type | Required | Default | Description
 |--------|------|----------|---------|------------
@@ -1015,6 +1015,14 @@ const recipe = {
 
 > Checks if the string represents an Ethereum address.
 
+**exclusionValidator(options)**: Function
+
+> Validates that the specified property is not in an array of values.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.values | Array | Yes | - | Array of restricted values.
+
 **fqdnValidator(options)**: Function
 
 > Validates that the specified property is a fully qualified domain name (e.g. domain.com).
@@ -1032,6 +1040,14 @@ const recipe = {
 **hexValidator()**: Function
 
 > Validates that a specified property is a hexadecimal number.
+
+**inclusionValidator(options)**: Function
+
+> Validates that the specified property is in an array of values.
+
+| Option | Type | Required | Default | Description
+|--------|------|----------|---------|------------
+| options.values | Array | Yes | - | Array of allowed values.
 
 **jsonStringValidator(options)**: Function
 
