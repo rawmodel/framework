@@ -2,6 +2,12 @@
   "name": "@rawmodel/parsers",
   "entries": [
     {
+      "version": "3.3.3",
+      "tag": "@rawmodel/parsers_v3.3.3",
+      "date": "Wed, 23 Oct 2019 07:59:15 GMT",
+      "comments": {}
+    },
+    {
       "version": "3.3.2",
       "tag": "@rawmodel/parsers_v3.3.2",
       "date": "Wed, 23 Oct 2019 06:38:22 GMT",
