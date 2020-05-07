@@ -82,11 +82,11 @@
   "author": "Kristijan Sedlak (Xpepermint)",
   "license": "MIT",
   "devDependencies": {
-    "@hayspec/cli": "^0.8.4",
-    "@hayspec/spec": "^0.8.4",
-    "nyc": "^14.1.1",
-    "ts-node": "^8.3.0",
-    "tslint": "^5.18.0",
-    "typescript": "^3.5.3"
+    "@hayspec/cli": "^0.10.0",
+    "@hayspec/spec": "^0.10.0",
+    "nyc": "^15.0.1",
+    "ts-node": "^8.10.1",
+    "tslint": "^6.1.2",
+    "typescript": "^3.8.3"
   }
 }
