@@ -12,8 +12,7 @@ export function isInstanceOf(v?: any, k?: any) {
       && isPresent(k)
       && v instanceof k
     );
-  }
-  catch (e) {
+  } catch (e) {
     return false;
   }
 }

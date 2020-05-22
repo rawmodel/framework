@@ -12,8 +12,7 @@ export function matchValidator(options: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isString(value)) {
+    } else if (!isString(value)) {
       return false;
     }
 

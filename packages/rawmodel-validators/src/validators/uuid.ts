@@ -18,31 +18,30 @@ export function uuidValidator(recipe: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isString(value)) {
+    } else if (!isString(value)) {
       return false;
     }
 
     const { version } = recipe;
     switch (version) {
-      case 1:
-        return V1_REGEX.test(value);
-      case 2:
-        return V2_REGEX.test(value);
-      case 3:
-        return V3_REGEX.test(value);
-      case 4:
-        return V4_REGEX.test(value);
-      case 5:
-        return V5_REGEX.test(value);
+    case 1:
+      return V1_REGEX.test(value);
+    case 2:
+      return V2_REGEX.test(value);
+    case 3:
+      return V3_REGEX.test(value);
+    case 4:
+      return V4_REGEX.test(value);
+    case 5:
+      return V5_REGEX.test(value);
+    default:
+      return (
+        V1_REGEX.test(value)
+        || V2_REGEX.test(value)
+        || V3_REGEX.test(value)
+        || V4_REGEX.test(value)
+        || V5_REGEX.test(value)
+      );
     }
-
-    return (
-      V1_REGEX.test(value)
-      || V2_REGEX.test(value)
-      || V3_REGEX.test(value)
-      || V4_REGEX.test(value)
-      || V5_REGEX.test(value)
-    );
   };
 }

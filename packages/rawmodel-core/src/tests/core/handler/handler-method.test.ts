@@ -5,8 +5,12 @@ const spec = new Spec();
 
 spec.test('handles an error and returns error codes', async (ctx) => {
   const recipes = [
-    { code: 200, resolver(e) { return e.message === 'foo'; } },
-    { code: 201, resolver(e) { return e.message === 'bar'; } },
+    { code: 200, resolver(e) {
+      return e.message === 'foo';
+    } },
+    { code: 201, resolver(e) {
+      return e.message === 'bar';
+    } },
   ];
   const error = new Error('foo');
   const code = await handle(error, recipes);
@@ -18,7 +22,9 @@ spec.test('passes context to each resolver', async (ctx) => {
     context: { foo: 'foo' },
   };
   const recipes = [
-    { code: 100, resolver(v) { return v === this.foo; } },
+    { code: 100, resolver(v) {
+      return v === this.foo;
+    } },
   ];
   const code = await handle('foo', recipes, config);
   ctx.deepEqual(code, 100);

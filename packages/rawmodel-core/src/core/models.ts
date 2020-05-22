@@ -7,9 +7,9 @@ import { ModelConfig, PropConfig, PropItem, PropError, PropPath } from './types'
  * Strongly typed javascript object.
  */
 export class Model<Context = any> {
+  public static readonly __props: {[key: string]: PropConfig} = {};
   public readonly __config: ModelConfig<Context>;
   public readonly __props: {[key: string]: Prop};
-  public static readonly __props: {[key: string]: PropConfig} = {};
 
   /**
    * Class constructor.
@@ -29,38 +29,6 @@ export class Model<Context = any> {
 
     this.defineProps();
     this.populate(data);
-  }
-
-  /**
-   * Defines all registered class properties. Registered properties are stored
-   * on the static variable using the @prop decorator.
-   */
-  protected defineProps() {
-    const recipes = this.constructor['__props'];
-
-    for (const key in recipes) {
-      this.defineProp(key, recipes[key]);
-    }
-  }
-
-  /**
-   * Defines a new class property.
-   * @param key Property name.
-   * @param config Property configuration.
-   */
-  protected defineProp(key: string, config: PropConfig) {
-
-    this.__props[key] = new Prop({
-      ...config,
-      model: this,
-    });
-
-    Object.defineProperty(this, key, {
-      get: () => this.__props[key].getValue(),
-      set: (value) => this.__props[key].setValue(value),
-      enumerable: config.enumerable !== false,
-      configurable: false,
-    });
   }
 
   /**
@@ -171,8 +139,7 @@ export class Model<Context = any> {
           items.push({ path, prop, value });
           transform(value, path);
         });
-      }
-      else if (isObject(obj)) {
+      } else if (isObject(obj)) {
         Object.keys(obj).forEach((key) => {
           const path = prefix.concat([key]);
           const prop = this.getProp(path);
@@ -286,9 +253,9 @@ export class Model<Context = any> {
    * @param quiet Set to `true` to not throw on validation error.
    */
   public async validate({
-    quiet = false
+    quiet = false,
   }: {
-    quiet?: boolean
+    quiet?: boolean;
   } = {}): Promise<this> {
 
     await Promise.all(
@@ -310,9 +277,9 @@ export class Model<Context = any> {
    * @param quiet Set to `true` to not throw on error.
    */
   public async handle(error: any, {
-    quiet = true
+    quiet = true,
   }: {
-    quiet?: boolean
+    quiet?: boolean;
   } = {}): Promise<this> {
 
     if (!error) {
@@ -331,8 +298,7 @@ export class Model<Context = any> {
       const error = new Error('Validation failed');
       error['code'] = 422;
       throw error;
-    }
-    else if (!quiet && this.isValid()) {
+    } else if (!quiet && this.isValid()) {
       throw error; // always throw unhandled errors
     }
 
@@ -383,6 +349,40 @@ export class Model<Context = any> {
       ...data,
     }, {
       ...this.__config,
+    });
+  }
+
+  /**
+   * Defines all registered class properties. Registered properties are stored
+   * on the static variable using the @prop decorator.
+   */
+  protected defineProps() {
+    const recipes = this.constructor['__props'];
+
+    for (const key in recipes) {
+      if (recipes.hasOwnProperty(key)) {
+        this.defineProp(key, recipes[key]);
+      }
+    }
+  }
+
+  /**
+   * Defines a new class property.
+   * @param key Property name.
+   * @param config Property configuration.
+   */
+  protected defineProp(key: string, config: PropConfig) {
+
+    this.__props[key] = new Prop({
+      ...config,
+      model: this,
+    });
+
+    Object.defineProperty(this, key, {
+      get: () => this.__props[key].getValue(),
+      set: (value) => this.__props[key].setValue(value),
+      enumerable: config.enumerable !== false,
+      configurable: false,
     });
   }
 

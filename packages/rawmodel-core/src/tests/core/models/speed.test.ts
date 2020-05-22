@@ -10,68 +10,68 @@ spec.test('creation of ~5k models', (ctx) => {
       parser: { resolver: floatParser() },
       serializable: ['output'],
     })
-    id: number;
+    public id: number;
     @prop({
       parser: { resolver: stringParser() },
       serializable: ['output'],
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: stringParser() },
       populatable: ['input'],
     })
-    email: string;
+    public email: string;
   }
   class Book extends Model {
     @prop({
       parser: { resolver: floatParser() },
       serializable: ['output'],
     })
-    id: number;
+    public id: number;
     @prop({
       parser: { resolver: stringParser() },
     })
-    title: string;
+    public title: string;
     @prop({
       parser: { resolver: stringParser() },
       populatable: ['input'],
     })
-    description: string;
+    public description: string;
     @prop({
       parser: { array: true, resolver: Author },
       populatable: ['input'],
     })
-    author: Author[];
+    public author: Author[];
   }
   class User extends Model {
     @prop({
       parser: { resolver: floatParser() },
       serializable: ['output'],
     })
-    id: number;
+    public id: number;
     @prop({
       parser: { resolver: stringParser() },
       serializable: ['output'],
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: stringParser() },
       populatable: ['input'],
     })
-    email: string;
+    public email: string;
     @prop({
       parser: { resolver: Book },
     })
-    book0: Book;
+    public book0: Book;
     @prop({
       parser: { resolver: Book },
     })
-    book1: Book;
+    public book1: Book;
     @prop({
       parser: { array: true, resolver: Book },
       populatable: ['input'],
     })
-    books: Book[];
+    public books: Book[];
   }
   const sampleBooks = Array(500).fill(null).map(() => ({
     id: 300,

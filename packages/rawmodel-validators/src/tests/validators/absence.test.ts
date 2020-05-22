@@ -22,5 +22,4 @@ spec.test('fails when not blank', (ctx) => {
   ctx.false(absenceValidator()(['text']));
 });
 
-
 export default spec;

@@ -15,8 +15,7 @@ export function isClassOf(v?: any, k?: any) {
         || v.prototype.constructor === k
       )
     );
-  }
-  catch (e) {
+  } catch (e) {
     return false;
   }
 }

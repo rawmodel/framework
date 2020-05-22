@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { Spec } from '@hayspec/spec';
 import { isInstanceOf } from '../..';
 

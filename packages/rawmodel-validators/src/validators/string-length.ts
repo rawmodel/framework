@@ -17,8 +17,7 @@ export function stringLengthValidator(recipe: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isString(value)) {
+    } else if (!isString(value)) {
       return false;
     }
 
@@ -29,14 +28,11 @@ export function stringLengthValidator(recipe: {
 
     if (isNumber(min) && !(len > min)) {
       return false;
-    }
-    else if (isNumber(minOrEqual) && !(len >= minOrEqual)) {
+    } else if (isNumber(minOrEqual) && !(len >= minOrEqual)) {
       return false;
-    }
-    else if (isNumber(max) && !(len < max)) {
+    } else if (isNumber(max) && !(len < max)) {
       return false;
-    }
-    else if (isNumber(maxOrEqual) && !(len <= maxOrEqual)) {
+    } else if (isNumber(maxOrEqual) && !(len <= maxOrEqual)) {
       return false;
     }
     return true;

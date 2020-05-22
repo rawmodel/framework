@@ -14,13 +14,14 @@ export function dateValidator(recipe: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isString(value)) {
+    } else if (!isString(value)) {
       return false;
     }
 
     const date = Date.parse(value);
-    if (!date) return false;
+    if (!date) {
+      return false;
+    }
 
     const { iso } = recipe;
     if (iso) {

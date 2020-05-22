@@ -6,19 +6,19 @@ const spec = new Spec();
 spec.test('makes property not settable', async (ctx) => {
   class Book extends Model {
     @prop()
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
     })
-    books: Book[];
+    public books: Book[];
   }
   const user = new User({
     name: 'foo',

@@ -10,46 +10,46 @@ spec.test('deeply assignes property data using strategies', (ctx) => {
       parser: { resolver: floatParser() },
       populatable: ['output'],
     })
-    id: number;
+    public id: number;
     @prop({
       parser: { resolver: stringParser() },
     })
-    title: string;
+    public title: string;
     @prop({
       parser: { resolver: stringParser() },
       populatable: ['input'],
     })
-    description: string;
+    public description: string;
   }
   class User extends Model {
     @prop({
       parser: { resolver: floatParser() },
       populatable: ['output'],
     })
-    id: number;
+    public id: number;
     @prop({
       parser: { resolver: stringParser() },
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: stringParser() },
       populatable: ['input'],
     })
-    email: string;
+    public email: string;
     @prop({
       parser: { resolver: Book },
       populatable: ['output'],
     })
-    book0: Book;
+    public book0: Book;
     @prop({
       parser: { resolver: Book },
     })
-    book1: Book;
+    public book1: Book;
     @prop({
       parser: { array: true, resolver: Book },
       populatable: ['input'],
     })
-    books: Book[];
+    public books: Book[];
   }
   const data = {
     id: 100,
@@ -115,19 +115,19 @@ spec.test('deeply assignes property data using strategies', (ctx) => {
 spec.test('ignores not enumerable properties', (ctx) => {
   class Book extends Model {
     @prop({ enumerable: false })
-    id: number;
+    public id: number;
     @prop()
-    name: number;
+    public name: number;
   }
   class User extends Model {
     @prop({ enumerable: false })
-    id: number;
+    public id: number;
     @prop()
-    name: number;
+    public name: number;
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
   }
   const data = {
     id: 100,

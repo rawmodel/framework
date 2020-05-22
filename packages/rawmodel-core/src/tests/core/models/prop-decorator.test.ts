@@ -7,7 +7,7 @@ const spec = new Spec();
 spec.test('defines model property', (ctx) => {
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
   }
   const user = new User();
   const descriptor = Object.getOwnPropertyDescriptor(user, 'name');
@@ -26,13 +26,13 @@ spec.test('supports property enumerable style', (ctx) => {
     @prop({
       enumerable: true,
     })
-    name: string;
+    public name: string;
   }
   class User1 extends Model {
     @prop({
       enumerable: false,
     })
-    name: string;
+    public name: string;
   }
   const user0 = new User0({});
   const user1 = new User1({});
@@ -45,25 +45,25 @@ spec.test('supports deep type parsing', (ctx) => {
     @prop({
       parser: { resolver: stringParser() },
     })
-    name: string;
+    public name: string;
   }
   class User extends Model {
     @prop({
       parser: { resolver: stringParser() },
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
     })
-    books: Book[];
+    public books: Book[];
     @prop({
       parser: { array: true },
     })
-    items: any[];
+    public items: any[];
   }
   const book = new Book({
     name: 'Baz',
@@ -94,9 +94,11 @@ spec.test('parser shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      parser: { resolver(v) { context = this; return v; } },
+      parser: { resolver(v) {
+        context = this; return v;
+      } },
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   user.name = 'foo'; // run setter
@@ -108,7 +110,7 @@ spec.test('supports custom setter', (ctx) => {
     @prop({
       setter: (v) => `foo-${v}`,
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   user.name = 'bar';
@@ -119,9 +121,11 @@ spec.test('setter shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      setter() { context = this; },
+      setter() {
+        context = this;
+      },
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   user.name = 'foo'; // run setter
@@ -133,7 +137,7 @@ spec.test('supports custom getter', (ctx) => {
     @prop({
       getter: (v) => `foo-${v}`,
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   user.name = 'bar';
@@ -144,11 +148,14 @@ spec.test('getter shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      getter() { context = this; },
+      getter() {
+        context = this;
+      },
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   user.name; // run getter
   ctx.is(context, user);
 });
@@ -158,11 +165,11 @@ spec.test('supports default value', (ctx) => {
     @prop({
       defaultValue: 'foo',
     })
-    name: string;
+    public name: string;
     @prop({
       defaultValue: [],
     })
-    tags: string[];
+    public tags: string[];
   }
   const user = new User();
   ctx.is(user.name, 'foo');
@@ -173,11 +180,14 @@ spec.test('default value shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      defaultValue() { context = this; },
+      defaultValue() {
+        context = this;
+      },
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   user.name; // run getter (default value)
   ctx.is(context, user);
 });
@@ -187,11 +197,11 @@ spec.test('supports fake value', (ctx) => {
     @prop({
       fakeValue: 'foo',
     })
-    name: string;
+    public name: string;
     @prop({
       fakeValue: () => 'bar',
     })
-    email: string;
+    public email: string;
   }
   const user = new User();
   ctx.is(user.name, null);
@@ -205,12 +215,15 @@ spec.test('fake value shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      fakeValue() { context = this; },
+      fakeValue() {
+        context = this;
+      },
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   user.fake(); // set fake value
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   user.name; // run getter (fake value)
   ctx.is(context, user);
 });
@@ -220,16 +233,16 @@ spec.test('supports empty value', (ctx) => {
     @prop({
       emptyValue: 'foo',
     })
-    name: string;
+    public name: string;
     @prop({
       emptyValue: [],
     })
-    list: string[];
+    public list: string[];
     @prop({
       defaultValue: [],
       emptyValue: ['foo'], // override default value if empty
     })
-    tags: string[];
+    public tags: string[];
   }
   const user = new User();
   ctx.is(user.name, 'foo');
@@ -241,11 +254,14 @@ spec.test('empty value shares associated model context', (ctx) => {
   let context = null;
   class User extends Model {
     @prop({
-      emptyValue() { context = this; },
+      emptyValue() {
+        context = this;
+      },
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
+  // eslint-disable-next-line @typescript-eslint/no-unused-expressions
   user.name; // run getter (default value)
   ctx.is(context, user);
 });
@@ -255,10 +271,12 @@ spec.test('validators share associated model context', async (ctx) => {
   class User extends Model {
     @prop({
       validators: [
-        { resolver(v) { return context = this; }, code: 100 },
+        { resolver(v) {
+          return context = this;
+        }, code: 100 },
       ],
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   await user.validate({ quiet: true }); // run validation
@@ -270,10 +288,12 @@ spec.test('resolvers share associated model context', async (ctx) => {
   class User extends Model {
     @prop({
       handlers: [
-        { resolver(v) { return context = this; }, code: 100 },
+        { resolver(v) {
+          return context = this;
+        }, code: 100 },
       ],
     })
-    name: string;
+    public name: string;
   }
   const user = new User();
   await user.handle(new Error()); // run resolver

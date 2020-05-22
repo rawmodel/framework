@@ -8,23 +8,23 @@ spec.test('sets properties to their fake values', (ctx) => {
     @prop({
       fakeValue: 'foo',
     })
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop({
       fakeValue: 'bar',
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
       fakeValue: 'bar',
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
       fakeValue: [null, {}],
     })
-    books: Book[];
+    public books: Book[];
   }
   const user = new User();
   user.fake();

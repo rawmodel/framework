@@ -29,7 +29,9 @@ spec.test('generates model with properties', (ctx) => {
 spec.test('supports property custom getter', (ctx) => {
   const Klass = createModelClass({
     getters: {
-      foo () { return () => 'foo'; },
+      foo() {
+        return () => 'foo';
+      },
     },
     props: [
       {
@@ -47,7 +49,9 @@ spec.test('supports property custom getter', (ctx) => {
 spec.test('supports property custom setter', (ctx) => {
   const Klass = createModelClass({
     setters: {
-      foo () { return () => 'foo'; },
+      foo() {
+        return () => 'foo';
+      },
     },
     props: [
       {
@@ -67,7 +71,9 @@ spec.test('supports property custom setter', (ctx) => {
 spec.test('supports property default value', (ctx) => {
   const Klass = createModelClass({
     defaultValues: {
-      smithName() { return 'Smith'; },
+      smithName() {
+        return 'Smith';
+      },
     },
     props: [
       {
@@ -90,7 +96,9 @@ spec.test('supports property default value', (ctx) => {
 spec.test('supports property fake value', (ctx) => {
   const Klass = createModelClass({
     fakeValues: {
-      smithName() { return 'Smith'; },
+      smithName() {
+        return 'Smith';
+      },
     },
     props: [
       {
@@ -113,7 +121,9 @@ spec.test('supports property fake value', (ctx) => {
 spec.test('supports property empty value', (ctx) => {
   const Klass = createModelClass({
     emptyValues: {
-      emptyString() { return ''; },
+      emptyString() {
+        return '';
+      },
     },
     props: [
       {
@@ -186,7 +196,9 @@ spec.test('supports property validators', async (ctx) => {
 spec.test('supports property handlers', async (ctx) => {
   const Klass = createModelClass({
     handlers: {
-      generalError() { return (e: any) => true; },
+      generalError() {
+        return (e: any) => true;
+      },
     },
     props: [
       {

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+/* eslint-disable @typescript-eslint/no-extraneous-class */
 import { Spec } from '@hayspec/spec';
 import { isFunction } from '../..';
 

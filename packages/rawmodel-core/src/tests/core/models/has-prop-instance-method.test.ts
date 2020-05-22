@@ -6,7 +6,7 @@ const spec = new Spec();
 spec.test('returns `true` if the prop exists', (ctx) => {
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
   }
   const user = new User();
   ctx.is(user.hasProp(['name']), true);

@@ -6,23 +6,23 @@ const spec = new Spec();
 spec.test('returns an array of errors', (ctx) => {
   class Book extends Model {
     @prop()
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
     })
-    books: Book[];
+    public books: Book[];
   }
   const user = new User({
     book: {},
-    books: [{}]
+    books: [{}],
   });
   user.getProp('name').setErrorCode(100);
   user.getProp('book', 'title').setErrorCode(200);
@@ -37,13 +37,13 @@ spec.test('returns an array of errors', (ctx) => {
 spec.test('supports JSON types', (ctx) => {
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
     @prop()
-    json0: any;
+    public json0: any;
     @prop()
-    json1: any;
+    public json1: any;
     @prop()
-    json2: any;
+    public json2: any;
   }
   const user = new User({
     name: 'foo',

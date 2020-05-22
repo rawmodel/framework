@@ -15,13 +15,17 @@ export function isDeepEqual(a, b) {
   let propsInB = 0;
 
   for (const prop in a) {
-    propsInA += 1;
+    if (a.hasOwnProperty(prop)) {
+      propsInA += 1;
+    }
   }
 
   for (const prop in b) {
-    propsInB += 1;
-    if (!(prop in a) || !isDeepEqual(a[prop], b[prop])) {
-      return false;
+    if (b.hasOwnProperty(prop)) {
+      propsInB += 1;
+      if (!(prop in a) || !isDeepEqual(a[prop], b[prop])) {
+        return false;
+      }
     }
   }
   return propsInA == propsInB;

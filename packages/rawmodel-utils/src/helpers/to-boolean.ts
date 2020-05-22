@@ -10,8 +10,7 @@ import { isInfinite } from './is-infinite';
 export function toBoolean(v?: any) {
   if (isBoolean(v) || isUndefined(v) || isNull(v)) {
     return v;
-  }
-  else {
+  } else {
     return (
       parseFloat(v) > 0
       || isInfinite(v)

@@ -22,8 +22,7 @@ export function emailValidator(recipe: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isString(value)) {
+    } else if (!isString(value)) {
       return false;
     }
 
@@ -45,11 +44,9 @@ export function emailValidator(recipe: {
 
     if (!stringLengthValidator({ bytes: true, max: 64 })(user) || !stringLengthValidator({ bytes: true, max: 256 })(domain)) {
       return false;
-    }
-    else if (!fqdnValidator({ requireTld })(domain)) {
+    } else if (!fqdnValidator({ requireTld })(domain)) {
       return false;
-    }
-    else if (user[0] === '"') {
+    } else if (user[0] === '"') {
       user = user.slice(1, user.length - 1);
       return allowUtf8LocalPart
         ? QUOTED_EMAIL_USER_UTF8_REGEX.test(user)
@@ -59,9 +56,9 @@ export function emailValidator(recipe: {
     const pattern = allowUtf8LocalPart
       ? EMAIL_USER_UTF8_REGEX
       : EMAIL_USER_REGEX;
-      const userParts = user.split('.');
-    for (let i = 0; i < userParts.length; i++) {
-      if (!pattern.test(userParts[i])) {
+    const userParts = user.split('.');
+    for (const userPart of  userParts) {
+      if (!pattern.test(userPart)) {
         return false;
       }
     }

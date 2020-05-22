@@ -6,23 +6,23 @@ const spec = new Spec();
 spec.test('tell if model has no errors', async (ctx) => {
   class Book extends Model {
     @prop()
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
     })
-    books: Book[];
+    public books: Book[];
   }
   const user0 = new User({
     book: {},
-    books: [null, {}]
+    books: [null, {}],
   });
   const user1 = new User();
   ctx.true(user0.isValid());

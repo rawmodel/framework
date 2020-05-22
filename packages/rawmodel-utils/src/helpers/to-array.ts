@@ -9,8 +9,7 @@ import { isNull } from './is-null';
 export function toArray(v?: any): Array<any> {
   if (isArray(v) || isUndefined(v) || isNull(v)) {
     return v;
-  }
-  else {
+  } else {
     return [v];
   }
 }
