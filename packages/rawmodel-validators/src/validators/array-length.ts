@@ -16,8 +16,7 @@ export function arrayLengthValidator(options: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isArray(value)) {
+    } else if (!isArray(value)) {
       return false;
     }
 

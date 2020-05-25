@@ -10,16 +10,15 @@ export function jsonStringValidator() {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isString(value)) {
+    } else if (!isString(value)) {
       return false;
     }
 
     try {
       const obj = JSON.parse(value);
       return !!obj && typeof obj === 'object';
-    }
-    catch (e) {}
+    // eslint-disable-next-line no-empty
+    } catch (e) {}
 
     return false;
   };

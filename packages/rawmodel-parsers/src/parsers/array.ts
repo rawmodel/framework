@@ -6,7 +6,7 @@ import { toArray } from '@rawmodel/utils';
 export function arrayParser() {
   return (value: any) => {
     try {
-     return toArray(value);
+      return toArray(value);
     } catch (e) {
       return null;
     }

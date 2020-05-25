@@ -6,7 +6,7 @@ import { toBoolean } from '@rawmodel/utils';
 export function booleanParser() {
   return (value: any) => {
     try {
-     return toBoolean(value);
+      return toBoolean(value);
     } catch (e) {
       return null;
     }

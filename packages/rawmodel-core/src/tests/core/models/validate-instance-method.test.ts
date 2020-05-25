@@ -12,37 +12,37 @@ spec.test('validates properties or throws on error', async (ctx) => {
     @prop({
       validators,
     })
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop({
       validators,
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
       validators,
     })
-    book0: Book;
+    public book0: Book;
     @prop({
       parser: { array: true, resolver: Book },
       validators,
     })
-    books0: Book[];
+    public books0: Book[];
     @prop({
       parser: { resolver: Book },
       validators,
     })
-    book1: Book;
+    public book1: Book;
     @prop({
       parser: { array: true, resolver: Book },
       validators,
     })
-    books1: Book[];
+    public books1: Book[];
   }
   const user = new User({
     book1: {},
-    books1: [{}]
+    books1: [{}],
   });
   const code = 200;
   await user.validate({ quiet: true });
@@ -71,14 +71,14 @@ spec.test('validates polymorphic arrays', async (ctx) => {
     @prop({
       validators,
     })
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop({
       parser: { array: true, resolver: parser },
       validators,
     })
-    books: Book[];
+    public books: Book[];
   }
   const user = new User({
     books: ['foo', { kind: 'Book' }],

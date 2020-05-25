@@ -6,21 +6,21 @@ const spec = new Spec();
 spec.test('returns the first model in a tree of nested models', (ctx) => {
   class Author extends Model {
     @prop()
-    name: string;
+    public name: string;
   }
   class Book extends Model {
     @prop()
-    title: string;
+    public title: string;
     @prop({
       parser: { resolver: Author },
     })
-    author: Author;
+    public author: Author;
   }
   class User extends Model {
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
   }
   const user = new User({
     book: {

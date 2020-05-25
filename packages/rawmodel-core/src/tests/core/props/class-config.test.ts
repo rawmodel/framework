@@ -33,7 +33,7 @@ spec.test('supports custom getter', (ctx) => {
   const prop = new Prop({
     getter: (v) => `foo-${v}`,
   });
-  ctx.is(prop.getValue(), `foo-null`);
+  ctx.is(prop.getValue(), 'foo-null');
   prop.setValue('bar');
   ctx.is(prop.getValue(), 'foo-bar');
 });

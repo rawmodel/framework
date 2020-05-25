@@ -5,8 +5,8 @@ const spec = new Spec();
 
 spec.test('perform tests', (ctx) => {
   class User {
-    public foo: string = 'Foo';
-    public bar: string = 'Bar';
+    public foo = 'Foo';
+    public bar = 'Bar';
   }
   const user = new User();
   ctx.false(normalize(user) instanceof User);

@@ -19,7 +19,9 @@ spec.test('passes context to each resolver', async (ctx) => {
     context: { foo: 'foo' },
   };
   const recipes = [
-    { code: 100, resolver(v) { return v === this.foo; } },
+    { code: 100, resolver(v) {
+      return v === this.foo;
+    } },
   ];
   const code = await validate('foo', recipes, config);
   ctx.deepEqual(code, null);

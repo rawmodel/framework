@@ -8,23 +8,23 @@ spec.test('sets properties to their default values', (ctx) => {
     @prop({
       defaultValue: 'foo',
     })
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop({
       defaultValue: 'bar',
     })
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
       defaultValue: {},
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
       defaultValue: [null, {}],
     })
-    books: Book[];
+    public books: Book[];
   }
   const user = new User({
     name: 'fake',

@@ -10,8 +10,7 @@ export function normalize(data: any) {
   }
   try {
     return JSON.parse(JSON.stringify(data));
-  }
-  catch (e) {
+  } catch (e) {
     return data;
   }
 }

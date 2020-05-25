@@ -15,8 +15,7 @@ export function numberSizeValidator(options: {
 
     if (isUndefined(value) || isNull(value)) {
       return true;
-    }
-    else if (!isNumber(value)) {
+    } else if (!isNumber(value)) {
       return false;
     }
 

@@ -31,11 +31,11 @@ export function prop(config?: PropConfig) {
  * Model property class.
  */
 export class Prop {
+  public readonly __config: PropConfig;
   protected _rawValue: any | (() => any);
   protected _initialValue: any | (() => any);
   protected _errorCode: number = null;
-  protected _frozen: boolean = false;
-  public readonly __config: PropConfig;
+  protected _frozen = false;
 
   /**
    * Class constructor.
@@ -220,39 +220,6 @@ export class Prop {
   }
 
   /**
-   * Parses input value using RawModel parser.
-   * @param value Arbitrary value.
-   * @param strategy Population strategy (only for Model types).
-   */
-  protected parse(value: any, strategy?: string): any {
-    const parser = (this.__config.parser || {}) as any;
-    const recipe = {
-      resolver: parser.resolver,
-      array: parser.array || false,
-    };
-    const config = {
-      context: this.getModel(),
-    };
-
-    if (isClassOf(recipe.resolver, Model)) {
-      const Klass = (recipe.resolver as any);
-      recipe.resolver = (data: any) => {
-        if (isInstanceOf(data, Klass)) {
-          return data; // keep instances for speed
-        }
-        else {
-          return new Klass(null, {
-            ...this.getModel().__config,
-            parent: this.getModel(),
-          }).populate(data, strategy);
-        }
-      };
-    }
-
-    return parse(value, recipe, config);
-  }
-
-  /**
    * Returns JSON serialized property value.
    */
   public serialize(strategy?: string): any {
@@ -263,11 +230,9 @@ export class Prop {
     const value = this.getValue();
     if (value && this.isArray()) {
       return value.map((m) => isInstanceOf(m, Model) ? m.serialize(strategy) : m);
-    }
-    else if (value) {
+    } else if (value) {
       return isInstanceOf(value, Model) ? value.serialize(strategy) : value;
-    }
-    else {
+    } else {
       return normalize(value);
     }
   }
@@ -316,11 +281,9 @@ export class Prop {
     const value = this._rawValue; // same process as serialization
     if (!isValue(value)) {
       this._initialValue = null;
-    }
-    else if (this.isArray()) {
+    } else if (this.isArray()) {
       this._initialValue = value.map((m) => isInstanceOf(m, Model) ? m.serialize() : normalize(m));
-    }
-    else {
+    } else {
       this._initialValue = isInstanceOf(value, Model) ? value.serialize() : normalize(value);
     }
 
@@ -398,7 +361,7 @@ export class Prop {
         (toArray(this._rawValue) || [])
           .filter((doc) => isInstanceOf(doc, Model))
           .map((doc) => doc.handle(error))
-      ).catch(() => {}); // do not throw even when unhandled error
+      ).catch(); // do not throw even when unhandled error
     }
 
     return this;
@@ -415,6 +378,38 @@ export class Prop {
     this._errorCode = null;
 
     return this;
+  }
+
+  /**
+   * Parses input value using RawModel parser.
+   * @param value Arbitrary value.
+   * @param strategy Population strategy (only for Model types).
+   */
+  protected parse(value: any, strategy?: string): any {
+    const parser = (this.__config.parser || {}) as any;
+    const recipe = {
+      resolver: parser.resolver,
+      array: parser.array || false,
+    };
+    const config = {
+      context: this.getModel(),
+    };
+
+    if (isClassOf(recipe.resolver, Model)) {
+      const Klass = (recipe.resolver as any);
+      recipe.resolver = (data: any) => {
+        if (isInstanceOf(data, Klass)) {
+          return data; // keep instances for speed
+        } else {
+          return new Klass(null, {
+            ...this.getModel().__config,
+            parent: this.getModel(),
+          }).populate(data, strategy);
+        }
+      };
+    }
+
+    return parse(value, recipe, config);
   }
 
 }

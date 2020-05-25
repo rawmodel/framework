@@ -6,7 +6,7 @@ const spec = new Spec();
 spec.test('returns true if the property value has been changed', (ctx) => {
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
   }
   const user = new User();
   const prop0 = new Prop();

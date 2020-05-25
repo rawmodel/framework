@@ -10,41 +10,41 @@ spec.test('handles property errors', async (ctx) => {
   }];
   class Book extends Model {
     @prop({
-      handlers
+      handlers,
     })
-    title: string;
+    public title: string;
   }
   class Country extends Model {
     @prop()
-    code: string;
+    public code: string;
   }
   class User extends Model {
     @prop({
-      handlers
+      handlers,
     })
-    name: string;
+    public name: string;
     @prop({
       handlers,
       parser: { resolver: Book },
     })
-    book0: Book;
+    public book0: Book;
     @prop({
       handlers,
       parser: { array: true, resolver: Book },
     })
-    books0: Book[];
+    public books0: Book[];
     @prop({
       parser: { resolver: Book },
     })
-    book1: Book;
+    public book1: Book;
     @prop({
       parser: { array: true, resolver: Book },
     })
-    books1: Book[];
+    public books1: Book[];
     @prop({
       parser: { resolver: Country },
     })
-    country: Country;
+    public country: Country;
   }
   const user = new User({
     book1: {},

@@ -6,31 +6,31 @@ const spec = new Spec();
 spec.test('returns an instance of a prop at path', (ctx) => {
   class Book extends Model {
     @prop()
-    title: string;
+    public title: string;
   }
   class User extends Model {
     @prop()
-    name: string;
+    public name: string;
     @prop({
       parser: { resolver: Book },
     })
-    book: Book;
+    public book: Book;
     @prop({
       parser: { array: true, resolver: Book },
     })
-    books: Book[];
+    public books: Book[];
   }
   const user = new User({
     name: 'foo',
     book: {
-      title: 'bar'
+      title: 'bar',
     },
     books: [
       undefined,
       {
-        title: 'baz'
-      }
-    ]
+        title: 'baz',
+      },
+    ],
   });
   ctx.is(user.getProp(['name']).getValue(), 'foo');
   ctx.is(user.getProp('name').getValue(), 'foo');

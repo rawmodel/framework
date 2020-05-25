@@ -11,6 +11,6 @@ spec.test('exposed content', (ctx) => {
   ctx.true(!!parsers.floatParser);
   ctx.true(!!parsers.integerParser);
   ctx.true(!!parsers.stringParser);
- });
+});
 
 export default spec;

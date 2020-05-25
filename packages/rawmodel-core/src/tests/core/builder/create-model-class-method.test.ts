@@ -19,7 +19,7 @@ spec.test('generates model with properties', (ctx) => {
         resolver: createModelClass([
           {
             name: 'title',
-          }
+          },
         ]),
       },
     },

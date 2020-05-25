@@ -6,7 +6,7 @@ import { toDate } from '@rawmodel/utils';
 export function dateParser() {
   return (value: any) => {
     try {
-     return toDate(value);
+      return toDate(value);
     } catch (e) {
       return null;
     }

@@ -8,18 +8,16 @@ import { toBoolean } from './to-boolean';
  * @param v Arbitrary value.
  */
 export function toFloat(v?: any) {
-  if (isFloat(v), isUndefined(v) || isNull(v)) {
+  if (isFloat(v) || isUndefined(v) || isNull(v)) {
     return v;
   }
 
   const pv = parseFloat(v);
   if (isFloat(pv)) {
     return pv;
-  }
-  else if (toBoolean(v)) {
+  } else if (toBoolean(v)) {
     return 1;
-  }
-  else {
+  } else {
     return 0;
   }
 }

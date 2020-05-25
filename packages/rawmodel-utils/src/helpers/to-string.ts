@@ -11,11 +11,9 @@ import { isInfinite } from './is-infinite';
 export function toString(v?: any) {
   if (isString(v) || isUndefined(v) || isNull(v)) {
     return v;
-  }
-  else if (isNumber(v) && (isNaN(v) || isInfinite(v))) {
+  } else if (isNumber(v) && (isNaN(v) || isInfinite(v))) {
     return null;
-  }
-  else {
+  } else {
     return JSON.stringify(v);
   }
 }
